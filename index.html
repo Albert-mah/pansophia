@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习中心 · Study Hub</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="data/catalog.js"></script>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="wrap">
+      <h1>📚 我的学习中心</h1>
+      <p>高考备考知识库 · 按科目分类整理 · 交互示例 + 文档 + 互相引用，方便随时复习</p>
+      <div class="stats">
+        <div class="stat"><b id="stat-total">0</b><span>知识点</span></div>
+        <div class="stat"><b id="stat-subjects">0</b><span>涉及科目</span></div>
+        <div class="stat"><b id="stat-updated">—</b><span>最近更新</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="searchbar">
+    <span class="icon">🔍</span>
+    <input id="search" type="text" placeholder="搜索知识点、标签、科目…（例如：函数 / 牛顿 / 文言文）" autocomplete="off">
+  </div>
+
+  <main class="wrap">
+
+    <h2 class="section-title">🗂️ 按科目浏览 <span style="font-weight:400;color:var(--text-faint);font-size:.85rem">（点击可筛选，再点一次取消）</span></h2>
+    <div id="subject-grid" class="subject-grid"></div>
+
+    <h2 class="section-title">🕒 最近更新</h2>
+    <div id="recent" class="recent-list"></div>
+
+    <h2 class="section-title">📖 全部知识点</h2>
+    <div id="catalog"></div>
+
+  </main>
+
+  <footer class="site">
+    每次提出问题后，新的知识点会自动归类到这里 · 双击 index.html 即可离线使用
+  </footer>
+
+  <script src="assets/hub.js"></script>
+</body>
+</html>

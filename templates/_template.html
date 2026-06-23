@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!--
+  新知识点页面模板 —— 复制到 subjects/<科目>/<英文名>.html
+  然后：
+    1) 改 <title>
+    2) 把 data-page-id 改成 catalog.js 里这条记录的 id
+    3) 填正文；需要公式就用 $...$（行内）或 $$...$$（独占一行）
+    4) 别忘了在 data/catalog.js 里加一条对应记录
+  路径假设页面在 subjects/<科目>/ 下（两级深），所以用 ../../
+-->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>页面标题 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="科目-英文名"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb></nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker></div>
+      <h1>知识点标题</h1>
+      <div class="meta-row" data-meta></div>
+    </header>
+
+    <p>正文从这里开始。</p>
+
+    <!-- 可选：知识盒子 -->
+    <div class="box key">
+      <div class="box-title">🔑 重点</div>
+      <p style="margin:6px 0">关键结论写这里。</p>
+    </div>
+    <!-- 其他盒子样式：tip(绿) / warn(橙) / example(紫) -->
+
+    <!-- 可选：交互实验区，配 <script> 操作 canvas -->
+    <!--
+    <div class="lab">
+      <div class="lab-title">🎮 动手实验</div>
+      <canvas id="plot" width="760" height="440" style="width:100%;height:auto"></canvas>
+      <div class="controls"> ... 滑块 ... </div>
+      <div class="readout" id="readout"></div>
+    </div>
+    -->
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related></div>
+    </section>
+  </article>
+</body>
+</html>
