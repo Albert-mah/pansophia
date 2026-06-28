@@ -16,7 +16,7 @@
 
   function match(it) {
     if (!query) return true;
-    return (it.name + " " + (it.en || "") + " " + (it.note || "") + " " + it.id).toLowerCase().includes(query);
+    return (it.name + " " + (it.en || "") + " " + (it.note || "") + " " + (it.sub || []).join(" ") + " " + it.id).toLowerCase().includes(query);
   }
 
   function render() {
@@ -30,7 +30,8 @@
       items.forEach(it => {
         const added = SH && SH.hasDisc(profile, it.id);
         const card = el("div", { class: "lib-card" + (added ? " added" : "") });
-        card.appendChild(el("div", { class: "lib-name" }, it.name
+        const top = el("div", { class: "lib-card-top" });
+        top.appendChild(el("div", { class: "lib-name" }, it.name
           + (it.en ? ` <span class="lib-en">${it.en}</span>` : "")
           + (it.note ? ` <span class="lib-note">· ${it.note}</span>` : "")));
         const btn = el("button", { class: "lib-add" + (added ? " on" : "") }, added ? "✓ 已加入" : "＋ 加入");
@@ -39,7 +40,11 @@
           else { SH.addDisc(profile, it.id); }
           render();
         });
-        card.appendChild(btn);
+        top.appendChild(btn);
+        card.appendChild(top);
+        if (it.sub && it.sub.length) {
+          card.appendChild(el("div", { class: "lib-sub" }, it.sub.map(s => `<span>${s}</span>`).join("")));
+        }
         grid.appendChild(card);
       });
       sec.appendChild(grid);

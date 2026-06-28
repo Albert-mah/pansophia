@@ -261,8 +261,11 @@ th { background: var(--bg); font-weight: 700; }
 .lib-group > h2 { font-size: 1.1rem; font-weight: 800; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
 .lib-group.custom > h2 { border-color: #e07b39; }
 .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
-.lib-card { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; }
+.lib-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; }
 .lib-card.added { border-color: #16a085; background: #f1faf6; }
+.lib-card-top { display: flex; align-items: center; gap: 10px; }
+.lib-sub { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.lib-sub span { font-size: .74rem; color: var(--text-soft); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1px 7px; }
 .lib-name { flex: 1; font-weight: 600; font-size: .92rem; }
 .lib-note { color: var(--text-faint); font-weight: 400; font-size: .8rem; }
 .lib-en { color: var(--text-faint); font-weight: 400; font-size: .76rem; }
