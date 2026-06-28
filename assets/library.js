@@ -7,6 +7,7 @@
   const SH = window.StudyHub;
   let view = "cn";   // cn 国内门类 / intl 国际大类
   const DISC = () => view === "intl" ? (window.STUDY_DISCIPLINES_INTL || []) : (window.STUDY_DISCIPLINES || []);
+  const PROGRAMS = window.STUDY_PROGRAMS || {};   // 名校培养方案：按 discipline id 关联（data/programs.js）
   const profile = SH ? SH.resolveTrack() : "";
   const PROFILES = window.STUDY_PROFILES || {};
   const pName = (PROFILES[profile] || {}).name || profile;
@@ -17,7 +18,7 @@
 
   function match(it) {
     if (!query) return true;
-    const progStr = (it.programs || []).map(p => p.school + " " + (p.program || "")).join(" ");
+    const progStr = (PROGRAMS[it.id] || []).map(p => p.school + " " + (p.program || "")).join(" ");
     return (it.name + " " + (it.en || "") + " " + (it.note || "") + " " + (it.sub || []).join(" ") + " " + it.id + " " + progStr).toLowerCase().includes(query);
   }
 
@@ -61,9 +62,10 @@
         if (it.sources && it.sources.length) {
           card.appendChild(el("div", { class: "lib-src" }, "来源：" + it.sources.join(" · ")));
         }
-        if (it.programs && it.programs.length) {
+        const progs = PROGRAMS[it.id];
+        if (progs && progs.length) {
           const tagLabel = { top: "顶尖", strong: "很强", solid: "可参考" };
-          const rows = it.programs.map(p => {
+          const rows = progs.map(p => {
             const tag = `<span class="p-tag ${p.tag || "solid"}">${tagLabel[p.tag] || ""}</span>`;
             const head = `${p.school}${p.program ? " · " + p.program : ""}${p.year ? "（" + p.year + "）" : ""}`;
             const title = p.url ? `<a href="${p.url}" target="_blank" rel="noopener">${head}</a>` : head;

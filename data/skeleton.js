@@ -14,7 +14,7 @@ window.STUDY_SKELETON = [
 
   /* ========== 思雨（siyu）· 高考 · 物化生方向 ========== */
   {
-    profile: "siyu", subject: "math", scope: "gaokao",
+    profile: "siyu", subject: "math", discipline: "math", scope: "gaokao",
     topics: [
       { title: "函数", points: [
         { title: "二次函数与图象", ref: "math-quadratic-functions" },
@@ -32,7 +32,7 @@ window.STUDY_SKELETON = [
     ]
   },
   {
-    profile: "siyu", subject: "physics", scope: "gaokao",
+    profile: "siyu", subject: "physics", discipline: "physics", scope: "gaokao",
     topics: [
       { title: "力学", points: [
         { title: "匀变速直线运动", status: "todo" }, { title: "牛顿运动定律", status: "todo" },
@@ -44,7 +44,7 @@ window.STUDY_SKELETON = [
     ]
   },
   {
-    profile: "siyu", subject: "chemistry", scope: "gaokao",
+    profile: "siyu", subject: "chemistry", discipline: "chemistry", scope: "gaokao",
     topics: [
       { title: "物质结构", points: [ { title: "原子结构与元素周期律", status: "todo" }, { title: "化学键", status: "todo" } ] },
       { title: "化学反应原理", points: [
@@ -53,7 +53,7 @@ window.STUDY_SKELETON = [
     ]
   },
   {
-    profile: "siyu", subject: "biology", scope: "gaokao",
+    profile: "siyu", subject: "biology", discipline: "biology", scope: "gaokao",
     topics: [
       { title: "分子与细胞", points: [ { title: "细胞的结构与功能", status: "todo" }, { title: "酶与ATP", status: "todo" }, { title: "光合作用与呼吸作用", status: "todo" } ] },
       { title: "遗传与进化", points: [ { title: "孟德尔遗传定律", status: "todo" }, { title: "基因的表达", status: "todo" } ] },
@@ -86,7 +86,7 @@ window.STUDY_SKELETON = [
   },
   /* ---- 数学：大学 → 研究生知识体系 ---- */
   {
-    profile: "ma-huan", subject: "math", scope: "undergrad",
+    profile: "ma-huan", subject: "math", discipline: "math", scope: "undergrad",
     topics: [
       { title: "分析", points: [ { title: "数学分析（极限/微分/积分/级数）", status: "todo" }, { title: "多元微积分与场论", status: "todo" }, { title: "常微分方程", status: "todo" }, { title: "复变函数", status: "todo" } ] },
       { title: "代数", points: [ { title: "高等代数 / 线性代数", status: "todo" }, { title: "抽象代数（群环域）", status: "todo" }, { title: "数论初步", status: "todo" } ] },
@@ -95,7 +95,7 @@ window.STUDY_SKELETON = [
     ]
   },
   {
-    profile: "ma-huan", subject: "math", scope: "grad",
+    profile: "ma-huan", subject: "math", discipline: "math", scope: "grad",
     topics: [
       { title: "分析方向", points: [ { title: "实分析 / 测度论", status: "todo" }, { title: "泛函分析", status: "todo" }, { title: "偏微分方程", status: "todo" }, { title: "调和分析", status: "todo" } ] },
       { title: "代数与几何", points: [ { title: "交换代数 / 代数几何", status: "todo" }, { title: "微分流形", status: "todo" }, { title: "代数拓扑", status: "todo" } ] },
@@ -105,7 +105,7 @@ window.STUDY_SKELETON = [
 
   /* ---- 物理：大学 → 研究生知识体系 ---- */
   {
-    profile: "ma-huan", subject: "physics", scope: "undergrad",
+    profile: "ma-huan", subject: "physics", discipline: "physics", scope: "undergrad",
     topics: [
       { title: "普通物理", points: [ { title: "力学", status: "todo" }, { title: "电磁学", status: "todo" }, { title: "热学", status: "todo" }, { title: "光学", status: "todo" }, { title: "原子物理", status: "todo" } ] },
       { title: "四大力学", points: [ { title: "理论力学（拉格朗日/哈密顿）", status: "todo" }, { title: "电动力学（麦克斯韦方程）", status: "todo" }, { title: "热力学与统计物理", status: "todo" }, { title: "量子力学", status: "todo" } ] },
@@ -113,7 +113,7 @@ window.STUDY_SKELETON = [
     ]
   },
   {
-    profile: "ma-huan", subject: "physics", scope: "grad",
+    profile: "ma-huan", subject: "physics", discipline: "physics", scope: "grad",
     topics: [
       { title: "场论与粒子", points: [ { title: "高等量子力学", status: "todo" }, { title: "量子场论", status: "todo" }, { title: "粒子物理与标准模型", status: "todo" } ] },
       { title: "凝聚态与统计", points: [ { title: "高等统计力学", status: "todo" }, { title: "凝聚态物理（多体理论）", status: "todo" }, { title: "非线性与混沌", status: "todo" } ] },
@@ -123,7 +123,7 @@ window.STUDY_SKELETON = [
 
   /* ---- 电子信息：大学 → 研究生知识体系 ---- */
   {
-    profile: "ma-huan", subject: "eecs", scope: "undergrad",
+    profile: "ma-huan", subject: "eecs", discipline: "eecs", scope: "undergrad",
     topics: [
       { title: "电路与电子", points: [ { title: "电路分析", status: "todo" }, { title: "模拟电子技术", status: "todo" }, { title: "数字电子技术", status: "todo" } ] },
       { title: "信号与系统", points: [ { title: "信号与系统", status: "todo" }, { title: "数字信号处理(DSP)", status: "todo" }, { title: "通信原理", status: "todo" } ] },
@@ -132,7 +132,7 @@ window.STUDY_SKELETON = [
     ]
   },
   {
-    profile: "ma-huan", subject: "eecs", scope: "grad",
+    profile: "ma-huan", subject: "eecs", discipline: "eecs", scope: "grad",
     topics: [
       { title: "通信与信息", points: [ { title: "信息论与编码", status: "todo" }, { title: "现代/无线通信", status: "todo" }, { title: "统计信号处理", status: "todo" } ] },
       { title: "信号处理应用", points: [ { title: "数字图像处理", status: "todo" }, { title: "语音/阵列信号", status: "todo" }, { title: "机器学习与模式识别", status: "todo" } ] },
@@ -142,7 +142,7 @@ window.STUDY_SKELETON = [
 
   /* ---- 心理学（A 示范：浏览→加入→填充。二级方向大纲 + 导论已填） ---- */
   {
-    profile: "ma-huan", subject: "psychology", scope: "general",
+    profile: "ma-huan", subject: "psychology", discipline: "psychology", scope: "general",
     topics: [
       { title: "导论与方法", points: [
         { title: "心理学是什么 · 分支地图", ref: "mh-psych-intro" },
@@ -164,11 +164,11 @@ window.STUDY_SKELETON = [
 
   /* ---- 化学/生物 · 高阶（兴趣，慢慢填） ---- */
   {
-    profile: "ma-huan", subject: "chemistry", scope: "advanced",
+    profile: "ma-huan", subject: "chemistry", discipline: "chemistry", scope: "advanced",
     topics: [ { title: "物理化学", points: [ { title: "热力学三定律", status: "todo" }, { title: "化学动力学", status: "todo" } ] } ]
   },
   {
-    profile: "ma-huan", subject: "biology", scope: "advanced",
+    profile: "ma-huan", subject: "biology", discipline: "biology", scope: "advanced",
     topics: [ { title: "分子生物学", points: [ { title: "中心法则", status: "todo" }, { title: "基因调控", status: "todo" } ] } ]
   },
 

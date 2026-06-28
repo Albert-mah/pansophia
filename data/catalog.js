@@ -10,10 +10,10 @@
  * ============================================================= */
 window.STUDY_CATALOG = [
 
-  /* ===== 档案：albert（我 · 高考） ===== */
+  /* ===== 档案：思雨（siyu · 高考） ===== */
   {
     id: "math-quadratic-functions",
-    profile: "siyu", subject: "math", scopes: ["gaokao"], status: "done",
+    profile: "siyu", subject: "math", discipline: "math", scopes: ["gaokao"], status: "done",
     category: "函数",
     title: "二次函数与图象",
     path: "subjects/math/quadratic-functions.html",
@@ -24,7 +24,7 @@ window.STUDY_CATALOG = [
   },
   {
     id: "math-derivatives",
-    profile: "siyu", subject: "math", scopes: ["gaokao"], status: "done",
+    profile: "siyu", subject: "math", discipline: "math", scopes: ["gaokao"], status: "done",
     category: "函数与导数",
     title: "导数：瞬时变化率与切线斜率",
     path: "subjects/math/derivatives.html",
@@ -48,7 +48,7 @@ window.STUDY_CATALOG = [
   /* ===== 档案：ma-huan（马欢 · 终身学习） ===== */
   {
     id: "mh-psych-intro",
-    profile: "ma-huan", subject: "psychology", scopes: ["general"], status: "done",
+    profile: "ma-huan", subject: "psychology", discipline: "psychology", scopes: ["general"], status: "done",
     category: "导论与方法",
     title: "心理学是什么 · 分支地图",
     path: "subjects/psychology/intro.html",
@@ -110,6 +110,8 @@ window.STUDY_CATALOG = [
  *   id        唯一标识
  *   profile   学习者档案 key（见 STUDY_PROFILES：siyu / ma-huan / mahuan）
  *   subject   学科 key（见 STUDY_SUBJECTS）
+ *   discipline 可选：所属"学科索引"id（见 disciplines.js）。把讲解页显式挂到
+ *             知识库某学科上——尤其当它对应的 discipline 没有 subject 时（如个人理财）
  *   scopes    范围标签数组（见 STUDY_SCOPES），用于"圈出"
  *   status    done 完成 / partial 部分 / todo 待填
  *             ⚠️ 覆盖度只数 done（或被 skeleton 有效 ref 命中）；partial / todo 都不计入

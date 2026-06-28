@@ -19,6 +19,8 @@
 2. 在 `data/catalog.js` 的 `STUDY_CATALOG` 加一条记录，带 `{ profile, subject, scopes[], status:"done" }`。若它对应大纲里的某考点，把 `data/skeleton.js` 那个考点写上 `ref:"<这条id>"`（自动算"已填"并可点进、覆盖度+1）。
 3. 用 `related` 互链。首页 `index.html` 会**自动**归类、统计、搜索、关联、算覆盖度——**不要手动改首页**。
 
+> **打通"知识库索引 ↔ 学习内容"**：catalog 记录和 skeleton 块都可带可选 `discipline:"<学科id>"`（见 disciplines.js），把内容显式挂到知识库某学科上。学术学科（math/physics/psychology…）能靠 `subject` 自动对上、不强求；但**给没有 subject 的现实学科填内容时（如 `personal-finance`/`law`），必须写 `discipline`**——否则用户在「我的学科」加了它也看不到大纲。典型：用户说"帮我补全『个人理财』的学习计划和考点" → 在 skeleton 加一个 `{ profile, subject:"methods", discipline:"personal-finance", scope:"general", topics:[…] }` 块。
+
 ### B. 新增单词检测（任意语言）
 - 英语等：`data/words.js` 的 `WORD_BANK` 加一组（词条 `{term, gloss, reading?, tip?}`；旧的 `{en,cn}` 仍兼容），带 `profile / subject / scopes[] / unit`。
 - 日语：`data/words.ja.js` 由 `tools/import_jlpt.py` **从开源词库生成，别手改**；要扩 N4/N3 改导入器重跑。
@@ -69,9 +71,10 @@ progress.html           ★家长/哥哥的学习跟踪面板（要读密钥 ?ke
 server.py               ★同源服务器：静态站 + /api 学习记录接口（SQLite）
 subjects/<科目>/*.html  一个知识点 = 一个网页
 templates/_template.html 新知识页模板
-data/disciplines.js / disciplines.intl.js  ★ 学科总目录索引 STUDY_DISCIPLINES(_INTL)（知识库浏览用；三级 门类→一级学科→二级方向；item 可挂 programs 名校培养方案）
+data/disciplines.js / disciplines.intl.js  ★ 学科总目录索引 STUDY_DISCIPLINES(_INTL)（知识库浏览用；三级 门类→一级学科→二级方向；现实学科 item 带 kind:"custom"）
+data/programs.js         名校培养方案 STUDY_PROGRAMS，按 discipline id 关联（library 按 it.id 查；与学科树解耦，单独维护）
 library.html / assets/library.js          知识库浏览（国内门类 / 国际大类 切换，＋加入"我的空间"）
-tools/validate.js        ★ 数据完整性校验（`node tools/validate.js`）：ref 悬空 / 孤儿 catalog / programs 形状 / profile·subject·scope 合法 / 重复 id
+tools/validate.js        ★ 数据完整性校验（`node tools/validate.js`）：ref 悬空 / 孤儿 catalog / discipline·programs 合法 / profile·subject·scope 合法 / 重复 id
 ```
 
 ## 五、⚠️ 线上部署（已上线，改动需谨慎）

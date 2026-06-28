@@ -204,12 +204,19 @@
     if (!host) return;
     host.innerHTML = "";
     // 只显示「档案默认学科」∪「我从知识库加入的学科」的大纲（懒加载：加了才显示）
+    // 一个大纲块命中 ⟺ 它的 subject 在允许集，或它的 discipline 是我加入的学科（打通无 subject 的学科）
     const t = TRACKS[currentTrack] || {};
-    const allow = new Set(Object.keys(t.subjects || {}));
+    const allowSubj = new Set(Object.keys(t.subjects || {}));
+    const allowDisc = new Set();
     const DISC = (window.STUDY_DISCIPLINES || []).concat(window.STUDY_DISCIPLINES_INTL || []);
     const discIdx = {}; DISC.forEach(g => g.items.forEach(it => { if (!discIdx[it.id]) discIdx[it.id] = it; }));
-    (SH ? SH.myDiscs(currentTrack) : []).forEach(id => allow.add((discIdx[id] && discIdx[id].subject) || id));
-    const SK = (window.STUDY_SKELETON || []).filter(e => (e.profile || e.track) === currentTrack && allow.has(e.subject));
+    (SH ? SH.myDiscs(currentTrack) : []).forEach(id => {
+      allowDisc.add(id);
+      const d = discIdx[id];
+      if (d && d.subject) allowSubj.add(d.subject);
+    });
+    const SK = (window.STUDY_SKELETON || []).filter(e => (e.profile || e.track) === currentTrack
+      && (allowSubj.has(e.subject) || (e.discipline && allowDisc.has(e.discipline))));
     if (!SK.length) return;
     const SCOPES = window.STUDY_SCOPES || {};
     const byId = {}; CATALOG.forEach(k => byId[k.id] = k);
@@ -285,8 +292,8 @@
     mine.forEach(id => {
       const it = idx[id] || { name: id, t1: "" };
       const subj = it.subject || id;
-      const hasContent = SKEL.some(s => (s.profile || s.track) === currentTrack && s.subject === subj)
-        || trackItems().some(k => k.subject === subj);
+      const hasContent = SKEL.some(s => (s.profile || s.track) === currentTrack && (s.subject === subj || s.discipline === id))
+        || trackItems().some(k => k.subject === subj || k.discipline === id);
       const card = document.createElement("div");
       card.className = "mydisc-card " + (hasContent ? "has" : "todo");
       card.innerHTML = hasContent
