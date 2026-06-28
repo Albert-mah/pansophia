@@ -82,5 +82,20 @@ window.StudyHub = (function () {
     } catch (e) {}
   }
 
-  return { TRACKS, resolveTrack, rememberTrack, load, save, nsKey, logEvent, migrateOnce };
+  /* ---- 「我的学科」：用户从知识库加入自己空间的学科(存本地) ---- */
+  function myDiscs(profile) { return load(profile, "disc", []); }
+  function hasDisc(profile, id) { return myDiscs(profile).indexOf(id) >= 0; }
+  function addDisc(profile, id) {
+    const a = myDiscs(profile);
+    if (a.indexOf(id) < 0) { a.push(id); save(profile, "disc", a); }
+    return a;
+  }
+  function removeDisc(profile, id) {
+    save(profile, "disc", myDiscs(profile).filter(x => x !== id));
+  }
+
+  return {
+    TRACKS, resolveTrack, rememberTrack, load, save, nsKey, logEvent, migrateOnce,
+    myDiscs, hasDisc, addDisc, removeDisc
+  };
 })();

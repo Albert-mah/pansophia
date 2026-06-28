@@ -255,6 +255,36 @@ th { background: var(--bg); font-weight: 700; }
 }
 
 /* =============================================================
+ *  知识库浏览（library.html） + 我的学科（首页）
+ * ============================================================= */
+.lib-group { margin: 18px 0; }
+.lib-group > h2 { font-size: 1.1rem; font-weight: 800; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+.lib-group.custom > h2 { border-color: #e07b39; }
+.lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.lib-card { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; }
+.lib-card.added { border-color: #16a085; background: #f1faf6; }
+.lib-name { flex: 1; font-weight: 600; font-size: .92rem; }
+.lib-note { color: var(--text-faint); font-weight: 400; font-size: .8rem; }
+.lib-add { border: 1px solid var(--border); background: var(--bg); color: var(--text-soft); border-radius: 999px; padding: 4px 12px; font-size: .82rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.lib-add:hover { border-color: var(--accent); color: var(--accent); }
+.lib-add.on { background: #16a085; color: #fff; border-color: #16a085; }
+.lib-link { font-size: .85rem; font-weight: 600; margin-left: 10px; }
+
+.mydisc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.mydisc-card { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; }
+.mydisc-card.todo { border-left: 4px solid #e0a23a; background: #fffdf6; }
+.mydisc-card.has { border-left: 4px solid #16a085; }
+.md-top { display: flex; align-items: baseline; gap: 8px; }
+.md-top b { font-size: 1rem; font-weight: 800; }
+.md-tag { font-size: .72rem; color: var(--text-faint); }
+.md-state { margin-top: 6px; font-size: .85rem; font-weight: 700; color: #b8791b; }
+.md-state.ok { color: #1f7a44; }
+.md-cta { margin-top: 8px; font-size: .82rem; color: var(--text-soft); }
+.md-cta code { display: inline-block; margin-top: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: .8rem; color: var(--text); }
+.md-remove { position: absolute; top: 8px; right: 10px; border: none; background: none; color: var(--text-faint); font-size: 1.1rem; line-height: 1; cursor: pointer; }
+.md-remove:hover { color: #e2524a; }
+
+/* =============================================================
  *  考点大纲 / 覆盖度（懒加载知识地图）
  * ============================================================= */
 .outline-block { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--sc, var(--accent));

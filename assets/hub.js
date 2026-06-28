@@ -250,9 +250,57 @@
     });
   }
 
+  /* ---------- 我的学科（从知识库加入的，懒加载填充） ---------- */
+  function renderMyDiscs() {
+    const host = el("#mydiscs");
+    if (!host || !SH) return;
+    host.innerHTML = "";
+    const DISC = window.STUDY_DISCIPLINES || [];
+    if (!DISC.length) return;
+    const idx = {};
+    DISC.forEach(g => g.items.forEach(it => idx[it.id] = Object.assign({ t1: g.t1 }, it)));
+    const SKEL = window.STUDY_SKELETON || [];
+    const mine = SH.myDiscs(currentTrack);
+
+    const h = document.createElement("h2");
+    h.className = "section-title";
+    h.innerHTML = `🎒 我的学科 <a class="lib-link" href="library.html${qs()}">＋ 逛知识库</a>`;
+    host.appendChild(h);
+
+    if (!mine.length) {
+      const e = document.createElement("div");
+      e.className = "empty";
+      e.innerHTML = `还没加学科。去 <a href="library.html${qs()}">知识库</a> 挑几个想学的（传统学科或"现实学科·社会大学"都行），加进来再和 AI 导师慢慢填。`;
+      host.appendChild(e);
+      return;
+    }
+    const grid = document.createElement("div");
+    grid.className = "mydisc-grid";
+    mine.forEach(id => {
+      const it = idx[id] || { name: id, t1: "" };
+      const subj = it.subject || id;
+      const hasContent = SKEL.some(s => (s.profile || s.track) === currentTrack && s.subject === subj)
+        || trackItems().some(k => k.subject === subj);
+      const card = document.createElement("div");
+      card.className = "mydisc-card " + (hasContent ? "has" : "todo");
+      card.innerHTML = hasContent
+        ? `<div class="md-top"><b>${it.name}</b><span class="md-tag">${it.t1}</span></div>
+           <div class="md-state ok">✅ 已有内容 · 见下方「考点大纲」</div>`
+        : `<div class="md-top"><b>${it.name}</b><span class="md-tag">${it.t1}</span></div>
+           <div class="md-state">🌱 待补充</div>
+           <div class="md-cta">和 AI 导师说：<br><code>帮我补全「${it.name}」的学习计划和考点</code></div>`;
+      const rm = document.createElement("button");
+      rm.className = "md-remove"; rm.textContent = "×"; rm.title = "移出我的空间";
+      rm.addEventListener("click", () => { SH.removeDisc(currentTrack, id); renderMyDiscs(); });
+      card.appendChild(rm);
+      grid.appendChild(card);
+    });
+    host.appendChild(grid);
+  }
+
   function render() { renderSubjectCards(); renderCatalog(); }
   function renderAll() {
-    renderTrackSwitch(); renderHero(); renderStats(); renderDashboard(); renderOutline(); renderRecent(); render();
+    renderTrackSwitch(); renderHero(); renderStats(); renderDashboard(); renderMyDiscs(); renderOutline(); renderRecent(); render();
   }
 
   function init() {
