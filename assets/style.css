@@ -313,6 +313,10 @@ th { background: var(--bg); font-weight: 700; }
 .qi-stat span { font-size: .78rem; color: var(--text-faint); }
 .qi-h { font-size: 1.15rem; font-weight: 800; margin: 30px 0 14px; }
 .qi-subh { font-size: .95rem; font-weight: 700; color: var(--text-soft); margin: 16px 0 10px; }
+.qi-scope-toggle { display: block; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 9px 14px; margin: 8px 0 4px; font-size: .9rem; font-weight: 700; color: var(--text-soft); cursor: pointer; }
+.qi-scope-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.qi-scope-toggle .caret { display: inline-block; width: 1em; color: var(--accent); }
 .qi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 14px; }
 .qi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 18px; border-left: 4px solid var(--accent); }
 .qi-card.review { border-left-color: #e67e22; }

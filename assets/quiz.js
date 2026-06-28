@@ -14,7 +14,7 @@
  * ============================================================= */
 (function () {
   const SH = window.StudyHub;
-  const WORDS = (window.WORD_BANK || []).concat(window.WORD_BANK_JA || []);
+  const WORDS = (window.WORD_BANK || []).concat(window.WORD_BANK_JA || [], window.WORD_BANK_EN || []);
   const QUIZZES = window.QUIZ_BANK || [];
   const profileOf = (x) => x.profile || x.track;
 
@@ -531,6 +531,17 @@
       if (g.lang === "ja") return [["term2reading", "看词→读音"]];
       return [["gloss2term", "中→英"], ["term2gloss", "英→中"], ["dictation", "🔊 听写"]];
     }
+    const SCOPES = window.STUDY_SCOPES || {};
+    const scopeKey = (g) => g.scope || (g.scopes || [])[0] || "general";
+    function gcard(g) {
+      const c = el("div", { class: "qi-card" });
+      c.innerHTML = `<h3>${g.title}</h3><p>${g.desc || ""}</p><div class="qi-sub">${g.unit} · ${g.words.length} 词</div>`;
+      const row = el("div", { class: "qi-actions" });
+      wordModes(g).forEach(([m, label]) =>
+        row.appendChild(el("a", { class: "qi-btn", href: `run.html?type=word&id=${g.id}&mode=${m}${TP()}` }, label)));
+      c.appendChild(row);
+      return c;
+    }
     if (groups.length) {
       host.appendChild(el("h2", { class: "qi-h" }, "🔤 单词检测"));
       const bySubj = {};
@@ -538,18 +549,28 @@
       Object.keys(bySubj).forEach(subj => {
         const s = SUBJ[subj] || { name: subj, icon: "" };
         host.appendChild(el("h3", { class: "qi-subh" }, `${s.icon} ${s.name}`));
-        const grid = el("div", { class: "qi-grid" });
-        bySubj[subj].forEach(g => {
-          const c = el("div", { class: "qi-card" });
-          const scopeName = (window.STUDY_SCOPES && window.STUDY_SCOPES[g.scope || (g.scopes || [])[0]] || {}).name || "";
-          c.innerHTML = `<h3>${g.title}</h3><p>${g.desc || ""}</p><div class="qi-sub">${g.unit}${scopeName ? " · " + scopeName : ""} · ${g.words.length} 词</div>`;
-          const row = el("div", { class: "qi-actions" });
-          wordModes(g).forEach(([m, label]) =>
-            row.appendChild(el("a", { class: "qi-btn", href: `run.html?type=word&id=${g.id}&mode=${m}${TP()}` }, label)));
-          c.appendChild(row);
-          grid.appendChild(c);
+        // 按 scope 再分组，每个 scope 一个可折叠区
+        const byScope = {};
+        bySubj[subj].forEach(g => (byScope[scopeKey(g)] || (byScope[scopeKey(g)] = [])).push(g));
+        Object.keys(byScope).sort((a, b) => ((SCOPES[a] || {}).order || 9) - ((SCOPES[b] || {}).order || 9)).forEach(sk => {
+          const gs = byScope[sk];
+          const scopeName = (SCOPES[sk] || {}).name || sk;
+          const nWords = gs.reduce((n, g) => n + g.words.length, 0);
+          const open = gs.length <= 6;
+          const grid = el("div", { class: "qi-grid", style: open ? "" : "display:none" });
+          gs.forEach(g => grid.appendChild(gcard(g)));
+          if (gs.length > 1 || subj === "japanese" || subj === "english") {
+            const tog = el("button", { class: "qi-scope-toggle" },
+              `<span class="caret">${open ? "▾" : "▸"}</span> ${scopeName} · ${gs.length} 组 / ${nWords} 词`);
+            tog.addEventListener("click", () => {
+              const vis = grid.style.display !== "none";
+              grid.style.display = vis ? "none" : "grid";
+              tog.querySelector(".caret").textContent = vis ? "▸" : "▾";
+            });
+            host.appendChild(tog);
+          }
+          host.appendChild(grid);
         });
-        host.appendChild(grid);
       });
     }
 

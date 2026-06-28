@@ -1,132 +1,113 @@
 #!/usr/bin/env python3
 # =============================================================
-#  导入器：开源 JLPT 数据 → data/words.ja.js
+#  导入器：开源 JLPT 数据 → data/words.ja.js（N5→N1 全套）
 # -------------------------------------------------------------
-#  输入（tools/sources/，均 MIT 许可，见 SOURCES.md）：
-#    jlpt_n5_vocab.csv   N5 词（漢字, 読み）           — Bluskyo/JLPT_Vocabulary
-#    jlpt_kanji.json     各级汉字（含义/笔画/频度）     — AnchorI/jlpt-kanji-dictionary
-#  输出：data/words.ja.js  → window.WORD_BANK_JA
-#
-#  生成两类检测组：
-#    ① N5 汉字·字义   term=汉字 → gloss=英文义（mode: term→gloss）
-#    ② N5 词汇·读音   term=漢字词 → reading=假名（mode: term→reading，按五十音分组）
-#  释义留待懒加载补充（词汇暂以"读音"为测点，最忠于开源数据、零手编）。
+#  源（tools/sources/，MIT，见 SOURCES.md）：
+#    jlpt_n{5..1}_vocab.csv  各级词（漢字, 読み）  — Bluskyo/JLPT_Vocabulary
+#    jlpt_kanji.json         各级汉字（含义/频度）  — AnchorI/jlpt-kanji-dictionary
+#  输出：data/words.ja.js → window.WORD_BANK_JA（profile=ma-huan, subject=japanese）
+#    汉字组：term=汉字 → gloss=英文义（term2gloss）
+#    词汇组：term=漢字词 → reading=假名（term2reading），释义待补
+#  组大小封顶 CHUNK，便于一次练完。
 # =============================================================
 import csv, json, os, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "sources")
 OUT = os.path.join(HERE, "..", "data", "words.ja.js")
+CHUNK = 60
+LEVELS = ["N5", "N4", "N3", "N2", "N1"]   # 由易到难
+CIRC = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵"
 
-ROWS = [
-    ("あ行", "あいうえおぁぃぅぇぉ"),
-    ("か行", "かきくけこがぎぐげご"),
-    ("さ行", "さしすせそざじずぜぞ"),
-    ("た行", "たちつてとだぢづでどっ"),
-    ("な行", "なにぬねの"),
-    ("は行", "はひふへほばびぶべぼぱぴぷぺぽ"),
-    ("ま行", "まみむめも"),
-    ("や行", "やゆよゃゅょ"),
-    ("ら行", "らりるれろ"),
-    ("わ行", "わをんゔ"),
-]
+def chunks(seq, n):
+    return [seq[i:i + n] for i in range(0, len(seq), n)] or [[]]
 
-def row_of(reading):
-    c = reading[0] if reading else ""
-    for name, chars in ROWS:
-        if c in chars:
-            return name
-    return "その他"
-
-def load_vocab():
-    rows = []
-    with open(os.path.join(SRC, "jlpt_n5_vocab.csv"), encoding="utf-8") as f:
-        for r in csv.DictReader(f):
-            term = (r.get("Kanji") or "").strip()
-            reading = (r.get("Reading") or "").strip()
-            if term and reading:
-                rows.append((term, reading))
-    return rows
-
-def load_kanji_n5():
-    data = json.load(open(os.path.join(SRC, "jlpt_kanji.json"), encoding="utf-8"))
-    out = []
-    for k in data:
-        if k.get("jlpt") != "N5":
-            continue
-        ch = k.get("kanji")
-        m = re.search(r"means (.+?)\.", k.get("description", ""))
-        gloss = m.group(1).strip() if m else ""
-        if ch and gloss:
-            out.append((ch, gloss, k.get("frequency") or 9999))
-    out.sort(key=lambda x: x[2])  # 按频度，常用在前
-    return out
+def num(i):
+    return CIRC[i] if i < len(CIRC) else "(" + str(i + 1) + ")"
 
 def js_str(s):
-    return '"' + s.replace('\\', '\\\\').replace('"', '\\"') + '"'
+    return '"' + str(s).replace('\\', '\\\\').replace('"', '\\"') + '"'
+
+def load_vocab(level):
+    path = os.path.join(SRC, "jlpt_%s_vocab.csv" % level.lower())
+    rows = []
+    if not os.path.exists(path):
+        return rows
+    with open(path, encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            t = (r.get("Kanji") or "").strip()
+            rd = (r.get("Reading") or "").strip()
+            if t and rd:
+                rows.append((t, rd))
+    return rows
+
+def load_kanji():
+    by = {lv: [] for lv in LEVELS}
+    data = json.load(open(os.path.join(SRC, "jlpt_kanji.json"), encoding="utf-8"))
+    for k in data:
+        lv = k.get("jlpt")
+        if lv not in by:
+            continue
+        m = re.search(r"means (.+?)\.", k.get("description", ""))
+        if k.get("kanji") and m:
+            by[lv].append((k["kanji"], m.group(1).strip(), k.get("frequency") or 9999))
+    for lv in by:
+        by[lv].sort(key=lambda x: x[2])
+    return by
 
 def main():
     groups = []
+    kanji = load_kanji()
+    for lv in LEVELS:
+        scope = "jlpt-" + lv.lower()
+        # 汉字
+        ks = kanji.get(lv, [])
+        for i, ch in enumerate(chunks(ks, CHUNK)):
+            if not ch: continue
+            groups.append({
+                "id": "ja-%s-kanji-%d" % (lv.lower(), i + 1),
+                "scope": scope, "mode": "term2gloss",
+                "unit": "%s 汉字 %s" % (lv, num(i)), "title": "JLPT %s 汉字·字义 %s" % (lv, num(i)),
+                "desc": "看汉字想字义（英文释义），%d 字。" % len(ch),
+                "words": [{"term": c, "gloss": g} for c, g, _ in ch],
+            })
+        # 词汇
+        vs = load_vocab(lv)
+        for i, ch in enumerate(chunks(vs, CHUNK)):
+            if not ch: continue
+            groups.append({
+                "id": "ja-%s-vocab-%d" % (lv.lower(), i + 1),
+                "scope": scope, "mode": "term2reading",
+                "unit": "%s 词汇 %s" % (lv, num(i)), "title": "JLPT %s 词汇·读音 %s" % (lv, num(i)),
+                "desc": "看词写读音（假名），%d 词。释义待补。" % len(ch),
+                "words": [{"term": t, "reading": r} for t, r in ch],
+            })
 
-    # ① N5 汉字·字义
-    kanji = load_kanji_n5()
-    groups.append({
-        "id": "ja-n5-kanji", "profile": "ma-huan", "subject": "japanese",
-        "scope": "jlpt-n5", "lang": "ja", "mode": "term2gloss",
-        "unit": "N5 汉字", "title": "JLPT N5 汉字·字义",
-        "desc": "看汉字想字义（英文释义），%d 个 N5 常用字。" % len(kanji),
-        "words": [{"term": ch, "gloss": g} for ch, g, _ in kanji],
-    })
-
-    # ② N5 词汇·读音（按五十音分组）
-    vocab = load_vocab()
-    buckets = {}
-    for term, reading in vocab:
-        buckets.setdefault(row_of(reading), []).append((term, reading))
-    for name, _chars in ROWS:
-        items = buckets.get(name)
-        if not items:
-            continue
-        groups.append({
-            "id": "ja-n5-vocab-" + name, "profile": "ma-huan", "subject": "japanese",
-            "scope": "jlpt-n5", "lang": "ja", "mode": "term2reading",
-            "unit": "N5 词汇 · " + name, "title": "JLPT N5 词汇·读音（%s）" % name,
-            "desc": "看汉字写读音（假名），%d 词。释义待补。" % len(items),
-            "words": [{"term": t, "reading": r} for t, r in items],
-        })
-
-    # 输出 JS
-    lines = []
-    lines.append("/* =============================================================")
-    lines.append(" *  检测中心 · 日语单词库（JLPT N5）— 由 tools/import_jlpt.py 生成")
-    lines.append(" *  数据来源(MIT)：Bluskyo/JLPT_Vocabulary、AnchorI/jlpt-kanji-dictionary")
-    lines.append(" *  词条：{ term 词/字, reading 读音(可选), gloss 释义(可选), tip 提示(可选) }")
-    lines.append(" *  ⚠️ 本文件是生成产物，别手改；改导入器或源数据后重跑脚本。")
-    lines.append(" * ============================================================= */")
-    lines.append("window.WORD_BANK_JA = [")
+    lines = [
+        "/* =============================================================",
+        " *  检测中心 · 日语词库（JLPT N5→N1 全套）— tools/import_jlpt.py 生成",
+        " *  数据来源(MIT)：Bluskyo/JLPT_Vocabulary、AnchorI/jlpt-kanji-dictionary",
+        " *  ⚠️ 生成产物，勿手改；改源/导入器后重跑脚本。",
+        " * ============================================================= */",
+        "window.WORD_BANK_JA = [",
+    ]
     for g in groups:
         lines.append("  {")
-        lines.append("    id: %s, profile: %s, subject: %s, scope: %s, lang: %s, mode: %s," % (
-            js_str(g["id"]), js_str(g["profile"]), js_str(g["subject"]),
-            js_str(g["scope"]), js_str(g["lang"]), js_str(g["mode"])))
-        lines.append("    unit: %s, title: %s," % (js_str(g["unit"]), js_str(g["title"])))
-        lines.append("    desc: %s," % js_str(g["desc"]))
+        lines.append('    id: %s, profile: "ma-huan", subject: "japanese", scope: %s, lang: "ja", mode: %s,'
+                     % (js_str(g["id"]), js_str(g["scope"]), js_str(g["mode"])))
+        lines.append("    unit: %s, title: %s, desc: %s," % (js_str(g["unit"]), js_str(g["title"]), js_str(g["desc"])))
         lines.append("    words: [")
         for w in g["words"]:
             parts = ["term: " + js_str(w["term"])]
-            if w.get("reading"):
-                parts.append("reading: " + js_str(w["reading"]))
-            if w.get("gloss"):
-                parts.append("gloss: " + js_str(w["gloss"]))
+            if w.get("reading"): parts.append("reading: " + js_str(w["reading"]))
+            if w.get("gloss"): parts.append("gloss: " + js_str(w["gloss"]))
             lines.append("      { " + ", ".join(parts) + " },")
         lines.append("    ]")
         lines.append("  },")
     lines.append("];")
-    out = "\n".join(lines) + "\n"
-    with open(OUT, "w", encoding="utf-8") as f:
-        f.write(out)
-    print("wrote", os.path.relpath(OUT, HERE), "—", len(groups), "groups,",
-          sum(len(g["words"]) for g in groups), "entries")
+    open(OUT, "w", encoding="utf-8").write("\n".join(lines) + "\n")
+    print("wrote words.ja.js — %d groups, %d entries, %.0f KB"
+          % (len(groups), sum(len(g["words"]) for g in groups), os.path.getsize(OUT) / 1024))
 
 if __name__ == "__main__":
     main()

@@ -50,9 +50,12 @@ data/model.js           ★ STUDY_PROFILES / STUDY_SUBJECTS / STUDY_SCOPES（总
 data/skeleton.js        ★ 考点大纲骨架 STUDY_SKELETON（懒加载，status/ref）
 data/catalog.js         讲解类知识点清单 STUDY_CATALOG（profile/subject/scopes/status）
 data/words.js           单词库 WORD_BANK（英语等）
-data/words.ja.js        ★ 日语 N5 词库 WORD_BANK_JA（tools/import_jlpt.py 生成，勿手改）
+data/words.ja.js        ★ 日语 JLPT N5→N1 全套 WORD_BANK_JA（tools/import_jlpt.py 生成，勿手改）
+data/words.en.js        ★ 英语 TOEFL 词库 WORD_BANK_EN（tools/import_ecdict_toefl.py 生成，勿手改）
 data/quizzes.js         题库 QUIZ_BANK
-tools/import_jlpt.py     ★ 开源 JLPT 词库导入器（源在 tools/sources/，MIT，见 SOURCES.md）
+tools/import_jlpt.py     ★ 开源 JLPT 词库导入器（N5→N1，源在 tools/sources/，MIT）
+tools/import_ecdict_toefl.py ★ ECDICT→TOEFL 词导入器（源 tools/sources/ecdict_toefl.csv）
+注：words.ja.js/words.en.js 较大(各~600KB)，只在 quiz/ 页面加载，首页不载（省流量）。
 assets/common.js        StudyHub：profile 判定 + localStorage + logEvent 上报
 assets/hub.js           首页逻辑（profile 切换、仪表盘、大纲覆盖度、目录、搜索）
 data/diagnostic.js      知识点摸底题库 DIAG_TEST + 考点建议 DIAG_POINTS

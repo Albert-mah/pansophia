@@ -39,8 +39,8 @@ window.STUDY_PROFILES = {
     subjects: {
       japanese: ["jlpt-n5", "jlpt-n4", "jlpt-n3", "jlpt-n2", "jlpt-n1"],
       english: ["toefl"],
-      math: ["advanced"], physics: ["advanced"], chemistry: ["advanced"],
-      biology: ["advanced"], chinese: ["advanced"], methods: ["general"]
+      math: ["undergrad", "grad"], physics: ["undergrad", "grad"], eecs: ["undergrad", "grad"],
+      chemistry: ["advanced"], biology: ["advanced"], methods: ["general"]
     }
   },
   mahuan: {
@@ -65,6 +65,7 @@ window.STUDY_SUBJECTS = {
   physics:   { name: "物理", color: "#8e44ad", icon: "⚛️", kind: "academic" },
   chemistry: { name: "化学", color: "#e67e22", icon: "🧪", kind: "academic" },
   biology:   { name: "生物", color: "#27ae60", icon: "🧬", kind: "academic" },
+  eecs:      { name: "电子信息", color: "#0e7490", icon: "📡", kind: "academic" },
   politics:  { name: "政治", color: "#c0392b", icon: "⚖️", kind: "academic" },
   history:   { name: "历史", color: "#a0522d", icon: "📜", kind: "academic" },
   geography: { name: "地理", color: "#2980b9", icon: "🌏", kind: "academic" },
@@ -79,6 +80,8 @@ window.STUDY_SCOPES = {
   gaozhong:    { name: "高中", group: "学段", order: 3 },
   gaokao:      { name: "高考", group: "学段", order: 4 },
   advanced:    { name: "高阶/进阶", group: "学段", order: 5 },
+  undergrad:   { name: "本科", group: "学段", order: 6 },
+  grad:        { name: "研究生", group: "学段", order: 7 },
   "jijiao-6b": { name: "冀教·六下", group: "教材", order: 1 },
   // 英语考试
   cet4:  { name: "CET-4", group: "英语考试", order: 1 },

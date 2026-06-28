@@ -82,23 +82,63 @@ window.STUDY_SKELETON = [
       { title: "核心词汇", points: [ { title: "学科高频词", status: "todo" } ] }
     ]
   },
-  /* 各基础学科 · 高阶（兴趣驱动，慢慢填） */
+  /* ---- 数学：大学 → 研究生知识体系 ---- */
   {
-    profile: "ma-huan", subject: "math", scope: "advanced",
+    profile: "ma-huan", subject: "math", scope: "undergrad",
     topics: [
-      { title: "微积分", points: [ { title: "极限与连续", status: "todo" }, { title: "微分与积分", status: "todo" }, { title: "多元微积分", status: "todo" } ] },
-      { title: "线性代数", points: [ { title: "矩阵与行列式", status: "todo" }, { title: "特征值与特征向量", status: "todo" } ] },
-      { title: "概率统计", points: [ { title: "随机变量与分布", status: "todo" }, { title: "大数定律与中心极限定理", status: "todo" } ] }
+      { title: "分析", points: [ { title: "数学分析（极限/微分/积分/级数）", status: "todo" }, { title: "多元微积分与场论", status: "todo" }, { title: "常微分方程", status: "todo" }, { title: "复变函数", status: "todo" } ] },
+      { title: "代数", points: [ { title: "高等代数 / 线性代数", status: "todo" }, { title: "抽象代数（群环域）", status: "todo" }, { title: "数论初步", status: "todo" } ] },
+      { title: "几何与拓扑", points: [ { title: "解析几何", status: "todo" }, { title: "点集拓扑入门", status: "todo" }, { title: "微分几何初步", status: "todo" } ] },
+      { title: "概率与应用", points: [ { title: "概率论与数理统计", status: "todo" }, { title: "数值分析", status: "todo" }, { title: "最优化方法", status: "todo" } ] }
     ]
   },
   {
-    profile: "ma-huan", subject: "physics", scope: "advanced",
+    profile: "ma-huan", subject: "math", scope: "grad",
     topics: [
-      { title: "经典力学", points: [ { title: "拉格朗日力学", status: "todo" }, { title: "哈密顿力学", status: "todo" } ] },
-      { title: "电动力学", points: [ { title: "麦克斯韦方程组", status: "todo" } ] },
-      { title: "近代物理", points: [ { title: "狭义相对论", status: "todo" }, { title: "量子力学入门", status: "todo" } ] }
+      { title: "分析方向", points: [ { title: "实分析 / 测度论", status: "todo" }, { title: "泛函分析", status: "todo" }, { title: "偏微分方程", status: "todo" }, { title: "调和分析", status: "todo" } ] },
+      { title: "代数与几何", points: [ { title: "交换代数 / 代数几何", status: "todo" }, { title: "微分流形", status: "todo" }, { title: "代数拓扑", status: "todo" } ] },
+      { title: "概率与离散", points: [ { title: "随机过程", status: "todo" }, { title: "测度论概率", status: "todo" }, { title: "图论与组合", status: "todo" } ] }
     ]
   },
+
+  /* ---- 物理：大学 → 研究生知识体系 ---- */
+  {
+    profile: "ma-huan", subject: "physics", scope: "undergrad",
+    topics: [
+      { title: "普通物理", points: [ { title: "力学", status: "todo" }, { title: "电磁学", status: "todo" }, { title: "热学", status: "todo" }, { title: "光学", status: "todo" }, { title: "原子物理", status: "todo" } ] },
+      { title: "四大力学", points: [ { title: "理论力学（拉格朗日/哈密顿）", status: "todo" }, { title: "电动力学（麦克斯韦方程）", status: "todo" }, { title: "热力学与统计物理", status: "todo" }, { title: "量子力学", status: "todo" } ] },
+      { title: "专业基础", points: [ { title: "数学物理方法", status: "todo" }, { title: "固体物理", status: "todo" }, { title: "狭义相对论", status: "todo" } ] }
+    ]
+  },
+  {
+    profile: "ma-huan", subject: "physics", scope: "grad",
+    topics: [
+      { title: "场论与粒子", points: [ { title: "高等量子力学", status: "todo" }, { title: "量子场论", status: "todo" }, { title: "粒子物理与标准模型", status: "todo" } ] },
+      { title: "凝聚态与统计", points: [ { title: "高等统计力学", status: "todo" }, { title: "凝聚态物理（多体理论）", status: "todo" }, { title: "非线性与混沌", status: "todo" } ] },
+      { title: "引力与宇宙", points: [ { title: "广义相对论", status: "todo" }, { title: "宇宙学", status: "todo" } ] }
+    ]
+  },
+
+  /* ---- 电子信息：大学 → 研究生知识体系 ---- */
+  {
+    profile: "ma-huan", subject: "eecs", scope: "undergrad",
+    topics: [
+      { title: "电路与电子", points: [ { title: "电路分析", status: "todo" }, { title: "模拟电子技术", status: "todo" }, { title: "数字电子技术", status: "todo" } ] },
+      { title: "信号与系统", points: [ { title: "信号与系统", status: "todo" }, { title: "数字信号处理(DSP)", status: "todo" }, { title: "通信原理", status: "todo" } ] },
+      { title: "电磁与器件", points: [ { title: "电磁场与电磁波", status: "todo" }, { title: "半导体物理与器件", status: "todo" }, { title: "微波技术", status: "todo" } ] },
+      { title: "计算与控制", points: [ { title: "数据结构与算法", status: "todo" }, { title: "微机原理与接口", status: "todo" }, { title: "自动控制原理", status: "todo" }, { title: "计算机网络", status: "todo" } ] }
+    ]
+  },
+  {
+    profile: "ma-huan", subject: "eecs", scope: "grad",
+    topics: [
+      { title: "通信与信息", points: [ { title: "信息论与编码", status: "todo" }, { title: "现代/无线通信", status: "todo" }, { title: "统计信号处理", status: "todo" } ] },
+      { title: "信号处理应用", points: [ { title: "数字图像处理", status: "todo" }, { title: "语音/阵列信号", status: "todo" }, { title: "机器学习与模式识别", status: "todo" } ] },
+      { title: "微电子与系统", points: [ { title: "VLSI / 集成电路设计", status: "todo" }, { title: "射频电路", status: "todo" }, { title: "嵌入式系统", status: "todo" } ] }
+    ]
+  },
+
+  /* ---- 化学/生物 · 高阶（兴趣，慢慢填） ---- */
   {
     profile: "ma-huan", subject: "chemistry", scope: "advanced",
     topics: [ { title: "物理化学", points: [ { title: "热力学三定律", status: "todo" }, { title: "化学动力学", status: "todo" } ] } ]
