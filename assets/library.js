@@ -45,6 +45,9 @@
         if (it.sub && it.sub.length) {
           card.appendChild(el("div", { class: "lib-sub" }, it.sub.map(s => `<span>${s}</span>`).join("")));
         }
+        if (it.sources && it.sources.length) {
+          card.appendChild(el("div", { class: "lib-src" }, "来源：" + it.sources.join(" · ")));
+        }
         grid.appendChild(card);
       });
       sec.appendChild(grid);

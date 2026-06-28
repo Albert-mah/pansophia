@@ -266,6 +266,7 @@ th { background: var(--bg); font-weight: 700; }
 .lib-card-top { display: flex; align-items: center; gap: 10px; }
 .lib-sub { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
 .lib-sub span { font-size: .74rem; color: var(--text-soft); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1px 7px; }
+.lib-src { margin-top: 6px; font-size: .68rem; color: var(--text-faint); }
 .lib-name { flex: 1; font-weight: 600; font-size: .92rem; }
 .lib-note { color: var(--text-faint); font-weight: 400; font-size: .8rem; }
 .lib-en { color: var(--text-faint); font-weight: 400; font-size: .76rem; }
