@@ -79,13 +79,13 @@ tools/validate.js        ★ 数据完整性校验（`node tools/validate.js`）
 
 ## 五、⚠️ 线上部署（已上线，改动需谨慎）
 
-站点通过 **Cloudflare Tunnel** 发布到公网，手机可访问。**两个子域名指向同一静态服务**（`127.0.0.1:8790`），按域名决定默认落到哪个空间：
+站点通过 **Cloudflare Tunnel** 发布到公网，手机可访问。**单一域名**（一个学习中心，`127.0.0.1:8790`）：
 
-- **<https://study.albertma.site>** → 默认「我的高考」空间
-- **<https://mahuan.albertma.site>** → 默认「嘉欢的学习」空间（给弟弟用）
-- 任意空间都能在首页顶部 pill 切换；也可用 `?track=siyu|ma-huan|mahuan` 直达。
+- **<https://study.albertma.site>** → 学习中心（默认落「思雨·高考」空间）
+- 顶部 pill 切三个档案；也可用 `?track=siyu|ma-huan|mahuan` 直达（嘉欢 `?track=mahuan`、马欢 `?track=ma-huan`，切一次后 localStorage 记住）。
+- ⚠️ 旧的 `mahuan.albertma.site` 已于 2026-06-28 合并撤除（隧道 config 删该 ingress、多副本平滑切换零中断；DNS 若仍解析则落 catch-all 404）。再撤可删其 DNS 记录。
 - **链路**：`python3 server.py`（8790，**静态站 + /api**，watchdog `~/bin/ensure-study-server.sh`，cron 每分钟 + `@reboot`）→ cloudflared 隧道 `248c11e0-…`（watchdog `~/bin/ensure-cloudflared.sh`）。`server.py` 已替代原来的 `python3 -m http.server`；同源提供 API，故**不需要动隧道**。
-- 运行环境：WSL2，**没有 systemd**，常驻服务全靠 cron watchdog。改 `server.py` 后要重启它生效：`pkill -f server.py && ~/bin/ensure-study-server.sh`（会有几秒静态站中断，study/mahuan 都受影响，动作要快、改完先本地 `curl /api/health` 验证）。
+- 运行环境：WSL2，**没有 systemd**，常驻服务全靠 cron watchdog。改 `server.py` 后要重启它生效：`pkill -f server.py && ~/bin/ensure-study-server.sh`（会有几秒静态站中断，动作要快、改完先本地 `curl /api/health` 验证）。
 
 **改动红线：**
 
