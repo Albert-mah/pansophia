@@ -45,6 +45,19 @@ window.STUDY_CATALOG = [
     related: []
   },
 
+  /* ===== 档案：ma-huan（马欢 · 终身学习） ===== */
+  {
+    id: "mh-psych-intro",
+    profile: "ma-huan", subject: "psychology", scopes: ["general"], status: "done",
+    category: "导论与方法",
+    title: "心理学是什么 · 分支地图",
+    path: "subjects/psychology/intro.html",
+    summary: "用一张图看懂心理学研究什么、有哪些分支（基础/应用）、五大流派视角、几个地基概念（相关≠因果），以及成人自学的推荐路线。",
+    tags: ["心理学", "导论", "分支", "流派", "自学路线", "Psychology"],
+    date: "2026-06-28", difficulty: 1, type: "文档",
+    related: []
+  },
+
   /* ===== 档案：mahuan（嘉欢 · 六年级英语） ===== */
   {
     id: "mh-en-past-tense",

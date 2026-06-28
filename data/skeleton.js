@@ -138,6 +138,28 @@ window.STUDY_SKELETON = [
     ]
   },
 
+  /* ---- 心理学（A 示范：浏览→加入→填充。二级方向大纲 + 导论已填） ---- */
+  {
+    profile: "ma-huan", subject: "psychology", scope: "general",
+    topics: [
+      { title: "导论与方法", points: [
+        { title: "心理学是什么 · 分支地图", ref: "mh-psych-intro" },
+        { title: "研究方法（实验/相关/观察）", status: "todo" },
+        { title: "心理统计与测量", status: "todo" },
+        { title: "五大流派/视角", status: "todo" }
+      ] },
+      { title: "基础分支", points: [
+        { title: "普通心理学", status: "todo" }, { title: "认知心理学", status: "todo" },
+        { title: "发展心理学", status: "todo" }, { title: "社会心理学", status: "todo" },
+        { title: "人格心理学", status: "todo" }, { title: "生理/认知神经科学", status: "todo" }
+      ] },
+      { title: "应用分支", points: [
+        { title: "临床与咨询心理学", status: "todo" }, { title: "教育心理学", status: "todo" },
+        { title: "工业与组织心理学(I/O)", status: "todo" }, { title: "健康心理学", status: "todo" }
+      ] }
+    ]
+  },
+
   /* ---- 化学/生物 · 高阶（兴趣，慢慢填） ---- */
   {
     profile: "ma-huan", subject: "chemistry", scope: "advanced",

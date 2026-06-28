@@ -203,7 +203,13 @@
     const host = el("#outline");
     if (!host) return;
     host.innerHTML = "";
-    const SK = (window.STUDY_SKELETON || []).filter(e => (e.profile || e.track) === currentTrack);
+    // 只显示「档案默认学科」∪「我从知识库加入的学科」的大纲（懒加载：加了才显示）
+    const t = TRACKS[currentTrack] || {};
+    const allow = new Set(Object.keys(t.subjects || {}));
+    const DISC = window.STUDY_DISCIPLINES || [];
+    const discIdx = {}; DISC.forEach(g => g.items.forEach(it => discIdx[it.id] = it));
+    (SH ? SH.myDiscs(currentTrack) : []).forEach(id => allow.add((discIdx[id] && discIdx[id].subject) || id));
+    const SK = (window.STUDY_SKELETON || []).filter(e => (e.profile || e.track) === currentTrack && allow.has(e.subject));
     if (!SK.length) return;
     const SCOPES = window.STUDY_SCOPES || {};
     const byId = {}; CATALOG.forEach(k => byId[k.id] = k);

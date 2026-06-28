@@ -66,6 +66,7 @@ window.STUDY_SUBJECTS = {
   chemistry: { name: "化学", color: "#e67e22", icon: "🧪", kind: "academic" },
   biology:   { name: "生物", color: "#27ae60", icon: "🧬", kind: "academic" },
   eecs:      { name: "电子信息", color: "#0e7490", icon: "📡", kind: "academic" },
+  psychology:{ name: "心理学", color: "#9b59b6", icon: "🧠", kind: "academic" },
   politics:  { name: "政治", color: "#c0392b", icon: "⚖️", kind: "academic" },
   history:   { name: "历史", color: "#a0522d", icon: "📜", kind: "academic" },
   geography: { name: "地理", color: "#2980b9", icon: "🌏", kind: "academic" },

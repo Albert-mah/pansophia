@@ -33,7 +33,7 @@ window.STUDY_DISCIPLINES = [
   ] },
   { t1: "04 教育学", icon: "🎓", items: [
     { id: "education", name: "教育学", en: "Education" },
-    { id: "psychology", name: "心理学", en: "Psychology" },
+    { id: "psychology", name: "心理学", en: "Psychology", subject: "psychology" },
     { id: "pe", name: "体育学", en: "Sport Science" }
   ] },
   { t1: "05 文学 / 语言", icon: "📖", items: [
