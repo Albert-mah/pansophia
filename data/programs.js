@@ -268,6 +268,17 @@ window.STUDY_PROGRAMS = {
     {"school":"斯坦福大学 (Stanford)","program":"Management Science & Engineering (本科)","year":2024,"tag":"top","note":"运筹+优化+概率统计+组织科学,毕业做capstone项目","url":"https://msande.stanford.edu/academics-admissions/undergraduate/undergraduate-major"},
     {"school":"清华大学工业工程系","program":"工业工程(本科)","year":2023,"tag":"strong","note":"160学分,系统思维+运筹学,工程与管理复合培养","url":"https://www.tsinghua.edu.cn/jxjywj/bkzy2023/zxzy/17.pdf"}
   ],
+  "neuroscience": [
+    {"school":"麻省理工学院 MIT","program":"Brain and Cognitive Sciences (Course 9)","year":2025,"tag":"top","note":"三层课程:Python计算+神经计算9.40+统计,延伸细胞分子与计算认知方向","url":"https://catalog.mit.edu/degree-charts/brain-cognitive-sciences-course-9/"},
+    {"school":"斯坦福大学 Stanford","program":"Neurosciences PhD Program","year":2024,"tag":"top","note":"两周沉浸式神经科学营+三轮实验室轮转,遗传/解剖/统计核心课,五年制博士","url":"https://med.stanford.edu/neurogradprogram/about/degree-requirements.html"},
+    {"school":"哈佛大学 Harvard","program":"Program in Neuroscience (PiN), PhD","year":2024,"tag":"top","note":"旗舰课《神经科学学科》贯穿全年,必修计算神经科学与神经解剖,实验室轮转","url":"https://pinphd.hms.harvard.edu/training/curriculum"},
+    {"school":"伦敦大学学院 UCL","program":"Neuroscience BSc / MSci","year":2026,"tag":"top","note":"分子-细胞-系统三层进阶,神经解剖/生理/药理实验,可转四年制MSci","url":"https://www.ucl.ac.uk/prospective-students/undergraduate/degrees/neuroscience-bsc-2026"},
+    {"school":"约翰斯·霍普金斯大学 JHU","program":"Neuroscience, Bachelor of Science","year":2024,"tag":"strong","note":"四方向选修:细胞分子/认知/计算/系统,依托Mind-Brain研究所与医学院","url":"https://e-catalogue.jhu.edu/arts-sciences/full-time-residential-programs/degree-programs/neuroscience/neuroscience-bachelor-science/"},
+    {"school":"哥廷根大学/马克斯·普朗克 Göttingen/MPG","program":"International MSc/PhD/MD-PhD Neuroscience Program (IMPRS)","year":2024,"tag":"strong","note":"全英文授课,首年90 ECTS课程+轮转,联合多所马普所与灵长类中心","url":"https://www.gpneuro.uni-goettingen.de/"},
+    {"school":"中科院脑科学与智能技术卓越创新中心(神经科学研究所)","program":"神经生物学 硕士/博士研究生","year":2026,"tag":"top","note":"国内顶尖神经科学机构,暑期学校选拔推免,学硕+专硕,脑智融合方向","url":"https://www.ion.ac.cn/"},
+    {"school":"清华大学-IDG/麦戈文脑科学研究院","program":"脑科学与神经工程 研究生培养","year":2024,"tag":"strong","note":"工程驱动脑科学,神经工程与神经影像见长,设Brain+X跨学科交叉资助","url":"https://mcgovern.life.tsinghua.edu.cn/"},
+    {"school":"浙江大学脑科学与脑医学学院","program":"脑科学本科专业(神经科学/神经精神医学方向)","year":2020,"tag":"solid","note":"国内首个脑科学本科专业,设神经科学与神经精神医学两培养方向","url":"http://www.neuroscience.zju.edu.cn/"}
+  ],
   "nursing": [
     {"school":"约翰霍普金斯护理学院 JHU SON","program":"MSN (Entry into Nursing)","year":2024,"tag":"top","note":"五学期硕士入门,整合公卫/遗传/组织科学,行星健康框架+大量仿真训练","url":"https://nursing.jhu.edu/programs/masters-entry/"},
     {"school":"北京大学护理学院","program":"护理学(四年制)","year":2023,"tag":"strong","note":"渐进式课程,公共/医学基础/护理专业+人文+临床实习,PBL教学导向","url":"https://nursing.bjmu.edu.cn/jyjx/bksjy/zyjs/d5f361561a2e46539a93f96df617d606.htm"},
@@ -304,7 +315,16 @@ window.STUDY_PROGRAMS = {
   "psychology": [
     {"school":"斯坦福大学 Stanford University","program":"Psychology BA","year":2024,"tag":"top","note":"70单元,A区(知觉/认知神经)B区(发展/社会/临床)核心课各选≥2门","url":"https://psychology.stanford.edu/academics/undergraduate-program/major"},
     {"school":"哈佛大学 Harvard College","program":"Psychology Concentration","year":2024,"tag":"top","note":"导论+二年级导修+行为研究方法,通用/认知神经进化/认知科学三轨","url":"https://undergrad.psychology.fas.harvard.edu/requirements"},
-    {"school":"北京大学心理与认知科学学院","program":"心理学(基础/应用)","year":2020,"tag":"strong","note":"大陆首个ESI前1%,实验/变态/临床国家精品课,基础与应用双方向","url":"https://www.psy.pku.edu.cn/docs/20201013150710573494.pdf"}
+    {"school":"北京大学心理与认知科学学院","program":"心理学(基础/应用)","year":2020,"tag":"strong","note":"大陆首个ESI前1%,实验/变态/临床国家精品课,基础与应用双方向","url":"https://www.psy.pku.edu.cn/docs/20201013150710573494.pdf"},
+    {"school":"剑桥大学","program":"Psychological and Behavioural Sciences (PBS) BA","year":2025,"tag":"top","note":"认知/社会/发展/生物心理学并重，融统计与数据科学，BPS认证三年制","url":"https://www.pbs.tripos.cam.ac.uk/structure"},
+    {"school":"牛津大学","program":"Experimental Psychology (BA/MSci)","year":2026,"tag":"top","note":"实验科学取向，核心认知神经/知觉/记忆/语言，含科研项目，可续读MSci","url":"https://www.ox.ac.uk/admissions/undergraduate/courses/course-listing/psychology-experimental"},
+    {"school":"伦敦大学学院（UCL）","program":"Psychology BSc","year":2025,"tag":"top","note":"以研究设计与数据分析为骨干，认知/社会/发展/临床全覆盖，欧洲顶尖系","url":"https://www.ucl.ac.uk/prospective-students/undergraduate/degrees/psychology-bsc"},
+    {"school":"耶鲁大学","program":"Psychology BA/BS","year":2024,"tag":"top","note":"兼修社会科学与自然科学双视角，必修统计、研究方法与毕业论文","url":"https://catalog.yale.edu/ycps/subjects-of-instruction/psychology/"},
+    {"school":"密歇根大学","program":"Psychology BS","year":2024,"tag":"strong","note":"导论+跨领域gateway课+统计，另设生物心理与认知神经(BCN)方向","url":"https://lsa.umich.edu/lsa/academics/majors-minors/psychology-general-social-science-major.html"},
+    {"school":"北京师范大学","program":"心理学（心理学部）","year":2023,"tag":"top","note":"国内顶尖，设认知神经/基础/应用拔尖班，本硕博一体化与全员科研导师制","url":"https://psych.bnu.edu.cn/rcpy/bkspy/pyfaa/72aa8c711e5d4f1499195e861e6fd4d9.htm"},
+    {"school":"华东师范大学","program":"心理学/应用心理学（心理与认知科学学院）","year":2023,"tag":"strong","note":"国家级一流专业+拔尖2.0基地，实验/发展/教育心理学多门国家精品课","url":"https://psy.ecnu.edu.cn/17458/list.htm"},
+    {"school":"中国科学院心理研究所","program":"心理学硕士/博士研究生","year":2025,"tag":"top","note":"我国唯一国家级心理学机构，硕博含发展/脑认知/人格社会/临床健康/工程网络","url":"http://www.psych.ac.cn/edu/"},
+    {"school":"浙江大学","program":"心理学（心理与行为科学系）","year":2023,"tag":"solid","note":"大类培养，依托认知与发展、应用心理两所，覆盖认知/发展/应用方向","url":"https://bksy.zju.edu.cn/2024/0925/c83929a2967038/page.htm"}
   ],
   "public-admin": [
     {"school":"普林斯顿大学公共与国际事务学院 (Princeton SPIA)","program":"Master in Public Affairs (MPA)","year":2024,"tag":"top","note":"7门核心:政治分析+计量经济+经济行为,二年级工作坊","url":"https://spia.princeton.edu/graduate-programs/master-public-affairs/curriculum-requirements"},

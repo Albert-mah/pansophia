@@ -16,6 +16,7 @@ window.STUDY_DISCIPLINES_INTL = [
     { id: "astronomy", name: "天文学与空间科学", en: "Astronomy / Space Science", sub: ["天体物理学","天体力学","行星科学","恒星天文学","星系天文学","宇宙学","射电天文学","观测天文学","天体测量学","太阳物理学","天体生物学","空间科学与探测","高能天体物理"], sources: ["IAU","PACS","NASA"] },
     { id: "materials-science", name: "材料科学", en: "Materials Science", sub: ["金属材料","陶瓷材料","高分子材料","复合材料","半导体材料","纳米材料与技术","生物材料","电子与光电材料","材料表征","晶体学","计算材料","能源材料","材料力学性能"], sources: ["MRS","MIT DMSE","OECD"] },
     { id: "environmental-science", name: "环境科学", en: "Environmental Science", sub: ["生态学","大气科学与气候变化","环境化学","水文与水资源","环境地球科学","环境污染与治理","生物多样性与保护","可持续性科学","环境毒理学","土壤科学","环境政策与管理","能源与环境","地球系统科学"], sources: ["OECD FOS","UNEP","Stanford/Cambridge"] },
+    { id: "neuroscience", name: "脑科学与神经科学", en: "Neuroscience", sub: ["分子与细胞神经科学","系统神经科学（神经环路）","认知神经科学","计算神经科学","发育神经科学","行为神经科学","神经影像与脑成像","临床与医学神经科学（神经病学）","神经工程与脑机接口","感觉与运动神经科学","神经退行性疾病","社会与情感神经科学","类脑智能与神经形态计算","神经药理学与神经化学","神经精神病学与精神疾病"], sources: ["维基Outline(Neuroscience)","SfN(神经科学学会)","高校培养方案(MIT/Stanford/UCL等)","OECD FOS学科分类"] },
   ] },
   { t1: "Formal Sciences · 形式科学", icon: "🔢", intl: true, items: [
     { id: "math", name: "数学", en: "Mathematics", subject: "math", sub: ["代数","数论","几何","拓扑学","数学分析","微分方程","组合数学","概率论","数理逻辑与集合论","离散数学","数值分析与计算数学","应用数学","微分几何","范畴论"], sources: ["AMS MSC2020","OECD FOS","Wikipedia"] },
