@@ -5,7 +5,8 @@
  * ============================================================= */
 (function () {
   const SH = window.StudyHub;
-  const DISC = window.STUDY_DISCIPLINES || [];
+  let view = "cn";   // cn 国内门类 / intl 国际大类
+  const DISC = () => view === "intl" ? (window.STUDY_DISCIPLINES_INTL || []) : (window.STUDY_DISCIPLINES || []);
   const profile = SH ? SH.resolveTrack() : "";
   const PROFILES = window.STUDY_PROFILES || {};
   const pName = (PROFILES[profile] || {}).name || profile;
@@ -19,9 +20,20 @@
     return (it.name + " " + (it.en || "") + " " + (it.note || "") + " " + (it.sub || []).join(" ") + " " + it.id).toLowerCase().includes(query);
   }
 
+  function renderToggle() {
+    const host = document.querySelector("#lib-toggle");
+    if (!host) return;
+    host.innerHTML = "";
+    [["cn", "🇨🇳 国内门类（学位目录）"], ["intl", "🌐 国际大类（学科体系）"]].forEach(([v, label]) => {
+      const btn = el("button", { class: "lib-tab" + (view === v ? " active" : "") }, label);
+      btn.addEventListener("click", () => { view = v; renderToggle(); render(); });
+      host.appendChild(btn);
+    });
+  }
+
   function render() {
     host.innerHTML = "";
-    DISC.forEach(group => {
+    DISC().forEach(group => {
       const items = group.items.filter(match);
       if (!items.length) return;
       const sec = el("section", { class: "lib-group" + (group.custom ? " custom" : "") });
@@ -63,6 +75,7 @@
     if (home) home.href = "index.html?track=" + encodeURIComponent(profile);
     const input = document.querySelector("#lib-search");
     if (input) input.addEventListener("input", e => { query = e.target.value.trim().toLowerCase(); render(); });
+    renderToggle();
     render();
   }
   document.addEventListener("DOMContentLoaded", init);

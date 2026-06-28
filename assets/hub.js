@@ -206,8 +206,8 @@
     // 只显示「档案默认学科」∪「我从知识库加入的学科」的大纲（懒加载：加了才显示）
     const t = TRACKS[currentTrack] || {};
     const allow = new Set(Object.keys(t.subjects || {}));
-    const DISC = window.STUDY_DISCIPLINES || [];
-    const discIdx = {}; DISC.forEach(g => g.items.forEach(it => discIdx[it.id] = it));
+    const DISC = (window.STUDY_DISCIPLINES || []).concat(window.STUDY_DISCIPLINES_INTL || []);
+    const discIdx = {}; DISC.forEach(g => g.items.forEach(it => { if (!discIdx[it.id]) discIdx[it.id] = it; }));
     (SH ? SH.myDiscs(currentTrack) : []).forEach(id => allow.add((discIdx[id] && discIdx[id].subject) || id));
     const SK = (window.STUDY_SKELETON || []).filter(e => (e.profile || e.track) === currentTrack && allow.has(e.subject));
     if (!SK.length) return;
@@ -261,10 +261,10 @@
     const host = el("#mydiscs");
     if (!host || !SH) return;
     host.innerHTML = "";
-    const DISC = window.STUDY_DISCIPLINES || [];
+    const DISC = (window.STUDY_DISCIPLINES || []).concat(window.STUDY_DISCIPLINES_INTL || []);
     if (!DISC.length) return;
     const idx = {};
-    DISC.forEach(g => g.items.forEach(it => idx[it.id] = Object.assign({ t1: g.t1 }, it)));
+    DISC.forEach(g => g.items.forEach(it => { if (!idx[it.id]) idx[it.id] = Object.assign({ t1: g.t1 }, it); }));
     const SKEL = window.STUDY_SKELETON || [];
     const mine = SH.myDiscs(currentTrack);
 
