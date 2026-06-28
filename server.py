@@ -9,7 +9,7 @@
 #  接口：
 #    GET  /api/health                      健康检查（无需鉴权）
 #    POST /api/event   头 X-Write-Token     上报一次练习记录（嘉欢的页面用）
-#    GET  /api/events?track=&key=&days=     读取记录+统计（哥哥跟踪面板用，要读密钥）
+#    GET  /api/report?track=&key=&days=     读取记录+统计（哥哥跟踪面板用，要读密钥）
 #
 #  只用 Python 标准库（http.server + sqlite3），无第三方依赖。
 #  配置/数据库都在仓库之外：~/.studyhub/

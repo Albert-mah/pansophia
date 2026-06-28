@@ -17,7 +17,8 @@
 
   function match(it) {
     if (!query) return true;
-    return (it.name + " " + (it.en || "") + " " + (it.note || "") + " " + (it.sub || []).join(" ") + " " + it.id).toLowerCase().includes(query);
+    const progStr = (it.programs || []).map(p => p.school + " " + (p.program || "")).join(" ");
+    return (it.name + " " + (it.en || "") + " " + (it.note || "") + " " + (it.sub || []).join(" ") + " " + it.id + " " + progStr).toLowerCase().includes(query);
   }
 
   function renderToggle() {
@@ -59,6 +60,18 @@
         }
         if (it.sources && it.sources.length) {
           card.appendChild(el("div", { class: "lib-src" }, "来源：" + it.sources.join(" · ")));
+        }
+        if (it.programs && it.programs.length) {
+          const tagLabel = { top: "顶尖", strong: "很强", solid: "可参考" };
+          const rows = it.programs.map(p => {
+            const tag = `<span class="p-tag ${p.tag || "solid"}">${tagLabel[p.tag] || ""}</span>`;
+            const head = `${p.school}${p.program ? " · " + p.program : ""}${p.year ? "（" + p.year + "）" : ""}`;
+            const title = p.url ? `<a href="${p.url}" target="_blank" rel="noopener">${head}</a>` : head;
+            const note = p.note ? ` <span class="p-note">— ${p.note}</span>` : "";
+            return `<div class="p-row">${tag}${title}${note}</div>`;
+          }).join("");
+          const prog = el("div", { class: "lib-prog" }, `<div class="lib-prog-h">🎓 名校培养方案</div>${rows}`);
+          card.appendChild(prog);
         }
         grid.appendChild(card);
       });

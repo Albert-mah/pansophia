@@ -6,7 +6,7 @@
 
 这是一个**家庭共用的数据驱动静态「学习中心」**，已通用化为 **三个正交维度**（重构于 2026-06-26）：
 
-- **PROFILE 学习者（人）**：`albert`（我 · 高考备考 + 英语进阶 + 日语）、`mahuan`（嘉欢 · 六年级小升初 · 英语为主）。定义在 `data/model.js` 的 `STUDY_PROFILES`。（旧的 `STUDY_TRACKS` 是它的别名；URL/localStorage 仍用 `track` 这个参数名，值就是 profile id。）
+- **PROFILE 学习者（人）**：`siyu`（思雨 · 高考 · 物化生方向）、`ma-huan`（马欢 · 终身学习：日语体系 + 英语托福 + 各科高阶）、`mahuan`（嘉欢 · 六年级小升初 · 英语为主）。定义在 `data/model.js` 的 `STUDY_PROFILES`。（旧的 `STUDY_TRACKS` 是它的别名；URL/localStorage 仍用 `track` 这个参数名，值就是 profile id。）
 - **SUBJECT 学科**：语文/数学/英语/**日语**/物化生政史地/学习方法（`STUDY_SUBJECTS`，带 `kind: language|academic|meta`）。
 - **SCOPE 范围/等级**：小学/初中/高考 / CEFR / **JLPT** / CET / 雅思…（`STUDY_SCOPES`）。这是"圈出不同知识点"的标签维度，**多对多**：一个词/考点可同属多个 scope。
 
@@ -28,8 +28,9 @@
 - `data/quizzes.js` 的 `QUIZ_BANK` 加题（`choice`/`fill` + `explain`），带 `profile / subject / scopes[]`。
 - 摸底在 `data/diagnostic.js`（`DIAG_TEST` 每题带 `point` 考点 + `DIAG_POINTS` 给弱项建议链接）。
 
-- **profile key**：`albert / mahuan`（`data/model.js`）；**scope key**：见 `STUDY_SCOPES`。
+- **profile key**：`siyu / ma-huan / mahuan`（`data/model.js`）；**scope key**：见 `STUDY_SCOPES`。
 - **改完即时生效**：静态服务直接读文件，无需构建、无需重新部署，刷新即可。
+- ★**批量填内容前后都跑** `node tools/validate.js`：懒加载靠 agent / 喂书持续往 `data/*.js` 填，这个只读门禁能挡住 ref 悬空、profile/subject/scope 写错、id 重复、programs 形状不对等"把索引填乱"的问题。有 ERROR 退出码非 0。
 
 ## 三、技术约束（不要破坏）
 
@@ -68,6 +69,9 @@ progress.html           ★家长/哥哥的学习跟踪面板（要读密钥 ?ke
 server.py               ★同源服务器：静态站 + /api 学习记录接口（SQLite）
 subjects/<科目>/*.html  一个知识点 = 一个网页
 templates/_template.html 新知识页模板
+data/disciplines.js / disciplines.intl.js  ★ 学科总目录索引 STUDY_DISCIPLINES(_INTL)（知识库浏览用；三级 门类→一级学科→二级方向；item 可挂 programs 名校培养方案）
+library.html / assets/library.js          知识库浏览（国内门类 / 国际大类 切换，＋加入"我的空间"）
+tools/validate.js        ★ 数据完整性校验（`node tools/validate.js`）：ref 悬空 / 孤儿 catalog / programs 形状 / profile·subject·scope 合法 / 重复 id
 ```
 
 ## 五、⚠️ 线上部署（已上线，改动需谨慎）
@@ -76,7 +80,7 @@ templates/_template.html 新知识页模板
 
 - **<https://study.albertma.site>** → 默认「我的高考」空间
 - **<https://mahuan.albertma.site>** → 默认「嘉欢的学习」空间（给弟弟用）
-- 任意空间都能在首页顶部 pill 切换；也可用 `?track=gaokao|mahuan` 直达。
+- 任意空间都能在首页顶部 pill 切换；也可用 `?track=siyu|ma-huan|mahuan` 直达。
 - **链路**：`python3 server.py`（8790，**静态站 + /api**，watchdog `~/bin/ensure-study-server.sh`，cron 每分钟 + `@reboot`）→ cloudflared 隧道 `248c11e0-…`（watchdog `~/bin/ensure-cloudflared.sh`）。`server.py` 已替代原来的 `python3 -m http.server`；同源提供 API，故**不需要动隧道**。
 - 运行环境：WSL2，**没有 systemd**，常驻服务全靠 cron watchdog。改 `server.py` 后要重启它生效：`pkill -f server.py && ~/bin/ensure-study-server.sh`（会有几秒静态站中断，study/mahuan 都受影响，动作要快、改完先本地 `curl /api/health` 验证）。
 
@@ -111,4 +115,4 @@ templates/_template.html 新知识页模板
 
 ## 七、关于用户
 
-中文交流。两类对象：① 用户本人——高三备考，讲解直奔重点、给例子、点易错点；② 弟弟马嘉欢——六年级小升初、英语基础弱、时间紧，内容要更基础、更鼓励、口诀化、能立刻上手练。
+中文交流。三个学习者：① 思雨（siyu）——高考物化生方向，讲解直奔重点、给例子、点易错点；② 马欢（ma-huan）——成人终身学习（日语 + 托福 + 各科高阶），可深入、成体系；③ 马嘉欢（mahuan）——六年级小升初、英语基础弱、时间紧，内容要更基础、更鼓励、口诀化、能立刻上手练。

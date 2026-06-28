@@ -271,6 +271,16 @@ th { background: var(--bg); font-weight: 700; }
 .lib-sub { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
 .lib-sub span { font-size: .74rem; color: var(--text-soft); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1px 7px; }
 .lib-src { margin-top: 6px; font-size: .68rem; color: var(--text-faint); }
+.lib-prog { margin-top: 7px; border-top: 1px dashed var(--border); padding-top: 6px; }
+.lib-prog-h { font-size: .7rem; color: var(--text-soft); font-weight: 700; margin-bottom: 3px; }
+.lib-prog .p-row { font-size: .72rem; color: var(--text-soft); line-height: 1.5; }
+.lib-prog .p-row a { color: var(--accent); text-decoration: none; }
+.lib-prog .p-row a:hover { text-decoration: underline; }
+.lib-prog .p-tag { font-size: .62rem; padding: 0 5px; border-radius: 5px; margin-right: 4px; }
+.lib-prog .p-tag.top { background: #fdeccb; color: #a86a00; }
+.lib-prog .p-tag.strong { background: #e6f3ff; color: #1d6fb8; }
+.lib-prog .p-tag.solid { background: var(--bg); color: var(--text-faint); border: 1px solid var(--border); }
+.lib-prog .p-note { color: var(--text-faint); }
 .lib-name { flex: 1; font-weight: 600; font-size: .92rem; }
 .lib-note { color: var(--text-faint); font-weight: 400; font-size: .8rem; }
 .lib-en { color: var(--text-faint); font-weight: 400; font-size: .76rem; }

@@ -108,9 +108,10 @@ window.STUDY_CATALOG = [
 /* =============================================================
  *  字段说明
  *   id        唯一标识
- *   profile   学习者档案 key（见 STUDY_PROFILES：albert / mahuan）
+ *   profile   学习者档案 key（见 STUDY_PROFILES：siyu / ma-huan / mahuan）
  *   subject   学科 key（见 STUDY_SUBJECTS）
  *   scopes    范围标签数组（见 STUDY_SCOPES），用于"圈出"
- *   status    done 完成 / partial 部分 / todo 待填（大纲覆盖度用）
+ *   status    done 完成 / partial 部分 / todo 待填
+ *             ⚠️ 覆盖度只数 done（或被 skeleton 有效 ref 命中）；partial / todo 都不计入
  *   category  二级分类；title/path/summary/tags/date/difficulty/type/related 同前
  * ============================================================= */
