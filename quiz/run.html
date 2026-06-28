@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>检测进行中 · 学习中心</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <script src="../data/model.js"></script>
+  <script src="../data/catalog.js"></script>
+  <script src="../data/words.js"></script>
+  <script src="../data/words.ja.js"></script>
+  <script src="../data/quizzes.js"></script>
+  <script src="../assets/common.js"></script>
+  <script src="../assets/quiz.js"></script>
+</head>
+<body>
+  <main class="page" style="padding-top:28px">
+    <div id="app"></div>
+  </main>
+  <script>
+    (function () {
+      var tk = window.StudyHub ? StudyHub.resolveTrack() : "";
+      if (tk) StudyHub.rememberTrack(tk);
+      QuizApp.runFromURL("#app");
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>导数：瞬时变化率与切线斜率 · 数学 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="math-derivatives"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb></nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker></div>
+      <h1>导数：瞬时变化率与切线斜率</h1>
+      <div class="meta-row" data-meta></div>
+    </header>
+
+    <p>导数不是一条新公式那么简单，它的核心意思只有一句话：
+      <strong>函数在某一点附近，变化得有多快</strong>。在图象上，导数就是这一点处
+      <strong>切线的斜率</strong>。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 一句话抓住导数</div>
+      <p style="margin:6px 0">平均变化率看一段：$\dfrac{f(x+h)-f(x)}{h}$；
+        导数看一点：$f'(x)=\lim\limits_{h\to0}\dfrac{f(x+h)-f(x)}{h}$。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎮 动手实验：让割线慢慢变成切线</div>
+      <canvas id="plot" width="760" height="440" style="width:100%;height:auto;background:#fff;border:1px solid var(--border);border-radius:10px"></canvas>
+
+      <div class="controls">
+        <div class="control">
+          <label>函数</label>
+          <select id="fn" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff">
+            <option value="square">f(x)=x²</option>
+            <option value="cube">f(x)=x³-3x</option>
+            <option value="sin">f(x)=sin x</option>
+          </select>
+          <span class="val" id="formula">2x</span>
+        </div>
+        <div class="control">
+          <label>x =</label>
+          <input id="x0" type="range" min="-3" max="3" step="0.05" value="1">
+          <span class="val" id="xv">1.00</span>
+        </div>
+        <div class="control">
+          <label>h =</label>
+          <input id="h" type="range" min="0.1" max="2.5" step="0.05" value="1.2">
+          <span class="val" id="hv">1.20</span>
+        </div>
+      </div>
+
+      <div class="readout" id="readout"></div>
+    </div>
+
+    <h2>1. 从平均变化率到导数</h2>
+    <p>先看两个点：$A(x, f(x))$ 和 $B(x+h, f(x+h))$。这两个点连成的线叫
+      <strong>割线</strong>，它的斜率是：</p>
+    <p>$$\frac{f(x+h)-f(x)}{h}$$</p>
+    <p>当 $h$ 越来越小，点 $B$ 越来越靠近点 $A$，割线就越来越像点 $A$ 处的切线。
+      如果这个斜率有极限，这个极限就是 $f'(x)$。</p>
+
+    <div class="box tip">
+      <div class="box-title">💡 物理直觉</div>
+      <p style="margin:6px 0">路程函数 $s(t)$ 的平均变化率是平均速度；
+        $s'(t)$ 是某一时刻的瞬时速度。导数就是“瞬时”的变化快慢。</p>
+    </div>
+
+    <h2>2. 导数符号怎么看</h2>
+    <table>
+      <tr><th>导数值</th><th>图象表现</th><th>函数变化</th></tr>
+      <tr><td>$f'(x)>0$</td><td>切线向右上倾斜</td><td>附近递增</td></tr>
+      <tr><td>$f'(x)<0$</td><td>切线向右下倾斜</td><td>附近递减</td></tr>
+      <tr><td>$f'(x)=0$</td><td>切线水平</td><td>可能出现极值点，也可能只是平一点</td></tr>
+    </table>
+
+    <h2>3. 常见求导公式</h2>
+    <ul>
+      <li>常数：$(C)'=0$</li>
+      <li>幂函数：$(x^n)'=nx^{n-1}$</li>
+      <li>正弦余弦：$(\sin x)'=\cos x$，$(\cos x)'=-\sin x$</li>
+      <li>加减：$(u\pm v)'=u'\pm v'$</li>
+      <li>常数倍：$(ku)'=ku'$</li>
+    </ul>
+
+    <div class="box example">
+      <div class="box-title">✏️ 例：求 $f(x)=x^2$ 在 $x=1$ 处的导数</div>
+      <p style="margin:6px 0">因为 $(x^2)'=2x$，所以 $f'(1)=2$。
+      图象上看，就是 $y=x^2$ 在点 $(1,1)$ 处的切线斜率为 2。把实验函数选成
+      $x^2$，把 $x$ 拖到 1，再把 $h$ 拖小，割线斜率会越来越接近 2。</p>
+    </div>
+
+    <h2>4. 考试易错点</h2>
+    <ul>
+      <li><strong>导数是一个数还是函数？</strong> $f'(x)$ 是导函数，$f'(1)$ 才是某一点的导数值。</li>
+      <li><strong>$h\to0$ 不等于 $h=0$。</strong> 差商里分母是 $h$，不能直接把 $h$ 代成 0。</li>
+      <li><strong>$f'(x)=0$ 不一定就是极值。</strong> 例如 $f(x)=x^3$ 在 $x=0$ 处导数为 0，但不是极大或极小。</li>
+      <li><strong>切线斜率不是切线方程。</strong> 已知切点 $(x_0,f(x_0))$ 和斜率 $f'(x_0)$ 后，
+        切线方程是 $y-f(x_0)=f'(x_0)(x-x_0)$。</li>
+    </ul>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related></div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    const cv = document.getElementById("plot");
+    const ctx = cv.getContext("2d");
+    const W = cv.width, H = cv.height;
+    const ox = W / 2, oy = H / 2;
+    const scale = 58;
+
+    const X = x => ox + x * scale;
+    const Y = y => oy - y * scale;
+
+    const defs = {
+      square: {
+        label: "f(x)=x²", derivative: "f'(x)=2x",
+        f: x => x * x,
+        d: x => 2 * x
+      },
+      cube: {
+        label: "f(x)=x³-3x", derivative: "f'(x)=3x²-3",
+        f: x => x * x * x - 3 * x,
+        d: x => 3 * x * x - 3
+      },
+      sin: {
+        label: "f(x)=sin x", derivative: "f'(x)=cos x",
+        f: x => Math.sin(x),
+        d: x => Math.cos(x)
+      }
+    };
+
+    function lineThrough(x, y, m, color, dashed) {
+      const leftX = -ox / scale;
+      const rightX = (W - ox) / scale;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.4;
+      if (dashed) ctx.setLineDash([8, 6]);
+      ctx.beginPath();
+      ctx.moveTo(X(leftX), Y(y + m * (leftX - x)));
+      ctx.lineTo(X(rightX), Y(y + m * (rightX - x)));
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function dot(x, y, color, label) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(X(x), Y(y), 5.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = "13px sans-serif";
+      ctx.fillText(label, X(x) + 8, Y(y) - 8);
+    }
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = "#eef1f7";
+      ctx.lineWidth = 1;
+      for (let gx = ox % scale; gx < W; gx += scale) {
+        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+      }
+      for (let gy = oy % scale; gy < H; gy += scale) {
+        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+      }
+      ctx.strokeStyle = "#b9c0cc";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(W, oy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox, 0); ctx.lineTo(ox, H); ctx.stroke();
+    }
+
+    function draw() {
+      const def = defs[document.getElementById("fn").value];
+      const x0 = parseFloat(document.getElementById("x0").value);
+      const h = parseFloat(document.getElementById("h").value);
+      const x1 = x0 + h;
+      const y0 = def.f(x0);
+      const y1 = def.f(x1);
+      const secant = (y1 - y0) / h;
+      const tangent = def.d(x0);
+
+      document.getElementById("formula").textContent = def.derivative.replace("f'(x)=", "");
+      document.getElementById("xv").textContent = x0.toFixed(2);
+      document.getElementById("hv").textContent = h.toFixed(2);
+
+      drawGrid();
+
+      ctx.strokeStyle = "#3b6fe0";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      let first = true;
+      for (let px = 0; px <= W; px++) {
+        const x = (px - ox) / scale;
+        const y = def.f(x);
+        if (first) { ctx.moveTo(px, Y(y)); first = false; }
+        else ctx.lineTo(px, Y(y));
+      }
+      ctx.stroke();
+
+      lineThrough(x0, y0, secant, "#27ae60", true);
+      lineThrough(x0, y0, tangent, "#e2524a", false);
+      dot(x0, y0, "#e2524a", "A");
+      dot(x1, y1, "#27ae60", "B");
+
+      const trend = tangent > 0.02 ? "递增" : tangent < -0.02 ? "递减" : "切线近似水平";
+      document.getElementById("readout").innerHTML =
+        `${def.label}，${def.derivative}<br>` +
+        `A点 x=<span>${x0.toFixed(2)}</span>，导数 f'(x)=切线斜率=<span>${tangent.toFixed(3)}</span>，附近<span>${trend}</span><br>` +
+        `割线斜率 = [f(x+h)-f(x)]/h = <span>${secant.toFixed(3)}</span>。把 h 拖小，它会逼近切线斜率。`;
+    }
+
+    ["fn", "x0", "h"].forEach(id => document.getElementById(id).addEventListener("input", draw));
+    draw();
+  })();
+  </script>
+</body>
+</html>

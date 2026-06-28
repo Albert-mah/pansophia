@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习跟踪 · 家长面板</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .pg-key { max-width: 420px; margin: 40px auto; background: var(--surface); border: 1px solid var(--border);
+              border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); }
+    .pg-key h2 { margin: 0 0 10px; }
+    .pg-key p { color: var(--text-soft); font-size: .9rem; }
+    .pg-key input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 1rem; margin: 10px 0; }
+    .pg-key button { width: 100%; padding: 12px; border: none; background: var(--accent); color: #fff; border-radius: var(--radius-sm); font-weight: 700; font-size: 1rem; cursor: pointer; }
+    .pg-toolbar { display: flex; align-items: center; gap: 10px; margin: 6px 0 18px; flex-wrap: wrap; }
+    .pg-toolbar .who { font-weight: 700; }
+    .pg-toolbar .spacer { margin-left: auto; }
+    .pg-refresh { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: .85rem; }
+    .pg-muted { color: var(--text-faint); font-size: .82rem; }
+    .pg-empty { text-align: center; color: var(--text-faint); padding: 40px; border: 1px dashed var(--border); border-radius: var(--radius); background: var(--surface); }
+  </style>
+</head>
+<body>
+  <header class="hero" style="padding:32px 0 36px">
+    <div class="wrap">
+      <h1 style="font-size:1.6rem">📈 学习跟踪面板</h1>
+      <p id="sub">嘉欢的练习记录（中心化存储 · 仅你可见）</p>
+    </div>
+  </header>
+
+  <main class="wrap" style="padding-top:24px;padding-bottom:60px">
+    <div id="app"></div>
+  </main>
+
+  <script>
+  (function () {
+    var qs = new URLSearchParams(location.search);
+    var KEY = qs.get("key") || "";
+    var TRACK = qs.get("track") || "mahuan";
+    var DAYS = qs.get("days") || "60";
+    var app = document.getElementById("app");
+    var KIND = { diag: "🧭 摸底", quiz: "📝 习题", word: "🔤 单词", wrong: "✍️ 错题", vocab: "★ 生词" };
+
+    function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]);}); }
+    function pctClass(p){ return p>=75?"good":p>=50?"mid":"bad"; }
+
+    function keyForm(msg){
+      app.innerHTML =
+        '<div class="pg-key"><h2>🔒 需要查看密钥</h2>'+
+        '<p>'+(msg||"输入哥哥的读取密钥即可查看嘉欢的学习记录。")+'</p>'+
+        '<input id="k" type="text" placeholder="读取密钥 key" autocomplete="off">'+
+        '<button id="go">查看</button>'+
+        '<p class="pg-muted" style="margin-top:12px">提示：把密钥加在网址后面（?key=…）可一键打开，建议存到手机书签。</p></div>';
+      document.getElementById("go").onclick = function(){
+        var k = document.getElementById("k").value.trim();
+        if(k){ location.search = "?track="+encodeURIComponent(TRACK)+"&key="+encodeURIComponent(k); }
+      };
+      document.getElementById("k").addEventListener("keydown",function(e){ if(e.key==="Enter") document.getElementById("go").click(); });
+    }
+
+    function bars(points){
+      // points: array of {p,c,t}
+      return '<div class="diag-bars">'+points.map(function(r){
+        var pct = r.t? Math.round(r.c/r.t*100):0;
+        return '<div class="diag-bar '+pctClass(pct)+'"><span class="lbl">'+esc(r.p)+'</span>'+
+               '<span class="track"><i style="width:'+pct+'%"></i></span>'+
+               '<span class="num">'+r.c+'/'+r.t+'</span></div>';
+      }).join("")+'</div>';
+    }
+
+    function render(data){
+      var s = data.summary || {};
+      var events = data.events || [];
+      var html = "";
+
+      html += '<div class="pg-toolbar"><span class="who">👦 '+esc(data.track)+'</span>'+
+              '<span class="pg-muted">近 '+esc(DAYS)+' 天</span>'+
+              '<span class="spacer"></span><button class="pg-refresh" id="rf">↻ 刷新</button></div>';
+
+      html += '<div class="qi-stats">'+
+        '<div class="qi-stat"><b>'+(s.total_sessions||0)+'</b><span>总练习次数</span></div>'+
+        '<div class="qi-stat"><b>'+(s.today||0)+'</b><span>今日</span></div>'+
+        '<div class="qi-stat"><b>'+(s.week||0)+'</b><span>本周</span></div>'+
+        '<div class="qi-stat"><b>'+(s.avg==null?"—":s.avg+"分")+'</b><span>平均分</span></div>'+
+        '</div>';
+
+      if(!events.length){
+        html += '<div class="pg-empty" style="margin-top:20px">还没有练习记录。<br>让嘉欢打开 <b>检测中心</b> 做一次摸底或练习，这里就会出现。</div>';
+        app.innerHTML = html; document.getElementById("rf").onclick=load; return;
+      }
+
+      // 最近一次摸底
+      var ld = s.latest_diag;
+      if(ld && ld.detail && ld.detail.points){
+        html += '<h2 class="qi-h">🧭 最近一次摸底（'+esc(ld.date)+'，'+ld.correct+'/'+ld.total+'）</h2>';
+        var pts = ld.detail.points.slice().sort(function(a,b){ return (a.c/a.t)-(b.c/b.t); });
+        html += bars(pts);
+      }
+
+      // 累计弱考点
+      var agg = s.points || {};
+      var aggArr = Object.keys(agg).map(function(p){ return {p:p,c:agg[p].c,t:agg[p].t}; })
+                    .sort(function(a,b){ return (a.c/a.t)-(b.c/b.t); });
+      if(aggArr.length){
+        html += '<h2 class="qi-h">📊 各考点累计掌握度（弱的在前）</h2>'+bars(aggArr);
+      }
+
+      // 时间线
+      html += '<h2 class="qi-h">🕒 练习时间线</h2><div class="qi-scores">';
+      events.forEach(function(e){
+        var pct = e.total? Math.round(e.correct/e.total*100):0;
+        var t = new Date(e.ts);
+        var hm = ("0"+t.getHours()).slice(-2)+":"+("0"+t.getMinutes()).slice(-2);
+        html += '<div class="qi-score"><span class="t">'+(KIND[e.kind]||e.kind||"")+' · '+esc(e.label||"")+'</span>'+
+                '<span class="n">'+(e.total?e.correct+"/"+e.total:"")+'</span>'+
+                '<span class="p '+pctClass(pct)+'">'+(e.total?pct+"分":"")+'</span>'+
+                '<span class="d">'+esc(e.date)+' '+hm+'</span></div>';
+      });
+      html += '</div>';
+
+      app.innerHTML = html;
+      document.getElementById("rf").onclick = load;
+    }
+
+    function load(){
+      if(!KEY){ keyForm(); return; }
+      app.innerHTML = '<div class="pg-empty">加载中…</div>';
+      fetch("/api/report?track="+encodeURIComponent(TRACK)+"&key="+encodeURIComponent(KEY)+"&days="+encodeURIComponent(DAYS))
+        .then(function(r){ if(r.status===401) throw new Error("401"); return r.json(); })
+        .then(function(d){ if(!d.ok) throw new Error(d.error||"error"); document.getElementById("sub").textContent = "嘉欢的练习记录（中心化存储 · 仅你可见）"; render(d); })
+        .catch(function(err){
+          if(String(err.message)==="401") keyForm("密钥不对，请重新输入。");
+          else app.innerHTML = '<div class="pg-empty">读取失败（可能服务未启动或网络问题）。<br>'+esc(err.message)+'</div>';
+        });
+    }
+    load();
+  })();
+  </script>
+</body>
+</html>

@@ -26,6 +26,8 @@
   function build() {
     const me_kp = CATALOG.find(k => k.id === PAGE_ID);
     const subj = me_kp ? SUBJECTS[me_kp.subject] : null;
+    const _pf = me_kp && (me_kp.profile || me_kp.track);
+    const tparam = _pf ? ("?track=" + encodeURIComponent(_pf)) : "";
 
     if (subj) document.documentElement.style.setProperty("--accent-page", subj.color);
 
@@ -33,9 +35,9 @@
     const bc = document.querySelector("[data-breadcrumb]");
     if (bc && me_kp) {
       bc.innerHTML =
-        `<a href="${ROOT}index.html">🏠 学习中心</a>` +
+        `<a href="${ROOT}index.html${tparam}">🏠 学习中心</a>` +
         `<span class="sep">›</span>` +
-        `<a href="${ROOT}index.html">${subj ? subj.icon + " " + subj.name : ""}</a>` +
+        `<a href="${ROOT}index.html${tparam}">${subj ? subj.icon + " " + subj.name : ""}</a>` +
         `<span class="sep">›</span><span>${me_kp.category || ""}</span>` +
         `<span class="sep">›</span><span class="cur">${me_kp.title}</span>`;
     }
@@ -78,8 +80,8 @@
       }
     }
 
-    /* ---- 返回首页按钮路径修正 ---- */
-    document.querySelectorAll("[data-home]").forEach(a => a.href = ROOT + "index.html");
+    /* ---- 返回首页按钮路径修正（带上当前学习空间） ---- */
+    document.querySelectorAll("[data-home]").forEach(a => a.href = ROOT + "index.html" + tparam);
   }
 
   /* ---- MathJax 注入（公式渲染，需联网；离线则显示原文） ---- */
