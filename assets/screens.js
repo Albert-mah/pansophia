@@ -294,6 +294,7 @@
     if (!d) return html`<div class="pan-screen"><div class="pan-empty">没找到该学科。<br/><span class="pan-btn ghost" style="margin-top:12px;" onClick=${function () { app.go("explore"); }}>← 回学科探索</span></div></div>`;
     var cat = C.categoryOf(id) || { name: d.catName || "", color: d.catColor || "#C8852E", key: "" };
     var added = C.hasDisc(id), subs = d.sub || [], progs = C.programsFor(id), skel = C.skeletonForDiscipline(id);
+    var scopes = C.courseScopesOf(id), singleScope = scopes.length <= 1, enrolledN = scopes.filter(function (s) { return C.hasCourse(id, s); }).length;
     var tagLabel = { top: "顶尖", strong: "很强", solid: "可参考" };
     var note = d.note || (window.STUDY_DISC_NOTES || {})[id] || "";
     var resources = C.resourcesFor(id);
@@ -302,7 +303,9 @@
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:8px;">
         <div><h1 class="pan-page-h" style="margin-bottom:4px;">${d.name}${d.en ? html` <span class="en">/ ${d.en}</span>` : null}</h1>
         <div style="font-size:13px;color:#9a8a6f;">${cat.name} · ${subs.length} 个二级方向${progs.length ? " · 🎓 " + progs.length + " 个培养方案" : ""}</div></div>
-        <span class=${"pan-btn pill " + (added ? "ghost" : "grad")} onClick=${function () { C.toggleDisc(id); app.checkAch(); }}>${added ? "✓ 已在我的空间" : "＋ 加入我的空间"}</span></div>
+        ${singleScope
+          ? html`<span class=${"pan-btn pill " + (C.hasCourse(id, scopes[0]) ? "ghost" : "grad")} onClick=${function () { C.toggleCourse(id, scopes[0]); app.checkAch(); }}>${C.hasCourse(id, scopes[0]) ? "✓ 已在我的空间" : "＋ 加入我的空间"}</span>`
+          : html`<span class=${"pan-btn pill " + (enrolledN === scopes.length ? "ghost" : "grad")} title="或在下方「考点大纲」按范围分别领取" onClick=${function () { C.toggleDisc(id); app.checkAch(); }}>${enrolledN ? "✓ 已领 " + enrolledN + "/" + scopes.length + " 门" : "＋ 加入全部范围"}</span>`}</div>
       ${note ? html`<p class="pan-page-sub" style="margin-top:10px;">${note}</p>` : html`<div style="height:18px;"></div>`}
 
       <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:22px;align-items:start;">
@@ -316,8 +319,10 @@
           ${skel.length ? html`<div class="pan-panel"><div class="pan-sec-h"><h2>📚 考点大纲</h2><span class="more" onClick=${function () { app.go("course", { disc: id }); }}>进入学习 →</span></div>
             ${skel.map(function (e, ei) {
               var cv = C.coverage(e), sc = SUBJECTS[e.subject] || { name: e.subject };
+              var en = C.hasCourse(id, e.scope || null);
               return html`<div key=${ei} style="margin-bottom:16px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;"><b style="font-size:14.5px;">${sc.name} · ${(C.SCOPES[e.scope] || {}).name || e.scope}</b>
-                <span style="flex:1;max-width:160px;">${html`<${Bar} pct=${cv.pct} color=${cat.color} />`}</span><span style="font-size:12px;color:#9a8a6f;">${cv.done}/${cv.total} · ${cv.pct}%</span></div>
+                <span style="flex:1;max-width:140px;">${html`<${Bar} pct=${cv.pct} color=${cat.color} />`}</span><span style="font-size:12px;color:#9a8a6f;">${cv.done}/${cv.total}</span>
+                <span class="lnk" style=${"cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap;color:" + (en ? "#3f8a52" : "#B6532F") + ";"} onClick=${function () { C.toggleCourse(id, e.scope || null); app.checkAch(); }}>${en ? "✓ 已领取" : "＋ 领取这门"}</span></div>
                 ${(e.topics || []).map(function (t, ti) {
                   return html`<div key=${ti} style="margin:10px 0;"><div style="font-size:13px;font-weight:700;color:#7A6E5E;margin-bottom:7px;">${t.title}</div><div style="display:flex;flex-wrap:wrap;gap:7px;">
                     ${(t.points || []).map(function (p, pi) { var kp = p.ref ? C.catalogById(p.ref) : null; return kp ? html`<a key=${pi} class="pan-tag" href=${kp.path} style="background:#F1FAF3;border-color:#cdeed7;color:#1f7a44;">✅ ${p.title}</a>` : html`<span key=${pi} class="pan-tag" style="background:#F4EAD8;color:#9a8a6f;">⬜ ${p.title}</span>`; })}
@@ -574,7 +579,7 @@
         ${c.total ? html`<div>${html`<${Bar} pct=${c.pct} color=${c.color} />`}<div style="font-size:12px;color:#9a8a6f;margin-top:6px;">掌握 ${c.mastered}/${c.total} · ${c.pct}%${c.lessons ? " · " + c.lessons + " 讲解" : ""}</div></div>`
           : html`<div style="font-size:12.5px;color:#bbab8c;">待 AI 导师排课</div>`}
         <div style="font-size:12px;color:#7A6E5E;margin-top:8px;display:flex;align-items:center;gap:6px;">📕 ${c.textbook ? html`<b style="color:#5a4e3c;">${c.textbook.title}</b>${c.textbook.auto ? html`<span style="color:#bbab8c;font-size:11px;">默认</span>` : null}` : html`<span style="color:#b6532f;">未选课本</span>`}
-          <span class="lnk" style="margin-left:auto;color:#b09a7a;cursor:pointer;font-size:11.5px;" onClick=${function (e) { e.stopPropagation(); var only = courses.filter(function (x) { return x.discId === c.discId; }).length <= 1; var nm = c.discName + (c.scopeName ? " · " + c.scopeName : ""); if (window.confirm("卸载「" + nm + "」?" + (only ? "这是该学科最后一门,会把「" + c.discName + "」整科移出我的空间。" : "只移除这一门,该学科其它范围的课程保留。") + "学习记录保留,重新加入即恢复。")) { C.uninstallCourse(c.discId, c.scope); app.refresh(); } }}>卸载</span></div>
+          <span class="lnk" style="margin-left:auto;color:#b09a7a;cursor:pointer;font-size:11.5px;" onClick=${function (e) { e.stopPropagation(); var nm = c.discName + (c.scopeName ? " · " + c.scopeName : ""); if (window.confirm("卸载「" + nm + "」?只移除这一门(同学科其它范围的课程保留);学习记录保留,重新领取即恢复。")) { C.uninstallCourse(c.discId, c.scope); app.refresh(); } }}>卸载</span></div>
       </div>`;
     }
     return html`<div class="pan-screen">
@@ -583,7 +588,7 @@
         <h1 class="pan-page-h" style="margin:0;">我的课程 <span class="en">/ My Courses</span></h1>
         <span class="pan-btn ink" onClick=${function () { app.go("explore"); }}>＋ 选课 / 加学科</span>
       </div>
-      <p class="pan-page-sub">你在学的所有课程(同一学科可有多门,如 数学·高考、数学·初中)。点进去看 AI 导师排的考点大纲与讲解,逐个标记掌握。要加新课:点右上「选课」去学科探索,把学科「加入我的空间」。</p>
+      <p class="pan-page-sub">你按「课程」领取与管理:课程 = 学科 × 范围(同一学科可有多门,如 数学·高考、数学·本科)。点进去看 AI 导师排的考点大纲与讲解,逐个标记掌握。加新课:点右上「选课」进学科,在「考点大纲」里按范围「领取这门」。卸载只退这一门,不影响同学科其它范围。</p>
       ${courses.length ? html`<div>
         ${discMeta.length > 1 ? html`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
           <span class=${"pan-tag" + (filt ? "" : " on")} onClick=${function () { setFilt(""); }}>全部 ${courses.length}</span>
@@ -604,7 +609,9 @@
     useEffect(function () { if (did) C.materialsFor(did).then(setMats); }, [did]);
     if (!did) return html`<${CourseList} />`;               // 先进课程表
     var skelAll = C.skeletonForDiscipline(did);
-    var skelList = skelAll.filter(C.courseScopeOK); if (!skelList.length) skelList = skelAll;
+    var skelList = skelAll.filter(function (e) { return C.hasCourse(did, e.scope || null); });   // 优先显示已领取的范围
+    if (!skelList.length) skelList = skelAll.filter(C.courseScopeOK);
+    if (!skelList.length) skelList = skelAll;
     var entry = (app.params.scope && skelList.filter(function (e) { return e.scope === app.params.scope; })[0]) || skelList[0];
     var d = C.disciplineById(did);
     if (!entry) {
