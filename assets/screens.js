@@ -610,7 +610,14 @@
     var selState = useState(null); var selRef = selState[0], setSel = selState[1];
     var tb0 = useState(false); var pickTb = tb0[0], setPickTb = tb0[1];
     var mt0 = useState(null); var mats = mt0[0], setMats = mt0[1];
+    var lb0 = useState({}); var libMap = lb0[0], setLibMap = lb0[1];   // 课本本地副本(按 url 索引)
+    var rd0 = useState(null); var reader = rd0[0], setReader = rd0[1]; // 阅读器弹窗
+    var bz0 = useState({}); var busy = bz0[0], setBusy = bz0[1];
     useEffect(function () { if (did) C.materialsFor(did).then(setMats); }, [did]);
+    function loadLib() { if (did) C.libList(did).then(function (items) { var m = {}; (items || []).forEach(function (it) { m[it.url] = it; }); setLibMap(m); }); }
+    useEffect(function () { loadLib(); }, [did]);
+    function openReader(itId) { setReader({ loading: true }); C.libItem(itId).then(function (it) { setReader(it || { error: true }); }); }
+    function cacheTb(tb) { var u = tb.url; setBusy(function (b) { var n = Object.assign({}, b); n[u] = 1; return n; }); C.cacheUrl({ discId: did, url: u, school: tb.title, program: "" }).then(function () { loadLib(); setBusy(function (b) { var n = Object.assign({}, b); delete n[u]; return n; }); }); }
     if (!did) return html`<${CourseList} />`;               // 先进课程表
     var skelAll = C.skeletonForDiscipline(did);
     var skelList = skelAll.filter(function (e) { return C.hasCourse(did, e.scope || null); });   // 优先显示已领取的范围
@@ -661,7 +668,22 @@
         <h2 style="font-family:var(--serif);font-size:20px;font-weight:700;margin:0 0 4px;">${(d && d.name) || sc.name}${entry.scope ? html` <span style="font-size:13px;font-weight:600;color:#9a8a6f;">· ${(C.SCOPES[entry.scope] || {}).name || entry.scope}</span>` : ""}</h2>
         <div style="font-size:12.5px;color:#9a8a6f;margin-bottom:14px;">${allPts.length} 个考点 · 已填 ${cv.done}</div>
         ${html`<${Bar} pct=${cv.pct} color="#C8852E" />`}<div style="font-size:11.5px;color:#9a8a6f;margin:6px 0 12px;">已完成 ${cv.pct}%</div>
-        ${(function () { var tb = C.courseTextbook(did, entry.scope); return html`<div style="font-size:12px;color:#9a8a6f;margin-bottom:14px;padding:8px 10px;background:#FBF6EC;border-radius:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">📕 课本:${tb ? html`<b style="color:#5a4e3c;">${tb.title}</b>${tb.auto ? html`<span style="color:#bbab8c;font-size:11px;"> 默认</span>` : null}` : html`<span style="color:#bbab8c;">未选</span>`}<span class="lnk" style="color:#B6532F;cursor:pointer;margin-left:auto;" onClick=${function () { setPickTb(true); }}>${tb ? "换" : "选 / 生成"} →</span></div>`; })()}
+        ${(function () {
+          var tb = C.courseTextbook(did, entry.scope);
+          var lit = tb && tb.url ? libMap[tb.url] : null;
+          return html`<div style="font-size:12px;color:#9a8a6f;margin-bottom:14px;padding:8px 10px;background:#FBF6EC;border-radius:8px;display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;">
+            <span style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">📕 课本:${tb ? html`<b style="color:#5a4e3c;">${tb.title}</b>${tb.auto ? html`<span style="color:#bbab8c;font-size:11px;"> 默认</span>` : null}` : html`<span style="color:#bbab8c;">未选</span>`}</span>
+            <span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { setPickTb(true); }}>${tb ? "换" : "选 / 生成"} →</span>
+            ${tb ? html`<span style="flex-basis:100%;height:0;"></span>
+              <span style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;">
+                ${lit && lit.status === "ok" ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { openReader(lit.id); }}>📄 查看本地副本(${lit.chars}字)</span>` : null}
+                ${tb.url ? html`<a class="lnk" style="color:#2c5fb3;font-weight:600;" href=${tb.url} target="_blank" rel="noopener">🔗 在线打开 ↗</a>` : null}
+                ${tb.fileId ? html`<a class="lnk" style="color:#1f7a44;font-weight:600;" href=${C.fileUrl(tb.fileId)} target="_blank" rel="noopener">📄 打开文件 ↗</a>` : null}
+                ${tb.url && !(lit && lit.status === "ok") ? html`<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { if (!busy[tb.url]) cacheTb(tb); }}>${busy[tb.url] ? "抓取中…" : "📥 缓存到本地"}</span>` : null}
+                ${!tb.url && !tb.fileId ? html`<span style="color:#bbab8c;">这本只有书名/参考,没有可打开的链接或文件 —— 点「换」选带链接的版本,或让导师补链接</span>` : null}
+              </span>` : null}
+          </div>`;
+        })()}
         ${(entry.topics || []).map(function (t, ti) {
           return html`<div key=${ti}><div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#bbab8c;text-transform:uppercase;margin:14px 0 8px;">${t.title}</div>
             ${(t.points || []).map(function (p, pi) {
@@ -700,6 +722,18 @@
                 ${C.courseTextbook(did, entry.scope) ? html`<span class="lnk" style="font-size:12px;color:#b09a7a;cursor:pointer;" onClick=${function () { C.setCourseTextbook(did, entry.scope, null); setPickTb(false); app.refresh(); }}>清除选择</span>` : html`<span></span>`}
                 <span class="pan-btn ghost sm" onClick=${function () { setPickTb(false); C.sendMessage({ kind: "ask", text: "请帮「" + ((d && d.name) || "") + "」再选 / 生成一版课本(优先官方 / 权威,注明来源)。", context: { discId: did, scope: entry.scope } }).then(function () { app.go("messages"); }); }}>✉️ 让导师选 / 生成另一版</span>
               </div></div>`}
+        </div></div>` : null}
+      ${reader ? html`<div class="pan-modal-mask" onClick=${function (e) { if (e.target.classList.contains("pan-modal-mask")) setReader(null); }}>
+        <div class="pan-modal" style="max-width:760px;">
+          ${reader.loading ? html`<div class="pan-empty">读取中…</div>`
+            : (reader.error || (!reader.title && !reader.text)) ? html`<div class="pan-empty">读取失败,试试「🔗 在线打开」。<br/><span class="pan-btn ghost sm" style="margin-top:10px;" onClick=${function () { setReader(null); }}>关闭</span></div>`
+            : html`<div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
+                <div style="font-family:var(--serif);font-size:18px;font-weight:700;line-height:1.4;">📕 ${reader.title || reader.school || "本地副本"}</div>
+                <span onClick=${function () { setReader(null); }} style="cursor:pointer;color:#9a8a6f;font-size:20px;line-height:1;">×</span></div>
+              ${reader.url ? html`<div style="font-size:11.5px;margin-bottom:10px;"><a href=${reader.url} target="_blank" rel="noopener" style="color:#2c5fb3;">原文链接 ↗</a></div>` : null}
+              <div style="max-height:62vh;overflow:auto;font-size:13.5px;line-height:1.8;color:#3a3023;white-space:pre-wrap;">${reader.text || "(本地副本没有正文,点上面原文链接在线看)"}</div>
+            </div>`}
         </div></div>` : null}
     </div>`;
   }
