@@ -156,7 +156,17 @@ window.Core = (function () {
   function save(name, val) { _cache[name] = val; postState(_curKey || userKey(), name, val); }
   function myDiscs() { return store("disc", []); }
   function hasDisc(id) { return myDiscs().indexOf(id) >= 0; }
-  function toggleDisc(id) { var a = myDiscs().slice(), i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); save("disc", a); }
+  function toggleDisc(id) { var a = myDiscs().slice(), i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); pruneHidden(id); save("disc", a); }
+  // 单门课(学科×范围)卸载:仅隐藏该范围,其它范围保留。整科只剩这一门时才整科移除。学习记录(掌握/课本/校验)按 discId|scope 另存,不删,重新加入即恢复。
+  function courseKey(d, s) { return d + "|" + (s || ""); }
+  function hiddenCourses() { return store("hiddenc", []) || []; }
+  function pruneHidden(id) { var pre = id + "|", h = hiddenCourses().filter(function (k) { return k.indexOf(pre) !== 0; }); save("hiddenc", h); }
+  function uninstallCourse(discId, scope) {
+    var sibs = coursesForUser().filter(function (c) { return c.discId === discId; });
+    if (sibs.length <= 1) { toggleDisc(discId); return; }   // 该学科只剩这一门 → 整科移除(并清隐藏)
+    var k = courseKey(discId, scope), h = hiddenCourses().slice();
+    if (h.indexOf(k) < 0) { h.push(k); save("hiddenc", h); }
+  }
   // 选课不自动发消息(可能加错/撤回);要导师排课,用户在学科页/留言箱主动发。导师也可直接读 disc 列表聚合。
   function points() { return store("points", { balance: 0, ledger: [] }); }
   function wishlist() { return store("wishlist", []); }
@@ -748,7 +758,7 @@ window.Core = (function () {
   }
   // 统一的"我的课程"单位 = 学科 × 范围(学段),按学习者学段过滤。HUD/课程表共用,口径一致。
   function coursesForUser() {
-    var out = [];
+    var out = [], hid = hiddenCourses();
     myDiscs().forEach(function (id) {
       var dd = disciplineById(id) || { name: id }, cat = categoryOf(id) || {};
       var sk = skeletonForDiscipline(id).filter(courseScopeOK);
@@ -759,7 +769,7 @@ window.Core = (function () {
         out.push({ discId: id, discName: dd.name, scope: e.scope || null, scopeName: (SCOPES[e.scope] || {}).name || e.scope || "", color: cat.color || "#C8852E", total: pts, mastered: mas, pct: pts ? Math.round(mas / pts * 100) : 0, lessons: les, textbook: courseTextbook(id, e.scope || null), verified: courseVerified(id, e.scope || null) });
       });
     });
-    return out;
+    return out.filter(function (c) { return hid.indexOf(courseKey(c.discId, c.scope)) < 0; });
   }
   // 最终试卷校验过的记录(user_state.verified,键 discId|scope)
   function courseVerified(discId, scope) { return (store("verified", {}) || {})[discId + "|" + (scope || "")] || null; }
@@ -784,7 +794,7 @@ window.Core = (function () {
     materialsFor: materialsFor, saveMaterial: saveMaterial, deleteMaterial: deleteMaterial, cachePdf: cachePdf, courseTextbook: courseTextbook, setCourseTextbook: setCourseTextbook,
     uploadFile: uploadFile, fileUrl: fileUrl,
     libList: libList, libItem: libItem, cacheUrl: cacheUrl,
-    store: store, save: save, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc,
+    store: store, save: save, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc, uninstallCourse: uninstallCourse,
     points: points, wishlist: wishlist, notes: notes, events: events, progress: progress, plan: plan, schedule: schedule, goals: goals,
     logEvent: logEvent, award: award,
     LEVELS: LEVELS, levelOf: levelOf, knowledgeValue: knowledgeValue,

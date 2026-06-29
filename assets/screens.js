@@ -574,7 +574,7 @@
         ${c.total ? html`<div>${html`<${Bar} pct=${c.pct} color=${c.color} />`}<div style="font-size:12px;color:#9a8a6f;margin-top:6px;">掌握 ${c.mastered}/${c.total} · ${c.pct}%${c.lessons ? " · " + c.lessons + " 讲解" : ""}</div></div>`
           : html`<div style="font-size:12.5px;color:#bbab8c;">待 AI 导师排课</div>`}
         <div style="font-size:12px;color:#7A6E5E;margin-top:8px;display:flex;align-items:center;gap:6px;">📕 ${c.textbook ? html`<b style="color:#5a4e3c;">${c.textbook.title}</b>${c.textbook.auto ? html`<span style="color:#bbab8c;font-size:11px;">默认</span>` : null}` : html`<span style="color:#b6532f;">未选课本</span>`}
-          <span class="lnk" style="margin-left:auto;color:#b09a7a;cursor:pointer;font-size:11.5px;" onClick=${function (e) { e.stopPropagation(); if (window.confirm("卸载「" + c.discName + "」?会从「我的课程」移除该学科下所有课程(学习记录保留,可随时重新加入)。")) { C.toggleDisc(c.discId); app.refresh(); } }}>卸载</span></div>
+          <span class="lnk" style="margin-left:auto;color:#b09a7a;cursor:pointer;font-size:11.5px;" onClick=${function (e) { e.stopPropagation(); var only = courses.filter(function (x) { return x.discId === c.discId; }).length <= 1; var nm = c.discName + (c.scopeName ? " · " + c.scopeName : ""); if (window.confirm("卸载「" + nm + "」?" + (only ? "这是该学科最后一门,会把「" + c.discName + "」整科移出我的空间。" : "只移除这一门,该学科其它范围的课程保留。") + "学习记录保留,重新加入即恢复。")) { C.uninstallCourse(c.discId, c.scope); app.refresh(); } }}>卸载</span></div>
       </div>`;
     }
     return html`<div class="pan-screen">
