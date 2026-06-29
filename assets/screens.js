@@ -577,7 +577,8 @@
           <span class="pan-pill" style=${"color:" + pi[1] + ";background:" + pi[2] + ";white-space:nowrap;"}>${pi[0]}</span></div>
         ${c.total ? html`<div>${html`<${Bar} pct=${c.pct} color=${c.color} />`}<div style="font-size:12px;color:#9a8a6f;margin-top:6px;">掌握 ${c.mastered}/${c.total} · ${c.pct}%${c.lessons ? " · " + c.lessons + " 讲解" : ""}</div></div>`
           : html`<div style="font-size:12.5px;color:#bbab8c;">待 AI 导师排课</div>`}
-        <div style="font-size:12px;color:#7A6E5E;margin-top:8px;display:flex;align-items:center;gap:6px;">📕 ${c.textbook ? html`<b style="color:#5a4e3c;">${c.textbook.title}</b>` : html`<span style="color:#b6532f;">未选课本</span>`}</div>
+        <div style="font-size:12px;color:#7A6E5E;margin-top:8px;display:flex;align-items:center;gap:6px;">📕 ${c.textbook ? html`<b style="color:#5a4e3c;">${c.textbook.title}</b>` : html`<span style="color:#b6532f;">未选课本</span>`}
+          <span class="lnk" style="margin-left:auto;color:#b09a7a;cursor:pointer;font-size:11.5px;" onClick=${function (e) { e.stopPropagation(); if (window.confirm("卸载「" + c.discName + "」?会从「我的课程」移除该学科下所有课程(学习记录保留,可随时重新加入)。")) { C.toggleDisc(c.discId); app.refresh(); } }}>卸载</span></div>
       </div>`;
     }
     return html`<div class="pan-screen">

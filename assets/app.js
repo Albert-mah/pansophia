@@ -36,15 +36,14 @@
   window.html = html; // 供 screens.js 共用
 
   var SCREENS = ["home", "explore", "discipline", "plan", "course", "library", "quiz", "vocab", "notes", "wishlist", "points", "analytics", "users", "messages", "practice", "wrongbook"];
+  var SUBLABELS = { library: "课本库", notes: "笔记 · 收藏", analytics: "数据中心", messages: "给导师留言", users: "用户管理" };
   var NAV = [
     { key: "home", label: "首页" },
     { key: "explore", label: "学科探索", caret: true },
-    { key: "plan", label: "学习计划" },
     { key: "course", label: "我的课程" },
-    { key: "library", label: "课本库" },
+    { key: "plan", label: "学习计划" },
     { key: "quiz", label: "习题测试" },
-    { key: "notes", label: "笔记 · 收藏" },
-    { key: "analytics", label: "数据中心" }
+    { key: "more", label: "更多", caret: true, sub: ["library", "notes", "analytics", "messages", "users"] }
   ];
 
   function qsGet(k) { try { return new URLSearchParams(location.search).get(k); } catch (e) { return null; } }
@@ -71,8 +70,9 @@
           </div>
           <nav class="pan-nav-row">
             ${NAV.map(function (n) {
-              return html`<span key=${n.key} class=${"pan-nav" + (navActive(n.key) ? " active" : "")}
-                onClick=${function () { n.key === "explore" ? app.toggleMenu() : app.go(n.key); }}>
+              var active = navActive(n.key) || (n.key === "more" && ((n.sub && n.sub.indexOf(app.screen) >= 0) || app.moreOpen));
+              return html`<span key=${n.key} class=${"pan-nav" + (active ? " active" : "")}
+                onClick=${function () { n.key === "explore" ? app.toggleMenu() : n.key === "more" ? app.toggleMore() : app.go(n.key); }}>
                 ${n.label}${n.caret ? html`<span style=${{ fontSize: "10px" }}> ▾</span>` : null}</span>`;
             })}
           </nav>
@@ -86,7 +86,16 @@
         </div>
         ${app.menuOpen ? html`<${MegaMenu} />` : null}
         ${app.userPop ? html`<${UserPop} />` : null}
+        ${app.moreOpen ? html`<${MorePop} />` : null}
       </div>`;
+  }
+
+  function MorePop() {
+    var app = useContext(Ctx);
+    var sub = (NAV.filter(function (n) { return n.key === "more"; })[0] || {}).sub || [];
+    return html`<div class="pan-morepop">
+      ${sub.map(function (k) { return html`<div key=${k} class=${"u" + (app.screen === k ? " on" : "")} onClick=${function () { app.go(k); }}>${SUBLABELS[k] || k}</div>`; })}
+    </div>`;
   }
 
   function MegaMenu() {
@@ -179,7 +188,7 @@
   /* ---------------- 根组件 ---------------- */
   function App() {
     var initScreen = qsGet("screen"); if (SCREENS.indexOf(initScreen) < 0) initScreen = "home";
-    var s0 = useState({ screen: initScreen, params: { disc: qsGet("disc") || null, cat: qsGet("cat") || null }, menuOpen: false, userPop: false, ready: false, tick: 0, toast: null });
+    var s0 = useState({ screen: initScreen, params: { disc: qsGet("disc") || null, cat: qsGet("cat") || null }, menuOpen: false, userPop: false, moreOpen: false, ready: false, tick: 0, toast: null });
     var st = s0[0], setSt = s0[1];
 
     // 启动:从数据库水合当前用户全部状态,完成后检测成就(基于已有进度回溯解锁),再渲染
@@ -188,16 +197,17 @@
     useEffect(function () { if (!st.toast) return; var t = setTimeout(function () { setSt(function (p) { return Object.assign({}, p, { toast: null }); }); }, 5200); return function () { clearTimeout(t); }; }, [st.toast]);
 
     var api = {
-      screen: st.screen, params: st.params, menuOpen: st.menuOpen, userPop: st.userPop,
+      screen: st.screen, params: st.params, menuOpen: st.menuOpen, userPop: st.userPop, moreOpen: st.moreOpen,
       go: function (screen, params) {
         if (SCREENS.indexOf(screen) < 0) screen = "home";
         setUrl({ screen: screen, disc: (params && params.disc) || null });
         try { window.scrollTo(0, 0); } catch (e) {}
-        setSt(function (p) { return Object.assign({}, p, { screen: screen, params: params || {}, menuOpen: false, userPop: false, tick: p.tick + 1 }); });
+        setSt(function (p) { return Object.assign({}, p, { screen: screen, params: params || {}, menuOpen: false, userPop: false, moreOpen: false, tick: p.tick + 1 }); });
       },
       refresh: function () { setSt(function (p) { return Object.assign({}, p, { tick: p.tick + 1 }); }); },
-      toggleMenu: function () { setSt(function (p) { return Object.assign({}, p, { menuOpen: !p.menuOpen, userPop: false }); }); },
-      toggleUser: function () { setSt(function (p) { return Object.assign({}, p, { userPop: !p.userPop, menuOpen: false }); }); },
+      toggleMenu: function () { setSt(function (p) { return Object.assign({}, p, { menuOpen: !p.menuOpen, userPop: false, moreOpen: false }); }); },
+      toggleUser: function () { setSt(function (p) { return Object.assign({}, p, { userPop: !p.userPop, menuOpen: false, moreOpen: false }); }); },
+      toggleMore: function () { setSt(function (p) { return Object.assign({}, p, { moreOpen: !p.moreOpen, menuOpen: false, userPop: false }); }); },
       switchUser: function (k) {
         C.switchUser(k);
         setSt(function (p) { return Object.assign({}, p, { userPop: false, menuOpen: false, ready: false, tick: p.tick + 1 }); });
@@ -213,8 +223,8 @@
 
     return html`<${Ctx.Provider} value=${api}>
       <div class="pan-app" onClick=${function (e) {
-        if ((st.menuOpen || st.userPop) && !e.target.closest(".pan-mega") && !e.target.closest(".pan-userpop") && !e.target.closest(".pan-nav") && !e.target.closest(".pan-avatar")) {
-          setSt(function (p) { return Object.assign({}, p, { menuOpen: false, userPop: false }); });
+        if ((st.menuOpen || st.userPop || st.moreOpen) && !e.target.closest(".pan-mega") && !e.target.closest(".pan-userpop") && !e.target.closest(".pan-morepop") && !e.target.closest(".pan-nav") && !e.target.closest(".pan-avatar")) {
+          setSt(function (p) { return Object.assign({}, p, { menuOpen: false, userPop: false, moreOpen: false }); });
         }
       }}>
         <${TopBar} />
