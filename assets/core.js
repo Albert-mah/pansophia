@@ -141,11 +141,14 @@ window.Core = (function () {
     var c = _materials.filter(function (m) { return m.disc_id === discId; });
     if (!c.length) return null;
     var rank = { official: 0, authoritative: 1, generated: 2 };
+    var open = function (m) { return m.url || m.file_id; };
     var scoped = c.filter(function (m) { return m.scope === scope; }), gen = c.filter(function (m) { return !m.scope; });
-    var pool = (scoped.length ? scoped : (gen.length ? gen : c)).slice();
+    var scopedOpen = scoped.filter(open), allOpen = c.filter(open);
+    // 优先级:本学段+可打开 > 任意可打开 > 本学段 > 无学段 > 全部(尽量让默认课本是能点开的)
+    var pool = (scopedOpen.length ? scopedOpen : (allOpen.length ? allOpen : (scoped.length ? scoped : (gen.length ? gen : c)))).slice();
     pool.sort(function (a, b) { return (rank[a.authority] == null ? 3 : rank[a.authority]) - (rank[b.authority] == null ? 3 : rank[b.authority]); });
     var m = pool[0];
-    return m ? { materialId: m.id, title: m.title, edition: m.edition || "", authority: m.authority, auto: true } : null;
+    return m ? { materialId: m.id, title: m.title, edition: m.edition || "", authority: m.authority, url: m.url || null, fileId: m.file_id || m.fileId || null, note: m.note || "", auto: true } : null;
   }
   // 每门课的课本:用户选定的优先(user_state.textbooks),否则自动默认
   function courseTextbook(discId, scope) { return ((store("textbooks", {}) || {})[discId + "|" + (scope || "")]) || defaultTextbook(discId, scope); }

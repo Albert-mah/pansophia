@@ -678,9 +678,9 @@
               <span style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;">
                 ${lit && lit.status === "ok" ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { openReader(lit.id); }}>📄 查看本地副本(${lit.chars}字)</span>` : null}
                 ${tb.url ? html`<a class="lnk" style="color:#2c5fb3;font-weight:600;" href=${tb.url} target="_blank" rel="noopener">🔗 在线打开 ↗</a>` : null}
-                ${tb.fileId ? html`<a class="lnk" style="color:#1f7a44;font-weight:600;" href=${C.fileUrl(tb.fileId)} target="_blank" rel="noopener">📄 打开文件 ↗</a>` : null}
+                ${(tb.fileId || tb.file_id) ? html`<a class="lnk" style="color:#1f7a44;font-weight:600;" href=${C.fileUrl(tb.fileId || tb.file_id)} target="_blank" rel="noopener">📄 打开文件 ↗</a>` : null}
                 ${tb.url && !(lit && lit.status === "ok") ? html`<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { if (!busy[tb.url]) cacheTb(tb); }}>${busy[tb.url] ? "抓取中…" : "📥 缓存到本地"}</span>` : null}
-                ${!tb.url && !tb.fileId ? html`<span style="color:#bbab8c;">这本只有书名/参考,没有可打开的链接或文件 —— 点「换」选带链接的版本,或让导师补链接</span>` : null}
+                ${!tb.url && !(tb.fileId || tb.file_id) ? html`<span style="color:#bbab8c;">这本只有书名(如纸质书),没有可打开的链接 —— 点「换」选带链接的版本(如可汗学院/CK-12),或让导师补链接</span>` : null}
               </span>` : null}
           </div>`;
         })()}
