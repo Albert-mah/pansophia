@@ -129,6 +129,7 @@ window.Core = (function () {
   }
   function saveMaterial(o) { return apiPost("/api/materials", o); }
   function deleteMaterial(id) { return apiPost("/api/materials/delete", { id: id }); }
+  function cachePdf(id) { return apiPost("/api/material/cachepdf", { id: id }); }   // 下载直链 PDF 进库
   // 每门课选定的课本(存 user_state.textbooks,键 discId|scope)
   function courseTextbook(discId, scope) { return (store("textbooks", {}) || {})[discId + "|" + (scope || "")] || null; }
   function setCourseTextbook(discId, scope, m) {
@@ -701,7 +702,7 @@ window.Core = (function () {
     refreshUsers: refreshUsers, saveUser: saveUser, deleteUser: deleteUser, initials: initials,
     fetchMessages: fetchMessages, sendMessage: sendMessage, messageUpdate: messageUpdate,
     questionsFor: questionsFor, recordAnswer: recordAnswer, wrongbookFetch: wrongbookFetch,
-    materialsFor: materialsFor, saveMaterial: saveMaterial, deleteMaterial: deleteMaterial, courseTextbook: courseTextbook, setCourseTextbook: setCourseTextbook,
+    materialsFor: materialsFor, saveMaterial: saveMaterial, deleteMaterial: deleteMaterial, cachePdf: cachePdf, courseTextbook: courseTextbook, setCourseTextbook: setCourseTextbook,
     uploadFile: uploadFile, fileUrl: fileUrl,
     libList: libList, libItem: libItem, cacheUrl: cacheUrl,
     store: store, save: save, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc,

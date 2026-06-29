@@ -100,6 +100,20 @@ def fetch_readable(url):
     status = "ok" if len(text) >= 200 else "empty"
     return (title, text, status)
 
+PDF_MAX = 50 * 1024 * 1024
+def fetch_binary(url):
+    """抓二进制(PDF)→ (data, content_type, status). status: ok|too_large|error"""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": LIB_UA})
+        r = urllib.request.urlopen(req, timeout=30, context=_ssl_ctx)
+        ct = (r.headers.get("Content-Type") or "").lower()
+        raw = r.read(PDF_MAX + 1)
+        if len(raw) > PDF_MAX:
+            return (None, ct, "too_large")
+        return (raw, ct, "ok")
+    except Exception:
+        return (None, "", "error")
+
 def pg():
     return psycopg2.connect(host=PG["host"], port=PG["port"], user=PG["user"],
                             password=PG["password"], dbname=PG["dbname"], connect_timeout=5)
@@ -268,6 +282,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_materials_post()
         if p.path == "/api/materials/delete":
             return self.api_materials_delete()
+        if p.path == "/api/material/cachepdf":
+            return self.api_material_cachepdf()
         if p.path == "/api/messages":
             return self.api_messages_post()
         if p.path == "/api/messages/update":
@@ -719,6 +735,37 @@ class Handler(SimpleHTTPRequestHandler):
             with conn, conn.cursor() as cur: cur.execute("DELETE FROM course_materials WHERE id=%s", (int(d["id"]),))
             conn.close()
             return self._json(200, {"ok": True})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_material_cachepdf(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        if not rate_ok(self.client_ip()): return self._json(429, {"ok": False, "error": "too many requests"})
+        d = self._read_json()
+        if not isinstance(d, dict) or d.get("id") is None: return self._json(400, {"ok": False, "error": "bad body"})
+        try:
+            conn = pg()
+            with conn.cursor() as cur:
+                cur.execute("SELECT url,title FROM course_materials WHERE id=%s", (int(d["id"]),))
+                row = cur.fetchone()
+            if not row or not row[0]:
+                conn.close(); return self._json(400, {"ok": False, "error": "该教材没有可下载的链接"})
+            url, title = row[0], row[1] or "textbook.pdf"
+            is_pdf_url = url.lower().split("?")[0].endswith(".pdf")
+            raw, ct, st = fetch_binary(url)
+            if st == "too_large":
+                conn.close(); return self._json(413, {"ok": False, "error": "文件超过 50MB,建议保留链接不缓存"})
+            if st != "ok" or not raw:
+                conn.close(); return self._json(502, {"ok": False, "error": "下载失败"})
+            if "pdf" not in ct and not is_pdf_url:
+                conn.close(); return self._json(415, {"ok": False, "error": "该链接不是直接 PDF(可能是网页/仓库页);请填直接的 .pdf 链接,或改用上传文件"})
+            fid = os.urandom(16).hex()
+            with conn, conn.cursor() as cur:
+                cur.execute("INSERT INTO files(id,user_key,name,mime,data,size) VALUES(%s,%s,%s,%s,%s,%s)",
+                            (fid, "shared", (title[:190] + ".pdf"), "application/pdf", psycopg2.Binary(raw), len(raw)))
+                cur.execute("UPDATE course_materials SET file_id=%s WHERE id=%s", (fid, int(d["id"])))
+            conn.close()
+            return self._json(200, {"ok": True, "fileId": fid, "size": len(raw)})
         except Exception as e:
             return self._json(500, {"ok": False, "error": str(e)})
 

@@ -242,6 +242,7 @@
       rd.readAsDataURL(file); e.target.value = "";
     }
     function del(id) { if (!window.confirm("删除这条教材?")) return; C.deleteMaterial(id).then(function () { load(); if (p.onChanged) p.onChanged(); }); }
+    function cache(id) { C.cachePdf(id).then(function (r) { if (r && r.ok) { window.alert("已缓存到库(" + Math.round((r.size || 0) / 1024) + " KB)"); load(); if (p.onChanged) p.onChanged(); } else window.alert((r && r.error) || "缓存失败"); }); }
     var AUTH = [["official", "官方"], ["authoritative", "权威参考"], ["generated", "AI生成"]];
     var KINDS = [["textbook", "课本"], ["syllabus", "考纲"], ["repo", "仓库"], ["tool", "工具"], ["link", "链接"], ["pdf", "PDF"]];
     return html`<div class="pan-modal-mask" onClick=${function (e) { if (e.target.classList.contains("pan-modal-mask")) p.onClose(); }}>
@@ -268,7 +269,8 @@
             var href = m.file_id ? C.fileUrl(m.file_id) : m.url;
             return html`<div key=${m.id} style="display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #F4ECDC;">
               <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;">${href ? html`<a href=${href} target="_blank" rel="noopener">${m.title} ↗</a>` : m.title}</div>
-              <div style="font-size:11.5px;color:#9a8a6f;">${m.authority || ""}${m.edition ? " · " + m.edition : ""}${m.kind ? " · " + m.kind : ""}</div></div>
+              <div style="font-size:11.5px;color:#9a8a6f;">${m.authority || ""}${m.edition ? " · " + m.edition : ""}${m.kind ? " · " + m.kind : ""}${m.file_id ? " · 📄已缓存" : ""}</div></div>
+              ${m.url && !m.file_id ? html`<span class="lnk" style="color:#6E7A4F;cursor:pointer;font-size:12px;white-space:nowrap;" onClick=${function () { cache(m.id); }}>缓存PDF</span>` : null}
               <span class="lnk" style="color:#B6532F;cursor:pointer;font-size:12px;" onClick=${function () { del(m.id); }}>删除</span></div>`;
           })}</div>`}
       </div></div>`;
@@ -558,7 +560,8 @@
   function userPrefScopes() {
     var set = {}, any = false, sc = C.schedule();
     if (sc) { if (sc.scope) { set[sc.scope] = 1; any = true; } (sc.pace || []).forEach(function (p) { if (p.scope) { set[p.scope] = 1; any = true; } }); }
-    var subs = (C.user() || {}).subjects || {};
+    // 档案默认范围(profile.subjects):决定这个学习者"在学哪个学段"(如马欢=本科及以上)
+    var subs = ((C.user() || {}).subjects) || ((window.STUDY_PROFILES || {})[C.userKey()] || {}).subjects || {};
     Object.keys(subs).forEach(function (s) { (subs[s] || []).forEach(function (x) { set[x] = 1; any = true; }); });
     return any ? set : null;
   }
@@ -604,8 +607,11 @@
     }
     return html`<div class="pan-screen">
       ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "我的课程" }]} />`}
-      <h1 class="pan-page-h">我的课程 <span class="en">/ My Courses</span></h1>
-      <p class="pan-page-sub">你在学的所有课程(同一学科可有多门,如 数学·高考、数学·初中)。点进去看 AI 导师排的考点大纲与讲解,逐个标记掌握。加新课:学科探索「加入我的空间」。</p>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <h1 class="pan-page-h" style="margin:0;">我的课程 <span class="en">/ My Courses</span></h1>
+        <span class="pan-btn ink" onClick=${function () { app.go("explore"); }}>＋ 选课 / 加学科</span>
+      </div>
+      <p class="pan-page-sub">你在学的所有课程(同一学科可有多门,如 数学·高考、数学·初中)。点进去看 AI 导师排的考点大纲与讲解,逐个标记掌握。要加新课:点右上「选课」去学科探索,把学科「加入我的空间」。</p>
       ${courses.length ? html`<div>
         ${discMeta.length > 1 ? html`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
           <span class=${"pan-tag" + (filt ? "" : " on")} onClick=${function () { setFilt(""); }}>全部 ${courses.length}</span>
