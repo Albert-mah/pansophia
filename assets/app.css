@@ -253,6 +253,12 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 .pan-fc-pace { font-size: 9.5px; line-height: 1.25; opacity: .95; padding: 0 3px 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 700px) { .pan-cal .fc .fc-toolbar { flex-direction: column; gap: 8px; } }
 
+/* 给导师留言:浮动入口 + 选中文本快捷发送 */
+.pan-fab { position: fixed; right: 22px; bottom: 22px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #C8852E, #B6532F); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.22); z-index: 60; transition: transform .12s; }
+.pan-fab:hover { transform: translateY(-2px); }
+.pan-selsend { position: fixed; transform: translateX(-50%); background: #33291E; color: #F2E8D6; font-size: 12.5px; font-weight: 600; padding: 6px 12px; border-radius: 18px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.28); z-index: 70; white-space: nowrap; }
+@media (max-width: 700px) { .pan-fab { right: 16px; bottom: 16px; width: 48px; height: 48px; } }
+
 /* 弹窗(任务详情 / 目标自动排) */
 .pan-modal-mask { position: fixed; inset: 0; background: rgba(40,30,20,.42); z-index: 8000; display: flex; align-items: flex-start; justify-content: center; padding: 44px 16px; overflow: auto; }
 .pan-modal { background: var(--surface); border-radius: 18px; padding: 22px 24px; width: 100%; max-width: 540px; box-shadow: var(--shadow-lift); animation: pan-toast-in .2s ease; }

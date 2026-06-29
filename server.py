@@ -128,10 +128,40 @@ def init_db():
                     url text, title text, text text, chars int DEFAULT 0, status text,
                     fetched_at bigint, UNIQUE(disc_id, url));""")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_library_disc ON library(disc_id);")
+            # 题库:每题挂知识点 kp(= 考点 ref / kpKey)+ subject/scope/edition + 难度 + 变体组
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS questions(
+                    id serial PRIMARY KEY, kp text, subject text, scope text, edition text,
+                    type text, difficulty int DEFAULT 2, variant_of text,
+                    stem text, options jsonb, answer jsonb, explain text, source text,
+                    created_at timestamptz NOT NULL DEFAULT now());""")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_questions_kp ON questions(kp);")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_questions_subj ON questions(subject, scope, edition);")
+            # 答题记录:驱动错题本 / 掌握 / 自适应选题
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS answers(
+                    id serial PRIMARY KEY, user_key text, question_id int, kp text,
+                    correct boolean, exam_id text, ts bigint);""")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_answers_user ON answers(user_key, question_id);")
+            # 课程教材/资料库:按 学科×范围×版本 挂课本/考纲/链接/上传件,供 AI 导师排课
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS course_materials(
+                    id serial PRIMARY KEY, disc_id text, scope text, edition text,
+                    kind text, title text, url text, file_id text, note text,
+                    created_at timestamptz NOT NULL DEFAULT now());""")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_materials_disc ON course_materials(disc_id, scope, edition);")
+            # 给 AI 导师的统一异步消息/任务队列(选课通知、完成习题、错题扩展、随手提问…)。
+            # 本地 CLI agent 轮询处理,逐条 status: new→seen→doing→done,可回 reply。
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS messages(
+                    id serial PRIMARY KEY, user_key text, kind text, text text,
+                    context jsonb, status text DEFAULT 'new', reply text,
+                    created_at bigint, processed_at bigint);""")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_messages_status ON messages(status, user_key);")
             cur.execute("""INSERT INTO users(key,name,icon,color,blurb,seed) VALUES
-                ('siyu','Siyu','🎯','#6b4fd8','高考备考(物化生方向)',true),
-                ('ma-huan','Ma Huan','🧭','#e07b39','终身学习 · 日语+托福+各科高阶',true),
-                ('mahuan','Jiahuan','🚀','#16a085','六年级 · 小升初 · 英语为主',true)
+                ('siyu','Siyu','🧑‍🎓','#6b4fd8','高考备考(物化生方向)',true),
+                ('ma-huan','Ma Huan','🧑','#e07b39','终身学习 · 日语+托福+各科高阶',true),
+                ('mahuan','Jiahuan','🧒','#16a085','六年级 · 小升初 · 英语为主',true)
                 ON CONFLICT (key) DO NOTHING;""")
     finally:
         conn.close()
@@ -200,6 +230,14 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_file(parse_qs(p.query))
         if p.path == "/api/lib":
             return self.api_lib(parse_qs(p.query))
+        if p.path == "/api/questions":
+            return self.api_questions_get(parse_qs(p.query))
+        if p.path == "/api/wrongbook":
+            return self.api_wrongbook(parse_qs(p.query))
+        if p.path == "/api/materials":
+            return self.api_materials_get(parse_qs(p.query))
+        if p.path == "/api/messages":
+            return self.api_messages_get(parse_qs(p.query))
         if p.path.startswith("/api/"):
             return self._json(404, {"ok": False, "error": "not found"})
         return super().do_GET()
@@ -211,12 +249,24 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_state_set()
         if p.path == "/api/users":
             return self.api_users_post()
+        if p.path == "/api/users/delete":
+            return self.api_users_delete()
         if p.path == "/api/event":
             return self.api_event()
         if p.path == "/api/upload":
             return self.api_upload()
         if p.path == "/api/cache":
             return self.api_cache()
+        if p.path == "/api/questions":
+            return self.api_questions_post()
+        if p.path == "/api/answer":
+            return self.api_answer_post()
+        if p.path == "/api/materials":
+            return self.api_materials_post()
+        if p.path == "/api/messages":
+            return self.api_messages_post()
+        if p.path == "/api/messages/update":
+            return self.api_messages_update()
         return self._json(404, {"ok": False, "error": "not found"})
 
     # ---------- health ----------
@@ -266,6 +316,28 @@ class Handler(SimpleHTTPRequestHandler):
                     (key, name, icon, color, blurb))
             conn.close()
             return self._json(200, {"ok": True, "key": key})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_users_delete(self):
+        if not self._auth_write():
+            return self._json(401, {"ok": False, "error": "bad token"})
+        if not rate_ok(self.client_ip()):
+            return self._json(429, {"ok": False, "error": "too many requests"})
+        d = self._read_json()
+        key = str((d or {}).get("key") or "")
+        if not USER_RE.match(key):
+            return self._json(400, {"ok": False, "error": "bad key"})
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("SELECT count(*) FROM users")
+                if cur.fetchone()[0] <= 1:
+                    return self._json(400, {"ok": False, "error": "至少保留一个用户"})
+                cur.execute("DELETE FROM user_state WHERE user_key=%s", (key,))
+                cur.execute("DELETE FROM users WHERE key=%s", (key,))
+            conn.close()
+            return self._json(200, {"ok": True})
         except Exception as e:
             return self._json(500, {"ok": False, "error": str(e)})
 
@@ -506,6 +578,186 @@ class Handler(SimpleHTTPRequestHandler):
                 rid = cur.fetchone()[0]
             conn.close()
             return self._json(200, {"ok": True, "id": rid, "chars": len(text), "status": status, "title": title})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    # ---------- 题库 / 答题 / 错题本 ----------
+    def api_questions_get(self, q):
+        kp = (q.get("kp") or [""])[0]; subject = (q.get("subject") or [""])[0]
+        scope = (q.get("scope") or [""])[0]; edition = (q.get("edition") or [""])[0]
+        try: limit = min(200, max(1, int((q.get("limit") or ["50"])[0])))
+        except Exception: limit = 50
+        where, args = [], []
+        if kp: where.append("kp = ANY(%s)"); args.append([x for x in kp.split(",") if x])
+        if subject: where.append("subject=%s"); args.append(subject)
+        if scope: where.append("scope=%s"); args.append(scope)
+        if edition: where.append("edition=%s"); args.append(edition)
+        sql = "SELECT id,kp,subject,scope,edition,type,difficulty,variant_of,stem,options,answer,explain,source FROM questions"
+        if where: sql += " WHERE " + " AND ".join(where)
+        sql += " ORDER BY id LIMIT %s"; args.append(limit)
+        try:
+            conn = pg()
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(sql, tuple(args)); rows = cur.fetchall()
+            conn.close()
+            return self._json(200, {"ok": True, "questions": rows})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_questions_post(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        if not rate_ok(self.client_ip()): return self._json(429, {"ok": False, "error": "too many requests"})
+        d = self._read_json(UPLOAD_MAX)
+        items = d.get("questions") if isinstance(d, dict) and isinstance(d.get("questions"), list) else ([d] if isinstance(d, dict) and d.get("stem") else None)
+        if not items: return self._json(400, {"ok": False, "error": "bad body"})
+        ids = []
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                for it in items[:500]:
+                    cur.execute("""INSERT INTO questions(kp,subject,scope,edition,type,difficulty,variant_of,stem,options,answer,explain,source)
+                        VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
+                        (it.get("kp"), it.get("subject"), it.get("scope"), it.get("edition"),
+                         it.get("type") or "choice", int(it.get("difficulty") or 2), it.get("variant_of"),
+                         str(it.get("stem") or "")[:4000], json.dumps(it.get("options") or [], ensure_ascii=False),
+                         json.dumps(it.get("answer"), ensure_ascii=False), str(it.get("explain") or "")[:4000], it.get("source") or "manual"))
+                    ids.append(cur.fetchone()[0])
+            conn.close()
+            return self._json(200, {"ok": True, "ids": ids})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_answer_post(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        if not rate_ok(self.client_ip()): return self._json(429, {"ok": False, "error": "too many requests"})
+        d = self._read_json()
+        if not isinstance(d, dict) or d.get("questionId") is None: return self._json(400, {"ok": False, "error": "bad body"})
+        user = str(d.get("user") or "")
+        if not USER_RE.match(user): return self._json(400, {"ok": False, "error": "bad user"})
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("INSERT INTO answers(user_key,question_id,kp,correct,exam_id,ts) VALUES(%s,%s,%s,%s,%s,%s)",
+                    (user, int(d["questionId"]), d.get("kp"), bool(d.get("correct")), d.get("examId"), int(time.time() * 1000)))
+            conn.close()
+            return self._json(200, {"ok": True})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_wrongbook(self, q):
+        user = (q.get("user") or [""])[0]
+        if not USER_RE.match(user): return self._json(400, {"ok": False, "error": "bad user"})
+        subject = (q.get("subject") or [""])[0]
+        try: limit = min(200, max(1, int((q.get("limit") or ["100"])[0])))
+        except Exception: limit = 100
+        sql = """SELECT q.id,q.kp,q.subject,q.scope,q.type,q.difficulty,q.stem,q.options,q.answer,q.explain,a.ts AS wrong_ts
+                 FROM questions q JOIN (
+                   SELECT DISTINCT ON (question_id) question_id,correct,ts FROM answers
+                   WHERE user_key=%s ORDER BY question_id,ts DESC
+                 ) a ON a.question_id=q.id WHERE a.correct=false"""
+        args = [user]
+        if subject: sql += " AND q.subject=%s"; args.append(subject)
+        sql += " ORDER BY a.ts DESC LIMIT %s"; args.append(limit)
+        try:
+            conn = pg()
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(sql, tuple(args)); rows = cur.fetchall()
+            conn.close()
+            return self._json(200, {"ok": True, "questions": rows})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    # ---------- 课程教材 / 资料库 ----------
+    def api_materials_get(self, q):
+        disc = (q.get("disc") or [""])[0]; scope = (q.get("scope") or [""])[0]; edition = (q.get("edition") or [""])[0]
+        where, args = [], []
+        if disc: where.append("disc_id=%s"); args.append(disc)
+        if scope: where.append("scope=%s"); args.append(scope)
+        if edition: where.append("edition=%s"); args.append(edition)
+        sql = "SELECT id,disc_id,scope,edition,kind,title,url,file_id,note FROM course_materials"
+        if where: sql += " WHERE " + " AND ".join(where)
+        sql += " ORDER BY id DESC LIMIT 200"
+        try:
+            conn = pg()
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(sql, tuple(args)); rows = cur.fetchall()
+            conn.close()
+            return self._json(200, {"ok": True, "items": rows})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_materials_post(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        if not rate_ok(self.client_ip()): return self._json(429, {"ok": False, "error": "too many requests"})
+        d = self._read_json()
+        if not isinstance(d, dict) or not d.get("title"): return self._json(400, {"ok": False, "error": "bad body"})
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("""INSERT INTO course_materials(disc_id,scope,edition,kind,title,url,file_id,note)
+                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
+                    (d.get("discId"), d.get("scope"), d.get("edition"), d.get("kind") or "link",
+                     str(d["title"])[:300], d.get("url"), d.get("fileId"), str(d.get("note") or "")[:1000]))
+                rid = cur.fetchone()[0]
+            conn.close()
+            return self._json(200, {"ok": True, "id": rid})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    # ---------- 给 AI 导师的消息 / 任务队列 ----------
+    def api_messages_get(self, q):
+        user = (q.get("user") or [""])[0]; status = (q.get("status") or [""])[0]
+        where, args = [], []
+        if user:
+            if not USER_RE.match(user): return self._json(400, {"ok": False, "error": "bad user"})
+            where.append("user_key=%s"); args.append(user)
+        if status: where.append("status=%s"); args.append(status)
+        sql = "SELECT id,user_key,kind,text,context,status,reply,created_at,processed_at FROM messages"
+        if where: sql += " WHERE " + " AND ".join(where)
+        sql += " ORDER BY created_at DESC LIMIT 200"
+        try:
+            conn = pg()
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(sql, tuple(args)); rows = cur.fetchall()
+            conn.close()
+            return self._json(200, {"ok": True, "messages": rows})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_messages_post(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        if not rate_ok(self.client_ip()): return self._json(429, {"ok": False, "error": "too many requests"})
+        d = self._read_json()
+        if not isinstance(d, dict) or not (d.get("text") or d.get("kind")): return self._json(400, {"ok": False, "error": "bad body"})
+        user = str(d.get("user") or "")
+        if not USER_RE.match(user): return self._json(400, {"ok": False, "error": "bad user"})
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("INSERT INTO messages(user_key,kind,text,context,status,created_at) VALUES(%s,%s,%s,%s,'new',%s) RETURNING id",
+                    (user, str(d.get("kind") or "note")[:40], str(d.get("text") or "")[:2000],
+                     json.dumps(d.get("context") or {}, ensure_ascii=False), int(time.time() * 1000)))
+                rid = cur.fetchone()[0]
+            conn.close()
+            return self._json(200, {"ok": True, "id": rid})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_messages_update(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        d = self._read_json()
+        if not isinstance(d, dict) or d.get("id") is None: return self._json(400, {"ok": False, "error": "bad body"})
+        sets, args = [], []
+        if "status" in d: sets.append("status=%s"); args.append(str(d["status"])[:20])
+        if "reply" in d: sets.append("reply=%s"); args.append(str(d.get("reply") or "")[:4000])
+        sets.append("processed_at=%s"); args.append(int(time.time() * 1000))
+        args.append(int(d["id"]))
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("UPDATE messages SET " + ",".join(sets) + " WHERE id=%s", tuple(args))
+            conn.close()
+            return self._json(200, {"ok": True})
         except Exception as e:
             return self._json(500, {"ok": False, "error": str(e)})
 

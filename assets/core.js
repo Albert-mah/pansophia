@@ -82,19 +82,29 @@ window.Core = (function () {
   function addUser(name) {
     name = (name || "").trim(); if (!name) return Promise.resolve(null);
     var palette = ["#B6532F", "#C8852E", "#6E7A4F", "#9c7a3d", "#5e6b6e"];
-    var body = { name: name, icon: name[0] || "学", color: palette[(users().length) % palette.length], blurb: "新学习者" };
+    var body = { name: name, icon: "🧑", color: palette[(users().length) % palette.length], blurb: "新学习者" };
     return fetch("/api/users", { method: "POST", headers: { "Content-Type": "application/json", "X-Write-Token": WRITE_TOKEN }, body: JSON.stringify(body) })
       .then(function (r) { return r.json(); })
       .then(function (r) { if (r && r.ok && r.key) { if (_users) _users.push(Object.assign({ key: r.key }, body)); return r.key; } return null; })
       .catch(function () { return null; });
   }
 
+  function refreshUsers() { return apiGet("/api/users").then(function (r) { if (r && r.ok && r.users) _users = r.users; return _users; }).catch(function () { return _users; }); }
+  function saveUser(u) { return apiPost("/api/users", { key: u.key, name: u.name, icon: u.icon, color: u.color, blurb: u.blurb }).then(function (r) { return refreshUsers().then(function () { return r; }); }); }
+  function deleteUser(key) { return apiPost("/api/users/delete", { key: key }).then(function (r) { return refreshUsers().then(function () { return r; }); }); }
+
+  // 给 AI 导师的异步留言箱(只写库,CLI agent 自行轮询处理;不直连 CLI)
+  function fetchMessages() { return apiGet("/api/messages?user=" + encodeURIComponent(userKey())).then(function (r) { return (r && r.messages) || []; }).catch(function () { return []; }); }
+  function sendMessage(o) { return apiPost("/api/messages", { user: _curKey || userKey(), kind: (o && o.kind) || "note", text: (o && o.text) || "", context: (o && o.context) || {} }); }
+  function messageUpdate(id, patch) { return apiPost("/api/messages/update", Object.assign({ id: id }, patch || {})); }
+
   /* ---------------- 用户态存储(读缓存 / 写直达 DB) ---------------- */
   function store(name, fallback) { return (_cache && name in _cache && _cache[name] != null) ? _cache[name] : fallback; }
   function save(name, val) { _cache[name] = val; postState(_curKey || userKey(), name, val); }
   function myDiscs() { return store("disc", []); }
   function hasDisc(id) { return myDiscs().indexOf(id) >= 0; }
-  function toggleDisc(id) { var a = myDiscs().slice(); var i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); save("disc", a); }
+  function toggleDisc(id) { var a = myDiscs().slice(), i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); save("disc", a); }
+  // 选课不自动发消息(可能加错/撤回);要导师排课,用户在学科页/留言箱主动发。导师也可直接读 disc 列表聚合。
   function points() { return store("points", { balance: 0, ledger: [] }); }
   function wishlist() { return store("wishlist", []); }
   function notes() { return store("notes", []); }
@@ -649,6 +659,8 @@ window.Core = (function () {
   return {
     esc: esc, uniqBy: uniqBy, SLOTS: SLOTS, HEAT_COLORS: HEAT_COLORS, CATS: CATS, SUBJECTS: SUBJECTS, SCOPES: SCOPES,
     hydrate: hydrate, users: users, user: user, userKey: userKey, switchUser: switchUser, addUser: addUser,
+    refreshUsers: refreshUsers, saveUser: saveUser, deleteUser: deleteUser,
+    fetchMessages: fetchMessages, sendMessage: sendMessage, messageUpdate: messageUpdate,
     uploadFile: uploadFile, fileUrl: fileUrl,
     libList: libList, libItem: libItem, cacheUrl: cacheUrl,
     store: store, save: save, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc,

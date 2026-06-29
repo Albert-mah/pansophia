@@ -35,7 +35,7 @@
   window.AppCtx = Ctx;
   window.html = html; // 供 screens.js 共用
 
-  var SCREENS = ["home", "explore", "discipline", "plan", "course", "quiz", "vocab", "notes", "wishlist", "points", "analytics"];
+  var SCREENS = ["home", "explore", "discipline", "plan", "course", "quiz", "vocab", "notes", "wishlist", "points", "analytics", "users", "messages"];
   var NAV = [
     { key: "home", label: "首页" },
     { key: "explore", label: "学科探索", caret: true },
@@ -122,8 +122,37 @@
         })}
         <div class="add"><div class="u" onClick=${function () { var n = window.prompt("添加学习者(名字):"); if (n) { C.addUser(n).then(function (k) { if (k) app.switchUser(k); }); } }}>
           <div class="av" style=${{ background: "#EBDEC8", color: "#7A6E5E" }}>＋</div>
-          <div style=${{ fontWeight: 600, fontSize: "14px" }}>添加学习者…</div></div></div>
+          <div style=${{ fontWeight: 600, fontSize: "14px" }}>添加学习者…</div></div>
+        <div class="u" onClick=${function () { app.go("users"); }}>
+          <div class="av" style=${{ background: "#33291E", color: "#E8DCC4" }}>⚙</div>
+          <div style=${{ fontWeight: 600, fontSize: "14px" }}>用户管理 · 改头像/信息</div></div></div>
       </div>`;
+  }
+
+  /* ---------------- 全局派发:给导师的浮动入口 + 选中文本快捷留言 ---------------- */
+  function Dispatcher() {
+    var app = useContext(Ctx);
+    var s0 = useState(null); var sel = s0[0], setSel = s0[1];   // {text,x,y}
+    useEffect(function () {
+      function onUp() {
+        try {
+          var s = window.getSelection(); var t = s ? String(s).trim() : "";
+          if (t.length >= 2 && t.length <= 300 && s.rangeCount) {
+            var r = s.getRangeAt(0).getBoundingClientRect();
+            if (r && (r.width || r.height)) { setSel({ text: t, x: Math.max(60, Math.min(r.left + r.width / 2, window.innerWidth - 60)), y: r.top }); return; }
+          }
+          setSel(null);
+        } catch (e) { setSel(null); }
+      }
+      document.addEventListener("mouseup", onUp);
+      document.addEventListener("touchend", onUp);
+      return function () { document.removeEventListener("mouseup", onUp); document.removeEventListener("touchend", onUp); };
+    }, []);
+    function ask() { var t = sel.text; setSel(null); try { window.getSelection().removeAllRanges(); } catch (e) {} app.go("messages", { prefill: "关于「" + t + "」:", ctx: { quote: t, screen: app.screen } }); }
+    return html`<div>
+      <div class="pan-fab" title="给 AI 导师留言" onClick=${function () { app.go("messages"); }}>✉️</div>
+      ${sel ? html`<div class="pan-selsend" style=${{ left: sel.x + "px", top: (sel.y > 56 ? sel.y - 40 : sel.y + 26) + "px" }} onMouseDown=${function (e) { e.preventDefault(); }} onClick=${ask}>✉️ 发给导师</div>` : null}
+    </div>`;
   }
 
   /* ---------------- 根组件 ---------------- */
@@ -172,6 +201,7 @@
         ${st.toast ? html`<div class="pan-toast">${st.toast.map(function (a, i) {
           return html`<div key=${i} class="pan-toast-item"><div class="ico">${a.icon}</div><div><div class="t">🏅 成就解锁 · ${a.name}</div><div class="d">${a.desc}${a.pts ? " · +" + a.pts + " ⬡" : ""}</div></div></div>`;
         })}</div>` : null}
+        ${st.ready ? html`<${Dispatcher} />` : null}
       </div>
     </${Ctx.Provider}>`;
   }

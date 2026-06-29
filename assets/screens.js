@@ -280,7 +280,8 @@
           <div class="pan-ink-panel"><div class="pan-kicker">✦ 和 AI 导师一起学</div>
           <div style="font-size:14px;line-height:1.7;color:#E8DCC4;">把这门加进我的空间,然后对 AI 导师说:<br/><code style="display:inline-block;margin-top:8px;background:#2c2114;border-radius:8px;padding:6px 10px;color:#E8B06A;font-size:12.5px;">帮我补全「${d.name}」的学习计划和考点</code></div>
           <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;"><span class="pan-btn grad pill" onClick=${function () { if (!added) C.toggleDisc(id); app.go("plan"); }}>排进学习计划 →</span>
-          ${added ? html`<span class="pan-btn ghost pill" onClick=${function () { app.go("course", { disc: id }); }}>去学习</span>` : null}</div></div>
+          ${added ? html`<span class="pan-btn ghost pill" onClick=${function () { app.go("course", { disc: id }); }}>去学习</span>` : null}
+          <span class="pan-btn ghost pill" onClick=${function () { C.sendMessage({ kind: "ask", text: "请帮我安排「" + d.name + "」这门课的考点大纲、讲解和习题。", context: { discId: id, disc: d.name } }).then(function () { app.go("messages"); }); }}>✉️ 请导师排课</span></div></div>
         </div>
       </div>
       ${reader ? html`<div class="pan-modal-mask" onClick=${function (e) { if (e.target.classList.contains("pan-modal-mask")) setReader(null); }}>
@@ -925,5 +926,121 @@
     </div>`;
   }
 
-  window.Screens = { home: HomeScreen, explore: ExploreScreen, discipline: DisciplineScreen, plan: PlanScreen, course: CourseScreen, quiz: QuizScreen, notes: NotesScreen, wishlist: WishlistScreen, points: PointsScreen, analytics: AnalyticsScreen };
+  /* =========================================================
+   *  USERS · 用户管理(自定义信息 + 头像)
+   * ========================================================= */
+  var AVATAR_EMOJI = ["🧑‍🎓", "👩‍🎓", "👨‍🎓", "🧒", "👦", "👧", "🧑", "👩", "👨", "👵", "👴", "🧑‍💻", "🧑‍🔬", "🧑‍🏫", "🧑‍🚀", "🦊", "🐱", "🐰", "🐼", "🦉", "🐯", "🐨", "🐸", "🦁", "🐵", "🐶", "🌟", "🚀", "🎯", "📚", "🎨", "⚽"];
+  var AVATAR_COLOR = ["#B6532F", "#C8852E", "#6E7A4F", "#3b6fe0", "#8e44ad", "#16a085", "#e2524a", "#e67e22", "#27ae60", "#6b4fd8", "#0e7490", "#c0392b"];
+  function Avatar(p) {
+    var size = p.size || 44;
+    return html`<div style=${"width:" + size + "px;height:" + size + "px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:" + Math.round(size * 0.5) + "px;background:linear-gradient(135deg," + (p.color || "#C8852E") + ",#B6532F);color:#fff;box-shadow:inset 0 -2px 6px rgba(0,0,0,.12);"}>${p.icon || (p.name || "?")[0]}</div>`;
+  }
+  function UsersScreen() {
+    var app = useApp();
+    var ed0 = useState(null); var edit = ed0[0], setEdit = ed0[1];
+    var bz0 = useState(false); var busy = bz0[0], setBusy = bz0[1];
+    var cur = C.userKey(), us = C.users();
+    function openNew() { setEdit({ name: "", icon: "🧑", color: AVATAR_COLOR[us.length % AVATAR_COLOR.length], blurb: "" }); }
+    function openEdit(u) { setEdit({ key: u.key, name: u.name, icon: u.icon || "🧑", color: u.color || "#C8852E", blurb: u.blurb || "" }); }
+    function set(k, v) { setEdit(function (e) { var o = Object.assign({}, e); o[k] = v; return o; }); }
+    function save() {
+      if (!edit.name.trim()) { window.alert("请填名字"); return; }
+      setBusy(true);
+      C.saveUser({ key: edit.key, name: edit.name.trim(), icon: edit.icon, color: edit.color, blurb: edit.blurb.trim() }).then(function (r) {
+        setBusy(false);
+        if (r && r.ok) { var wasNew = !edit.key; setEdit(null); if (wasNew && r.key) app.switchUser(r.key); else app.refresh(); }
+        else window.alert("保存失败");
+      });
+    }
+    function del(u) {
+      if (!window.confirm("删除「" + u.name + "」?其学习数据(进度/积分/计划等)也会一并删除,不可恢复。")) return;
+      C.deleteUser(u.key).then(function (r) {
+        if (r && r.ok) { if (u.key === cur) { var other = C.users().filter(function (x) { return x.key !== u.key; })[0]; other ? app.switchUser(other.key) : app.refresh(); } else app.refresh(); }
+        else window.alert((r && r.error) || "删除失败");
+      });
+    }
+    return html`<div class="pan-screen">
+      ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "用户管理" }]} />`}
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+        <div><h1 class="pan-page-h" style="margin:0 0 4px;">用户管理 <span class="en">/ Profiles</span></h1>
+        <div style="font-size:13px;color:#9a8a6f;">改名字、头像、一句话简介;新增 / 删除学习者。部署后把示例账号改成你自己的。</div></div>
+        <span class="pan-btn ink" onClick=${openNew}>＋ 新建用户</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+        ${us.map(function (u) {
+          return html`<div key=${u.key} class="pan-panel" style="display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              ${html`<${Avatar} icon=${u.icon} color=${u.color} name=${u.name} size=${52} />`}
+              <div style="min-width:0;flex:1;"><div style="font-family:var(--serif);font-size:17px;font-weight:700;">${u.name}${u.key === cur ? html` <span style="font-size:11px;color:#6E7A4F;font-weight:600;">· 当前</span>` : ""}</div>
+              <div style="font-size:12px;color:#9a8a6f;">${u.blurb || ""}</div></div></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              ${u.key === cur ? null : html`<span class="pan-btn ghost sm" onClick=${function () { app.switchUser(u.key); }}>切到 TA</span>`}
+              <span class="pan-btn ghost sm" onClick=${function () { openEdit(u); }}>编辑</span>
+              ${us.length > 1 ? html`<span class="pan-btn ghost sm" style="color:#B6532F;" onClick=${function () { del(u); }}>删除</span>` : null}
+            </div></div>`;
+        })}
+      </div>
+      ${edit ? html`<div class="pan-modal-mask" onClick=${function (e) { if (e.target.classList.contains("pan-modal-mask")) setEdit(null); }}>
+        <div class="pan-modal">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h2 style="font-family:var(--serif);margin:0;font-size:19px;">${edit.key ? "编辑用户" : "新建用户"}</h2><span onClick=${function () { setEdit(null); }} style="cursor:pointer;color:#9a8a6f;font-size:20px;">×</span></div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">${html`<${Avatar} icon=${edit.icon} color=${edit.color} name=${edit.name} size=${60} />`}
+            <input value=${edit.name} onInput=${function (e) { set("name", e.target.value); }} placeholder="名字" style="flex:1;border:1px solid #EBDEC8;border-radius:9px;padding:10px;font-family:var(--sans);font-size:15px;" /></div>
+          <input value=${edit.blurb} onInput=${function (e) { set("blurb", e.target.value); }} placeholder="一句话简介(如:高三冲刺 / 三年级)" style="width:100%;border:1px solid #EBDEC8;border-radius:9px;padding:9px 10px;margin-bottom:16px;font-family:var(--sans);font-size:13.5px;" />
+          <div class="pan-eyebrow" style="margin-bottom:8px;">头像</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;max-height:148px;overflow:auto;">${AVATAR_EMOJI.map(function (em) { return html`<span key=${em} onClick=${function () { set("icon", em); }} style=${"width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;background:" + (edit.icon === em ? "#F4EAD8" : "#FBF6EC") + ";box-shadow:" + (edit.icon === em ? "0 0 0 2px " + edit.color : "inset 0 0 0 1px #EEE3CF") + ";"}>${em}</span>`; })}</div>
+          <div class="pan-eyebrow" style="margin-bottom:8px;">颜色</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">${AVATAR_COLOR.map(function (c) { return html`<span key=${c} onClick=${function () { set("color", c); }} style=${"width:26px;height:26px;border-radius:50%;cursor:pointer;background:" + c + ";box-shadow:" + (edit.color === c ? "0 0 0 2px #fff,0 0 0 4px " + c : "none") + ";"}></span>`; })}</div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;"><span class="pan-btn ghost" onClick=${function () { setEdit(null); }}>取消</span><span class=${"pan-btn " + (busy ? "ghost" : "grad")} onClick=${busy ? null : save}>${busy ? "保存中…" : "保存"}</span></div>
+        </div>
+      </div>` : null}
+    </div>`;
+  }
+
+  /* =========================================================
+   *  MESSAGES · 给 AI 导师的异步留言箱(进库,CLI agent 自取)
+   * ========================================================= */
+  var MSG_KIND = { enroll: "选课", wish: "愿望", ask: "提问", note: "留言", quiz: "习题", wrong: "错题", done: "完成" };
+  var MSG_STATUS = { "new": ["待处理", "#a86a00", "#FBF4E6"], seen: ["已查看", "#6E7A4F", "#F1F4E8"], doing: ["处理中", "#2c5fb3", "#eaf1fb"], done: ["已处理", "#3f8a52", "#eef7f0"] };
+  function MessagesScreen() {
+    var app = useApp();
+    var ms0 = useState(null); var msgs = ms0[0], setMsgs = ms0[1];
+    var tx0 = useState((app.params && app.params.prefill) || ""); var txt = tx0[0], setTxt = tx0[1];
+    var cx0 = useState((app.params && app.params.ctx) || null); var ctx = cx0[0], setCtx = cx0[1];
+    var bz0 = useState(false); var busy = bz0[0], setBusy = bz0[1];
+    function load() { C.fetchMessages().then(function (m) { setMsgs(m); }); }
+    useEffect(function () { load(); }, []);
+    function send() {
+      var t = txt.trim(); if (!t || busy) return; setBusy(true);
+      C.sendMessage({ kind: ctx ? "ask" : "note", text: t, context: ctx || {} }).then(function () { setBusy(false); setTxt(""); setCtx(null); load(); });
+    }
+    function done(id) { C.messageUpdate(id, { status: "done" }).then(load); }
+    function fmt(ts) { if (!ts) return ""; var d = new Date(ts); function p(n) { return (n < 10 ? "0" : "") + n; } return (d.getMonth() + 1) + "/" + d.getDate() + " " + p(d.getHours()) + ":" + p(d.getMinutes()); }
+    return html`<div class="pan-screen narrow">
+      ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "给导师留言" }]} />`}
+      <h1 class="pan-page-h">给 AI 导师留言 <span class="en">/ Messages</span></h1>
+      <p class="pan-page-sub">异步留言箱:你写的需求进队列,本地 AI 导师有空就来处理、逐条标状态并回复。选课/完成等也会自动留一条。</p>
+      <div class="pan-panel" style="margin-bottom:18px;">
+        ${ctx && ctx.quote ? html`<div style="font-size:12.5px;color:#7A6E5E;background:#FBF6EC;border-left:3px solid #C8852E;border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:10px;">关于:"${ctx.quote}" <span class="lnk" style="color:#b09a7a;cursor:pointer;margin-left:6px;" onClick=${function () { setCtx(null); }}>× 清除</span></div>` : null}
+        <textarea value=${txt} onInput=${function (e) { setTxt(e.target.value); }} placeholder="想让导师做什么?(出一套练习 / 讲讲这个考点 / 把这题加错题本…)" style="width:100%;min-height:74px;border:1px solid #EBDEC8;border-radius:10px;padding:11px;font-family:var(--sans);font-size:14px;resize:vertical;outline:none;background:#FFFDF8;"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px;"><span class=${"pan-btn " + (txt.trim() && !busy ? "grad" : "ghost")} onClick=${send}>${busy ? "发送中…" : "✉️ 发给导师"}</span></div>
+      </div>
+      ${msgs == null ? html`<div class="pan-empty">加载中…</div>`
+        : !msgs.length ? html`<div class="pan-empty">还没有留言。上面写一条,或在学习时随手发给导师。</div>`
+        : html`<div style="display:flex;flex-direction:column;gap:12px;">${msgs.map(function (m) {
+          var stt = MSG_STATUS[m.status] || MSG_STATUS["new"];
+          return html`<div key=${m.id} class="pan-panel" style="padding:14px 16px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+              <span class="pan-pill" style=${"color:" + stt[1] + ";background:" + stt[2] + ";"}>${stt[0]}</span>
+              <span style="font-size:11.5px;color:#9a8a6f;">${MSG_KIND[m.kind] || m.kind}</span>
+              <span style="font-size:11.5px;color:#bbab8c;margin-left:auto;">${fmt(m.created_at)}</span></div>
+            <div style="font-size:14px;color:#3a3023;line-height:1.6;">${m.text}</div>
+            ${m.context && m.context.quote ? html`<div style="font-size:12px;color:#9a8a6f;margin-top:5px;border-left:2px solid #EBDEC8;padding-left:8px;">"${m.context.quote}"</div>` : null}
+            ${m.reply ? html`<div style="margin-top:10px;background:#F1F4E8;border-radius:10px;padding:10px 12px;font-size:13px;color:#3a3023;"><b style="color:#6E7A4F;">导师回复:</b> ${m.reply}</div>` : null}
+            ${m.status !== "done" ? html`<div style="margin-top:8px;text-align:right;"><span class="lnk" style="font-size:12px;color:#b09a7a;cursor:pointer;" onClick=${function () { done(m.id); }}>标记已处理</span></div>` : null}
+          </div>`;
+        })}</div>`}
+    </div>`;
+  }
+
+  window.Screens = { home: HomeScreen, explore: ExploreScreen, discipline: DisciplineScreen, plan: PlanScreen, course: CourseScreen, quiz: QuizScreen, notes: NotesScreen, wishlist: WishlistScreen, points: PointsScreen, analytics: AnalyticsScreen, users: UsersScreen, messages: MessagesScreen };
 })();
