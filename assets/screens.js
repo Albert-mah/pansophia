@@ -206,6 +206,74 @@
   /* =========================================================
    *  DISCIPLINE
    * ========================================================= */
+  /* 教材管理:挂课本/考纲/链接、上传 PDF、开源快捷引用、删除 */
+  function MaterialsManager(p) {
+    var l0 = useState(null); var list = l0[0], setList = l0[1];
+    var f0 = useState({ kind: "textbook", title: "", edition: "", authority: "official", url: "", note: "" });
+    var f = f0[0], setF = f0[1];
+    var b0 = useState(false); var busy = b0[0], setBusy = b0[1];
+    function load() { C.materialsFor(p.disc).then(function (x) { setList(x); }); }
+    useEffect(function () { load(); }, []);
+    function set(k, v) { setF(function (o) { var n = Object.assign({}, o); n[k] = v; return n; }); }
+    var PRESETS = [
+      { label: "国家中小学智慧教育平台(官方)", url: "https://basic.smartedu.cn/tchMaterial", authority: "official", kind: "textbook", note: "官方电子课本,可在线看 / 下载 PDF" },
+      { label: "ChinaTextbook(开源教材PDF)", url: "https://github.com/TapXWorld/ChinaTextbook", authority: "authoritative", kind: "repo", note: "GitHub 开源教材合集,免费无水印、可下载" },
+      { label: "tchMaterial-parser(下载工具)", url: "https://github.com/happycola233/tchMaterial-parser", authority: "authoritative", kind: "tool", note: "从智慧教育平台批量下载电子课本 PDF" },
+      { label: "ce_ebook(义务教育)", url: "https://github.com/lihugang/ce_ebook", authority: "authoritative", kind: "repo", note: "义务教育阶段教科书整理收集" }
+    ];
+    function applyPreset(ps) { setF(function (o) { return Object.assign({}, o, { title: o.title || ps.label, url: ps.url, authority: ps.authority, kind: ps.kind, note: o.note || ps.note }); }); }
+    function add() {
+      if (!f.title.trim() || busy) return; setBusy(true);
+      C.saveMaterial({ discId: p.disc, scope: p.scope || null, edition: f.edition || null, kind: f.kind, title: f.title.trim(), url: f.url || null, note: f.note || "", authority: f.authority, refs: f.url ? [{ name: f.title.trim(), url: f.url }] : [] }).then(function () {
+        setBusy(false); setF(Object.assign({}, f, { title: "", url: "", note: "", edition: "" })); load(); if (p.onChanged) p.onChanged();
+      });
+    }
+    function upload(e) {
+      var file = e.target.files && e.target.files[0]; if (!file) return;
+      if (file.size > 8 * 1024 * 1024) { window.alert("文件请小于 8MB"); e.target.value = ""; return; }
+      var rd = new FileReader();
+      rd.onload = function () {
+        var b64 = String(rd.result).split(",")[1] || "";
+        C.uploadFile(file.name, file.type || "application/pdf", b64).then(function (r) {
+          if (r && r.ok && r.id) C.saveMaterial({ discId: p.disc, scope: p.scope || null, edition: f.edition || null, kind: "pdf", title: file.name, fileId: r.id, authority: f.authority, note: "上传的文件" }).then(function () { load(); if (p.onChanged) p.onChanged(); });
+          else window.alert("上传失败");
+        });
+      };
+      rd.readAsDataURL(file); e.target.value = "";
+    }
+    function del(id) { if (!window.confirm("删除这条教材?")) return; C.deleteMaterial(id).then(function () { load(); if (p.onChanged) p.onChanged(); }); }
+    var AUTH = [["official", "官方"], ["authoritative", "权威参考"], ["generated", "AI生成"]];
+    var KINDS = [["textbook", "课本"], ["syllabus", "考纲"], ["repo", "仓库"], ["tool", "工具"], ["link", "链接"], ["pdf", "PDF"]];
+    return html`<div class="pan-modal-mask" onClick=${function (e) { if (e.target.classList.contains("pan-modal-mask")) p.onClose(); }}>
+      <div class="pan-modal" style="max-width:680px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><h2 style="font-family:var(--serif);margin:0;font-size:19px;">教材管理 · ${p.discName || ""}</h2><span onClick=${p.onClose} style="cursor:pointer;color:#9a8a6f;font-size:20px;">×</span></div>
+        <p style="font-size:12.5px;color:#8a7a62;margin:0 0 14px;">挂课本 / 考纲 / 链接,或上传 PDF。官方 / 权威优先;AI 排课、出题会读这些。</p>
+        <div class="pan-eyebrow" style="margin-bottom:8px;">开源 / 官方 快捷引用</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">${PRESETS.map(function (ps, i) { return html`<span key=${i} class="pan-tag" style="cursor:pointer;" onClick=${function () { applyPreset(ps); }}>+ ${ps.label}</span>`; })}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <input value=${f.title} onInput=${function (e) { set("title", e.target.value); }} placeholder="标题(如 人教版数学必修一)" style="grid-column:1/3;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-family:var(--sans);" />
+          <input value=${f.edition} onInput=${function (e) { set("edition", e.target.value); }} placeholder="版本(人教版/苏教版,可空)" style="border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-family:var(--sans);" />
+          <input value=${f.url} onInput=${function (e) { set("url", e.target.value); }} placeholder="链接 URL(可空)" style="border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-family:var(--sans);" />
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center;"><span style="font-size:12.5px;color:#7A6E5E;">类型</span>${KINDS.map(function (k) { return html`<span key=${k[0]} class=${"pan-tag" + (f.kind === k[0] ? " on" : "")} onClick=${function () { set("kind", k[0]); }}>${k[1]}</span>`; })}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;"><span style="font-size:12.5px;color:#7A6E5E;">可信度</span>${AUTH.map(function (a) { return html`<span key=${a[0]} class=${"pan-tag" + (f.authority === a[0] ? " on" : "")} onClick=${function () { set("authority", a[0]); }}>${a[1]}</span>`; })}</div>
+        <input value=${f.note} onInput=${function (e) { set("note", e.target.value); }} placeholder="说明 / 来源备注(可空)" style="width:100%;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;margin-bottom:12px;font-family:var(--sans);font-size:13px;" />
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;">
+          <span class=${"pan-btn " + (f.title.trim() ? "grad" : "ghost")} onClick=${add}>${busy ? "保存中…" : "＋ 添加"}</span>
+          <label class="pan-btn ghost sm" style="cursor:pointer;">⬆ 上传 PDF<input type="file" accept="application/pdf,image/*" onChange=${upload} style="display:none;" /></label>
+        </div>
+        <div class="pan-eyebrow" style="margin-bottom:8px;">已挂教材</div>
+        ${list == null ? html`<div class="pan-empty">加载中…</div>` : !list.length ? html`<div style="font-size:13px;color:#9a8a6f;">还没有教材。</div>`
+          : html`<div style="display:flex;flex-direction:column;gap:8px;max-height:32vh;overflow:auto;">${list.map(function (m) {
+            var href = m.file_id ? C.fileUrl(m.file_id) : m.url;
+            return html`<div key=${m.id} style="display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #F4ECDC;">
+              <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;">${href ? html`<a href=${href} target="_blank" rel="noopener">${m.title} ↗</a>` : m.title}</div>
+              <div style="font-size:11.5px;color:#9a8a6f;">${m.authority || ""}${m.edition ? " · " + m.edition : ""}${m.kind ? " · " + m.kind : ""}</div></div>
+              <span class="lnk" style="color:#B6532F;cursor:pointer;font-size:12px;" onClick=${function () { del(m.id); }}>删除</span></div>`;
+          })}</div>`}
+      </div></div>`;
+  }
+
   function DisciplineScreen() {
     var app = useApp();
     var id = app.params.disc;
@@ -213,6 +281,8 @@
     var rd0 = useState(null); var reader = rd0[0], setReader = rd0[1];
     var bz0 = useState({}); var busy = bz0[0], setBusy = bz0[1];
     var mt0 = useState(null); var mats = mt0[0], setMats = mt0[1];   // 课本/教材库
+    var mg0 = useState(false); var mgr = mg0[0], setMgr = mg0[1];
+    function reloadMats() { C.materialsFor(id).then(setMats); }
     useEffect(function () {
       if (!id) return; var alive = true;
       C.libList(id).then(function (items) { if (!alive) return; var m = {}; items.forEach(function (it) { m[it.url] = it; }); setLibMap(m); });
@@ -270,10 +340,10 @@
                 ${(m.refs && m.refs.length) ? html`<div style="font-size:11.5px;color:#bbab8c;margin-top:3px;">来源:${m.refs.map(function (rf, j) { return html`<span key=${j}>${j ? "、" : ""}${rf.url ? html`<a href=${rf.url} target="_blank" rel="noopener">${rf.name || rf.url}</a>` : (rf.name || "")}</span>`; })}</div>` : null}
               </div>`;
             })}
-            <div style="margin-top:12px;"><span class="pan-btn ghost sm" onClick=${function () { C.sendMessage({ kind: "ask", text: "请帮「" + d.name + "」选定或生成课本(优先官方 / 权威,注明来源)。", context: { discId: id, disc: d.name } }).then(function () { app.go("messages"); }); }}>✉️ 请导师选/生成课本</span></div>
+            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><span class="pan-btn ghost sm" onClick=${function () { setMgr(true); }}>⚙ 管理教材</span><span class="pan-btn ghost sm" onClick=${function () { C.sendMessage({ kind: "ask", text: "请帮「" + d.name + "」选定或生成课本(优先官方 / 权威,注明来源)。", context: { discId: id, disc: d.name } }).then(function () { app.go("messages"); }); }}>✉️ 请导师选 / 生成</span></div>
           </div>` : html`<div class="pan-panel"><h2 style="font-family:var(--serif);font-size:18px;font-weight:700;margin:0 0 6px;">📕 课本 / 教材</h2>
-            <div style="font-size:12.5px;color:#9a8a6f;margin-bottom:10px;">还没挂课本。选一本权威课本(人教 / 苏教…)或让 AI 按权威资料生成一版,都会注明来源。</div>
-            <span class="pan-btn grad sm" onClick=${function () { C.sendMessage({ kind: "ask", text: "请帮「" + d.name + "」选定或生成课本(优先官方 / 权威,注明来源)。", context: { discId: id, disc: d.name } }).then(function () { app.go("messages"); }); }}>✉️ 请导师选/生成课本</span></div>`}
+            <div style="font-size:12.5px;color:#9a8a6f;margin-bottom:10px;">还没挂课本。自己挂一本(开源/官方有快捷引用),或让 AI 按权威资料生成一版,都会注明来源。</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;"><span class="pan-btn ink sm" onClick=${function () { setMgr(true); }}>⚙ 管理 / 添加教材</span><span class="pan-btn grad sm" onClick=${function () { C.sendMessage({ kind: "ask", text: "请帮「" + d.name + "」选定或生成课本(优先官方 / 权威,注明来源)。", context: { discId: id, disc: d.name } }).then(function () { app.go("messages"); }); }}>✉️ 请导师选 / 生成</span></div></div>`}
           ${progs.length ? html`<div class="pan-panel"><h2 style="font-family:var(--serif);font-size:18px;font-weight:700;margin:0 0 6px;">🎓 名校培养方案</h2><div style="font-size:12px;color:#9a8a6f;margin-bottom:8px;">质量标:顶尖 / 很强 / 可参考</div>
             ${progs.map(function (p, i) {
               var lit = p.url ? libMap[p.url] : null;
@@ -313,6 +383,7 @@
             <div style="max-height:62vh;overflow:auto;font-size:13.5px;line-height:1.75;color:#3a3023;white-space:pre-wrap;border-top:1px solid #EEE3CF;padding-top:14px;">${reader.text || "(无正文)"}</div>
           </div>`}
         </div></div>` : null}
+      ${mgr ? html`<${MaterialsManager} disc=${id} discName=${d.name} onClose=${function () { setMgr(false); }} onChanged=${reloadMats} />` : null}
       </div>`;
   }
 

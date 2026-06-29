@@ -266,6 +266,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_answer_post()
         if p.path == "/api/materials":
             return self.api_materials_post()
+        if p.path == "/api/materials/delete":
+            return self.api_materials_delete()
         if p.path == "/api/messages":
             return self.api_messages_post()
         if p.path == "/api/messages/update":
@@ -705,6 +707,18 @@ class Handler(SimpleHTTPRequestHandler):
                 rid = cur.fetchone()[0]
             conn.close()
             return self._json(200, {"ok": True, "id": rid})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_materials_delete(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        d = self._read_json()
+        if not isinstance(d, dict) or d.get("id") is None: return self._json(400, {"ok": False, "error": "bad body"})
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur: cur.execute("DELETE FROM course_materials WHERE id=%s", (int(d["id"]),))
+            conn.close()
+            return self._json(200, {"ok": True})
         except Exception as e:
             return self._json(500, {"ok": False, "error": str(e)})
 
