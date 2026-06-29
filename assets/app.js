@@ -71,9 +71,10 @@
           <nav class="pan-nav-row">
             ${NAV.map(function (n) {
               var active = navActive(n.key) || (n.key === "more" && ((n.sub && n.sub.indexOf(app.screen) >= 0) || app.moreOpen));
-              return html`<span key=${n.key} class=${"pan-nav" + (active ? " active" : "")}
+              return html`<span key=${n.key} class=${"pan-nav" + (active ? " active" : "")} style=${n.key === "more" ? { position: "relative" } : null}
                 onClick=${function () { n.key === "explore" ? app.toggleMenu() : n.key === "more" ? app.toggleMore() : app.go(n.key); }}>
-                ${n.label}${n.caret ? html`<span style=${{ fontSize: "10px" }}> ▾</span>` : null}</span>`;
+                ${n.label}${n.caret ? html`<span style=${{ fontSize: "10px" }}> ▾</span>` : null}
+                ${n.key === "more" && app.moreOpen ? html`<${MorePop} />` : null}</span>`;
             })}
           </nav>
           <div style=${{ flex: 1 }}></div>
@@ -86,7 +87,6 @@
         </div>
         ${app.menuOpen ? html`<${MegaMenu} />` : null}
         ${app.userPop ? html`<${UserPop} />` : null}
-        ${app.moreOpen ? html`<${MorePop} />` : null}
       </div>`;
   }
 
@@ -94,7 +94,7 @@
     var app = useContext(Ctx);
     var sub = (NAV.filter(function (n) { return n.key === "more"; })[0] || {}).sub || [];
     return html`<div class="pan-morepop">
-      ${sub.map(function (k) { return html`<div key=${k} class=${"u" + (app.screen === k ? " on" : "")} onClick=${function () { app.go(k); }}>${SUBLABELS[k] || k}</div>`; })}
+      ${sub.map(function (k) { return html`<div key=${k} class=${"u" + (app.screen === k ? " on" : "")} onClick=${function (e) { e.stopPropagation(); app.go(k); }}>${SUBLABELS[k] || k}</div>`; })}
     </div>`;
   }
 
@@ -143,6 +143,7 @@
   function Dispatcher() {
     var app = useContext(Ctx);
     var s0 = useState(null); var sel = s0[0], setSel = s0[1];   // {text,x,y}
+    var d0 = useState(null); var def = d0[0], setDef = d0[1];   // {term,x,y,loading,items}
     useEffect(function () {
       function onUp() {
         try {
@@ -154,14 +155,43 @@
           setSel(null);
         } catch (e) { setSel(null); }
       }
+      function onDown() { setDef(null); }   // 点别处关释义浮层
       document.addEventListener("mouseup", onUp);
       document.addEventListener("touchend", onUp);
-      return function () { document.removeEventListener("mouseup", onUp); document.removeEventListener("touchend", onUp); };
+      document.addEventListener("mousedown", onDown);
+      return function () { document.removeEventListener("mouseup", onUp); document.removeEventListener("touchend", onUp); document.removeEventListener("mousedown", onDown); };
     }, []);
     function ask() { var t = sel.text; setSel(null); try { window.getSelection().removeAllRanges(); } catch (e) {} app.go("messages", { prefill: "关于「" + t + "」:", ctx: { quote: t, screen: app.screen } }); }
+    function look() {
+      var t = sel.text, x = sel.x, y = sel.y; setSel(null);
+      try { window.getSelection().removeAllRanges(); } catch (e) {}
+      setDef({ term: t, x: x, y: y, loading: true, items: null });
+      window.Dict.ensure(function () { setDef({ term: t, x: x, y: y, loading: false, items: window.Dict.lookup(t) }); });
+    }
+    var selStyle = { position: "static", transform: "none", boxShadow: "none" };
     return html`<div>
       <div class="pan-fab" title="给 AI 导师留言" onClick=${function () { app.go("messages"); }}>✉️</div>
-      ${sel ? html`<div class="pan-selsend" style=${{ left: sel.x + "px", top: (sel.y > 56 ? sel.y - 40 : sel.y + 26) + "px" }} onMouseDown=${function (e) { e.preventDefault(); }} onClick=${ask}>✉️ 发给导师</div>` : null}
+      ${sel ? html`<div style=${{ position: "fixed", left: sel.x + "px", top: (sel.y > 56 ? sel.y - 40 : sel.y + 26) + "px", transform: "translateX(-50%)", display: "flex", gap: "6px", zIndex: 70 }} onMouseDown=${function (e) { e.preventDefault(); }}>
+        <span class="pan-selsend" style=${selStyle} onClick=${ask}>✉️ 发给导师</span>
+        <span class="pan-selsend" style=${selStyle} onClick=${look}>📖 查词</span>
+      </div>` : null}
+      ${def ? html`<div class="pan-panel" style=${{ position: "fixed", left: Math.max(160, Math.min(def.x, window.innerWidth - 160)) + "px", top: Math.min(def.y + 34, window.innerHeight - 80) + "px", transform: "translateX(-50%)", width: "300px", maxWidth: "86vw", maxHeight: "50vh", overflow: "auto", zIndex: 80, boxShadow: "0 10px 30px rgba(0,0,0,.25)" }}
+        onMouseDown=${function (e) { e.preventDefault(); e.stopPropagation(); }}>
+        <div style=${{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "8px" }}>
+          <b style=${{ fontFamily: "var(--serif)", fontSize: "18px" }}>📖 ${def.term}</b>
+          <span style=${{ cursor: "pointer", color: "#9a8a6f", fontSize: "16px" }} onClick=${function () { setDef(null); }}>✕</span>
+        </div>
+        ${def.loading
+          ? html`<div style=${{ color: "#9a8a6f", fontSize: "13px" }}>正在加载词典…</div>`
+          : (def.items && def.items.length
+            ? html`<div style=${{ display: "flex", flexDirection: "column", gap: "10px" }}>${def.items.map(function (it, i) {
+                return html`<div key=${i}>
+                  <div style=${{ fontSize: "14px", fontWeight: 600 }}>${it.term}${it.reading ? html`<span style=${{ color: "#B6532F", fontWeight: 400, marginLeft: "8px", fontSize: "13px" }}>${it.reading}</span>` : null}</div>
+                  <div style=${{ fontSize: "13px", color: "#3a3023", marginTop: "2px" }}>${it.defs.join("；")}</div>
+                </div>`;
+              })}</div>`
+            : html`<div style=${{ color: "#9a8a6f", fontSize: "13px" }}>未收录「${def.term}」</div>`)}
+      </div>` : null}
     </div>`;
   }
 

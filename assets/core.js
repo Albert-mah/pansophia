@@ -40,6 +40,7 @@ window.Core = (function () {
   var _cache = {};       // 当前用户状态缓存(从 DB 水合)
   var _users = null;     // 用户列表缓存(从 DB)
   var _curKey = null;    // 已水合的用户 key
+  var _materials = [];   // 全部课本/教材(从 DB,供"自动默认课本")
 
   function apiGet(path) { return fetch(path, { headers: { "Accept": "application/json" } }).then(function (r) { return r.json(); }); }
   function postState(user, name, value) {
@@ -82,6 +83,7 @@ window.Core = (function () {
     return apiGet("/api/users").then(function (r) { if (r && r.ok && r.users && r.users.length) _users = r.users; }).catch(function () {})
       .then(function () { var k = userKey(); _curKey = k; return apiGet("/api/state?user=" + encodeURIComponent(k)); })
       .then(function (r) { _cache = (r && r.ok && r.state) ? r.state : {}; })
+      .then(function () { return apiGet("/api/materials").then(function (r) { _materials = (r && r.items) || []; }).catch(function () {}); })
       .catch(function () { _cache = {}; });
   }
   function switchUser(k) { rememberKey(k); setUrl({ user: k }); }   // app 切换后会再 hydrate
@@ -130,8 +132,19 @@ window.Core = (function () {
   function saveMaterial(o) { return apiPost("/api/materials", o); }
   function deleteMaterial(id) { return apiPost("/api/materials/delete", { id: id }); }
   function cachePdf(id) { return apiPost("/api/material/cachepdf", { id: id }); }   // 下载直链 PDF 进库
-  // 每门课选定的课本(存 user_state.textbooks,键 discId|scope)
-  function courseTextbook(discId, scope) { return (store("textbooks", {}) || {})[discId + "|" + (scope || "")] || null; }
+  // 自动默认课本:从全部教材里按 学科 + 范围 匹配,挑最权威的一本(官方>权威>AI生成)
+  function defaultTextbook(discId, scope) {
+    var c = _materials.filter(function (m) { return m.disc_id === discId; });
+    if (!c.length) return null;
+    var rank = { official: 0, authoritative: 1, generated: 2 };
+    var scoped = c.filter(function (m) { return m.scope === scope; }), gen = c.filter(function (m) { return !m.scope; });
+    var pool = (scoped.length ? scoped : (gen.length ? gen : c)).slice();
+    pool.sort(function (a, b) { return (rank[a.authority] == null ? 3 : rank[a.authority]) - (rank[b.authority] == null ? 3 : rank[b.authority]); });
+    var m = pool[0];
+    return m ? { materialId: m.id, title: m.title, edition: m.edition || "", authority: m.authority, auto: true } : null;
+  }
+  // 每门课的课本:用户选定的优先(user_state.textbooks),否则自动默认
+  function courseTextbook(discId, scope) { return ((store("textbooks", {}) || {})[discId + "|" + (scope || "")]) || defaultTextbook(discId, scope); }
   function setCourseTextbook(discId, scope, m) {
     var t = Object.assign({}, store("textbooks", {})), k = discId + "|" + (scope || "");
     if (m) t[k] = { materialId: m.id, edition: m.edition || "", title: m.title, authority: m.authority }; else delete t[k];

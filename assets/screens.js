@@ -577,7 +577,7 @@
           <span class="pan-pill" style=${"color:" + pi[1] + ";background:" + pi[2] + ";white-space:nowrap;"}>${pi[0]}</span></div>
         ${c.total ? html`<div>${html`<${Bar} pct=${c.pct} color=${c.color} />`}<div style="font-size:12px;color:#9a8a6f;margin-top:6px;">掌握 ${c.mastered}/${c.total} · ${c.pct}%${c.lessons ? " · " + c.lessons + " 讲解" : ""}</div></div>`
           : html`<div style="font-size:12.5px;color:#bbab8c;">待 AI 导师排课</div>`}
-        <div style="font-size:12px;color:#7A6E5E;margin-top:8px;display:flex;align-items:center;gap:6px;">📕 ${c.textbook ? html`<b style="color:#5a4e3c;">${c.textbook.title}</b>` : html`<span style="color:#b6532f;">未选课本</span>`}
+        <div style="font-size:12px;color:#7A6E5E;margin-top:8px;display:flex;align-items:center;gap:6px;">📕 ${c.textbook ? html`<b style="color:#5a4e3c;">${c.textbook.title}</b>${c.textbook.auto ? html`<span style="color:#bbab8c;font-size:11px;">默认</span>` : null}` : html`<span style="color:#b6532f;">未选课本</span>`}
           <span class="lnk" style="margin-left:auto;color:#b09a7a;cursor:pointer;font-size:11.5px;" onClick=${function (e) { e.stopPropagation(); if (window.confirm("卸载「" + c.discName + "」?会从「我的课程」移除该学科下所有课程(学习记录保留,可随时重新加入)。")) { C.toggleDisc(c.discId); app.refresh(); } }}>卸载</span></div>
       </div>`;
     }
@@ -654,7 +654,7 @@
         <h2 style="font-family:var(--serif);font-size:20px;font-weight:700;margin:0 0 4px;">${(d && d.name) || sc.name}${entry.scope ? html` <span style="font-size:13px;font-weight:600;color:#9a8a6f;">· ${(C.SCOPES[entry.scope] || {}).name || entry.scope}</span>` : ""}</h2>
         <div style="font-size:12.5px;color:#9a8a6f;margin-bottom:14px;">${allPts.length} 个考点 · 已填 ${cv.done}</div>
         ${html`<${Bar} pct=${cv.pct} color="#C8852E" />`}<div style="font-size:11.5px;color:#9a8a6f;margin:6px 0 12px;">已完成 ${cv.pct}%</div>
-        ${(function () { var tb = C.courseTextbook(did, entry.scope); return html`<div style="font-size:12px;color:#9a8a6f;margin-bottom:14px;padding:8px 10px;background:#FBF6EC;border-radius:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">📕 课本:${tb ? html`<b style="color:#5a4e3c;">${tb.title}</b>` : html`<span style="color:#bbab8c;">未选</span>`}<span class="lnk" style="color:#B6532F;cursor:pointer;margin-left:auto;" onClick=${function () { setPickTb(true); }}>${tb ? "换" : "选 / 生成"} →</span></div>`; })()}
+        ${(function () { var tb = C.courseTextbook(did, entry.scope); return html`<div style="font-size:12px;color:#9a8a6f;margin-bottom:14px;padding:8px 10px;background:#FBF6EC;border-radius:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">📕 课本:${tb ? html`<b style="color:#5a4e3c;">${tb.title}</b>${tb.auto ? html`<span style="color:#bbab8c;font-size:11px;"> 默认</span>` : null}` : html`<span style="color:#bbab8c;">未选</span>`}<span class="lnk" style="color:#B6532F;cursor:pointer;margin-left:auto;" onClick=${function () { setPickTb(true); }}>${tb ? "换" : "选 / 生成"} →</span></div>`; })()}
         ${(entry.topics || []).map(function (t, ti) {
           return html`<div key=${ti}><div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#bbab8c;text-transform:uppercase;margin:14px 0 8px;">${t.title}</div>
             ${(t.points || []).map(function (p, pi) {

@@ -231,7 +231,7 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 .pan-userpop .u.on { background: var(--tint-ochre); }
 .pan-userpop .u .av { width: 32px; height: 32px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0; }
 .pan-userpop .add { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 8px; }
-.pan-morepop { position: absolute; left: 34px; top: 64px; z-index: 60; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-lift); padding: 8px; min-width: 180px; }
+.pan-morepop { position: absolute; left: 0; top: 100%; margin-top: 10px; z-index: 60; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-lift); padding: 8px; min-width: 160px; cursor: default; }
 .pan-morepop .u { padding: 9px 14px; border-radius: var(--r-xs); cursor: pointer; font-size: 14px; }
 .pan-morepop .u:hover { background: var(--pane); }
 .pan-morepop .u.on { background: var(--tint-ochre); color: var(--terra); font-weight: 600; }
