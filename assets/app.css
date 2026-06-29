@@ -305,11 +305,11 @@ h1, h2, h3, .serif { font-family: var(--serif); }
   .pan-screen { padding: 22px 18px 50px; }
 }
 @media (max-width: 900px) {
-  [style*="grid-template-columns:repeat(5,1fr)"],
-  [style*="grid-template-columns:repeat(4,1fr)"],
-  [style*="grid-template-columns:repeat(3,1fr)"] { grid-template-columns: repeat(2,1fr) !important; }
-  [style*="grid-template-columns:repeat(2,1fr)"] { grid-template-columns: 1fr !important; }
-  [style*="grid-template-columns:repeat(6,1fr)"] { grid-template-columns: repeat(3,1fr) !important; }
+  /* React 把内联 style 序列化成带空格的 repeat(N, 1fr);两种写法都匹配 */
+  [style*="grid-template-columns:repeat(5,1fr)"], [style*="grid-template-columns:repeat(4,1fr)"], [style*="grid-template-columns:repeat(3,1fr)"],
+  [style*="repeat(5, 1fr)"], [style*="repeat(4, 1fr)"], [style*="repeat(3, 1fr)"] { grid-template-columns: repeat(2,1fr) !important; }
+  [style*="grid-template-columns:repeat(2,1fr)"], [style*="repeat(2, 1fr)"] { grid-template-columns: 1fr !important; }
+  [style*="grid-template-columns:repeat(6,1fr)"], [style*="repeat(6, 1fr)"] { grid-template-columns: repeat(3,1fr) !important; }
   [style*="1.62fr 1fr"], [style*="1.5fr 1fr"], [style*="1.3fr 1fr 1fr"],
   [style*="300px 1fr 320px"] { grid-template-columns: 1fr !important; }
   .pan-course { grid-template-columns: 1fr !important; }
@@ -317,13 +317,27 @@ h1, h2, h3, .serif { font-family: var(--serif); }
   .pan-pane { max-height: none !important; overflow: visible !important; border-left: 0 !important; border-right: 0 !important; }
   .pan-mega-grid { grid-template-columns: repeat(3,1fr) !important; }
   .pan-head { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
+  /* 首页:主栏单列,统计卡 3 列 */
+  .pan-home-main { grid-template-columns: 1fr !important; }
+  .pan-home-stats { grid-template-columns: repeat(3,1fr) !important; }
 }
 @media (max-width: 620px) {
-  [style*="grid-template-columns:repeat(5,1fr)"],
-  [style*="grid-template-columns:repeat(4,1fr)"],
-  [style*="grid-template-columns:repeat(3,1fr)"] { grid-template-columns: 1fr !important; }
-  [style*="grid-template-columns:repeat(6,1fr)"] { grid-template-columns: repeat(2,1fr) !important; }
+  [style*="grid-template-columns:repeat(5,1fr)"], [style*="grid-template-columns:repeat(4,1fr)"], [style*="grid-template-columns:repeat(3,1fr)"],
+  [style*="repeat(5, 1fr)"], [style*="repeat(4, 1fr)"], [style*="repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
+  [style*="grid-template-columns:repeat(6,1fr)"], [style*="repeat(6, 1fr)"] { grid-template-columns: repeat(2,1fr) !important; }
   [style*="columns:4"] { columns: 1 !important; }
   .pan-mega-grid { grid-template-columns: repeat(2,1fr) !important; }
-  .pan-screen { padding: 18px 14px 44px; }
+  .pan-screen { padding: 18px 13px 44px; }
+  .pan-topbar { gap: 8px 12px !important; padding: 10px 13px !important; }
+  .pan-nav-row { gap: 10px 16px !important; }
+  .pan-brand .bs { display: none; }
+  /* 首页手机版:统计卡/推荐 2 列,大标题缩小,继续学习卡竖排,活跃度更紧凑 */
+  .pan-home-stats, .pan-home-recs { grid-template-columns: repeat(2,1fr) !important; }
+  .pan-home-hero { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; padding: 22px !important; }
+  .pan-home-heat { gap: 2px !important; }
+  .pan-head h1 { font-size: 25px !important; line-height: 1.2; }
+  .pan-page-h { font-size: 25px !important; }
+  .pan-page-h .en { font-size: 15px !important; }
+  .pan-stat { padding: 13px 14px; }
+  .pan-stat .num { font-size: 22px; }
 }

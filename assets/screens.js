@@ -57,7 +57,7 @@
         <span class="pan-btn ink" onClick=${function () { app.go("plan"); }}>规划学习 →</span></div>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;">
+      <div class="pan-home-stats" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;">
         ${StatCard("连续学习", st.streak, "天", "活跃 " + st.activeDays + " 天", true)}
         ${StatCard("我的学科", st.enrolled, "门", "已加入我的空间")}
         ${StatCard("习题正确率", st.accuracy == null ? "—" : st.accuracy, st.accuracy == null ? "" : "%", st.answered ? "近 " + st.answered + " 题" : "去测验解锁", false, "#6E7A4F")}
@@ -65,9 +65,9 @@
         ${StatCard("本周练习", weekCount, "次", "近 7 天活动")}
       </div>
 
-      <div style="display:grid;grid-template-columns:1.62fr 1fr;gap:22px;">
+      <div class="pan-home-main" style="display:grid;grid-template-columns:1.62fr 1fr;gap:22px;">
         <div style="display:flex;flex-direction:column;gap:22px;">
-          ${cont ? html`<div style="background:linear-gradient(118deg,#B6532F,#C8852E);color:#fff;border-radius:20px;padding:26px 28px;display:flex;align-items:center;gap:26px;">
+          ${cont ? html`<div class="pan-home-hero" style="background:linear-gradient(118deg,#B6532F,#C8852E);color:#fff;border-radius:20px;padding:26px 28px;display:flex;align-items:center;gap:26px;">
             ${html`<${Ring} pct=${cont.cv.pct} label=${cont.cv.pct + "%"} />`}
             <div style="flex:1;"><div style="font-size:11.5px;letter-spacing:.14em;opacity:.85;margin-bottom:8px;">继续学习 · CONTINUE LEARNING</div>
             <div style="font-family:var(--serif);font-size:23px;font-weight:600;margin-bottom:6px;">${(SUBJECTS[cont.e.subject] || {}).name || cont.e.subject}</div>
@@ -94,13 +94,13 @@
           <div style="margin-top:10px;display:flex;gap:10px;"><span class="pan-btn ghost sm" onClick=${addQuickTodo}>＋ 加待办</span><span class="pan-btn ghost sm" onClick=${function () { app.go("plan"); }}>去学习计划 →</span></div></div>
 
           <div class="pan-panel"><div class="pan-sec-h"><h2>学习活跃度</h2><span style="font-size:12.5px;color:#9a8a6f;">近 26 周 · Activity</span></div>
-          <div style="display:grid;grid-template-columns:repeat(26,1fr);gap:4px;">
+          <div class="pan-home-heat" style="display:grid;grid-template-columns:repeat(26,1fr);gap:4px;">
             ${heat.map(function (c, i) { return html`<div key=${i} class="pan-cell" title=${c.day + (c.n ? " · " + c.n + " 次" : "")} style=${"aspect-ratio:1;border-radius:3px;background:" + c.color + ";"}></div>`; })}
           </div>
           <div style="display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:14px;font-size:11.5px;color:#9a8a6f;">少 <span style="width:12px;height:12px;border-radius:3px;background:#F1E7D4;"></span><span style="width:12px;height:12px;border-radius:3px;background:#E7C99B;"></span><span style="width:12px;height:12px;border-radius:3px;background:#D29A4E;"></span><span style="width:12px;height:12px;border-radius:3px;background:#B6532F;"></span> 多</div></div>
 
           <div><div class="pan-sec-h"><h2>为你推荐</h2><span class="more" onClick=${function () { app.go("explore"); }}>更多 →</span></div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+          <div class="pan-home-recs" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
             ${recs.length ? recs.map(function (d) {
               var c = d.catColor || "#C8852E";
               return html`<div key=${d.id} class="pan-card" onClick=${function () { app.go("discipline", { disc: d.id }); }} style="background:#fff;border:1px solid #F0E6D2;border-radius:16px;overflow:hidden;cursor:pointer;">
