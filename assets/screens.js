@@ -41,15 +41,10 @@
     var cont = null;
     for (var i = 0; i < skel.length; i++) { var cv = C.coverage(skel[i]); if (cv.total && cv.pct < 100) { cont = { e: skel[i], cv: cv }; break; } }
 
-    // 今日计划(本地小清单)
-    var pl = C.plan(), today = new Date().toDateString();
-    if (!pl || pl.date !== today) {
-      var todos = [];
-      skel.forEach(function (e) { (e.topics || []).forEach(function (t) { (t.points || []).forEach(function (p) { if (todos.length < 4 && !(p.ref && C.catalogById(p.ref)) && p.status !== "done") todos.push({ id: e.subject + ":" + p.title, text: p.title, subj: e.subject, done: false }); }); }); });
-      pl = { date: today, items: todos }; C.save("plan", pl);
-    }
-    var doneN = pl.items.filter(function (x) { return x.done; }).length;
-    function togglePlan(id) { pl.items.forEach(function (x) { if (x.id === id) x.done = !x.done; }); C.save("plan", pl); app.refresh(); }
+    // 今日待办(统一:今天的任务,主页 / 计划页 / 日历同一份 tasks)
+    var todos = C.todayTasks();
+    var doneN = todos.filter(function (x) { return x.done; }).length;
+    function addQuickTodo() { var v = window.prompt("加一条今日待办:"); v = (v || "").trim(); if (v) { C.addTodo(v); app.refresh(); } }
 
     var mine = C.myDiscs(), recs = C.allDisciplines().filter(function (d) { return mine.indexOf(d.id) < 0; }).slice(0, 3);
     var wl = C.wishlist(), cp = C.categoryProgress(), nt = C.notes();
@@ -86,16 +81,17 @@
             <div style="display:flex;gap:10px;"><span class="pan-btn pill" style="background:#fff;color:#B6532F;" onClick=${function () { app.go("explore"); }}>＋ 探索学科</span>
             <span class="pan-btn pill" style="background:rgba(255,255,255,.18);color:#fff;" onClick=${function () { app.go("plan"); }}>制定计划 →</span></div></div>`}
 
-          <div class="pan-panel"><div class="pan-sec-h"><h2>今日学习计划</h2><span style="font-size:12.5px;color:#9a8a6f;">完成 ${doneN} / ${pl.items.length} · Today's Plan</span></div>
+          <div class="pan-panel"><div class="pan-sec-h"><h2>今日待办</h2><span style="font-size:12.5px;color:#9a8a6f;">完成 ${doneN} / ${todos.length} · Today</span></div>
           <div style="display:flex;flex-direction:column;gap:2px;">
-            ${pl.items.length ? pl.items.map(function (it) {
-              var sc = SUBJECTS[it.subj] || { name: "" };
-              return html`<div key=${it.id} class="pan-row" onClick=${function () { togglePlan(it.id); }} style="display:flex;align-items:center;gap:14px;padding:12px 10px;cursor:pointer;">
-                <div style=${"width:22px;height:22px;border-radius:7px;" + (it.done ? "background:#6E7A4F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;" : "border:2px solid #C8852E;")}>${it.done ? "✓" : ""}</div>
-                <div style="flex:1;"><div style=${"font-size:14.5px;font-weight:" + (it.done ? "500" : "600") + ";" + (it.done ? "text-decoration:line-through;color:#a8987c;" : "")}>${it.text}</div></div>
-                <span style="font-size:12px;color:#9a8a6f;">${sc.name}</span></div>`;
-            }) : html`<div style="font-size:13.5px;color:#9a8a6f;padding:8px 4px;">今天还没有计划。去「学习计划」排一段,或在考点大纲点开一个 ⬜ 待填。</div>`}
-          </div></div>
+            ${todos.length ? todos.map(function (it) {
+              var tm = it.allDay ? "" : (it.start || "").slice(11, 16);
+              return html`<div key=${it.id} class="pan-row" style="display:flex;align-items:center;gap:14px;padding:11px 10px;">
+                <div onClick=${function () { C.toggleTaskDone(it.id); app.checkAch(); app.refresh(); }} style=${"width:22px;height:22px;border-radius:7px;cursor:pointer;flex-shrink:0;" + (it.done ? "background:#6E7A4F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;" : "border:2px solid #C8852E;")}>${it.done ? "✓" : ""}</div>
+                <div style="flex:1;cursor:pointer;" onClick=${function () { app.go("plan"); }}><div style=${"font-size:14.5px;font-weight:" + (it.done ? "500" : "600") + ";" + (it.done ? "text-decoration:line-through;color:#a8987c;" : "")}>${it.title}</div></div>
+                <span style="font-size:12px;color:#9a8a6f;">${tm || it.subject || ""}</span></div>`;
+            }) : html`<div style="font-size:13.5px;color:#9a8a6f;padding:8px 4px;">今天还没待办。下面加一条,或去「学习计划」排时间。</div>`}
+          </div>
+          <div style="margin-top:10px;display:flex;gap:10px;"><span class="pan-btn ghost sm" onClick=${addQuickTodo}>＋ 加待办</span><span class="pan-btn ghost sm" onClick=${function () { app.go("plan"); }}>去学习计划 →</span></div></div>
 
           <div class="pan-panel"><div class="pan-sec-h"><h2>学习活跃度</h2><span style="font-size:12.5px;color:#9a8a6f;">近 26 周 · Activity</span></div>
           <div style="display:grid;grid-template-columns:repeat(26,1fr);gap:4px;">

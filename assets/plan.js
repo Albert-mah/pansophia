@@ -63,6 +63,30 @@
   /* =========================================================
    *  屏幕
    * ========================================================= */
+  /* ---------- 今日待办面板(与主页/日历同源 tasks) ---------- */
+  function TodayPanel(p) {
+    var app = p.app;
+    var v0 = useState(""); var val = v0[0], setVal = v0[1];
+    var todos = C.todayTasks();
+    var done = todos.filter(function (t) { return t.done; }).length;
+    function add() { var t = val.trim(); if (!t) return; C.addTodo(t); setVal(""); if (p.onChange) p.onChange(); app.refresh(); }
+    function toggle(id) { C.toggleTaskDone(id); if (p.onChange) p.onChange(); app.checkAch(); app.refresh(); }
+    return html`<div class="pan-panel" style="position:sticky;top:80px;">
+      <div class="pan-sec-h"><h2 style="font-size:16px;">今日待办</h2><span style="font-size:12px;color:#9a8a6f;">${done}/${todos.length}</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <input value=${val} onInput=${function (e) { setVal(e.target.value); }} onKeyDown=${function (e) { if (e.key === "Enter") add(); }} placeholder="加今日待办…" style="flex:1;border:1px solid #EBDEC8;border-radius:8px;padding:8px 10px;font-family:var(--sans);font-size:13px;" />
+        <span class="pan-btn ghost sm" onClick=${add}>＋</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px;max-height:62vh;overflow:auto;">
+        ${todos.length ? todos.map(function (it) {
+          var tm = it.allDay ? "待办" : (it.start || "").slice(11, 16);
+          return html`<div key=${it.id} class="pan-row" style="display:flex;align-items:center;gap:10px;padding:9px 6px;">
+            <div onClick=${function () { toggle(it.id); }} style=${"width:20px;height:20px;border-radius:6px;cursor:pointer;flex-shrink:0;" + (it.done ? "background:#6E7A4F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;" : "border:2px solid #C8852E;")}>${it.done ? "✓" : ""}</div>
+            <div style="flex:1;min-width:0;cursor:pointer;" onClick=${function () { if (p.onOpen) p.onOpen(it); }}><div style=${"font-size:13.5px;font-weight:600;" + (it.done ? "text-decoration:line-through;color:#a8987c;" : "")}>${it.title}</div></div>
+            <span style="font-size:11px;color:#9a8a6f;white-space:nowrap;">${tm}</span></div>`;
+        }) : html`<div style="font-size:12.5px;color:#9a8a6f;padding:6px 4px;">今天没待办。上面加一条,或在日历拖一段(无时间就成全天待办)。</div>`}
+      </div></div>`;
+  }
+
   function PlanScreen() {
     var app = useApp();
     var r0 = useState(fcLoaded()); var ready = r0[0], setReady = r0[1];
@@ -144,7 +168,10 @@
 
       ${(sch || C.tasks().some(function (t) { return t.pace; })) ? html`<${PacePanel} sch=${sch} onCourse=${onCourse} onReset=${onResetPlan} />` : null}
 
-      ${ready ? html`<div class="pan-panel" style="padding:14px 16px;"><div ref=${elRef} class="pan-cal"></div></div>` : html`<div class="pan-empty">正在加载日历组件…</div>`}
+      <div class="pan-plan-grid" style="display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start;">
+        ${ready ? html`<div class="pan-panel" style="padding:14px 16px;min-width:0;"><div ref=${elRef} class="pan-cal"></div></div>` : html`<div class="pan-empty">正在加载日历组件…</div>`}
+        ${html`<${TodayPanel} app=${app} onChange=${function () { refetch(); }} onOpen=${function (t) { setDetail(t); }} />`}
+      </div>
 
       ${detail ? (detail.recur
         ? html`<${RecurDetail} task=${detail} onDelete=${onDeleteDetail} onClose=${function () { setDetail(null); }} />`

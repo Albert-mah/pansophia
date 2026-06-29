@@ -562,6 +562,28 @@ window.Core = (function () {
   // 任务(完整日历模型:带时间/笔记/子项/附件)—— plan.js(FullCalendar)用
   function tasks() { return store("tasks", []); }
   function saveTasks(a) { save("tasks", a); }
+  // 统一待办:今天的任务(有时间的 + 当天无时间 todo;排除循环时间表块)
+  function todayTasks() {
+    var today = todayYmd();
+    return tasks().filter(function (x) { return !x.recur && (x.start || "").slice(0, 10) === today; })
+      .sort(function (a, b) { var aa = a.allDay ? 1 : 0, bb = b.allDay ? 1 : 0; if (aa !== bb) return aa - bb; return (a.start || "") < (b.start || "") ? -1 : 1; });
+  }
+  function addTodo(title, opts) {
+    opts = opts || {}; var a = tasks().slice();
+    a.push({ id: "t" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36), title: String(title || "待办").slice(0, 200), subject: opts.subject || "待办", color: opts.color || "#6E7A4F", start: opts.date || todayYmd(), allDay: true, done: false, ref: opts.ref || null, discId: opts.discId || null, notes: "", subItems: [], attachments: [] });
+    saveTasks(a);
+  }
+  // 勾选完成:首次完成给分(挂考点则联动掌握),供主页/计划/详情统一调用
+  function toggleTaskDone(id) {
+    var a = tasks().slice(), t = a.filter(function (x) { return x.id === id; })[0]; if (!t) return;
+    t.done = !t.done;
+    if (t.done && !t.awarded) {
+      if (t.ref) setMastery(t.ref, true, { title: t.title, subject: t.subject, disc: t.discId });
+      else { award(5, "完成待办 · " + (t.title || ""), "task:" + id + ":" + Date.now()); logEvent({ kind: "task", subject: t.subject || "", label: t.title || "" }); }
+      t.awarded = true;
+    }
+    saveTasks(a);
+  }
   function planProgress() {
     var t = tasks(), done = 0, today = todayYmd(), week = 0, behind = 0;
     var wkEnd = addDaysYmd(today, 6);
@@ -779,7 +801,7 @@ window.Core = (function () {
     buildPlanItems: buildPlanItems, autoSchedule: autoSchedule, scheduleProgress: scheduleProgress,
     saveSchedule: saveSchedule, moveBlock: moveBlock, toggleBlock: toggleBlock, removeBlock: removeBlock,
     mondayYmd: mondayYmd, blankSchedule: blankSchedule, addBlock: addBlock,
-    tasks: tasks, saveTasks: saveTasks, planProgress: planProgress,
+    tasks: tasks, saveTasks: saveTasks, planProgress: planProgress, todayTasks: todayTasks, addTodo: addTodo, toggleTaskDone: toggleTaskDone,
     // 进度推荐(百分比节奏)
     kpKey: kpKey, disciplinePoints: disciplinePoints, subjectMastery: subjectMastery,
     recommendedPct: recommendedPct, paceCheckpoints: paceCheckpoints, paceRows: paceRows, buildPace: buildPace, buildTimetable: buildTimetable, fillTodayFromPace: fillTodayFromPace
