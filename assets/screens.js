@@ -637,7 +637,7 @@
         <div style="display:flex;gap:14px;align-items:center;font-size:13px;color:#9a8a6f;margin-bottom:24px;"><span>${sel.t}</span><span>·</span><span>${sc.name}</span></div>
         <p>${sel.kp.summary || ""}</p>
         <div class="pan-callout"><strong>打开完整讲解</strong><br/>这一节已有交互讲解页,点开看可调参数的可视化与例题。</div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;padding-top:24px;border-top:1px solid #EEE3CF;"><a class="pan-btn ink" href=${sel.kp.path}>打开讲解页 →</a><span class="pan-btn ghost" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope }); }}>做练习</span>${masterBtn()}</div></div>`;
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;padding-top:24px;border-top:1px solid #EEE3CF;"><a class="pan-btn ink" href=${sel.kp.path}>打开讲解页 →</a><span class="pan-btn ghost" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope }); }}>做练习</span><span class="pan-btn ghost" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope, mode: "exam" }); }}>📝 模拟试卷</span>${masterBtn()}</div></div>`;
     } else if (sel) {
       center = html`<div class="pan-article"><div style="font-size:12.5px;color:#9a8a6f;margin-bottom:8px;">${sel.t} · ${sc.name}</div>
         <h1>${sel.p.title}</h1>
@@ -1157,7 +1157,7 @@
     function settle(qq, ok) { C.recordAnswer({ questionId: qq.qid, kp: qq.kp, correct: ok, examId: p.examId }); if (ok) C.award(val(qq), "答对练习 · " + String(qq.q || "").slice(0, 16), "q:" + qq.qid + ":" + Date.now()); }
     function choose(idx) { if (run.answered != null) return; var ok = idx === q.answer; settle(q, ok); setRun(Object.assign({}, run, { answered: idx, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1) })); }
     function submitFill() { if (run.answered != null) return; var v = (run.fill || "").trim().toLowerCase().replace(/[.。]$/, ""); var ok = (q.answer || []).some(function (a) { return String(a).trim().toLowerCase() === v; }); settle(q, ok); setRun(Object.assign({}, run, { answered: 1, fillOk: ok, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1) })); }
-    function next() { if (run.i + 1 >= qs.length) { C.logEvent({ kind: "quiz", subject: p.subject || "", label: p.title || "练习", correct: run.correct, total: qs.length }); app.checkAch(); } setRun(Object.assign({}, run, { i: run.i + 1, answered: null, fill: "", fillOk: false, lastOk: false })); }
+    function next() { if (run.i + 1 >= qs.length) { C.logEvent({ kind: "quiz", subject: p.subject || "", label: p.title || "练习", correct: run.correct, total: qs.length }); app.checkAch(); if (p.onDone) p.onDone({ correct: run.correct, total: qs.length, acc: qs.length ? Math.round(run.correct / qs.length * 100) : 0 }); } setRun(Object.assign({}, run, { i: run.i + 1, answered: null, fill: "", fillOk: false, lastOk: false })); }
     if (!qs.length) return html`<div class="pan-empty">没有题目。</div>`;
     if (run.i >= qs.length) {
       var acc = Math.round(run.correct / qs.length * 100);
@@ -1193,20 +1193,35 @@
 
   function PracticeScreen() {
     var app = useApp();
-    var did = app.params.disc, scope = app.params.scope;
+    var did = app.params.disc, scope = app.params.scope, mode = app.params.mode;
+    var isExam = mode === "exam";
     var d = did && C.disciplineById(did);
     var q0 = useState(null); var qs = q0[0], setQs = q0[1];
     useEffect(function () {
       if (!d) { setQs([]); return; }
-      C.questionsFor({ subject: d.subject, scope: scope || null, limit: 20 }).then(function (rows) { setQs(rows.map(normQ)); });
-    }, [did, scope]);
+      C.questionsFor({ subject: d.subject, scope: scope || null, limit: isExam ? 300 : 20 }).then(function (rows) {
+        var list = rows.map(normQ);
+        if (isExam) {   // 组卷:每个知识点取一题,覆盖全部,打乱
+          var byKp = {}, order = [];
+          list.forEach(function (q) { var k = q.kp || ("_" + q.qid); if (!byKp[k]) { byKp[k] = q; order.push(k); } });
+          list = order.map(function (k) { return byKp[k]; });
+          for (var i = list.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = list[i]; list[i] = list[j]; list[j] = t; }
+        }
+        setQs(list);
+      });
+    }, [did, scope, mode]);
+    var title = ((d && d.name) || "") + (isExam ? " 模拟试卷" : " 练习");
+    function back() { app.go("course", scope ? { disc: did, scope: scope } : { disc: did }); }
     return html`<div class="pan-screen narrow">
-      ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "我的课程", go: "course" }, { t: (d && d.name) || "练习" }]} />`}
-      <h1 class="pan-page-h">${(d && d.name) || ""} 练习 <span class="en">/ Practice</span></h1>
+      ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "我的课程", go: "course" }, { t: title }]} />`}
+      <h1 class="pan-page-h">${title} <span class="en">/ ${isExam ? "Final Exam" : "Practice"}</span></h1>
+      ${isExam ? html`<p class="pan-page-sub">覆盖本课各知识点各一题(尽量用变体,不照搬原题);≥80% 视为通过最终校验,这门课就标「✅ 已补上」。</p>` : null}
       ${qs == null ? html`<div class="pan-empty">加载题目中…</div>`
         : !qs.length ? html`<div class="pan-empty">这门课还没有题目。<br/>让 AI 导师出一套(挂知识点),或在留言箱发给导师。<br/>
-          <span class="pan-btn grad" style="margin-top:14px;" onClick=${function () { C.sendMessage({ kind: "ask", text: "请给「" + ((d && d.name) || "") + "」出一套随堂练习题(挂知识点)。", context: { discId: did, scope: scope } }).then(function () { app.go("messages"); }); }}>✉️ 请导师出题</span></div>`
-        : html`<${QuizRun} questions=${qs} title=${((d && d.name) || "") + " 练习"} subject=${d.subject} onClose=${function () { app.go("course", scope ? { disc: did, scope: scope } : { disc: did }); }} />`}
+          <span class="pan-btn grad" style="margin-top:14px;" onClick=${function () { C.sendMessage({ kind: "ask", text: "请给「" + ((d && d.name) || "") + "」" + (isExam ? "出一份覆盖全部知识点的模拟试卷(用变体题防过拟合)" : "出一套随堂练习题(挂知识点)") + "。", context: { discId: did, scope: scope } }).then(function () { app.go("messages"); }); }}>✉️ 请导师出题</span></div>`
+        : html`<${QuizRun} questions=${qs} title=${title} subject=${d.subject} examId=${isExam ? "exam-" + did + "-" + (scope || "") : null}
+            onDone=${isExam ? function (r) { if (r.acc >= 80) C.setCourseVerified(did, scope || null, { score: r.acc, ts: Date.now() }); } : null}
+            onClose=${back} />`}
     </div>`;
   }
 

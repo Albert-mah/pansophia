@@ -717,26 +717,31 @@ window.Core = (function () {
     myDiscs().forEach(function (id) {
       var dd = disciplineById(id) || { name: id }, cat = categoryOf(id) || {};
       var sk = skeletonForDiscipline(id).filter(courseScopeOK);
-      if (!sk.length) { out.push({ discId: id, discName: dd.name, scope: null, scopeName: "", color: cat.color || "#C8852E", total: 0, mastered: 0, pct: 0, lessons: 0, textbook: courseTextbook(id, null) }); return; }
+      if (!sk.length) { out.push({ discId: id, discName: dd.name, scope: null, scopeName: "", color: cat.color || "#C8852E", total: 0, mastered: 0, pct: 0, lessons: 0, textbook: courseTextbook(id, null), verified: courseVerified(id, null) }); return; }
       sk.forEach(function (e) {
         var pts = 0, mas = 0, les = 0;
         (e.topics || []).forEach(function (t) { (t.points || []).forEach(function (p) { pts++; if (isMastered(p.ref || p.title)) mas++; if (p.ref && catalogById(p.ref)) les++; }); });
-        out.push({ discId: id, discName: dd.name, scope: e.scope || null, scopeName: (SCOPES[e.scope] || {}).name || e.scope || "", color: cat.color || "#C8852E", total: pts, mastered: mas, pct: pts ? Math.round(mas / pts * 100) : 0, lessons: les, textbook: courseTextbook(id, e.scope || null) });
+        out.push({ discId: id, discName: dd.name, scope: e.scope || null, scopeName: (SCOPES[e.scope] || {}).name || e.scope || "", color: cat.color || "#C8852E", total: pts, mastered: mas, pct: pts ? Math.round(mas / pts * 100) : 0, lessons: les, textbook: courseTextbook(id, e.scope || null), verified: courseVerified(id, e.scope || null) });
       });
     });
     return out;
   }
-  // 一门课的阶段:待选课本 → 待规划(有课本无考点) → 学习中 → 待最终校验(考点全过) → 已补上(校验过)
+  // 最终试卷校验过的记录(user_state.verified,键 discId|scope)
+  function courseVerified(discId, scope) { return (store("verified", {}) || {})[discId + "|" + (scope || "")] || null; }
+  function setCourseVerified(discId, scope, rec) { var v = Object.assign({}, store("verified", {})); v[discId + "|" + (scope || "")] = rec; save("verified", v); }
+  // 一门课的阶段:待选课本 → 待规划(有课本无考点) → 学习中 → 待最终校验(考点全过) → 已补上(试卷校验过)
   function coursePhase(c) {
     if (!c.textbook) return "no-book";
     if (!c.total) return "planning";
-    if (c.pct >= 100) return c.verified ? "done" : "verify";
+    if (c.verified) return "done";
+    if (c.pct >= 100) return "verify";
     return "learning";
   }
 
   return {
     esc: esc, uniqBy: uniqBy, SLOTS: SLOTS, HEAT_COLORS: HEAT_COLORS, CATS: CATS, SUBJECTS: SUBJECTS, SCOPES: SCOPES,
     coursesForUser: coursesForUser, courseScopeOK: courseScopeOK, userPrefScopes: userPrefScopes, coursePhase: coursePhase,
+    courseVerified: courseVerified, setCourseVerified: setCourseVerified,
     hydrate: hydrate, users: users, user: user, userKey: userKey, switchUser: switchUser, addUser: addUser,
     refreshUsers: refreshUsers, saveUser: saveUser, deleteUser: deleteUser, initials: initials,
     fetchMessages: fetchMessages, sendMessage: sendMessage, messageUpdate: messageUpdate,
