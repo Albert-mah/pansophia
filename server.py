@@ -115,6 +115,21 @@ def fetch_binary(url):
     except Exception:
         return (None, "", "error")
 
+_MIME_BY_EXT = {".pdf": "application/pdf", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+    ".gif": "image/gif", ".webp": "image/webp", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8",
+    ".md": "text/markdown; charset=utf-8", ".html": "text/html; charset=utf-8", ".htm": "text/html; charset=utf-8",
+    ".csv": "text/csv; charset=utf-8", ".json": "application/json", ".mp4": "video/mp4", ".mp3": "audio/mpeg",
+    ".ppt": "application/vnd.ms-powerpoint", ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ".doc": "application/msword", ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".xls": "application/vnd.ms-excel", ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".zip": "application/zip", ".epub": "application/epub+zip"}
+def guess_mime(name):
+    n = (name or "").lower().split("?")[0].split("#")[0]
+    for ext, mt in _MIME_BY_EXT.items():
+        if n.endswith(ext):
+            return mt
+    return None
+
 def pg():
     return psycopg2.connect(host=PG["host"], port=PG["port"], user=PG["user"],
                             password=PG["password"], dbname=PG["dbname"], connect_timeout=5)
@@ -168,6 +183,13 @@ def init_db():
             cur.execute("ALTER TABLE course_materials ADD COLUMN IF NOT EXISTS authority text;")   # 官方/权威参考/AI生成
             cur.execute("ALTER TABLE course_materials ADD COLUMN IF NOT EXISTS refs jsonb;")        # 参考来源列表
             cur.execute("CREATE INDEX IF NOT EXISTS idx_materials_disc ON course_materials(disc_id, scope, edition);")
+            # 课程资料库 / 文件柜:每门课(disc×scope)一组文件夹+文件;file_id 指向 files 表(已下载),否则只存外链 url
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS course_files(
+                    id serial PRIMARY KEY, disc_id text, scope text, folder text DEFAULT '',
+                    name text, url text, file_id text, mime text, size bigint, note text,
+                    created_at timestamptz NOT NULL DEFAULT now());""")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_coursefiles_disc ON course_files(disc_id, scope);")
             # 给 AI 导师的统一异步消息/任务队列(选课通知、完成习题、错题扩展、随手提问…)。
             # 本地 CLI agent 轮询处理,逐条 status: new→seen→doing→done,可回 reply。
             cur.execute("""
@@ -254,6 +276,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_wrongbook(parse_qs(p.query))
         if p.path == "/api/materials":
             return self.api_materials_get(parse_qs(p.query))
+        if p.path == "/api/coursefiles":
+            return self.api_coursefiles_get(parse_qs(p.query))
         if p.path == "/api/messages":
             return self.api_messages_get(parse_qs(p.query))
         if p.path.startswith("/api/"):
@@ -285,6 +309,12 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_materials_delete()
         if p.path == "/api/material/cachepdf":
             return self.api_material_cachepdf()
+        if p.path == "/api/coursefiles":
+            return self.api_coursefiles_post()
+        if p.path == "/api/coursefiles/delete":
+            return self.api_coursefiles_delete()
+        if p.path == "/api/coursefiles/cache":
+            return self.api_coursefiles_cache()
         if p.path == "/api/messages":
             return self.api_messages_post()
         if p.path == "/api/messages/update":
@@ -771,6 +801,94 @@ class Handler(SimpleHTTPRequestHandler):
                 cur.execute("UPDATE course_materials SET file_id=%s WHERE id=%s", (fid, int(d["id"])))
             conn.close()
             return self._json(200, {"ok": True, "fileId": fid, "size": len(raw)})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    # ---------- 课程资料库 / 文件柜(每门课 disc×scope 一组文件夹+文件) ----------
+    def api_coursefiles_get(self, q):
+        disc = (q.get("disc") or [""])[0]; scope = (q.get("scope") or [""])[0]
+        where, args = [], []
+        if disc: where.append("disc_id=%s"); args.append(disc)
+        if scope: where.append("scope=%s"); args.append(scope)
+        sql = "SELECT id,disc_id,scope,folder,name,url,file_id,mime,size,note FROM course_files"
+        if where: sql += " WHERE " + " AND ".join(where)
+        sql += " ORDER BY folder, id"
+        try:
+            conn = pg()
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(sql, tuple(args)); rows = cur.fetchall()
+            conn.close()
+            return self._json(200, {"ok": True, "items": rows})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_coursefiles_post(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        if not rate_ok(self.client_ip()): return self._json(429, {"ok": False, "error": "too many requests"})
+        d = self._read_json()
+        if not isinstance(d, dict) or not str(d.get("disc") or ""): return self._json(400, {"ok": False, "error": "bad body"})
+        name = str(d.get("name") or "")[:200].strip()
+        url = (str(d.get("url") or "")[:1000].strip() or None)
+        file_id = (str(d.get("file_id") or "")[:40] or None)
+        if not name or (not url and not file_id): return self._json(400, {"ok": False, "error": "需要名称 + 链接或文件"})
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("""INSERT INTO course_files(disc_id,scope,folder,name,url,file_id,mime,size,note)
+                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
+                    (str(d["disc"])[:80], (str(d.get("scope") or "") or None), str(d.get("folder") or "")[:80],
+                     name, url, file_id, (str(d.get("mime") or "")[:100] or None), d.get("size"), str(d.get("note") or "")[:500]))
+                nid = cur.fetchone()[0]
+            conn.close()
+            return self._json(200, {"ok": True, "id": nid})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_coursefiles_delete(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        d = self._read_json()
+        if not isinstance(d, dict) or d.get("id") is None: return self._json(400, {"ok": False, "error": "bad body"})
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("SELECT file_id FROM course_files WHERE id=%s", (int(d["id"]),))
+                row = cur.fetchone()
+                cur.execute("DELETE FROM course_files WHERE id=%s", (int(d["id"]),))
+                if row and row[0]:
+                    cur.execute("DELETE FROM files WHERE id=%s", (row[0],))   # 顺手清掉它缓存的二进制
+            conn.close()
+            return self._json(200, {"ok": True})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_coursefiles_cache(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        if not rate_ok(self.client_ip()): return self._json(429, {"ok": False, "error": "too many requests"})
+        d = self._read_json()
+        if not isinstance(d, dict) or d.get("id") is None: return self._json(400, {"ok": False, "error": "bad body"})
+        try:
+            conn = pg()
+            with conn.cursor() as cur:
+                cur.execute("SELECT url,name FROM course_files WHERE id=%s", (int(d["id"]),))
+                row = cur.fetchone()
+            if not row or not row[0]:
+                conn.close(); return self._json(400, {"ok": False, "error": "没有可下载的链接"})
+            url, name = row[0], row[1] or "file"
+            if "github.com/" in url and "/blob/" in url:
+                url = url.replace("github.com/", "raw.githubusercontent.com/").replace("/blob/", "/")
+            raw, ct, st = fetch_binary(url)
+            if st == "too_large":
+                conn.close(); return self._json(413, {"ok": False, "error": "文件超过 50MB,建议保留链接不缓存"})
+            if st != "ok" or not raw:
+                conn.close(); return self._json(502, {"ok": False, "error": "下载失败,可能不是直接文件链接"})
+            mime = guess_mime(name) or guess_mime(url) or ((ct or "").split(";")[0] or None) or "application/octet-stream"
+            fid = os.urandom(16).hex()
+            with conn, conn.cursor() as cur:
+                cur.execute("INSERT INTO files(id,user_key,name,mime,data,size) VALUES(%s,%s,%s,%s,%s,%s)",
+                            (fid, "shared", name[:190], mime, psycopg2.Binary(raw), len(raw)))
+                cur.execute("UPDATE course_files SET file_id=%s, mime=%s, size=%s WHERE id=%s", (fid, mime, len(raw), int(d["id"])))
+            conn.close()
+            return self._json(200, {"ok": True, "fileId": fid, "mime": mime, "size": len(raw)})
         except Exception as e:
             return self._json(500, {"ok": False, "error": str(e)})
 

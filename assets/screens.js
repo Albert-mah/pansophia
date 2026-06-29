@@ -727,8 +727,7 @@
         ${center}
       </div>
       <div class="pan-pane pan-scroll res">
-        <div class="pan-eyebrow" style="margin-bottom:14px;">本节资料 · Resources</div>
-        ${ResRow("📄", "考点速查", "整理中")}${ResRow("🔗", "公开课/视频", "AI 检索")}${ResRow("✎", "随堂练习", "习题测试")}
+        ${html`<${CourseFilesPanel} disc=${did} scope=${entry.scope} />`}
         <div class="pan-eyebrow" style="margin:24px 0 12px;">我的笔记 · My Notes</div>
         ${noteList.length ? noteList.map(function (n, i) { return html`<div key=${i} style="background:#fff;border:1px solid #F0E6D2;border-radius:12px;padding:14px;margin-bottom:10px;"><div style="font-size:13px;line-height:1.65;color:#3a3023;">${n.body || n.title}</div></div>`; }) : html`<div style="font-size:12.5px;color:#9a8a6f;">还没有笔记。</div>`}
         <textarea class="pan-note-input" placeholder="在这里随手记…(回车保存)" style="margin-top:10px;" onKeyDown=${function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveCourseNote(e.target.value); e.target.value = ""; } }}></textarea>
@@ -768,6 +767,80 @@
   }
   function ResRow(ic, t, sub) {
     return html`<div class="pan-row bordered" style="display:flex;gap:11px;align-items:center;padding:11px 10px;margin-bottom:8px;"><div style="width:30px;height:30px;border-radius:8px;background:#F4EAD8;display:flex;align-items:center;justify-content:center;font-size:13px;">${ic}</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${t}</div><div style="font-size:11px;color:#9a8a6f;">${sub}</div></div></div>`;
+  }
+
+  // 课程资料库 / 文件柜:上传文件 或 粘文件直链→缓存进库;按文件夹分组;浏览器内打开(PDF/图/文本)或下载
+  function CourseFilesPanel(props) {
+    var did = props.disc, scope = props.scope || null;
+    var f0 = useState(null); var files = f0[0], setFiles = f0[1];
+    var a0 = useState(false); var adding = a0[0], setAdding = a0[1];
+    var b0 = useState({}); var busy = b0[0], setBusy = b0[1];
+    var fm0 = useState({ mode: "link", name: "", url: "", folder: "", note: "" }); var form = fm0[0], setForm = fm0[1];
+    function load() { C.courseFiles(did, scope).then(setFiles); }
+    useEffect(function () { setFiles(null); load(); }, [did, scope]);
+    function up(k, v) { setForm(function (p) { var n = Object.assign({}, p); n[k] = v; return n; }); }
+    function reset() { setForm({ mode: "link", name: "", url: "", folder: form.folder, note: "" }); }
+    function addLink() {
+      var u = (form.url || "").trim(); if (!u) return;
+      var name = (form.name || "").trim() || decodeURIComponent(u.split("?")[0].split("/").pop() || "") || "文件";
+      C.addCourseFile({ disc: did, scope: scope, folder: (form.folder || "").trim(), name: name, url: u, note: form.note }).then(function () { setAdding(false); reset(); load(); });
+    }
+    function onUpload(e) {
+      var file = e.target.files && e.target.files[0]; if (!file) return;
+      var r = new FileReader();
+      r.onload = function () {
+        var b64 = String(r.result).split(",")[1] || "";
+        setBusy(function (b) { return Object.assign({}, b, { up: 1 }); });
+        C.uploadFile(file.name, file.type || "application/octet-stream", b64).then(function (res) {
+          if (res && res.id) {
+            C.addCourseFile({ disc: did, scope: scope, folder: (form.folder || "").trim(), name: file.name, file_id: res.id, mime: file.type, size: file.size }).then(function () { setBusy({}); setAdding(false); reset(); load(); });
+          } else { setBusy({}); window.alert((res && res.error) || "上传失败(可能文件过大)"); }
+        });
+      };
+      r.readAsDataURL(file);
+    }
+    function cache(it) { setBusy(function (b) { var n = Object.assign({}, b); n[it.id] = 1; return n; }); C.cacheCourseFile(it.id).then(function (r) { setBusy(function (b) { var n = Object.assign({}, b); delete n[it.id]; return n; }); if (!(r && r.ok)) window.alert((r && r.error) || "缓存失败"); load(); }); }
+    function del(it) { if (window.confirm("从资料库删除「" + it.name + "」?")) C.deleteCourseFile(it.id).then(load); }
+    var groups = {}; (files || []).forEach(function (it) { var f = it.folder || ""; (groups[f] = groups[f] || []).push(it); });
+    var folders = Object.keys(groups).sort();
+    function iconOf(it) { var s = (it.mime || "") + " " + (it.name || ""); return /pdf/i.test(s) ? "📕" : /image|png|jpg|jpeg|gif|webp|svg/i.test(s) ? "🖼" : /zip|rar|7z/i.test(s) ? "🗜" : /ppt|presentation/i.test(s) ? "📊" : /doc|word/i.test(s) ? "📝" : /xls|sheet|csv/i.test(s) ? "📈" : /mp4|video/i.test(s) ? "🎬" : "📄"; }
+    return html`<div>
+      <div class="pan-eyebrow" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">课程资料库 <span class="lnk" style="color:#B6532F;cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;" onClick=${function () { setAdding(true); }}>＋ 添加</span></div>
+      ${files == null ? html`<div style="font-size:12px;color:#9a8a6f;">加载中…</div>`
+        : !folders.length ? html`<div style="font-size:12.5px;color:#9a8a6f;line-height:1.7;">还没有资料。点「＋ 添加」上传文件,或粘一个课件/PDF 直链缓存进来 —— PDF/图片/文本能在浏览器直接看,Office/压缩包可下载。</div>`
+        : folders.map(function (f, fi) {
+            return html`<div key=${fi} style="margin-bottom:12px;">
+              ${f ? html`<div style="font-size:11px;font-weight:700;color:#bbab8c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">📁 ${f}</div>` : null}
+              ${groups[f].map(function (it) {
+                var cached = !!it.file_id;
+                return html`<div key=${it.id} class="pan-row" style="display:flex;align-items:center;gap:7px;padding:7px 7px;border-radius:8px;">
+                  <span style="font-size:15px;flex-shrink:0;">${iconOf(it)}</span>
+                  <a style="flex:1;min-width:0;font-size:12.5px;color:#3a3023;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" href=${cached ? C.fileUrl(it.file_id) : it.url} target="_blank" rel="noopener" title=${it.name}>${it.name}</a>
+                  ${(it.url && !cached) ? html`<span class="lnk" style="color:#B6532F;cursor:pointer;font-size:11px;flex-shrink:0;" onClick=${function () { if (!busy[it.id]) cache(it); }}>${busy[it.id] ? "下载中…" : "缓存"}</span>` : null}
+                  ${cached ? html`<span style="color:#9FB07A;font-size:11px;flex-shrink:0;">✓本地</span>` : null}
+                  <span style="color:#cbb9a0;cursor:pointer;font-size:12px;flex-shrink:0;" onClick=${function () { del(it); }}>✕</span></div>`;
+              })}
+            </div>`;
+          })}
+      ${adding ? html`<div class="pan-modal-mask" onClick=${function (e) { if (e.target.classList.contains("pan-modal-mask")) setAdding(false); }}>
+        <div class="pan-modal" style="max-width:440px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h2 style="font-family:var(--serif);margin:0;font-size:18px;">添加资料</h2><span onClick=${function () { setAdding(false); }} style="cursor:pointer;color:#9a8a6f;font-size:20px;">×</span></div>
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <span class=${"pan-tag" + (form.mode === "link" ? " on" : "")} onClick=${function () { up("mode", "link"); }}>🔗 加链接</span>
+            <span class=${"pan-tag" + (form.mode === "upload" ? " on" : "")} onClick=${function () { up("mode", "upload"); }}>⬆ 上传文件</span>
+          </div>
+          <input value=${form.folder} onInput=${function (e) { up("folder", e.target.value); }} placeholder="文件夹(可选,如 讲义 / 习题 / 幻灯片)" style="width:100%;box-sizing:border-box;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-size:13.5px;margin-bottom:10px;outline:none;background:#FFFDF8;" />
+          ${form.mode === "link" ? html`<div>
+            <input value=${form.url} onInput=${function (e) { up("url", e.target.value); }} placeholder="文件直链(PDF / 课件 / 图片… 的 URL)" style="width:100%;box-sizing:border-box;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-size:13.5px;margin-bottom:10px;outline:none;background:#FFFDF8;" />
+            <input value=${form.name} onInput=${function (e) { up("name", e.target.value); }} placeholder="名称(留空用链接里的文件名)" style="width:100%;box-sizing:border-box;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-size:13.5px;margin-bottom:14px;outline:none;background:#FFFDF8;" />
+            <div style="display:flex;justify-content:flex-end;gap:8px;"><span class="pan-btn ghost sm" onClick=${function () { setAdding(false); }}>取消</span><span class="pan-btn ink sm" onClick=${addLink}>添加</span></div>
+            <div style="font-size:11.5px;color:#bbab8c;margin-top:9px;">加好后点该文件的「缓存」把它下载进库(≤50MB),之后可在浏览器内打开。</div>
+          </div>` : html`<div>
+            <label class="pan-btn grad sm" style="display:inline-block;cursor:pointer;">${busy.up ? "上传中…" : "选择文件上传"}<input type="file" style="display:none;" onChange=${onUpload} /></label>
+            <div style="font-size:11.5px;color:#bbab8c;margin-top:10px;line-height:1.6;">支持 PDF / 图片 / 文本 / Office / 压缩包等。上传后可在浏览器打开或下载。</div>
+          </div>`}
+        </div></div>` : null}
+    </div>`;
   }
 
   /* =========================================================

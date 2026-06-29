@@ -136,6 +136,11 @@ window.Core = (function () {
   function saveMaterial(o) { return apiPost("/api/materials", o); }
   function deleteMaterial(id) { return apiPost("/api/materials/delete", { id: id }); }
   function cachePdf(id) { return apiPost("/api/material/cachepdf", { id: id }); }   // 下载直链 PDF 进库
+  // 课程资料库 / 文件柜(每门课 disc×scope 一组文件)
+  function courseFiles(disc, scope) { return apiGet("/api/coursefiles?disc=" + encodeURIComponent(disc) + (scope ? "&scope=" + encodeURIComponent(scope) : "")).then(function (r) { return (r && r.items) || []; }).catch(function () { return []; }); }
+  function addCourseFile(o) { return apiPost("/api/coursefiles", o); }
+  function cacheCourseFile(id) { return apiPost("/api/coursefiles/cache", { id: id }); }
+  function deleteCourseFile(id) { return apiPost("/api/coursefiles/delete", { id: id }); }
   // 自动默认课本:从全部教材里按 学科 + 范围 匹配,挑最权威的一本(官方>权威>AI生成)
   function defaultTextbook(discId, scope) {
     var c = _materials.filter(function (m) { return m.disc_id === discId; });
@@ -821,6 +826,7 @@ window.Core = (function () {
     assistantChat: assistantChat, addCard: addCard,
     questionsFor: questionsFor, recordAnswer: recordAnswer, wrongbookFetch: wrongbookFetch,
     materialsFor: materialsFor, saveMaterial: saveMaterial, deleteMaterial: deleteMaterial, cachePdf: cachePdf, courseTextbook: courseTextbook, setCourseTextbook: setCourseTextbook,
+    courseFiles: courseFiles, addCourseFile: addCourseFile, cacheCourseFile: cacheCourseFile, deleteCourseFile: deleteCourseFile,
     uploadFile: uploadFile, fileUrl: fileUrl,
     libList: libList, libItem: libItem, cacheUrl: cacheUrl,
     store: store, save: save, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc, uninstallCourse: uninstallCourse,
