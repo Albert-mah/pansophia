@@ -35,12 +35,13 @@
   window.AppCtx = Ctx;
   window.html = html; // 供 screens.js 共用
 
-  var SCREENS = ["home", "explore", "discipline", "plan", "course", "quiz", "vocab", "notes", "wishlist", "points", "analytics", "users", "messages", "practice", "wrongbook"];
+  var SCREENS = ["home", "explore", "discipline", "plan", "course", "library", "quiz", "vocab", "notes", "wishlist", "points", "analytics", "users", "messages", "practice", "wrongbook"];
   var NAV = [
     { key: "home", label: "首页" },
     { key: "explore", label: "学科探索", caret: true },
     { key: "plan", label: "学习计划" },
     { key: "course", label: "我的课程" },
+    { key: "library", label: "课本库" },
     { key: "quiz", label: "习题测试" },
     { key: "notes", label: "笔记 · 收藏" },
     { key: "analytics", label: "数据中心" }

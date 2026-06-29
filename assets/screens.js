@@ -1240,5 +1240,82 @@
     </div>`;
   }
 
-  window.Screens = { home: HomeScreen, explore: ExploreScreen, discipline: DisciplineScreen, plan: PlanScreen, course: CourseScreen, quiz: QuizScreen, notes: NotesScreen, wishlist: WishlistScreen, points: PointsScreen, analytics: AnalyticsScreen, users: UsersScreen, messages: MessagesScreen, practice: PracticeScreen, wrongbook: WrongbookScreen };
+  /* =========================================================
+   *  LIBRARY · 课本库(全局画廊:所有课本/考纲/资料,缓存/上传/加链接)
+   * ========================================================= */
+  function LibraryScreen() {
+    var app = useApp();
+    var l0 = useState(null); var list = l0[0], setList = l0[1];
+    var ad0 = useState(false); var adding = ad0[0], setAdding = ad0[1];
+    var f0 = useState({ kind: "textbook", title: "", discId: "", edition: "", authority: "authoritative", url: "", note: "" });
+    var f = f0[0], setF = f0[1];
+    var bz = useState(false); var busy = bz[0], setBusy = bz[1];
+    function load() { C.materialsFor().then(function (x) { setList(x); }); }
+    useEffect(function () { load(); }, []);
+    function set(k, v) { setF(function (o) { var n = Object.assign({}, o); n[k] = v; return n; }); }
+    var mine = C.myDiscs();
+    var PRESETS = [
+      { label: "国家中小学智慧教育平台(官方)", url: "https://basic.smartedu.cn/tchMaterial", authority: "official", kind: "textbook", note: "官方电子课本,可在线看 / 下载 PDF" },
+      { label: "ChinaTextbook(开源教材PDF)", url: "https://github.com/TapXWorld/ChinaTextbook", authority: "authoritative", kind: "repo", note: "GitHub 开源教材合集,免费无水印、可下载" },
+      { label: "MIT OCW(公开课/讲义)", url: "https://ocw.mit.edu/", authority: "authoritative", kind: "course", note: "MIT 公开课全套讲义/作业/考试" }
+    ];
+    function applyPreset(ps) { setF(function (o) { return Object.assign({}, o, { title: o.title || ps.label, url: ps.url, authority: ps.authority, kind: ps.kind, note: o.note || ps.note }); }); }
+    function add() {
+      if (!f.title.trim() || busy) return; setBusy(true);
+      C.saveMaterial({ discId: f.discId || null, edition: f.edition || null, kind: f.kind, title: f.title.trim(), url: f.url || null, note: f.note || "", authority: f.authority, refs: f.url ? [{ name: f.title.trim(), url: f.url }] : [] }).then(function () { setBusy(false); setF(Object.assign({}, f, { title: "", url: "", note: "", edition: "" })); setAdding(false); load(); });
+    }
+    function upload(e) {
+      var file = e.target.files && e.target.files[0]; if (!file) return;
+      if (file.size > 8 * 1024 * 1024) { window.alert("文件请小于 8MB(大书建议放直链后缓存)"); e.target.value = ""; return; }
+      var rd = new FileReader();
+      rd.onload = function () { var b64 = String(rd.result).split(",")[1] || ""; C.uploadFile(file.name, file.type || "application/pdf", b64).then(function (r) { if (r && r.ok && r.id) C.saveMaterial({ discId: f.discId || null, kind: "pdf", title: file.name, fileId: r.id, authority: "authoritative", note: "上传" }).then(load); else window.alert("上传失败"); }); };
+      rd.readAsDataURL(file); e.target.value = "";
+    }
+    function cache(id) { C.cachePdf(id).then(function (r) { if (r && r.ok) { window.alert("已缓存(" + Math.round((r.size || 0) / 1024) + " KB)"); load(); } else window.alert((r && r.error) || "缓存失败"); }); }
+    function del(id) { if (!window.confirm("从课本库删除?")) return; C.deleteMaterial(id).then(load); }
+    function discName(id) { var d = id && C.disciplineById(id); return d ? d.name : "通用"; }
+    function AU(a) { return a === "official" ? ["官方", "#3f8a52", "#eef7f0"] : a === "authoritative" ? ["权威", "#2c5fb3", "#eaf1fb"] : ["AI生成", "#a86a00", "#FBF4E6"]; }
+    var KINDS = [["textbook", "课本"], ["syllabus", "考纲"], ["repo", "仓库"], ["course", "课程"], ["tool", "工具"], ["link", "链接"]];
+    var AUTH = [["official", "官方"], ["authoritative", "权威"], ["generated", "AI生成"]];
+    function card(m) {
+      var href = m.file_id ? C.fileUrl(m.file_id) : m.url, au = AU(m.authority), cached = !!m.file_id;
+      var col = m.authority === "official" ? "#3f8a52" : m.authority === "authoritative" ? "#2c5fb3" : "#C8852E";
+      return html`<div key=${m.id} class="pan-panel" style="padding:0;overflow:hidden;display:flex;flex-direction:column;">
+        <div style=${"height:78px;background:linear-gradient(135deg," + col + ",#33291E);display:flex;align-items:center;justify-content:center;font-size:30px;position:relative;"}>📕
+          <span style=${"position:absolute;top:8px;right:8px;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.9);color:" + (cached ? "#3f8a52" : "#9a8a6f") + ";"}>${cached ? "已缓存" : "未缓存"}</span></div>
+        <div style="padding:11px 13px;flex:1;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:13px;font-weight:600;line-height:1.4;">${href ? html`<a href=${href} target="_blank" rel="noopener">${m.title}</a>` : m.title}</div>
+          <div style="font-size:11px;color:#9a8a6f;display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span class="pan-pill" style=${"color:" + au[1] + ";background:" + au[2] + ";"}>${au[0]}</span>${discName(m.disc_id)}${m.edition ? " · " + m.edition : ""}</div>
+          <div style="margin-top:auto;display:flex;gap:10px;font-size:12px;align-items:center;padding-top:4px;">
+            ${m.url && !m.file_id ? html`<span class="lnk" style="color:#6E7A4F;cursor:pointer;" onClick=${function () { cache(m.id); }}>缓存PDF</span>` : null}
+            ${href ? html`<a href=${href} target="_blank" rel="noopener" style="color:#2c5fb3;">打开↗</a>` : null}
+            <span class="lnk" style="color:#B6532F;cursor:pointer;margin-left:auto;" onClick=${function () { del(m.id); }}>删除</span></div>
+        </div></div>`;
+    }
+    return html`<div class="pan-screen">
+      ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "课本库" }]} />`}
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px;">
+        <div><h1 class="pan-page-h" style="margin:0 0 4px;">课本库 <span class="en">/ Library</span></h1>
+        <div style="font-size:13px;color:#9a8a6f;">所有课本 / 考纲 / 资料的总库。未缓存的可一键缓存 PDF 到本地;也能上传自己的课本 / 书。</div></div>
+        <div style="display:flex;gap:8px;"><label class="pan-btn ghost" style="cursor:pointer;">⬆ 上传课本/书<input type="file" accept="application/pdf,image/*" onChange=${upload} style="display:none;" /></label><span class="pan-btn ink" onClick=${function () { setAdding(!adding); }}>${adding ? "收起" : "＋ 加链接"}</span></div>
+      </div>
+      ${adding ? html`<div class="pan-panel" style="margin:10px 0 18px;">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">${PRESETS.map(function (ps, i) { return html`<span key=${i} class="pan-tag" style="cursor:pointer;" onClick=${function () { applyPreset(ps); }}>+ ${ps.label}</span>`; })}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <input value=${f.title} onInput=${function (e) { set("title", e.target.value); }} placeholder="书名/标题" style="grid-column:1/3;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-family:var(--sans);" />
+          <select value=${f.discId} onChange=${function (e) { set("discId", e.target.value); }} style="border:1px solid #EBDEC8;border-radius:9px;padding:9px;font-family:var(--sans);"><option value="">通用(不绑学科)</option>${mine.map(function (id) { var d = C.disciplineById(id) || { name: id }; return html`<option key=${id} value=${id}>${d.name}</option>`; })}</select>
+          <input value=${f.edition} onInput=${function (e) { set("edition", e.target.value); }} placeholder="版本(可空)" style="border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-family:var(--sans);" />
+          <input value=${f.url} onInput=${function (e) { set("url", e.target.value); }} placeholder="链接 URL(可空)" style="grid-column:1/3;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-family:var(--sans);" />
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center;"><span style="font-size:12px;color:#7A6E5E;">类型</span>${KINDS.map(function (k) { return html`<span key=${k[0]} class=${"pan-tag" + (f.kind === k[0] ? " on" : "")} onClick=${function () { set("kind", k[0]); }}>${k[1]}</span>`; })}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center;"><span style="font-size:12px;color:#7A6E5E;">可信度</span>${AUTH.map(function (a) { return html`<span key=${a[0]} class=${"pan-tag" + (f.authority === a[0] ? " on" : "")} onClick=${function () { set("authority", a[0]); }}>${a[1]}</span>`; })}</div>
+        <div style="display:flex;justify-content:flex-end;"><span class=${"pan-btn " + (f.title.trim() ? "grad" : "ghost")} onClick=${add}>${busy ? "保存中…" : "＋ 添加"}</span></div>
+      </div>` : null}
+      ${list == null ? html`<div class="pan-empty">加载中…</div>`
+        : !list.length ? html`<div class="pan-empty">课本库还空着。点右上「上传课本/书」或「加链接」,或去学科页「管理教材」挂课本。</div>`
+        : html`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">${list.map(card)}</div>`}
+    </div>`;
+  }
+
+  window.Screens = { home: HomeScreen, explore: ExploreScreen, discipline: DisciplineScreen, plan: PlanScreen, course: CourseScreen, library: LibraryScreen, quiz: QuizScreen, notes: NotesScreen, wishlist: WishlistScreen, points: PointsScreen, analytics: AnalyticsScreen, users: UsersScreen, messages: MessagesScreen, practice: PracticeScreen, wrongbook: WrongbookScreen };
 })();
