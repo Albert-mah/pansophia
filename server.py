@@ -754,6 +754,8 @@ class Handler(SimpleHTTPRequestHandler):
             if not row or not row[0]:
                 conn.close(); return self._json(400, {"ok": False, "error": "该教材没有可下载的链接"})
             url, title = row[0], row[1] or "textbook.pdf"
+            if "github.com/" in url and "/blob/" in url:   # github 网页(blob)→ 真实 raw 直链,才能下到 PDF 本体
+                url = url.replace("github.com/", "raw.githubusercontent.com/").replace("/blob/", "/")
             is_pdf_url = url.lower().split("?")[0].endswith(".pdf")
             raw, ct, st = fetch_binary(url)
             if st == "too_large":

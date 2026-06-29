@@ -618,6 +618,15 @@
     useEffect(function () { loadLib(); }, [did]);
     function openReader(itId) { setReader({ loading: true }); C.libItem(itId).then(function (it) { setReader(it || { error: true }); }); }
     function cacheTb(tb) { var u = tb.url; setBusy(function (b) { var n = Object.assign({}, b); n[u] = 1; return n; }); C.cacheUrl({ discId: did, url: u, school: tb.title, program: "" }).then(function () { loadLib(); setBusy(function (b) { var n = Object.assign({}, b); delete n[u]; return n; }); }); }
+    // PDF 课本:下载 PDF 本体进库(服务端把 github 网页转 raw),再以 application/pdf 内联打开阅读
+    function cacheAndRead(tb) {
+      var u = tb.url; if (busy[u]) return; setBusy(function (b) { var n = Object.assign({}, b); n[u] = 1; return n; });
+      C.cachePdf(tb.materialId).then(function (r) {
+        setBusy(function (b) { var n = Object.assign({}, b); delete n[u]; return n; });
+        if (r && r.ok && r.fileId) { try { window.open(C.fileUrl(r.fileId), "_blank"); } catch (e) {} if (did) C.materialsFor(did).then(setMats); }
+        else { window.alert((r && r.error) || "下载失败,试试「在 GitHub 打开」。"); }
+      });
+    }
     if (!did) return html`<${CourseList} />`;               // 先进课程表
     var skelAll = C.skeletonForDiscipline(did);
     var skelList = skelAll.filter(function (e) { return C.hasCourse(did, e.scope || null); });   // 优先显示已领取的范围
@@ -670,17 +679,21 @@
         ${html`<${Bar} pct=${cv.pct} color="#C8852E" />`}<div style="font-size:11.5px;color:#9a8a6f;margin:6px 0 12px;">已完成 ${cv.pct}%</div>
         ${(function () {
           var tb = C.courseTextbook(did, entry.scope);
-          var lit = tb && tb.url ? libMap[tb.url] : null;
+          var liveMat = tb && (mats || []).filter(function (m) { return m.id === tb.materialId; })[0];
+          var fileId = (liveMat && liveMat.file_id) || (tb && (tb.fileId || tb.file_id)) || null;
+          var isPdf = tb && tb.url && /\.pdf$/i.test(((tb.url.split("#")[0]).split("?")[0]));   // 直链/网页都以 .pdf 结尾
+          var lit = (tb && tb.url && !isPdf) ? libMap[tb.url] : null;
           return html`<div style="font-size:12px;color:#9a8a6f;margin-bottom:14px;padding:8px 10px;background:#FBF6EC;border-radius:8px;display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;">
             <span style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">📕 课本:${tb ? html`<b style="color:#5a4e3c;">${tb.title}</b>${tb.auto ? html`<span style="color:#bbab8c;font-size:11px;"> 默认</span>` : null}` : html`<span style="color:#bbab8c;">未选</span>`}</span>
             <span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { setPickTb(true); }}>${tb ? "换" : "选 / 生成"} →</span>
             ${tb ? html`<span style="flex-basis:100%;height:0;"></span>
               <span style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;">
-                ${lit && lit.status === "ok" ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { openReader(lit.id); }}>📄 查看本地副本(${lit.chars}字)</span>` : null}
-                ${tb.url ? html`<a class="lnk" style="color:#2c5fb3;font-weight:600;" href=${tb.url} target="_blank" rel="noopener">🔗 在线打开 ↗</a>` : null}
-                ${(tb.fileId || tb.file_id) ? html`<a class="lnk" style="color:#1f7a44;font-weight:600;" href=${C.fileUrl(tb.fileId || tb.file_id)} target="_blank" rel="noopener">📄 打开文件 ↗</a>` : null}
-                ${tb.url && !(lit && lit.status === "ok") ? html`<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { if (!busy[tb.url]) cacheTb(tb); }}>${busy[tb.url] ? "抓取中…" : "📥 缓存到本地"}</span>` : null}
-                ${!tb.url && !(tb.fileId || tb.file_id) ? html`<span style="color:#bbab8c;">这本只有书名(如纸质书),没有可打开的链接 —— 点「换」选带链接的版本(如可汗学院/CK-12),或让导师补链接</span>` : null}
+                ${fileId ? html`<a class="lnk" style="color:#1f7a44;font-weight:600;" href=${C.fileUrl(fileId)} target="_blank" rel="noopener">📖 阅读课本(本地)↗</a>`
+                  : isPdf ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { cacheAndRead(tb); }}>${busy[tb.url] ? "下载中…(约十几MB)" : "📖 下载并阅读 PDF"}</span>` : null}
+                ${(lit && lit.status === "ok") ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { openReader(lit.id); }}>📄 本地副本(${lit.chars}字)</span>` : null}
+                ${tb.url ? html`<a class="lnk" style="color:#2c5fb3;font-weight:600;" href=${tb.url} target="_blank" rel="noopener">🔗 ${isPdf ? "在 GitHub 打开" : "在线打开"} ↗</a>` : null}
+                ${(tb.url && !isPdf && !(lit && lit.status === "ok")) ? html`<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { if (!busy[tb.url]) cacheTb(tb); }}>${busy[tb.url] ? "抓取中…" : "📥 缓存到本地"}</span>` : null}
+                ${!tb.url && !fileId ? html`<span style="color:#bbab8c;">这本只有书名(如纸质书),没有可打开的链接 —— 点「换」选带链接的版本(如可汗学院/CK-12),或让导师补链接</span>` : null}
               </span>` : null}
           </div>`;
         })()}
