@@ -107,6 +107,9 @@ window.Core = (function () {
   function fetchMessages() { return apiGet("/api/messages?user=" + encodeURIComponent(userKey())).then(function (r) { return (r && r.messages) || []; }).catch(function () { return []; }); }
   function sendMessage(o) { return apiPost("/api/messages", { user: _curKey || userKey(), kind: (o && o.kind) || "note", text: (o && o.text) || "", context: (o && o.context) || {} }); }
   function messageUpdate(id, patch) { return apiPost("/api/messages/update", Object.assign({ id: id }, patch || {})); }
+  // 咨询助教(实时 AI 对话,几轮)+ 收藏回复到知识卡片(= 加星笔记)
+  function assistantChat(messages, context) { return apiPost("/api/assistant", { messages: messages || [], context: context || null }); }
+  function addCard(body, meta) { body = (body || "").trim(); if (!body) return; var nt = (store("notes", []) || []).slice(); nt.unshift({ title: (meta && meta.title) || body.slice(0, 24), body: body, subject: (meta && meta.subject) || "助教", starred: true, ts: Date.now() }); save("notes", nt); }
 
   // 题库 / 答题 / 错题本(PG)
   function questionsFor(o) {
@@ -812,6 +815,7 @@ window.Core = (function () {
     hydrate: hydrate, users: users, user: user, userKey: userKey, switchUser: switchUser, addUser: addUser,
     refreshUsers: refreshUsers, saveUser: saveUser, deleteUser: deleteUser, initials: initials,
     fetchMessages: fetchMessages, sendMessage: sendMessage, messageUpdate: messageUpdate,
+    assistantChat: assistantChat, addCard: addCard,
     questionsFor: questionsFor, recordAnswer: recordAnswer, wrongbookFetch: wrongbookFetch,
     materialsFor: materialsFor, saveMaterial: saveMaterial, deleteMaterial: deleteMaterial, cachePdf: cachePdf, courseTextbook: courseTextbook, setCourseTextbook: setCourseTextbook,
     uploadFile: uploadFile, fileUrl: fileUrl,

@@ -270,6 +270,21 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 .pan-hud-panel { position: fixed; right: 22px; bottom: 130px; width: 264px; background: #FFFDF8; border: 1px solid #EBDEC8; border-radius: 14px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.18); z-index: 65; }
 @media (max-width: 700px) { .pan-hud { bottom: 74px; right: 16px; } .pan-hud-panel { bottom: 116px; right: 16px; width: calc(100vw - 32px); max-width: 300px; } }
 
+/* 咨询助教窗口(AI 对话 + 查词标签) */
+.pan-asst { position: fixed; right: 18px; bottom: 84px; width: 364px; max-width: 92vw; height: 64vh; max-height: 580px; background: #FFFDF8; border: 1px solid #EBDEC8; border-radius: 16px; box-shadow: 0 18px 48px rgba(51,41,30,.24); z-index: 75; display: flex; flex-direction: column; overflow: hidden; }
+.pan-asst-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid #F0E6D2; font-family: var(--serif); font-weight: 700; font-size: 15px; }
+.pan-asst-tabs { display: flex; gap: 4px; padding: 8px 10px 0; border-bottom: 1px solid #F0E6D2; }
+.pan-asst-tabs .t { font-size: 13px; padding: 7px 13px; border-radius: 9px 9px 0 0; cursor: pointer; color: #8a7a62; margin-bottom: -1px; }
+.pan-asst-tabs .t.on { background: #FFFDF8; color: #33291E; font-weight: 600; border: 1px solid #F0E6D2; border-bottom-color: #FFFDF8; }
+.pan-asst-body { flex: 1; overflow: auto; padding: 12px 14px; }
+.pan-asst-foot { padding: 10px 14px 12px; border-top: 1px solid #F0E6D2; background: #FCF6EC; }
+.pan-asst-quote { font-size: 11.5px; color: #9a8a6f; background: #FBF6EC; border: 1px solid #F0E6D2; border-radius: 8px; padding: 6px 9px; margin-bottom: 10px; }
+.pan-asst-msg { font-size: 13.5px; line-height: 1.7; margin-bottom: 10px; padding: 9px 12px; border-radius: 13px; max-width: 90%; white-space: pre-wrap; word-break: break-word; }
+.pan-asst-msg.u { background: #33291E; color: #F2E8D6; margin-left: auto; border-bottom-right-radius: 4px; }
+.pan-asst-msg.a { background: #F4EAD8; color: #3a3023; border-bottom-left-radius: 4px; }
+.pan-asst-msg.a .fav { display: inline-block; margin-top: 7px; font-size: 11px; color: #B6532F; cursor: pointer; font-weight: 600; }
+@media (max-width: 600px) { .pan-asst { right: 8px; left: 8px; width: auto; bottom: 76px; height: 72vh; } }
+
 /* 弹窗(任务详情 / 目标自动排) */
 .pan-modal-mask { position: fixed; inset: 0; background: rgba(40,30,20,.42); z-index: 8000; display: flex; align-items: flex-start; justify-content: center; padding: 44px 16px; overflow: auto; }
 .pan-modal { background: var(--surface); border-radius: 18px; padding: 22px 24px; width: 100%; max-width: 540px; box-shadow: var(--shadow-lift); animation: pan-toast-in .2s ease; }

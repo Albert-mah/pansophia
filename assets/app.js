@@ -139,59 +139,104 @@
       </div>`;
   }
 
-  /* ---------------- 全局派发:给导师的浮动入口 + 选中文本快捷留言 ---------------- */
+  /* ---------------- 全局:咨询助教(AI 对话 + 查词标签)+ 给导师留言(次要) ---------------- */
+  function AssistantWindow(props) {
+    var asst = props.asst, setAsst = props.setAsst;
+    function setTab(t) { setAsst(function (p) { return p ? Object.assign({}, p, { tab: t }) : p; }); }
+    return html`<div class="pan-asst" onMouseDown=${function (e) { e.stopPropagation(); }}>
+      <div class="pan-asst-head"><div>🎓 咨询助教 <span style=${{ fontSize: "11px", color: "#9a8a6f", fontWeight: 400 }}>AI · 陪你聊几轮</span></div>
+        <span style=${{ cursor: "pointer", color: "#9a8a6f", fontSize: "20px", lineHeight: 1 }} onClick=${props.onClose}>×</span></div>
+      <div class="pan-asst-tabs">
+        <span class=${"t" + (asst.tab === "chat" ? " on" : "")} onClick=${function () { setTab("chat"); }}>💬 对话</span>
+        <span class=${"t" + (asst.tab === "dict" ? " on" : "")} onClick=${function () { setTab("dict"); }}>📖 查词</span>
+      </div>
+      ${asst.tab === "chat" ? html`<div class="pan-asst-body">
+        ${asst.quote ? html`<div class="pan-asst-quote">正在看:${asst.quote.slice(0, 90)}</div>` : null}
+        ${!asst.messages.length && !asst.loading ? html`<div style=${{ color: "#9a8a6f", fontSize: "13px", padding: "8px 2px", lineHeight: 1.8 }}>问我任何学习上的问题吧~ 概念、例子、思路都行。我只陪你聊几轮,觉得有用的回答记得点 ⭐ 收藏成知识卡片。</div>` : null}
+        ${asst.messages.map(function (m, i) {
+          return m.role === "user"
+            ? html`<div key=${i} class="pan-asst-msg u">${m.content}</div>`
+            : html`<div key=${i} class="pan-asst-msg a"><div>${m.content}</div><span class="fav" onClick=${function () { props.fav(i); }}>${m.saved ? "✓ 已收藏到卡片" : "⭐ 收藏到知识卡片"}</span></div>`;
+        })}
+        ${asst.loading ? html`<div class="pan-asst-msg a" style=${{ color: "#9a8a6f" }}>助教思考中…</div>` : null}
+      </div>
+      <div class="pan-asst-foot">
+        ${props.capped ? html`<div style=${{ fontSize: "12px", color: "#b6532f", marginBottom: "8px", lineHeight: 1.6 }}>这轮先聊到这啦~ 把要点收藏成卡片;想深入就 <span class="lnk" style=${{ color: "#B6532F", cursor: "pointer", fontWeight: 600 }} onClick=${props.onMessages}>给导师留言 →</span></div>` : null}
+        <div style=${{ display: "flex", gap: "6px" }}>
+          <input value=${asst.input} disabled=${props.capped} placeholder=${props.capped ? "本轮已结束" : "问助教…(回车发送)"} onInput=${function (e) { var v = e.target.value; setAsst(function (p) { return p ? Object.assign({}, p, { input: v }) : p; }); }} onKeyDown=${function (e) { if (e.key === "Enter") props.send(); }} style=${{ flex: 1, border: "1px solid #EBDEC8", borderRadius: "9px", padding: "9px 11px", fontSize: "13.5px", outline: "none", background: props.capped ? "#f3ece0" : "#fff" }} />
+          <span class="pan-btn ink" style=${{ opacity: (props.capped || asst.loading) ? .5 : 1, cursor: props.capped ? "default" : "pointer" }} onClick=${props.send}>发送</span>
+        </div>
+        <div style=${{ fontSize: "11px", color: "#bbab8c", marginTop: "7px", display: "flex", justifyContent: "space-between" }}><span>${props.userTurns}/6 轮</span><span class="lnk" style=${{ cursor: "pointer" }} onClick=${props.onMessages}>✉️ 给导师留言</span></div>
+      </div>` : html`<div class="pan-asst-body">
+        <div style=${{ display: "flex", gap: "6px", marginBottom: "12px" }}>
+          <input value=${asst.dictInput || ""} placeholder="查个词 / 字…(回车)" onInput=${function (e) { var v = e.target.value; setAsst(function (p) { return p ? Object.assign({}, p, { dictInput: v }) : p; }); }} onKeyDown=${function (e) { if (e.key === "Enter") { var t = (asst.dictInput || "").trim(); if (t) { setAsst(function (p) { return p ? Object.assign({}, p, { dictLoading: true, term: t }) : p; }); props.lookup(t, { term: t }); } } }} style=${{ flex: 1, border: "1px solid #EBDEC8", borderRadius: "9px", padding: "9px 11px", fontSize: "13.5px", outline: "none" }} />
+        </div>
+        ${asst.dictLoading ? html`<div style=${{ color: "#9a8a6f", fontSize: "13px" }}>查词中…</div>`
+          : (asst.dict && asst.dict.length ? html`<div style=${{ display: "flex", flexDirection: "column", gap: "12px" }}>${asst.dict.map(function (it, i) {
+              return html`<div key=${i}><div style=${{ fontSize: "14px", fontWeight: 600 }}>${it.term}${it.reading ? html`<span style=${{ color: "#B6532F", fontWeight: 400, marginLeft: "8px", fontSize: "13px" }}>${it.reading}</span>` : null}</div><div style=${{ fontSize: "13px", color: "#3a3023", marginTop: "3px", lineHeight: 1.7 }}>${it.defs.join("；")}</div></div>`;
+            })}</div>` : html`<div style=${{ color: "#9a8a6f", fontSize: "13px", lineHeight: 1.8 }}>${asst.term ? "词典里没收录「" + asst.term + "」。切到「💬 对话」直接问助教吧~" : "输入一个词查释义;或切到「💬 对话」问助教任何问题。"}</div>`)}
+      </div>`}
+    </div>`;
+  }
+
   function Dispatcher() {
     var app = useContext(Ctx);
-    var s0 = useState(null); var sel = s0[0], setSel = s0[1];   // {text,x,y}
-    var d0 = useState(null); var def = d0[0], setDef = d0[1];   // {term,x,y,loading,items}
+    var s0 = useState(null); var sel = s0[0], setSel = s0[1];   // 选中文字工具条 {text,x,y}
+    var a0 = useState(null); var asst = a0[0], setAsst = a0[1]; // 助教窗口状态 / null
     useEffect(function () {
       function onUp() {
         try {
           var s = window.getSelection(); var t = s ? String(s).trim() : "";
-          if (t.length >= 2 && t.length <= 300 && s.rangeCount) {
+          if (t.length >= 1 && t.length <= 300 && s.rangeCount) {
             var r = s.getRangeAt(0).getBoundingClientRect();
-            if (r && (r.width || r.height)) { setSel({ text: t, x: Math.max(60, Math.min(r.left + r.width / 2, window.innerWidth - 60)), y: r.top }); return; }
+            if (r && (r.width || r.height)) { setSel({ text: t, x: Math.max(70, Math.min(r.left + r.width / 2, window.innerWidth - 70)), y: r.top }); return; }
           }
           setSel(null);
         } catch (e) { setSel(null); }
       }
-      function onDown() { setDef(null); }   // 点别处关释义浮层
       document.addEventListener("mouseup", onUp);
       document.addEventListener("touchend", onUp);
-      document.addEventListener("mousedown", onDown);
-      return function () { document.removeEventListener("mouseup", onUp); document.removeEventListener("touchend", onUp); document.removeEventListener("mousedown", onDown); };
+      return function () { document.removeEventListener("mouseup", onUp); document.removeEventListener("touchend", onUp); };
     }, []);
-    function ask() { var t = sel.text; setSel(null); try { window.getSelection().removeAllRanges(); } catch (e) {} app.go("messages", { prefill: "关于「" + t + "」:", ctx: { quote: t, screen: app.screen } }); }
-    function look() {
-      var t = sel.text, x = sel.x, y = sel.y; setSel(null);
-      try { window.getSelection().removeAllRanges(); } catch (e) {}
-      setDef({ term: t, x: x, y: y, loading: true, items: null });
-      window.Dict.ensure(function () { setDef({ term: t, x: x, y: y, loading: false, items: window.Dict.lookup(t) }); });
+    function lookup(term, patch) { window.Dict.ensure(function () { setAsst(function (p) { return p ? Object.assign({}, p, Object.assign({ dict: window.Dict.lookup(term), dictLoading: false }, patch || {})) : p; }); }); }
+    function openAssistant(opts) {
+      opts = opts || {};
+      var term = (opts.term || "").trim();
+      setAsst({ tab: opts.tab || (term ? "dict" : "chat"), term: term, dictInput: term, quote: opts.quote || "", messages: [], input: opts.seed || "", loading: false, dict: null, dictLoading: !!term });
+      if (term) lookup(term);
     }
-    var selStyle = { position: "static", transform: "none", boxShadow: "none" };
+    function fromSelection() {
+      var t = sel.text; setSel(null); try { window.getSelection().removeAllRanges(); } catch (e) {}
+      var isWord = t.length <= 8 && !/[\s，。,.;:!?、]/.test(t);   // 像个词 → 默认查词标签;否则进对话
+      openAssistant({ quote: t, term: isWord ? t : "", tab: isWord ? "dict" : "chat", seed: isWord ? "" : ("关于「" + t + "」,") });
+    }
+    function toMessages() { var t = sel ? sel.text : ""; setSel(null); try { window.getSelection().removeAllRanges(); } catch (e) {} app.go("messages", t ? { prefill: "关于「" + t + "」:", ctx: { quote: t, screen: app.screen } } : undefined); }
+
+    var userTurns = asst ? asst.messages.filter(function (m) { return m.role === "user"; }).length : 0;
+    var capped = userTurns >= 6;
+    function send() {
+      if (!asst || asst.loading || capped) return;
+      var txt = (asst.input || "").trim(); if (!txt) return;
+      var msgs = asst.messages.concat([{ role: "user", content: txt }]);
+      setAsst(function (p) { return p ? Object.assign({}, p, { messages: msgs, input: "", loading: true }) : p; });
+      C.assistantChat(msgs, asst.quote ? { quote: asst.quote } : null).then(function (r) {
+        var reply = (r && r.reply) || "助教没回应,稍后再试,或去「给导师留言」。";
+        setAsst(function (p) { return p ? Object.assign({}, p, { messages: p.messages.concat([{ role: "assistant", content: reply, saved: false }]), loading: false }) : p; });
+      });
+    }
+    function fav(i) {
+      if (!asst) return; var m = asst.messages[i]; if (!m || m.role !== "assistant") return;
+      C.addCard(m.content, { subject: "助教", title: (asst.quote || m.content).slice(0, 24) }); app.checkAch && app.checkAch();
+      setAsst(function (p) { if (!p) return p; var mm = p.messages.slice(); mm[i] = Object.assign({}, mm[i], { saved: true }); return Object.assign({}, p, { messages: mm }); });
+    }
+
     return html`<div>
-      <div class="pan-fab" title="给 AI 导师留言" onClick=${function () { app.go("messages"); }}>✉️</div>
-      ${sel ? html`<div style=${{ position: "fixed", left: sel.x + "px", top: (sel.y > 56 ? sel.y - 40 : sel.y + 26) + "px", transform: "translateX(-50%)", display: "flex", gap: "6px", zIndex: 70 }} onMouseDown=${function (e) { e.preventDefault(); }}>
-        <span class="pan-selsend" style=${selStyle} onClick=${ask}>✉️ 发给导师</span>
-        <span class="pan-selsend" style=${selStyle} onClick=${look}>📖 查词</span>
+      <div class="pan-fab" title="咨询助教(AI)" onClick=${function () { asst ? setAsst(null) : openAssistant({}); }}>🎓</div>
+      ${sel ? html`<div style=${{ position: "fixed", left: sel.x + "px", top: (sel.y > 60 ? sel.y - 42 : sel.y + 26) + "px", transform: "translateX(-50%)", display: "flex", gap: "6px", zIndex: 70 }} onMouseDown=${function (e) { e.preventDefault(); }}>
+        <span class="pan-selsend" style=${{ position: "static", transform: "none", boxShadow: "none" }} onClick=${fromSelection}>🎓 问助教</span>
+        <span class="pan-selsend" style=${{ position: "static", transform: "none", boxShadow: "none", background: "#fff", color: "#8a7a62", fontWeight: 500 }} onClick=${toMessages}>✉️ 留言</span>
       </div>` : null}
-      ${def ? html`<div class="pan-panel" style=${{ position: "fixed", left: Math.max(160, Math.min(def.x, window.innerWidth - 160)) + "px", top: Math.min(def.y + 34, window.innerHeight - 80) + "px", transform: "translateX(-50%)", width: "300px", maxWidth: "86vw", maxHeight: "50vh", overflow: "auto", zIndex: 80, boxShadow: "0 10px 30px rgba(0,0,0,.25)" }}
-        onMouseDown=${function (e) { e.preventDefault(); e.stopPropagation(); }}>
-        <div style=${{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "8px" }}>
-          <b style=${{ fontFamily: "var(--serif)", fontSize: "18px" }}>📖 ${def.term}</b>
-          <span style=${{ cursor: "pointer", color: "#9a8a6f", fontSize: "16px" }} onClick=${function () { setDef(null); }}>✕</span>
-        </div>
-        ${def.loading
-          ? html`<div style=${{ color: "#9a8a6f", fontSize: "13px" }}>正在加载词典…</div>`
-          : (def.items && def.items.length
-            ? html`<div style=${{ display: "flex", flexDirection: "column", gap: "10px" }}>${def.items.map(function (it, i) {
-                return html`<div key=${i}>
-                  <div style=${{ fontSize: "14px", fontWeight: 600 }}>${it.term}${it.reading ? html`<span style=${{ color: "#B6532F", fontWeight: 400, marginLeft: "8px", fontSize: "13px" }}>${it.reading}</span>` : null}</div>
-                  <div style=${{ fontSize: "13px", color: "#3a3023", marginTop: "2px" }}>${it.defs.join("；")}</div>
-                </div>`;
-              })}</div>`
-            : html`<div style=${{ color: "#9a8a6f", fontSize: "13px" }}>未收录「${def.term}」</div>`)}
-      </div>` : null}
+      ${asst ? html`<${AssistantWindow} asst=${asst} setAsst=${setAsst} send=${send} fav=${fav} lookup=${lookup} capped=${capped} userTurns=${userTurns} onClose=${function () { setAsst(null); }} onMessages=${function () { setAsst(null); app.go("messages"); }} />` : null}
     </div>`;
   }
 

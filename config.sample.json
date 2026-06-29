@@ -8,5 +8,13 @@
     "user": "pansophia",
     "password": "CHANGE_ME",
     "dbname": "pansophia"
+  },
+  "_assistant_comment": "咨询助教 AI(OpenAI 兼容)。缺这块=助教未接线(只查词)。base_url 到 /v1 为止;qwen/百炼 用 https://dashscope.aliyuncs.com/compatible-mode/v1,OpenAI 用 https://api.openai.com/v1。",
+  "assistant": {
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "api_key": "CHANGE_ME_llm_key",
+    "model": "qwen-plus",
+    "max_turns": 6,
+    "max_tokens": 700
   }
 }

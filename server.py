@@ -17,7 +17,7 @@
 #
 #  依赖:psycopg2(host 的 python3=miniconda 已装)。配置在 ~/.studyhub/config.json。
 # =============================================================
-import base64, json, os, re, time, threading, ssl, urllib.request
+import base64, json, os, re, time, threading, ssl, urllib.request, urllib.error
 from collections import deque, defaultdict
 from datetime import datetime, timedelta
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -40,6 +40,7 @@ with open(CONFIG_PATH, encoding="utf-8") as f:
 WRITE_TOKEN = CFG["write_token"]
 READ_KEY = CFG["read_key"]
 PG = CFG.get("pg", {"host": "127.0.0.1", "port": 5601, "user": "nocobase", "password": "nocobase", "dbname": "pansophia"})
+ASSISTANT = CFG.get("assistant", {})   # {base_url, api_key, model, max_turns, max_tokens} — OpenAI 兼容;缺则助教未接线
 
 NO_STORE_EXT = (".html", ".js", ".css", ".json")
 
@@ -288,6 +289,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_messages_post()
         if p.path == "/api/messages/update":
             return self.api_messages_update()
+        if p.path == "/api/assistant":
+            return self.api_assistant()
         return self._json(404, {"ok": False, "error": "not found"})
 
     # ---------- health ----------
@@ -825,6 +828,59 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, {"ok": True})
         except Exception as e:
             return self._json(500, {"ok": False, "error": str(e)})
+
+    # ---------- 咨询助教(AI 实时对话,OpenAI 兼容代理;限轮+限频) ----------
+    def api_assistant(self):
+        if not rate_ok(self.client_ip()):
+            return self._json(429, {"ok": False, "error": "too many requests"})
+        cfg = ASSISTANT or {}
+        if not cfg.get("api_key") or not cfg.get("base_url"):
+            return self._json(200, {"ok": False, "error": "assistant_not_configured",
+                "reply": "助教还没接上线哦~ 你可以先用上面的「📖 查词」,或去「给导师留言」留个言,导师会回复你。"})
+        d = self._read_json()
+        if not isinstance(d, dict):
+            return self._json(400, {"ok": False, "error": "bad body"})
+        raw = d.get("messages") or []
+        if not isinstance(raw, list) or not raw:
+            return self._json(400, {"ok": False, "error": "no messages"})
+        max_turns = int(cfg.get("max_turns", 6))
+        clean = []
+        for m in raw[-(max_turns * 2):]:
+            if not isinstance(m, dict):
+                continue
+            role = "assistant" if m.get("role") == "assistant" else "user"
+            content = str(m.get("content") or "")[:2000].strip()
+            if content:
+                clean.append({"role": role, "content": content})
+        if not clean:
+            return self._json(400, {"ok": False, "error": "empty"})
+        system = ("你是「万象学院」的咨询助教,面向中小学生(小学到高中)。"
+                  "用简体中文、温和鼓励、口语化地回答:讲清概念、给直观的例子或类比,必要时一步步引导。"
+                  "回答简短(一般 3-6 句),不要长篇大论;不直接替孩子写完整作业答案,而是启发他自己想。"
+                  "遇到超出学习范围或不适合孩子的内容,温和地把话题带回学习。")
+        ctx = d.get("context")
+        if isinstance(ctx, dict) and ctx.get("quote"):
+            system += "\n学生正在看的内容片段:「" + str(ctx.get("quote"))[:500] + "」,可结合它回答。"
+        payload = {
+            "model": cfg.get("model", "qwen-plus"),
+            "messages": [{"role": "system", "content": system}] + clean,
+            "temperature": float(cfg.get("temperature", 0.6)),
+            "max_tokens": int(cfg.get("max_tokens", 700)),
+        }
+        try:
+            url = cfg["base_url"].rstrip("/") + "/chat/completions"
+            req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), method="POST",
+                headers={"Content-Type": "application/json", "Authorization": "Bearer " + cfg["api_key"]})
+            r = urllib.request.urlopen(req, timeout=45, context=_ssl_ctx)
+            resp = json.loads(r.read().decode("utf-8"))
+            reply = (((resp.get("choices") or [{}])[0].get("message") or {}).get("content") or "").strip()
+            if not reply:
+                return self._json(200, {"ok": False, "error": "empty_reply", "reply": "助教这会儿没想出来,换个说法再问问?"})
+            return self._json(200, {"ok": True, "reply": reply})
+        except urllib.error.HTTPError as e:
+            return self._json(200, {"ok": False, "error": "upstream_" + str(e.code), "reply": "助教暂时联系不上(上游 " + str(e.code) + "),稍后再试,或去「给导师留言」。"})
+        except Exception as e:
+            return self._json(200, {"ok": False, "error": str(e)[:200], "reply": "助教暂时联系不上,稍后再试,或去「给导师留言」。"})
 
     # ---------- report(本人/自带学习者 数据汇总,读密钥) ----------
     def api_report(self, q):
