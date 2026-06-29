@@ -26,8 +26,8 @@ window.STUDY_SKELETON = [
         { title: "导数与单调性、极值最值", status: "todo" }
       ] },
       { title: "三角函数", points: [
-        { title: "三角函数定义与诱导公式", status: "todo" }, { title: "正弦余弦定理", status: "todo" } ] },
-      { title: "数列", points: [ { title: "等差数列", status: "todo" }, { title: "等比数列", status: "todo" } ] },
+        { title: "三角函数定义与诱导公式", ref: "math-trig-functions" }, { title: "正弦余弦定理", ref: "math-trig-functions" } ] },
+      { title: "数列", points: [ { title: "等差数列", ref: "math-sequences" }, { title: "等比数列", ref: "math-sequences" } ] },
       { title: "概率统计", points: [ { title: "古典概型", status: "todo" }, { title: "正态分布", status: "todo" } ] }
     ]
   },
@@ -179,7 +179,7 @@ window.STUDY_SKELETON = [
       { title: "语法 · 时态", points: [
         { title: "一般过去时", ref: "mh-en-past-tense" },
         { title: "一般将来时(will)", ref: "mh-en-future-tense" },
-        { title: "现在进行时", status: "todo" } ] },
+        { title: "现在进行时", ref: "mh-en-present-continuous" } ] },
       { title: "语法 · 其他", points: [
         { title: "形容词比较级", ref: "mh-en-comparatives" },
         { title: "be 动词与主谓一致", ref: "mh-en-be-verb" },

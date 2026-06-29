@@ -102,7 +102,11 @@ window.STUDY_CATALOG = [
     tags: ["be动词", "am", "is", "are", "was", "were", "主谓一致"],
     date: "2026-06-25", difficulty: 1, type: "文档",
     related: ["mh-en-past-tense", "mh-en-comparatives"]
-  }
+  },
+  { id: "math-trig-functions", profile: "siyu", subject: "math", discipline: "math", scopes: ["gaokao"], status: "done", category: "三角函数", title: "三角函数：定义与图象", path: "subjects/math/trig-functions.html", summary: "单位圆定义三角函数，诱导公式化简，含正弦曲线与正余弦定理", tags: ["三角函数", "诱导公式", "正弦定理", "余弦定理", "单位圆", "图象变换"], date: "2026-06-29", difficulty: 2, type: "交互", related: ["math-quadratic-functions"] },
+  { id: "math-sequences", profile: "siyu", subject: "math", discipline: "math", scopes: ["gaokao"], status: "done", category: "数列", title: "数列:等差与等比", path: "subjects/math/sequences.html", summary: "等差/等比数列通项与求和公式推导，含交互柱状图实验", tags: ["数列", "等差数列", "等比数列", "求和公式", "高考"], date: "2026-06-29", difficulty: 2, type: "交互", related: [] },
+  { id: "math-linear-functions", profile: "mahuan", subject: "math", discipline: "math", scopes: ["chuzhong"], status: "done", category: "函数", title: "一次函数与正比例", path: "subjects/math/linear-functions.html", summary: "图解 y=kx+b:k 控制斜率增减性，b 控制截距，含正比例函数对比实验", tags: ["一次函数", "正比例函数", "斜率", "截距", "图象", "初中"], date: "2026-06-29", difficulty: 1, type: "交互", related: [] },
+  { id: "mh-en-present-continuous", profile: "mahuan", subject: "english", scopes: ["jijiao-6b", "xiaoxue"], status: "done", category: "语法 · 时态", title: "现在进行时 Present Continuous", path: "subjects/english/mh-present-continuous.html", summary: "be(am/is/are)+动词ing，拼写四规则，否定疑问句型，信号词与状态动词禁用提醒", tags: ["现在进行时", "be动词", "ing", "进行时", "am is are", "小升初"], date: "2026-06-29", difficulty: 1, type: "文档", related: ["mh-en-past-tense", "mh-en-future-tense", "mh-en-be-verb"] }
 ];
 
 /* =============================================================

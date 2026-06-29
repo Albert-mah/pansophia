@@ -140,8 +140,8 @@ window.STUDY_SKELETON = (window.STUDY_SKELETON || []).concat([
     { title: "函数", points: [
       {"title":"变量与函数的概念、表示法","status":"todo"},
       {"title":"平面直角坐标系","status":"todo"},
-      {"title":"一次函数的图象与性质","status":"todo"},
-      {"title":"正比例函数","status":"todo"},
+      {"title":"一次函数的图象与性质","ref":"math-linear-functions"},
+      {"title":"正比例函数","ref":"math-linear-functions"},
       {"title":"反比例函数的图象与性质","status":"todo"},
       {"title":"二次函数的图象与性质","ref":"math-quadratic-functions"},
       {"title":"二次函数与一元二次方程的关系","ref":"math-quadratic-functions"},

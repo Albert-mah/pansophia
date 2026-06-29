@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>二次函数与图象 · 数学 · 学习中心</title>
+  <title>二次函数与图象 · 学习中心</title>
   <link rel="stylesheet" href="../../assets/style.css">
   <script src="../../data/model.js"></script>
   <script src="../../data/catalog.js"></script>
@@ -25,180 +25,333 @@
       <div class="meta-row" data-meta></div>
     </header>
 
-    <p>二次函数的一般形式是 $y = ax^2 + bx + c\;(a \neq 0)$。
-    它的图象是一条<strong>抛物线</strong>。看懂它，关键是抓住三件事：
-    <strong>开口方向</strong>、<strong>顶点位置</strong>、<strong>与 x 轴的交点（零点）</strong>。</p>
+    <p>二次函数是高中数学里最"立体"的一个函数——它既有漂亮的对称图形，又把
+      <strong>方程的根、不等式的解、最大值最小值</strong>全部织在一起。
+      学好它，后续的三角函数、导数、解析几何都会顺很多。</p>
 
     <div class="box key">
-      <div class="box-title">🔑 三种常用形式</div>
-      <ul style="margin:6px 0">
-        <li><strong>一般式：</strong> $y = ax^2 + bx + c$ —— 已知三点常用。</li>
-        <li><strong>顶点式：</strong> $y = a(x-h)^2 + k$ —— 顶点为 $(h,\,k)$，看最值/平移最方便。</li>
-        <li><strong>交点式：</strong> $y = a(x-x_1)(x-x_2)$ —— 已知两个零点 $x_1,x_2$ 时用。</li>
-      </ul>
+      <div class="box-title">🔑 一句话抓住二次函数</div>
+      <p style="margin:6px 0">$y = ax^2 + bx + c$（$a \neq 0$）的图象是一条<strong>抛物线</strong>：
+        $a$ 决定开口方向与胖瘦，顶点 $\!\left(-\dfrac{b}{2a},\; c-\dfrac{b^2}{4a}\right)$ 是最高或最低点，
+        对称轴 $x = -\dfrac{b}{2a}$ 是抛物线的"脊梁"。</p>
     </div>
 
     <!-- ============ 交互实验区 ============ -->
     <div class="lab">
-      <div class="lab-title">🎮 动手实验：拖动滑块，观察抛物线怎么变</div>
-      <canvas id="plot" width="760" height="440" style="width:100%;height:auto;background:#fff;border:1px solid var(--border);border-radius:10px"></canvas>
+      <div class="lab-title">🎮 动手实验：拖动 a、b、c 滑块，实时看抛物线怎么变</div>
+      <canvas id="plot" width="760" height="440"
+        style="width:100%;height:auto;background:#fff;border:1px solid var(--border);border-radius:10px"></canvas>
 
       <div class="controls">
         <div class="control">
           <label>a =</label>
-          <input id="a" type="range" min="-3" max="3" step="0.1" value="1">
-          <span class="val" id="av">1.0</span>
+          <input id="qsa" type="range" min="-2.5" max="2.5" step="0.05" value="1">
+          <span class="val" id="qva">1.00</span>
         </div>
         <div class="control">
           <label>b =</label>
-          <input id="b" type="range" min="-8" max="8" step="0.1" value="0">
-          <span class="val" id="bv">0.0</span>
+          <input id="qsb" type="range" min="-5" max="5" step="0.1" value="0">
+          <span class="val" id="qvb">0.00</span>
         </div>
         <div class="control">
           <label>c =</label>
-          <input id="c" type="range" min="-8" max="8" step="0.1" value="-2">
-          <span class="val" id="cv">-2.0</span>
+          <input id="qsc" type="range" min="-4" max="4" step="0.1" value="-1">
+          <span class="val" id="qvc">-1.00</span>
         </div>
       </div>
 
       <div class="readout" id="readout"></div>
     </div>
 
-    <h2>怎么从公式看出图象？</h2>
-
-    <h3>① 开口方向 —— 看 a</h3>
+    <h2>1. 开口方向与形状</h2>
+    <p>参数 $a$ 是抛物线最重要的"性格"：</p>
     <ul>
-      <li>$a > 0$：开口<strong>向上</strong>，有<strong>最小值</strong>。</li>
-      <li>$a < 0$：开口<strong>向下</strong>，有<strong>最大值</strong>。</li>
-      <li>$|a|$ 越大，开口越<strong>窄</strong>（在实验里把 a 调到 3 和 0.3 对比一下）。</li>
+      <li>$a > 0$：开口<strong>向上</strong>，像一个碗，有<strong>最小值</strong>。</li>
+      <li>$a < 0$：开口<strong>向下</strong>，像一个倒扣的锅，有<strong>最大值</strong>。</li>
+      <li>$|a|$ 越大，抛物线开口越<strong>窄</strong>；$|a|$ 越小，开口越<strong>宽</strong>。</li>
     </ul>
+    <p>试试把 $a$ 从正数拖到负数，感受图象"翻转"；再把 $a$ 调到 0.2 和 2.5 对比"胖瘦"。</p>
 
-    <h3>② 对称轴与顶点 —— 配方法</h3>
-    <p>把一般式配方成顶点式：</p>
-    <p>$$y = a\left(x + \frac{b}{2a}\right)^2 + \frac{4ac - b^2}{4a}$$</p>
-    <p>所以<strong>对称轴</strong>是 $x = -\dfrac{b}{2a}$，<strong>顶点</strong>是
-       $\left(-\dfrac{b}{2a},\ \dfrac{4ac-b^2}{4a}\right)$。
-       顶点的纵坐标就是函数的<strong>最值</strong>。</p>
-
-    <div class="box example">
-      <div class="box-title">✏️ 例：求 $y = 2x^2 - 8x + 5$ 的最小值</div>
-      <p style="margin:6px 0">对称轴 $x = -\dfrac{-8}{2\times 2} = 2$；代入得最小值
-      $y = 2(2)^2 - 8(2) + 5 = -3$。即顶点 $(2,\,-3)$，最小值 $-3$。
-      把实验里的 a、b、c 调到 2、−8、5 验证一下！</p>
-    </div>
-
-    <h3>③ 与 x 轴的交点 —— 判别式 Δ</h3>
-    <p>令 $y=0$，解 $ax^2+bx+c=0$，由判别式 $\Delta = b^2 - 4ac$ 判断：</p>
-    <table>
-      <tr><th>Δ</th><th>交点个数</th><th>含义</th></tr>
-      <tr><td>$\Delta > 0$</td><td>2 个</td><td>有两个不同实根</td></tr>
-      <tr><td>$\Delta = 0$</td><td>1 个</td><td>顶点正好落在 x 轴上（重根）</td></tr>
-      <tr><td>$\Delta < 0$</td><td>0 个</td><td>抛物线与 x 轴不相交</td></tr>
-    </table>
-    <p>求根公式：$x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}$。</p>
+    <h2>2. 对称轴与顶点——配方法</h2>
+    <p>把一般式配方成<strong>顶点式</strong> $y = a(x-h)^2 + k$，其中：</p>
+    <p>$$h = -\frac{b}{2a}, \qquad k = c - \frac{b^2}{4a}$$</p>
+    <p>顶点 $(h, k)$ 就在对称轴 $x = h$ 上。$k$ 即为函数的最值：$a>0$ 时 $k$ 是<strong>最小值</strong>，
+      $a<0$ 时 $k$ 是<strong>最大值</strong>。</p>
 
     <div class="box tip">
-      <div class="box-title">💡 平移记忆口诀</div>
-      <p style="margin:6px 0">顶点式 $y=a(x-h)^2+k$ 由 $y=ax^2$ 平移得到：
-      <strong>左加右减（管 h）、上加下减（管 k）</strong>。
-      在实验里只调 b 看左右移、只调 c 看上下移，体会一下。</p>
+      <div class="box-title">💡 对称轴只和 a、b 有关</div>
+      <p style="margin:6px 0">公式 $x = -\dfrac{b}{2a}$ 里没有 $c$。
+        $c$ 只控制图象整体上下平移，不影响对称轴位置。
+        试试只拖 $c$ 滑块，观察图象上下移动但对称轴不动。</p>
     </div>
 
-    <h2>易错点</h2>
+    <div class="box example">
+      <div class="box-title">✏️ 例1：求 $f(x)=x^2-4x+1$ 的顶点和最值</div>
+      <p style="margin:6px 0">配方过程：</p>
+      <p style="margin:6px 0">
+        $f(x) = x^2 - 4x + 1$<br>
+        $= (x^2 - 4x + 4) - 4 + 1$<br>
+        $= (x - 2)^2 - 3$
+      </p>
+      <p style="margin:6px 0">顶点 $(2,\,-3)$，对称轴 $x=2$，$a=1>0$ 开口向上，<strong>最小值为 $-3$</strong>（$x=2$ 时取到）。</p>
+    </div>
+
+    <div class="box example">
+      <div class="box-title">✏️ 例2：求 $g(x)=-2x^2+8x-5$ 的顶点式并判断零点个数</div>
+      <p style="margin:6px 0">先提 $-2$，再配方：</p>
+      <p style="margin:6px 0">
+        $g(x) = -2(x^2 - 4x) - 5$<br>
+        $= -2\bigl[(x-2)^2 - 4\bigr] - 5$<br>
+        $= -2(x-2)^2 + 8 - 5$<br>
+        $= -2(x-2)^2 + 3$
+      </p>
+      <p style="margin:6px 0">顶点 $(2,\,3)$，$a=-2<0$ 开口向下，<strong>最大值为 $3$</strong>。<br>
+        判别式 $\Delta = 8^2 - 4\times(-2)\times(-5) = 64 - 40 = 24 > 0$，
+        所以与 $x$ 轴有<strong>两个交点</strong>。</p>
+    </div>
+
+    <h2>3. 与 x 轴的交点——零点与判别式</h2>
+    <p>令 $y=0$，得到一元二次方程 $ax^2+bx+c=0$。其解由<strong>判别式 $\Delta = b^2-4ac$</strong> 决定：</p>
+    <table>
+      <tr><th>判别式</th><th>与 x 轴关系</th><th>实根情况</th></tr>
+      <tr><td>$\Delta > 0$</td><td>两个交点</td><td>两个不相等实根 $x=\dfrac{-b\pm\sqrt{\Delta}}{2a}$</td></tr>
+      <tr><td>$\Delta = 0$</td><td>一个切点</td><td>两根相等（重根）$x=-\dfrac{b}{2a}$</td></tr>
+      <tr><td>$\Delta < 0$</td><td>无交点</td><td>无实数根（共轭复数根）</td></tr>
+    </table>
+    <p><strong>韦达定理</strong>（$\Delta\geq0$ 时成立）：两根之和 $x_1+x_2=-\dfrac{b}{a}$，两根之积 $x_1x_2=\dfrac{c}{a}$。</p>
+
+    <h2>4. 图象平移</h2>
+    <p>顶点式 $y=a(x-h)^2+k$ 可以看作是 $y=ax^2$ 平移得到的：</p>
     <ul>
-      <li>对称轴公式是 $x=-\dfrac{b}{2a}$，<strong>别忘了负号</strong>。</li>
-      <li>"开口向上一定有最小值"——是<strong>最小</strong>不是最大，考试常设陷阱。</li>
-      <li>给定区间求最值时，要先判断<strong>对称轴是否在区间内</strong>，不在的话最值在端点取得。</li>
+      <li>$h>0$：向<strong>右</strong>移 $h$ 个单位；$h<0$：向<strong>左</strong>移 $|h|$ 个单位。</li>
+      <li>$k>0$：向<strong>上</strong>移 $k$ 个单位；$k<0$：向<strong>下</strong>移 $|k|$ 个单位。</li>
+    </ul>
+    <p>例：$y=x^2$ 向右移 3、向下移 2，得 $y=(x-3)^2-2$。</p>
+
+    <div class="box tip">
+      <div class="box-title">💡 和导数的联系</div>
+      <p style="margin:6px 0">学了导数之后，对称轴就有了新角度：对 $f(x)=ax^2+bx+c$ 求导，
+        令 $f'(x)=2ax+b=0$，解得 $x=-\dfrac{b}{2a}$——正是对称轴。
+        导数等于零意味着切线水平，对应抛物线顶点（极值点）。两个视角，同一个答案。</p>
+    </div>
+
+    <h2>5. 考场常见陷阱</h2>
+    <ul>
+      <li><strong>配方时系数要提干净。</strong> $a\neq1$ 时，先提公因数再配方，否则补错数。</li>
+      <li><strong>$\Delta=0$ 是"相切"不是"不交"。</strong> 图象与 $x$ 轴有一个公共点，顶点在轴上。</li>
+      <li><strong>闭区间上的最值≠顶点最值。</strong> 给定区间 $[m,n]$ 时，要同时比较顶点和端点处的函数值。</li>
+      <li><strong>韦达定理要先验 $\Delta\geq0$。</strong> 方程无实根时谈两根之和/积无意义。</li>
+      <li><strong>$a$ 的符号要从题目条件推导。</strong> 看到"开口向下"只能断定 $a<0$，不能直接假设 $a=-1$。</li>
     </ul>
 
-    <!-- ============ 相关知识点（自动生成） ============ -->
     <section class="related">
       <h2>🔗 相关知识点</h2>
       <div class="related-grid" data-related></div>
     </section>
   </article>
 
+  <style>
+    /* 图例色块 */
+    .legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font-size:.85rem; }
+    .legend span { display:inline-flex; align-items:center; gap:5px; }
+    .legend i { display:inline-block; width:10px; height:10px; border-radius:50%; }
+  </style>
+
   <script>
-  // ---------- 交互绘图 ----------
   (function () {
-    const cv = document.getElementById("plot");
+    const cv  = document.getElementById("plot");
     const ctx = cv.getContext("2d");
     const W = cv.width, H = cv.height;
-    const ox = W / 2, oy = H / 2;     // 原点（像素）
-    const scale = 26;                 // 每单位多少像素
+    const ox = W / 2, oy = H / 2;   // 画布原点（像素）
+    const SC = 62;                   // 像素/单位
 
-    const X = px => ox + px * scale;
-    const Y = py => oy - py * scale;
+    // 数学坐标 → 画布像素
+    const PX = x =>  ox + x * SC;
+    const PY = y =>  oy - y * SC;
+    // 画布像素 → 数学坐标
+    const MX = px => (px - ox) / SC;
 
-    function draw() {
-      const a = parseFloat(document.getElementById("a").value);
-      const b = parseFloat(document.getElementById("b").value);
-      const c = parseFloat(document.getElementById("c").value);
-      document.getElementById("av").textContent = a.toFixed(1);
-      document.getElementById("bv").textContent = b.toFixed(1);
-      document.getElementById("cv").textContent = c.toFixed(1);
-
+    // ---------- 绘制网格+坐标轴 ----------
+    function drawGrid() {
       ctx.clearRect(0, 0, W, H);
 
-      // 网格
-      ctx.strokeStyle = "#eef1f7"; ctx.lineWidth = 1;
-      for (let gx = ox % scale; gx < W; gx += scale) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
-      for (let gy = oy % scale; gy < H; gy += scale) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+      // 网格线
+      ctx.strokeStyle = "#eef1f7";
+      ctx.lineWidth = 1;
+      for (let gx = ox % SC; gx < W; gx += SC) {
+        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+      }
+      for (let gy = oy % SC; gy < H; gy += SC) {
+        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+      }
+
       // 坐标轴
-      ctx.strokeStyle = "#b9c0cc"; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "#c0c8d8";
+      ctx.lineWidth   = 1.5;
       ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(W, oy); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(ox, 0); ctx.lineTo(ox, H); ctx.stroke();
 
-      // 抛物线
-      if (Math.abs(a) > 1e-9) {
-        ctx.strokeStyle = "#3b6fe0"; ctx.lineWidth = 3; ctx.beginPath();
-        let first = true;
-        for (let px = 0; px <= W; px++) {
-          const x = (px - ox) / scale;
-          const y = a * x * x + b * x + c;
-          const py = Y(y);
-          if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+      // 箭头
+      ctx.fillStyle = "#c0c8d8";
+      ctx.beginPath(); ctx.moveTo(W-3, oy); ctx.lineTo(W-13, oy-5); ctx.lineTo(W-13, oy+5); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(ox, 3);  ctx.lineTo(ox-5, 13);  ctx.lineTo(ox+5, 13);  ctx.fill();
+
+      // 轴标签
+      ctx.fillStyle  = "#8a93a3";
+      ctx.font       = "13px sans-serif";
+      ctx.textAlign  = "center";
+      for (let n = -5; n <= 5; n++) {
+        if (n === 0) continue;
+        const px = PX(n);
+        if (px > 8 && px < W - 8) {
+          ctx.beginPath(); ctx.moveTo(px, oy-3); ctx.lineTo(px, oy+3);
+          ctx.strokeStyle = "#c0c8d8"; ctx.lineWidth = 1; ctx.stroke();
+          ctx.fillStyle = "#8a93a3";
+          ctx.fillText(n, px, oy + 17);
         }
-        ctx.stroke();
       }
-
-      // 顶点
-      const h = -b / (2 * a);
-      const k = (4 * a * c - b * b) / (4 * a);
-      if (isFinite(h) && isFinite(k)) {
-        ctx.fillStyle = "#e2524a";
-        ctx.beginPath(); ctx.arc(X(h), Y(k), 5, 0, 7); ctx.fill();
-        // 对称轴
-        ctx.strokeStyle = "rgba(226,82,74,.4)"; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(X(h), 0); ctx.lineTo(X(h), H); ctx.stroke(); ctx.setLineDash([]);
+      ctx.textAlign = "right";
+      for (let n = -3; n <= 3; n++) {
+        if (n === 0) continue;
+        const py = PY(n);
+        if (py > 8 && py < H - 8) {
+          ctx.beginPath(); ctx.moveTo(ox-3, py); ctx.lineTo(ox+3, py);
+          ctx.strokeStyle = "#c0c8d8"; ctx.lineWidth = 1; ctx.stroke();
+          ctx.fillStyle = "#8a93a3";
+          ctx.fillText(n, ox - 7, py + 4);
+        }
       }
-
-      // 零点
-      const disc = b * b - 4 * a * c;
-      let rootsText;
-      if (disc > 1e-9) {
-        const r1 = (-b - Math.sqrt(disc)) / (2 * a);
-        const r2 = (-b + Math.sqrt(disc)) / (2 * a);
-        ctx.fillStyle = "#27ae60";
-        [r1, r2].forEach(r => { ctx.beginPath(); ctx.arc(X(r), Y(0), 5, 0, 7); ctx.fill(); });
-        rootsText = `两个零点 x₁=${r1.toFixed(2)}, x₂=${r2.toFixed(2)}`;
-      } else if (Math.abs(disc) <= 1e-9) {
-        const r = -b / (2 * a);
-        ctx.fillStyle = "#27ae60";
-        ctx.beginPath(); ctx.arc(X(r), Y(0), 5, 0, 7); ctx.fill();
-        rootsText = `一个零点（重根）x=${r.toFixed(2)}`;
-      } else {
-        rootsText = "与 x 轴无交点";
-      }
-
-      document.getElementById("readout").innerHTML =
-        `开口<span>${a > 0 ? "向上 ↑（有最小值）" : "向下 ↓（有最大值）"}</span> · ` +
-        `对称轴 <span>x = ${h.toFixed(2)}</span> · ` +
-        `顶点 <span>(${h.toFixed(2)}, ${k.toFixed(2)})</span><br>` +
-        `判别式 Δ = b²−4ac = <span>${disc.toFixed(2)}</span> · ${rootsText}`;
+      ctx.fillStyle = "#8a93a3"; ctx.textAlign = "right";
+      ctx.fillText("O", ox - 7, oy + 16);
     }
 
-    ["a", "b", "c"].forEach(id => document.getElementById(id).addEventListener("input", draw));
+    // ---------- 辅助：点 + 标签 ----------
+    function dot(mx, my, color, label, offx, offy) {
+      offx = offx !== undefined ? offx : 8;
+      offy = offy !== undefined ? offy : -12;
+      const px = PX(mx), py = PY(my);
+      if (px < -20 || px > W + 20 || py < -20 || py > H + 20) return;
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(px, py, 5.5, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
+      if (label) {
+        ctx.fillStyle   = color;
+        ctx.font        = "bold 12px sans-serif";
+        ctx.textAlign   = "left";
+        ctx.fillText(label, px + offx, py + offy);
+      }
+    }
+
+    // ---------- 辅助：竖直虚线 ----------
+    function dashedVLine(mx, color) {
+      const px = PX(mx);
+      if (px < 0 || px > W) return;
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = 1.8;
+      ctx.setLineDash([7, 5]);
+      ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+
+    // ---------- 辅助：格式化数字 ----------
+    function fmt(n, d) { return (d === undefined ? 2 : d), n.toFixed(d === undefined ? 2 : d); }
+
+    // ---------- 主绘图函数 ----------
+    function draw() {
+      const a = parseFloat(document.getElementById("qsa").value);
+      const b = parseFloat(document.getElementById("qsb").value);
+      const c = parseFloat(document.getElementById("qsc").value);
+
+      document.getElementById("qva").textContent = fmt(a, 2);
+      document.getElementById("qvb").textContent = fmt(b, 2);
+      document.getElementById("qvc").textContent = fmt(c, 2);
+
+      drawGrid();
+
+      // a ≈ 0：退化提示
+      if (Math.abs(a) < 0.02) {
+        ctx.strokeStyle = "#aaa"; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+        ctx.beginPath(); ctx.moveTo(0, PY(c)); ctx.lineTo(W, PY(c)); ctx.stroke();
+        ctx.setLineDash([]);
+        document.getElementById("readout").innerHTML =
+          '<span style="color:#e67e22">⚠ a ≈ 0，已退化为常数函数，不是二次函数。请把 a 滑离 0。</span>';
+        return;
+      }
+
+      // 抛物线
+      ctx.strokeStyle = "#3b6fe0"; ctx.lineWidth = 3;
+      ctx.beginPath();
+      let first = true;
+      for (let px = 0; px <= W; px++) {
+        const x = MX(px);
+        const y = a * x * x + b * x + c;
+        if (y > 7.5 || y < -7.5) { first = true; continue; }
+        if (first) { ctx.moveTo(px, PY(y)); first = false; }
+        else ctx.lineTo(px, PY(y));
+      }
+      ctx.stroke();
+
+      // 顶点与对称轴
+      const h = -b / (2 * a);
+      const k = c - (b * b) / (4 * a);
+
+      if (Math.abs(h) < 7) {
+        dashedVLine(h, "#9b59b6");
+        ctx.fillStyle = "#9b59b6"; ctx.font = "bold 12px sans-serif"; ctx.textAlign = "left";
+        const labelX = PX(h) + 5;
+        ctx.fillText("x=" + fmt(h, 2), labelX, 18);
+      }
+
+      // 顶点标注
+      if (Math.abs(k) < 7) {
+        const vLabel = `顶点(${fmt(h,2)}, ${fmt(k,2)})`;
+        dot(h, k, "#e2524a", vLabel, 10, -13);
+      }
+
+      // y 轴交点
+      if (Math.abs(c) < 7) {
+        dot(0, c, "#27ae60", `(0, ${fmt(c,2)})`, 7, -12);
+      }
+
+      // 判别式 & 零点
+      const delta = b * b - 4 * a * c;
+      let rootsHtml = "";
+      if (delta > 0.0001) {
+        const r1 = (-b - Math.sqrt(delta)) / (2 * a);
+        const r2 = (-b + Math.sqrt(delta)) / (2 * a);
+        [r1, r2].forEach(r => {
+          if (Math.abs(r) < 7) dot(r, 0, "#e07b39", `(${fmt(r,2)}, 0)`, 6, 18);
+        });
+        rootsHtml = `两实根 x₁=${fmt(r1,3)}，x₂=${fmt(r2,3)}`;
+      } else if (Math.abs(delta) <= 0.0001) {
+        if (Math.abs(h) < 7) dot(h, 0, "#e07b39", `(${fmt(h,2)}, 0)`, 6, 18);
+        rootsHtml = `重根 x=${fmt(h,3)}（顶点在 x 轴上）`;
+      } else {
+        rootsHtml = `Δ < 0，与 x 轴无交点`;
+      }
+
+      // 顶点式字符串
+      const sign_h  = h >= 0 ? "−" : "+";
+      const abs_h   = Math.abs(h).toFixed(2);
+      const sign_k  = k >= 0 ? "+" : "−";
+      const abs_k   = Math.abs(k).toFixed(2);
+      const opening = a > 0 ? "向上 ↑（有最小值）" : "向下 ↓（有最大值）";
+      const extreme = a > 0 ? "最小值" : "最大值";
+
+      document.getElementById("readout").innerHTML =
+        `<strong>函数：</strong>y = ${fmt(a)}x² ${b >= 0 ? "+" : ""}${fmt(b)}x ${c >= 0 ? "+" : ""}${fmt(c)}&emsp;` +
+        `<strong>顶点式：</strong>y = ${fmt(a)}(x ${sign_h} ${abs_h})² ${sign_k} ${abs_k}<br>` +
+        `<strong>开口：</strong><span>${opening}</span>&emsp;` +
+        `<strong>对称轴：</strong><span>x = ${fmt(h,3)}</span>&emsp;` +
+        `<strong>${extreme}：</strong><span>${fmt(k,3)}</span><br>` +
+        `<strong>判别式 Δ = ${fmt(delta,2)}&emsp;</strong>${rootsHtml}`;
+    }
+
+    ["qsa", "qsb", "qsc"].forEach(id =>
+      document.getElementById(id).addEventListener("input", draw)
+    );
     draw();
   })();
   </script>

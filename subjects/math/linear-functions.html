@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一次函数与正比例 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="math-linear-functions"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb></nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker></div>
+      <h1>一次函数与正比例</h1>
+      <div class="meta-row" data-meta></div>
+    </header>
+
+    <p>初中数学里，函数是描述"量与量之间关系"的工具。<strong>一次函数</strong>是其中最简单、最重要的一种——它的图象就是一条直线，所以也叫<strong>线性函数</strong>。只要搞懂 k 和 b 这两个数，这条直线的一切你都能掌控！</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 核心一句话</div>
+      <p style="margin:6px 0">一次函数 $y = kx + b$（$k \neq 0$）就是一条直线：</p>
+      <ul style="margin:6px 0">
+        <li><strong>k（斜率）</strong>——决定这条线有多陡、往哪个方向倾斜；</li>
+        <li><strong>b（截距）</strong>——这条线在 y 轴上的"起点"，即 $x = 0$ 时 $y = b$。</li>
+      </ul>
+      <p style="margin:4px 0;color:var(--text-soft)">记住：k 和 b 确定了，直线就完全确定了，一条都不多，一条都不少。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎮 动手拖一拖：感受 k 和 b 的作用</div>
+      <canvas id="linePlot" width="760" height="440"
+        style="width:100%;height:auto;background:#fff;border:1px solid var(--border);border-radius:10px"></canvas>
+
+      <div class="controls">
+        <div class="control">
+          <label>k（斜率）</label>
+          <input id="kSlider" type="range" min="-3" max="3" step="0.5" value="1">
+          <span class="val" id="kVal">1.0</span>
+        </div>
+        <div class="control" id="bControl">
+          <label>b（截距）</label>
+          <input id="bSlider" type="range" min="-4" max="4" step="0.5" value="2">
+          <span class="val" id="bVal">2.0</span>
+        </div>
+        <div class="control">
+          <label>正比例模式</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400;flex:1">
+            <input id="propToggle" type="checkbox"
+              style="width:18px;height:18px;accent-color:var(--accent);flex:none">
+            勾选后 b 锁定为 0，直线过原点——变成<strong>正比例函数</strong>
+          </label>
+        </div>
+      </div>
+
+      <div class="readout" id="readout"></div>
+    </div>
+
+    <h2>1. k 是什么——斜率的几何意义</h2>
+    <p>k 告诉我们直线的<strong>倾斜程度和方向</strong>。图里绿色虚线小三角形就是 k 的形象：</p>
+    <ul>
+      <li><strong>向右走 1 格，y 变化 k 格。</strong>k 绝对值越大 → 线越陡；k 越接近 0 → 线越平。</li>
+      <li>$k > 0$：直线从左下到右上，函数<strong>单调递增</strong>（x 越大，y 越大）。</li>
+      <li>$k < 0$：直线从左上到右下，函数<strong>单调递减</strong>（x 越大，y 越小）。</li>
+      <li>$k = 0$：直线水平，<strong>不是一次函数</strong>——定义里特别要求 $k \neq 0$！</li>
+    </ul>
+    <p>还有一个很有用的结论：<strong>两条直线平行，则它们的斜率相等</strong>（且截距不同）。比如 $y = 2x + 1$ 和 $y = 2x - 3$ 是两条平行线。</p>
+
+    <h2>2. b 是什么——y 轴截距的几何意义</h2>
+    <p>把 $x = 0$ 代入 $y = kx + b$，得到 $y = b$。所以 b 就是直线与 y 轴交点的纵坐标，这个点是 $(0,\ b)$，叫做 <strong>y 轴截距</strong>（实验里红色圆点）。</p>
+    <ul>
+      <li>$b > 0$：交点在原点上方。</li>
+      <li>$b < 0$：交点在原点下方。</li>
+      <li>$b = 0$：直线经过原点，这就变成了正比例函数。</li>
+    </ul>
+
+    <h2>3. 图象与坐标轴的两个交点</h2>
+    <p>画直线时，我们只需要两个点就够了。以下两个交点最容易算：</p>
+    <table>
+      <tr><th>交点</th><th>求法</th><th>坐标</th></tr>
+      <tr><td>与 y 轴的交点</td><td>令 $x = 0$，得 $y = b$</td><td>$(0,\ b)$</td></tr>
+      <tr>
+        <td>与 x 轴的交点</td>
+        <td>令 $y = 0$，解 $kx + b = 0$</td>
+        <td>$\left(-\dfrac{b}{k},\ 0\right)$</td>
+      </tr>
+    </table>
+    <p>找到这两个点，用直尺一连，直线就画好了。</p>
+
+    <div class="box example">
+      <div class="box-title">✏️ 例题：已知两点，求 k 和 b</div>
+      <p style="margin:6px 0"><strong>题：</strong>已知直线 $y = kx + b$ 经过点 $A(1,\ 3)$ 和 $B(-1,\ -1)$，求 $k$、$b$。</p>
+      <p style="margin:6px 0"><strong>解：</strong>把 A、B 两点的坐标分别代入 $y = kx + b$，列出方程组：</p>
+      <p style="margin:6px 0">$$\begin{cases} k \times 1 + b = 3 \\ k \times (-1) + b = -1 \end{cases} \implies \begin{cases} k + b = 3 \quad \cdots ①\\ -k + b = -1 \quad \cdots ②\end{cases}$$</p>
+      <p style="margin:6px 0">① $-$ ②，消去 b：$2k = 4$，解得 $k = 2$。</p>
+      <p style="margin:6px 0">把 $k = 2$ 代回①：$2 + b = 3$，解得 $b = 1$。</p>
+      <p style="margin:6px 0"><strong>结果：</strong>$k = 2$，$b = 1$，函数解析式为 $y = 2x + 1$。</p>
+      <p style="margin:6px 0;color:var(--text-soft);font-size:.9em">验算：把 $B(-1, -1)$ 代入：$2 \times (-1) + 1 = -1$ ✓　放心，验算是好习惯！</p>
+    </div>
+
+    <div class="box tip">
+      <div class="box-title">💡 正比例函数是一次函数的"特例"</div>
+      <p style="margin:6px 0">正比例函数 $y = kx$（$k \neq 0$）其实就是 $b = 0$ 的一次函数，特别之处是：<strong>图象一定经过原点 $(0, 0)$</strong>。</p>
+      <p style="margin:6px 0">类比记忆：正比例函数 ⊂ 一次函数，就像正方形 ⊂ 长方形——前者是后者的特殊情况。</p>
+      <p style="margin:6px 0">判断口诀：<em>有 b = 0 且过原点，正比例；b ≠ 0 不过原点，一次函数。</em></p>
+    </div>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related></div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    const cv  = document.getElementById('linePlot');
+    const ctx = cv.getContext('2d');
+    const W   = cv.width;
+    const H   = cv.height;
+    const ox  = W / 2;   // origin x pixel
+    const oy  = H / 2;   // origin y pixel
+    const sc  = 55;       // pixels per unit
+
+    const PX = x => ox + x * sc;
+    const PY = y => oy - y * sc;
+
+    const kSlider  = document.getElementById('kSlider');
+    const bSlider  = document.getElementById('bSlider');
+    const kValEl   = document.getElementById('kVal');
+    const bValEl   = document.getElementById('bVal');
+    const propCb   = document.getElementById('propToggle');
+    const readout  = document.getElementById('readout');
+    const bControl = document.getElementById('bControl');
+
+    function drawGrid() {
+      // light grid
+      ctx.strokeStyle = '#eef1f7';
+      ctx.lineWidth = 1;
+      for (let ix = Math.ceil(-ox / sc); ix <= Math.floor((W - ox) / sc); ix++) {
+        ctx.beginPath(); ctx.moveTo(PX(ix), 0); ctx.lineTo(PX(ix), H); ctx.stroke();
+      }
+      for (let iy = Math.ceil(-(H - oy) / sc); iy <= Math.floor(oy / sc); iy++) {
+        ctx.beginPath(); ctx.moveTo(0, PY(iy)); ctx.lineTo(W, PY(iy)); ctx.stroke();
+      }
+
+      // axes
+      ctx.strokeStyle = '#aab3c0';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(W, oy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox, 0); ctx.lineTo(ox, H); ctx.stroke();
+
+      // axis labels
+      ctx.fillStyle = '#8a93a3';
+      ctx.font = '14px sans-serif';
+      ctx.fillText('x', W - 14, oy - 8);
+      ctx.fillText('y', ox + 8, 16);
+      ctx.fillText('O', ox + 5, oy + 16);
+
+      // tick marks & numbers
+      ctx.font = '11px sans-serif';
+      ctx.fillStyle = '#aab3c0';
+      ctx.strokeStyle = '#aab3c0';
+      ctx.lineWidth = 1;
+      for (let i = -6; i <= 6; i++) {
+        if (i === 0) continue;
+        const px = PX(i);
+        if (px > 10 && px < W - 10) {
+          ctx.beginPath(); ctx.moveTo(px, oy - 4); ctx.lineTo(px, oy + 4); ctx.stroke();
+          ctx.fillText(String(i), px - (i <= -10 ? 11 : i < 0 ? 7 : 4), oy + 15);
+        }
+      }
+      for (let i = -4; i <= 4; i++) {
+        if (i === 0) continue;
+        const py = PY(i);
+        if (py > 10 && py < H - 10) {
+          ctx.beginPath(); ctx.moveTo(ox - 4, py); ctx.lineTo(ox + 4, py); ctx.stroke();
+          ctx.fillText(String(i), ox + 6, py + 4);
+        }
+      }
+    }
+
+    function draw() {
+      const k      = parseFloat(kSlider.value);
+      const isProp = propCb.checked;
+      const b      = isProp ? 0 : parseFloat(bSlider.value);
+
+      kValEl.textContent = k.toFixed(1);
+      bValEl.textContent = b.toFixed(1);
+      bControl.style.opacity = isProp ? '0.4' : '1';
+      bSlider.disabled = isProp;
+
+      ctx.clearRect(0, 0, W, H);
+      drawGrid();
+
+      // draw line y = kx + b across full canvas width
+      const xL = -ox / sc;
+      const xR = (W - ox) / sc;
+      ctx.strokeStyle = '#3b6fe0';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, PY(k * xL + b));
+      ctx.lineTo(W, PY(k * xR + b));
+      ctx.stroke();
+
+      // y-intercept point (0, b) — red dot
+      ctx.fillStyle = '#e2524a';
+      ctx.beginPath();
+      ctx.arc(PX(0), PY(b), 6.5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillStyle = '#e2524a';
+      const bLabel = '(0, ' + b.toFixed(1) + ')';
+      const bPY = PY(b);
+      // position label above dot when near bottom, below when near top
+      const labelOffset = bPY > H - 30 ? -18 : 18;
+      ctx.fillText(bLabel, PX(0) + 9, bPY - labelOffset * 0.5 - 4);
+
+      // slope triangle — try x = 1→2, fall back to x = -2→-1
+      if (k !== 0) {
+        const candidates = [1, -3, 2, -2, 0];
+        for (const tx of candidates) {
+          const ty  = k * tx + b;
+          const ty2 = ty + k;
+          if (Math.abs(ty) < 3.5 && Math.abs(ty2) < 3.5) {
+            ctx.setLineDash([5, 4]);
+            ctx.strokeStyle = '#27ae60';
+            ctx.lineWidth = 2;
+            // horizontal leg: right 1 unit
+            ctx.beginPath();
+            ctx.moveTo(PX(tx), PY(ty));
+            ctx.lineTo(PX(tx + 1), PY(ty));
+            ctx.stroke();
+            // vertical leg: up/down k units
+            ctx.beginPath();
+            ctx.moveTo(PX(tx + 1), PY(ty));
+            ctx.lineTo(PX(tx + 1), PY(ty2));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#27ae60';
+            ctx.font = 'bold 11px sans-serif';
+            // "右移1" label: below horizontal when k>0, above when k<0
+            const hLabelY = PY(ty) + (k < 0 ? -6 : 13);
+            ctx.fillText('右移1', PX(tx + 0.5) - 15, hLabelY);
+            // slope label on vertical leg
+            const dir = k > 0 ? '上移' : '下移';
+            ctx.fillText(dir + ' ' + Math.abs(k).toFixed(1), PX(tx + 1) + 5, PY((ty + ty2) / 2) + 4);
+            break;
+          }
+        }
+      }
+
+      // mark origin when in proportional mode — purple dot
+      if (isProp) {
+        ctx.fillStyle = '#8e44ad';
+        ctx.beginPath();
+        ctx.arc(PX(0), PY(0), 7, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillStyle = '#8e44ad';
+        ctx.fillText('原点 (0,0)', PX(0) + 9, PY(0) - 9);
+      }
+
+      // readout text
+      let trend, tColor;
+      if (k > 0)      { trend = '递增 ↗（x 越大，y 越大）';                    tColor = '#27ae60'; }
+      else if (k < 0) { trend = '递减 ↘（x 越大，y 越小）';                    tColor = '#e2524a'; }
+      else             { trend = '水平直线（k = 0，不满足 k ≠ 0，不是一次函数）'; tColor = '#e67e22'; }
+
+      const kDesc = k === 0
+        ? 'k = <span>0</span>（⚠ 不满足 k ≠ 0 的条件）'
+        : k > 0
+          ? 'k = <span>' + k.toFixed(1) + '</span>，每向右走 1 格，y <span>上升 ' + Math.abs(k).toFixed(1) + ' 格</span>'
+          : 'k = <span>' + k.toFixed(1) + '</span>，每向右走 1 格，y <span>下降 ' + Math.abs(k).toFixed(1) + ' 格</span>';
+
+      const bDesc = isProp
+        ? 'b = <span>0</span>，直线过原点，这是<span>正比例函数</span> y = ' + k.toFixed(1) + 'x'
+        : 'b = <span>' + b.toFixed(1) + '</span>，直线与 y 轴交于 <span>(0, ' + b.toFixed(1) + ')</span>';
+
+      readout.innerHTML =
+        kDesc + '；' + bDesc + '<br>' +
+        '图象特征：<span style="color:' + tColor + '">' + trend + '</span>';
+    }
+
+    kSlider.addEventListener('input', draw);
+    bSlider.addEventListener('input', draw);
+    propCb.addEventListener('change', draw);
+    draw();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>三角函数:定义与图象 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="math-trig-functions"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb></nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker></div>
+      <h1>三角函数：定义与图象</h1>
+      <div class="meta-row" data-meta></div>
+    </header>
+
+    <p>很多同学碰到三角函数就发懵，觉得 sin、cos、tan 像三个从天而降的符号。
+      其实只需要记住一件事：<strong>三角函数就是单位圆上那个动点的坐标</strong>。
+      角旋转，点移动；点的横坐标是余弦，纵坐标是正弦，就这么简单。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 核心：单位圆上点的坐标</div>
+      <p style="margin:6px 0">以原点为圆心、半径为 1 的圆叫<strong>单位圆</strong>。
+        从正 x 轴出发，逆时针旋转角度 θ，终边与单位圆的交点 P 坐标为：</p>
+      <p style="margin:6px 0">$$P = (\cos\theta,\ \sin\theta)$$</p>
+      <p style="margin:6px 0">所以 $\cos\theta$ 是横坐标，$\sin\theta$ 是纵坐标，
+        $\tan\theta = \dfrac{\sin\theta}{\cos\theta}$ 是半径方向的斜率。</p>
+    </div>
+
+    <!-- Lab 1: Unit Circle -->
+    <div class="lab">
+      <div class="lab-title">🎮 动手实验：旋转单位圆，看三角函数</div>
+      <canvas id="unitCircle" width="760" height="400"
+        style="width:100%;height:auto;background:#fff;border:1px solid var(--border);border-radius:10px"></canvas>
+      <div class="controls">
+        <div class="control">
+          <label>角度 θ</label>
+          <input id="theta" type="range" min="0" max="360" step="1" value="45">
+          <span class="val" id="thetaVal">45°</span>
+        </div>
+      </div>
+      <div class="readout" id="ucReadout"></div>
+    </div>
+
+    <h2>1. 弧度制与角度制</h2>
+    <p>角度制用"°"；弧度制用弧长除以半径来度量角，单位 rad（可省略）。
+      高中及大学数学默认弧度制，因为导数公式 $(\sin x)'=\cos x$ 只在弧度下成立。</p>
+    <p>换算：$360° = 2\pi$，即 $1° = \dfrac{\pi}{180}$，$1\,\text{rad} \approx 57.3°$。</p>
+    <table>
+      <tr>
+        <th>度数</th><th>0°</th><th>30°</th><th>45°</th><th>60°</th><th>90°</th>
+        <th>120°</th><th>150°</th><th>180°</th><th>270°</th><th>360°</th>
+      </tr>
+      <tr>
+        <th>弧度</th>
+        <td>0</td>
+        <td>$\dfrac{\pi}{6}$</td><td>$\dfrac{\pi}{4}$</td><td>$\dfrac{\pi}{3}$</td>
+        <td>$\dfrac{\pi}{2}$</td>
+        <td>$\dfrac{2\pi}{3}$</td><td>$\dfrac{5\pi}{6}$</td>
+        <td>$\pi$</td><td>$\dfrac{3\pi}{2}$</td><td>$2\pi$</td>
+      </tr>
+    </table>
+
+    <h2>2. 三角函数定义</h2>
+    <p>设角 α 的终边与单位圆交于点 $P(x,\,y)$，定义：</p>
+    <ul>
+      <li><strong>正弦</strong>：$\sin\alpha = y$（纵坐标，范围 $[-1,\,1]$）</li>
+      <li><strong>余弦</strong>：$\cos\alpha = x$（横坐标，范围 $[-1,\,1]$）</li>
+      <li><strong>正切</strong>：$\tan\alpha = \dfrac{y}{x}$（当 $x=0$ 即 $\alpha=\dfrac{\pi}{2}+k\pi$ 时无意义）</li>
+    </ul>
+    <p>最重要的基本关系：$\sin^2\alpha + \cos^2\alpha = 1$（勾股定理在单位圆上的体现）。</p>
+
+    <div class="box tip">
+      <div class="box-title">💡 特殊角的值（必须背熟）</div>
+      <table style="margin:8px 0">
+        <tr>
+          <th>α</th><th>0</th>
+          <th>$\dfrac{\pi}{6}$</th><th>$\dfrac{\pi}{4}$</th><th>$\dfrac{\pi}{3}$</th>
+          <th>$\dfrac{\pi}{2}$</th>
+        </tr>
+        <tr>
+          <th>sin α</th><td>0</td>
+          <td>$\dfrac{1}{2}$</td><td>$\dfrac{\sqrt{2}}{2}$</td><td>$\dfrac{\sqrt{3}}{2}$</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>cos α</th><td>1</td>
+          <td>$\dfrac{\sqrt{3}}{2}$</td><td>$\dfrac{\sqrt{2}}{2}$</td><td>$\dfrac{1}{2}$</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>tan α</th><td>0</td>
+          <td>$\dfrac{\sqrt{3}}{3}$</td><td>1</td><td>$\sqrt{3}$</td>
+          <td>无意义</td>
+        </tr>
+      </table>
+    </div>
+
+    <h2>3. 各象限的符号</h2>
+    <p>口诀：<strong>"一全正、二正弦、三正切、四余弦"</strong>——该象限哪些函数取正值。</p>
+    <table>
+      <tr><th>象限</th><th>sin α</th><th>cos α</th><th>tan α</th></tr>
+      <tr><td>第一象限（$0 \sim \dfrac{\pi}{2}$）</td><td>＋</td><td>＋</td><td>＋</td></tr>
+      <tr><td>第二象限（$\dfrac{\pi}{2} \sim \pi$）</td><td>＋</td><td>－</td><td>－</td></tr>
+      <tr><td>第三象限（$\pi \sim \dfrac{3\pi}{2}$）</td><td>－</td><td>－</td><td>＋</td></tr>
+      <tr><td>第四象限（$\dfrac{3\pi}{2} \sim 2\pi$）</td><td>－</td><td>＋</td><td>－</td></tr>
+    </table>
+
+    <h2>4. 诱导公式</h2>
+    <p>口诀：<strong>"奇变偶不变，符号看象限"</strong>。
+      $k\cdot\dfrac{\pi}{2} \pm \alpha$ 中，k 为奇数时 sin↔cos 互换，k 为偶数时函数名不变；
+      最终符号把 α 当锐角，看整个角落在哪个象限来判断正负。</p>
+    <ul>
+      <li>$\sin(-\alpha)=-\sin\alpha$，$\cos(-\alpha)=\cos\alpha$（负角公式）</li>
+      <li>$\sin(\pi-\alpha)=\sin\alpha$，$\cos(\pi-\alpha)=-\cos\alpha$（补角）</li>
+      <li>$\sin(\pi+\alpha)=-\sin\alpha$，$\cos(\pi+\alpha)=-\cos\alpha$（对顶角）</li>
+      <li>$\sin\!\left(\dfrac{\pi}{2}-\alpha\right)=\cos\alpha$，$\cos\!\left(\dfrac{\pi}{2}-\alpha\right)=\sin\alpha$（余角互换）</li>
+      <li>$\sin\!\left(\dfrac{\pi}{2}+\alpha\right)=\cos\alpha$，$\cos\!\left(\dfrac{\pi}{2}+\alpha\right)=-\sin\alpha$</li>
+    </ul>
+
+    <div class="box example">
+      <div class="box-title">✏️ 例1：化简 $\sin(180°-\alpha)\cdot\cos(-\alpha)\cdot\tan(180°+\alpha)$</div>
+      <p style="margin:6px 0">逐一用诱导公式替换：</p>
+      <ul style="margin:6px 0">
+        <li>$\sin(180°-\alpha)=\sin\alpha$</li>
+        <li>$\cos(-\alpha)=\cos\alpha$</li>
+        <li>$\tan(180°+\alpha)=\tan\alpha=\dfrac{\sin\alpha}{\cos\alpha}$</li>
+      </ul>
+      <p style="margin:6px 0">原式 $=\sin\alpha\cdot\cos\alpha\cdot\dfrac{\sin\alpha}{\cos\alpha}=\sin^2\alpha$</p>
+    </div>
+
+    <div class="box example">
+      <div class="box-title">✏️ 例2：已知 $\sin\alpha=\dfrac{3}{5}$，α 在第二象限，求 cos α 和 tan α</div>
+      <p style="margin:6px 0">由 $\sin^2\alpha+\cos^2\alpha=1$：
+        $\cos^2\alpha=1-\dfrac{9}{25}=\dfrac{16}{25}$，故 $\cos\alpha=\pm\dfrac{4}{5}$。</p>
+      <p style="margin:6px 0">第二象限 cos α 为负，所以 $\cos\alpha=-\dfrac{4}{5}$，
+        $\tan\alpha=\dfrac{3/5}{-4/5}=-\dfrac{3}{4}$。</p>
+    </div>
+
+    <h2>5. 正弦函数图象：$y = A\sin(\omega x + \varphi)$</h2>
+    <p>$y=\sin x$ 是最基础的三角函数：周期 $T=2\pi$，值域 $[-1,1]$，奇函数。
+      实际题目常考三个参数的影响：</p>
+    <ul>
+      <li><strong>振幅 A</strong>：最大值 $|A|$，纵向拉伸/压缩</li>
+      <li><strong>角频率 ω（正数）</strong>：周期 $T=\dfrac{2\pi}{\omega}$，ω 越大周期越短</li>
+      <li><strong>初相 φ</strong>：图象水平移动，$\varphi>0$ 向左移 $\dfrac{\varphi}{\omega}$ 个单位</li>
+    </ul>
+
+    <!-- Lab 2: Sine Wave -->
+    <div class="lab">
+      <div class="lab-title">🎮 动手实验：拨动参数，观察正弦图象变化</div>
+      <canvas id="sineWave" width="760" height="300"
+        style="width:100%;height:auto;background:#fff;border:1px solid var(--border);border-radius:10px"></canvas>
+      <div class="controls">
+        <div class="control">
+          <label>振幅 A</label>
+          <input id="ampSlider" type="range" min="0.2" max="3" step="0.1" value="1">
+          <span class="val" id="ampVal">1.0</span>
+        </div>
+        <div class="control">
+          <label>角频率 ω</label>
+          <input id="omegaSlider" type="range" min="0.2" max="4" step="0.1" value="1">
+          <span class="val" id="omegaVal">1.0</span>
+        </div>
+        <div class="control">
+          <label>初相 φ（rad）</label>
+          <input id="phiSlider" type="range" min="-3.14" max="3.14" step="0.05" value="0">
+          <span class="val" id="phiVal">+0.00</span>
+        </div>
+      </div>
+      <div class="readout" id="sineReadout"></div>
+    </div>
+
+    <h2>6. 正弦定理与余弦定理</h2>
+    <p>在三角形 ABC 中，a、b、c 分别为角 A、B、C 的对边，R 为外接圆半径。</p>
+    <p><strong>正弦定理</strong>（已知两角一边或两边一对角时用）：</p>
+    <p>$$\frac{a}{\sin A}=\frac{b}{\sin B}=\frac{c}{\sin C}=2R$$</p>
+    <p><strong>余弦定理</strong>（已知两边一夹角或三边时用）：</p>
+    <p>$$c^2=a^2+b^2-2ab\cos C$$</p>
+    <p>余弦定理是勾股定理的推广：当 $C=90°$ 时 $\cos C=0$，退化为 $c^2=a^2+b^2$。</p>
+
+    <div class="box warn">
+      <div class="box-title">⚠️ 高频易错点</div>
+      <ul style="margin:6px 0">
+        <li><strong>$\sin\alpha=\sin\beta$ 不能直接推 $\alpha=\beta$</strong>：还有 $\alpha=\pi-\beta+2k\pi$ 的情况。</li>
+        <li><strong>诱导公式换名看 $\frac{\pi}{2}$ 奇偶倍</strong>，不是 π 的倍数。</li>
+        <li><strong>余弦定理对应关系</strong>：$c^2$ 对应 $\cos C$，边角必须严格对应。</li>
+        <li><strong>正弦定理解三角形可能有两解</strong>，已知两边一对角时要逐一检验。</li>
+      </ul>
+    </div>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related></div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+
+    /* ─── Lab 1: 单位圆 ───────────────────────────────────── */
+    const uc    = document.getElementById('unitCircle');
+    const uctx  = uc.getContext('2d');
+    const UW = uc.width, UH = uc.height;
+    const cx = 220, cy = UH / 2, R = 155; // circle center & radius
+
+    function drawUC() {
+      const deg  = parseFloat(document.getElementById('theta').value);
+      const rad  = deg * Math.PI / 180;
+      const cosT = Math.cos(rad);
+      const sinT = Math.sin(rad);
+      const tanT = Math.tan(rad);
+
+      document.getElementById('thetaVal').textContent = deg + '°';
+      uctx.clearRect(0, 0, UW, UH);
+
+      /* grid */
+      const step = R / 2;
+      uctx.strokeStyle = '#eef1f7'; uctx.lineWidth = 1;
+      for (let gx = ((cx % step) + step) % step; gx < UW; gx += step) {
+        uctx.beginPath(); uctx.moveTo(gx, 0); uctx.lineTo(gx, UH); uctx.stroke();
+      }
+      for (let gy = ((cy % step) + step) % step; gy < UH; gy += step) {
+        uctx.beginPath(); uctx.moveTo(0, gy); uctx.lineTo(UW, gy); uctx.stroke();
+      }
+
+      /* axes */
+      uctx.strokeStyle = '#b9c0cc'; uctx.lineWidth = 1.5;
+      uctx.beginPath(); uctx.moveTo(18, cy); uctx.lineTo(cx + R + 60, cy); uctx.stroke();
+      uctx.beginPath(); uctx.moveTo(cx, 12); uctx.lineTo(cx, UH - 12); uctx.stroke();
+
+      uctx.fillStyle = '#8a93a3'; uctx.font = '13px sans-serif';
+      uctx.fillText('x', cx + R + 46, cy + 5);
+      uctx.fillText('y', cx + 6, 24);
+      uctx.fillText('O', cx - 18, cy + 16);
+      uctx.fillText('1', cx + R - 4, cy + 16);
+      uctx.fillText('1', cx + 5, cy - R + 4);
+
+      /* unit circle */
+      uctx.strokeStyle = '#c8d2e2'; uctx.lineWidth = 1.5;
+      uctx.beginPath(); uctx.arc(cx, cy, R, 0, Math.PI * 2); uctx.stroke();
+
+      /* point P canvas coords */
+      const px = cx + R * cosT;
+      const py = cy - R * sinT;
+
+      /* cosθ horizontal projection (green dashed) */
+      uctx.strokeStyle = '#27ae60'; uctx.lineWidth = 2; uctx.setLineDash([6, 4]);
+      uctx.beginPath(); uctx.moveTo(cx, cy); uctx.lineTo(px, cy); uctx.stroke();
+
+      /* sinθ vertical projection (red dashed) */
+      uctx.strokeStyle = '#e2524a';
+      uctx.beginPath(); uctx.moveTo(px, cy); uctx.lineTo(px, py); uctx.stroke();
+      uctx.setLineDash([]);
+
+      /* radius (blue) */
+      uctx.strokeStyle = '#3b6fe0'; uctx.lineWidth = 2.5;
+      uctx.beginPath(); uctx.moveTo(cx, cy); uctx.lineTo(px, py); uctx.stroke();
+
+      /* angle arc (orange) — canvas arc: startAngle 0, endAngle -rad, clockwise=false */
+      uctx.strokeStyle = '#f39c12'; uctx.lineWidth = 2;
+      uctx.beginPath(); uctx.arc(cx, cy, R * 0.22, 0, -rad, false); uctx.stroke();
+
+      /* θ label at midpoint of arc */
+      const midA = rad / 2;
+      const lr   = R * 0.32;
+      uctx.fillStyle = '#d48806'; uctx.font = 'bold 15px sans-serif';
+      uctx.fillText('θ', cx + lr * Math.cos(midA) - 5, cy - lr * Math.sin(midA) + 5);
+
+      /* tanθ: vertical segment at x=1 (canvas x = cx+R) */
+      const tanX = cx + R;
+      if (Math.abs(cosT) > 0.12 && Math.abs(tanT) < 5.5) {
+        const tanY = cy - tanT * R;
+        const clY  = Math.max(8, Math.min(UH - 8, tanY));
+        /* dashed extension from P → tangent point (only when cosT > 0) */
+        if (cosT > 0.12) {
+          uctx.strokeStyle = '#8e44ad'; uctx.lineWidth = 1.5; uctx.setLineDash([4, 4]);
+          uctx.beginPath(); uctx.moveTo(px, py); uctx.lineTo(tanX, clY); uctx.stroke();
+          uctx.setLineDash([]);
+        }
+        /* vertical tangent segment */
+        uctx.strokeStyle = '#8e44ad'; uctx.lineWidth = 3;
+        uctx.beginPath(); uctx.moveTo(tanX, cy); uctx.lineTo(tanX, clY); uctx.stroke();
+        /* label */
+        uctx.fillStyle = '#8e44ad'; uctx.font = 'bold 13px sans-serif';
+        const tlY = Math.min(Math.max((cy + clY) / 2 + 5, 18), UH - 10);
+        uctx.fillText('tan θ', tanX + 5, tlY);
+        /* dot */
+        uctx.fillStyle = '#8e44ad';
+        uctx.beginPath(); uctx.arc(tanX, clY, 4, 0, Math.PI * 2); uctx.fill();
+      }
+
+      /* P dot */
+      uctx.fillStyle = '#3b6fe0';
+      uctx.beginPath(); uctx.arc(px, py, 6, 0, Math.PI * 2); uctx.fill();
+
+      /* short component labels */
+      uctx.font = 'bold 13px sans-serif';
+      uctx.fillStyle = '#27ae60';
+      uctx.fillText('cos θ', (cx + px) / 2 - 18, cy + (sinT >= 0 ? 20 : -8));
+      uctx.fillStyle = '#e2524a';
+      uctx.fillText('sin θ', px + (cosT >= 0 ? 7 : -42), (cy + py) / 2 + 5);
+      /* P label */
+      uctx.fillStyle = '#3b6fe0';
+      uctx.fillText('P', px + (cosT >= 0 ? 9 : -18), py + (sinT >= 0 ? -10 : 20));
+
+      /* right info panel */
+      const rx = cx + R + 68;
+      uctx.font = '14px sans-serif';
+      uctx.fillStyle = '#5b6472';
+      uctx.fillText('θ = ' + deg + '°', rx, 52);
+      uctx.fillText('  = ' + rad.toFixed(3) + ' rad', rx, 72);
+      uctx.fillStyle = '#27ae60';
+      uctx.fillText('cos θ = ' + cosT.toFixed(4), rx, 108);
+      uctx.fillStyle = '#e2524a';
+      uctx.fillText('sin θ = ' + sinT.toFixed(4), rx, 132);
+      uctx.fillStyle = '#8e44ad';
+      const tanStr = Math.abs(tanT) > 999 ? '→ ±∞' : tanT.toFixed(4);
+      uctx.fillText('tan θ = ' + tanStr, rx, 156);
+      const quad = Math.abs(cosT) < 0.003 || Math.abs(sinT) < 0.003 ? '坐标轴上' :
+        cosT > 0 && sinT > 0 ? '第一象限' :
+        cosT < 0 && sinT > 0 ? '第二象限' :
+        cosT < 0 && sinT < 0 ? '第三象限' : '第四象限';
+      uctx.fillStyle = '#5b6472'; uctx.font = 'bold 13px sans-serif';
+      uctx.fillText('位置：' + quad, rx, 190);
+
+      /* readout */
+      const tanDisp = Math.abs(tanT) > 999 ? '无意义 (→±∞)' : tanT.toFixed(4);
+      document.getElementById('ucReadout').innerHTML =
+        'θ = <span>' + deg + '°</span>（' + rad.toFixed(4) + ' rad）　' +
+        'cos θ = <span style="color:#27ae60">' + cosT.toFixed(4) + '</span>（横坐标）　' +
+        'sin θ = <span style="color:#e2524a">' + sinT.toFixed(4) + '</span>（纵坐标）　' +
+        'tan θ = <span style="color:#8e44ad">' + tanDisp + '</span>';
+    }
+
+    document.getElementById('theta').addEventListener('input', drawUC);
+    drawUC();
+
+
+    /* ─── Lab 2: y = A·sin(ωx + φ) ──────────────────────── */
+    const sw    = document.getElementById('sineWave');
+    const swctx = sw.getContext('2d');
+    const SW = sw.width, SH = sw.height;
+
+    function drawSine() {
+      const A     = parseFloat(document.getElementById('ampSlider').value);
+      const omega = parseFloat(document.getElementById('omegaSlider').value);
+      const phi   = parseFloat(document.getElementById('phiSlider').value);
+
+      document.getElementById('ampVal').textContent   = A.toFixed(1);
+      document.getElementById('omegaVal').textContent = omega.toFixed(1);
+      document.getElementById('phiVal').textContent   = (phi >= 0 ? '+' : '') + phi.toFixed(2);
+
+      swctx.clearRect(0, 0, SW, SH);
+
+      const oy     = SH / 2;
+      const scaleX = SW / (4 * Math.PI);    // 2 periods of sin(x) visible
+      const scaleY = (SH * 0.42) / 3;       // A=3 fills 42% of half-height
+
+      /* grid */
+      swctx.strokeStyle = '#eef1f7'; swctx.lineWidth = 1;
+      for (let k = -3; k <= 3; k++) {
+        const gy = oy - k * scaleY;
+        swctx.beginPath(); swctx.moveTo(0, gy); swctx.lineTo(SW, gy); swctx.stroke();
+      }
+      for (let k = 0; k <= 4; k++) {
+        const gx = k * Math.PI * scaleX;
+        swctx.beginPath(); swctx.moveTo(gx, 0); swctx.lineTo(gx, SH); swctx.stroke();
+      }
+
+      /* x-axis */
+      swctx.strokeStyle = '#b9c0cc'; swctx.lineWidth = 1.5;
+      swctx.beginPath(); swctx.moveTo(0, oy); swctx.lineTo(SW, oy); swctx.stroke();
+
+      /* x-axis labels */
+      swctx.fillStyle = '#8a93a3'; swctx.font = '12px sans-serif';
+      ['0', 'π', '2π', '3π', '4π'].forEach(function (lbl, k) {
+        swctx.fillText(lbl, k * Math.PI * scaleX - (k > 0 ? 6 : 0), oy + 16);
+      });
+
+      /* amplitude reference lines */
+      swctx.strokeStyle = '#ffe0cc'; swctx.lineWidth = 1; swctx.setLineDash([6, 4]);
+      swctx.beginPath(); swctx.moveTo(0, oy - A * scaleY); swctx.lineTo(SW, oy - A * scaleY); swctx.stroke();
+      swctx.beginPath(); swctx.moveTo(0, oy + A * scaleY); swctx.lineTo(SW, oy + A * scaleY); swctx.stroke();
+      swctx.setLineDash([]);
+
+      swctx.fillStyle = '#e67e22'; swctx.font = 'bold 12px sans-serif';
+      swctx.fillText('A=' + A.toFixed(1), 4, oy - A * scaleY - 4);
+      swctx.fillText('-A=-' + A.toFixed(1), 4, oy + A * scaleY + 14);
+
+      /* sine curve */
+      swctx.strokeStyle = '#3b6fe0'; swctx.lineWidth = 2.5;
+      swctx.beginPath();
+      for (let px2 = 0; px2 <= SW; px2++) {
+        const x  = px2 / scaleX;
+        const cy2 = oy - A * Math.sin(omega * x + phi) * scaleY;
+        px2 === 0 ? swctx.moveTo(px2, cy2) : swctx.lineTo(px2, cy2);
+      }
+      swctx.stroke();
+
+      /* readout */
+      const T        = (2 * Math.PI / omega).toFixed(3);
+      const shift    = Math.abs(phi / omega).toFixed(2);
+      const shiftDir = phi > 0.005 ? '图象向左移 ' + shift + ' 单位' :
+                       phi < -0.005 ? '图象向右移 ' + shift + ' 单位' : '无水平位移';
+      const phiSign  = phi >= 0 ? '+' : '';
+      document.getElementById('sineReadout').innerHTML =
+        'y = <span>' + A.toFixed(1) + '</span> · sin(<span>' + omega.toFixed(1) +
+        '</span>x ' + phiSign + '<span>' + phi.toFixed(2) + '</span>)　' +
+        '振幅 = <span>' + A.toFixed(1) + '</span>，' +
+        '周期 T = 2π/ω = <span>' + T + '</span>，' +
+        shiftDir;
+    }
+
+    ['ampSlider', 'omegaSlider', 'phiSlider'].forEach(function (id) {
+      document.getElementById(id).addEventListener('input', drawSine);
+    });
+    drawSine();
+
+  })();
+  </script>
+</body>
+</html>

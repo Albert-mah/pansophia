@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数列:等差与等比 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="math-sequences"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb></nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker></div>
+      <h1>数列:等差与等比</h1>
+      <div class="meta-row" data-meta></div>
+    </header>
+
+    <p>数列是按一定顺序排列的一列数。高中最重要的两种数列只需记住一句话的本质：
+      <strong>等差数列每次加同一个数，等比数列每次乘同一个数</strong>。
+      抓住这个核心，通项公式和求和公式都能自然推出来。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 一句话抓住两种数列</div>
+      <p style="margin:6px 0">
+        <strong>等差：</strong>$a_{n+1} - a_n = d$（常数），每项与前一项之差恒为公差 $d$。<br>
+        <strong>等比：</strong>$\dfrac{a_{n+1}}{a_n} = r$（常数，$r\neq0$），每项与前一项之比恒为公比 $r$。
+      </p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎮 动手实验：拖动滑块看数列变化</div>
+
+      <div class="controls" style="margin-top:0;margin-bottom:14px">
+        <div class="control">
+          <label>类型</label>
+          <select id="seq-type" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff">
+            <option value="arith">等差数列</option>
+            <option value="geo">等比数列</option>
+          </select>
+        </div>
+        <div class="control">
+          <label>首项 a₁ =</label>
+          <input id="a1" type="range" min="-10" max="10" step="0.5" value="2">
+          <span class="val" id="a1v">2</span>
+        </div>
+        <div class="control" id="d-row">
+          <label>公差 d =</label>
+          <input id="d" type="range" min="-5" max="5" step="0.5" value="3">
+          <span class="val" id="dv">3</span>
+        </div>
+        <div class="control" id="r-row" style="display:none">
+          <label>公比 r =</label>
+          <input id="r" type="range" min="-3" max="3" step="0.1" value="2">
+          <span class="val" id="rv">2.0</span>
+        </div>
+        <div class="control">
+          <label>项数 n =</label>
+          <input id="nn" type="range" min="2" max="15" step="1" value="8">
+          <span class="val" id="nnv">8</span>
+        </div>
+      </div>
+
+      <canvas id="seq-plot" width="760" height="340" style="width:100%;height:auto;background:#fff;border:1px solid var(--border);border-radius:10px"></canvas>
+
+      <div class="readout" id="seq-readout"></div>
+    </div>
+
+    <h2>1. 等差数列</h2>
+    <p>如果一个数列从第二项起，每一项与前一项之差都等于同一个常数，就叫<strong>等差数列</strong>，这个常数叫<strong>公差</strong>，记作 $d$。</p>
+
+    <h3>通项公式</h3>
+    <p>从首项 $a_1$ 出发，每次加 $d$：</p>
+    <p>$$a_n = a_1 + (n-1)d$$</p>
+    <p>图象上，把各项点连起来是一段<strong>等间距的点列</strong>，斜率正比于 $d$。</p>
+
+    <h3>求和公式——倒序相加法</h3>
+    <p>前 $n$ 项和记作 $S_n$，把正序与倒序写成两行再相加：</p>
+    <p>$$S_n = a_1 + a_2 + \cdots + a_n$$</p>
+    <p>$$S_n = a_n + a_{n-1} + \cdots + a_1$$</p>
+    <p>两行对应项相加，每对都等于 $a_1+a_n$，共 $n$ 对：</p>
+    <p>$$2S_n = n(a_1 + a_n)$$</p>
+    <p>$$\boxed{S_n = \frac{n(a_1+a_n)}{2}}$$</p>
+    <p>代入 $a_n = a_1+(n-1)d$，还可以写成：$S_n = na_1 + \dfrac{n(n-1)}{2}d$。</p>
+
+    <div class="box example">
+      <div class="box-title">✏️ 例1：等差数列求通项与前 n 项和</div>
+      <p style="margin:6px 0">已知等差数列 $\{a_n\}$ 满足 $a_1=3$，公差 $d=4$。</p>
+      <p style="margin:6px 0">① 求第 10 项：$a_{10}=3+(10-1)\times4=3+36=\mathbf{39}$</p>
+      <p style="margin:6px 0">② 求前 10 项和：$S_{10}=\dfrac{10\times(3+39)}{2}=\dfrac{10\times42}{2}=\mathbf{210}$</p>
+    </div>
+
+    <h2>2. 等比数列</h2>
+    <p>如果一个数列从第二项起，每一项与前一项之比都等于同一个非零常数，就叫<strong>等比数列</strong>，这个常数叫<strong>公比</strong>，记作 $r$（$r\neq0$）。</p>
+
+    <h3>通项公式</h3>
+    <p>从首项 $a_1$ 出发，每次乘 $r$：</p>
+    <p>$$a_n = a_1 \cdot r^{n-1}$$</p>
+    <p>当 $|r|>1$ 时数列急剧增大（或减小），当 $0<|r|<1$ 时数列趋近于 0，当 $r<0$ 时正负交替。</p>
+
+    <h3>求和公式——错位相减法</h3>
+    <p>设 $S_n = a_1 + a_1r + a_1r^2 + \cdots + a_1r^{n-1}$，两边乘以 $r$：</p>
+    <p>$$rS_n = a_1r + a_1r^2 + \cdots + a_1r^n$$</p>
+    <p>相减，中间项全消：</p>
+    <p>$$(1-r)S_n = a_1 - a_1r^n = a_1(1-r^n)$$</p>
+    <p>当 $r\neq1$ 时：</p>
+    <p>$$\boxed{S_n = \frac{a_1(1-r^n)}{1-r}}$$</p>
+
+    <div class="box tip">
+      <div class="box-title">💡 特殊情况：r = 1</div>
+      <p style="margin:6px 0">当 $r=1$ 时，每一项都等于 $a_1$，所以 $S_n = na_1$。
+        此时分母 $1-r=0$，上面的公式<strong>不能使用</strong>，必须单独处理。
+        考试中碰到等比求和，要养成先判断 $r$ 是否等于 1 的习惯。</p>
+    </div>
+
+    <div class="box example">
+      <div class="box-title">✏️ 例2：等比数列求通项与前 n 项和</div>
+      <p style="margin:6px 0">已知等比数列 $\{a_n\}$ 满足 $a_1=2$，公比 $r=3$。</p>
+      <p style="margin:6px 0">① 求第 5 项：$a_5=2\times3^{5-1}=2\times81=\mathbf{162}$</p>
+      <p style="margin:6px 0">② 求前 5 项和：$S_5=\dfrac{2\times(1-3^5)}{1-3}=\dfrac{2\times(-242)}{-2}=\mathbf{242}$</p>
+    </div>
+
+    <h2>3. 常见易错点</h2>
+    <ul>
+      <li><strong>等差还是等比？</strong> 先看相邻两项的关系：差固定→等差，比固定→等比。同一道题两者只可能是其一。</li>
+      <li><strong>公比可以是负数。</strong> $r=-2$ 时数列正负交替，通项公式完全一样，别慌。</li>
+      <li><strong>等差中项：</strong> $a$、$b$、$c$ 成等差 ⟺ $2b=a+c$；等比中项 ⟺ $b^2=ac$（且同号）。</li>
+      <li><strong>求和分情况：</strong> 等比必须先讨论 $r=1$ 与 $r\neq1$，否则会被扣分。</li>
+    </ul>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related></div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    const cv = document.getElementById('seq-plot');
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    const PAD = { top: 30, right: 30, bottom: 50, left: 56 };
+
+    const typeEl = document.getElementById('seq-type');
+    const a1El  = document.getElementById('a1');
+    const dEl   = document.getElementById('d');
+    const rEl   = document.getElementById('r');
+    const nnEl  = document.getElementById('nn');
+
+    function getVals() {
+      return {
+        type: typeEl.value,
+        a1: parseFloat(a1El.value),
+        d:  parseFloat(dEl.value),
+        r:  parseFloat(rEl.value),
+        n:  parseInt(nnEl.value)
+      };
+    }
+
+    function buildTerms(v) {
+      const terms = [];
+      for (let k = 1; k <= v.n; k++) {
+        if (v.type === 'arith') {
+          terms.push(v.a1 + (k - 1) * v.d);
+        } else {
+          terms.push(v.a1 * Math.pow(v.r, k - 1));
+        }
+      }
+      return terms;
+    }
+
+    function sumTerms(v, terms) {
+      if (v.type === 'arith') {
+        return v.n * (v.a1 + terms[terms.length - 1]) / 2;
+      } else {
+        if (Math.abs(v.r - 1) < 1e-9) return v.n * v.a1;
+        return v.a1 * (1 - Math.pow(v.r, v.n)) / (1 - v.r);
+      }
+    }
+
+    function fmt(x) {
+      if (!isFinite(x)) return '—';
+      return Math.abs(x) > 1e8 ? x.toExponential(2) : parseFloat(x.toFixed(4)).toString();
+    }
+
+    function draw() {
+      const v = getVals();
+      const terms = buildTerms(v);
+
+      // update readout labels
+      document.getElementById('a1v').textContent = v.a1;
+      document.getElementById('dv').textContent  = v.d;
+      document.getElementById('rv').textContent  = v.r.toFixed(1);
+      document.getElementById('nnv').textContent = v.n;
+
+      // show/hide rows
+      document.getElementById('d-row').style.display = v.type === 'arith' ? '' : 'none';
+      document.getElementById('r-row').style.display = v.type === 'geo'   ? '' : 'none';
+
+      const an  = terms[terms.length - 1];
+      const sn  = sumTerms(v, terms);
+
+      let formula = v.type === 'arith'
+        ? `$a_n = ${v.a1} + (n-1)\\times${v.d}$`
+        : `$a_n = ${v.a1} \\times ${v.r.toFixed(1)}^{n-1}$`;
+
+      document.getElementById('seq-readout').innerHTML =
+        `类型：<span>${v.type === 'arith' ? '等差数列' : '等比数列'}</span>　` +
+        `$a_1=${v.a1}$，` +
+        (v.type === 'arith' ? `$d=${v.d}$` : `$r=${v.r.toFixed(1)}$`) +
+        `，$n=${v.n}$<br>` +
+        `第 ${v.n} 项 $a_{${v.n}}$ = <span>${fmt(an)}</span>　　` +
+        `前 ${v.n} 项和 $S_{${v.n}}$ = <span>${fmt(sn)}</span>`;
+
+      // canvas draw
+      ctx.clearRect(0, 0, W, H);
+
+      const plotW = W - PAD.left - PAD.right;
+      const plotH = H - PAD.top  - PAD.bottom;
+
+      // compute range
+      const validTerms = terms.filter(isFinite);
+      if (validTerms.length === 0) return;
+      let yMin = Math.min(...validTerms);
+      let yMax = Math.max(...validTerms);
+      if (yMin === yMax) { yMin -= 1; yMax += 1; }
+      const yPad = (yMax - yMin) * 0.12;
+      yMin -= yPad; yMax += yPad;
+
+      const xOf = k => PAD.left + ((k - 1) / (v.n - 1 || 1)) * plotW;
+      const yOf = y => PAD.top  + (1 - (y - yMin) / (yMax - yMin)) * plotH;
+
+      // grid & zero line
+      ctx.strokeStyle = '#eef1f7';
+      ctx.lineWidth = 1;
+      for (let g = 0; g <= 4; g++) {
+        const yy = PAD.top + g * plotH / 4;
+        ctx.beginPath(); ctx.moveTo(PAD.left, yy); ctx.lineTo(PAD.left + plotW, yy); ctx.stroke();
+      }
+
+      // y-axis labels
+      ctx.fillStyle = '#8a93a3';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'right';
+      for (let g = 0; g <= 4; g++) {
+        const val = yMax - g * (yMax - yMin) / 4;
+        ctx.fillText(parseFloat(val.toFixed(2)), PAD.left - 6, PAD.top + g * plotH / 4 + 4);
+      }
+
+      // zero line
+      if (yMin < 0 && yMax > 0) {
+        const y0 = yOf(0);
+        ctx.strokeStyle = '#b9c0cc';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(PAD.left, y0); ctx.lineTo(PAD.left + plotW, y0); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // bars
+      const barW = Math.max(4, plotW / v.n * 0.55);
+      const y0px = isFinite(yOf(0)) && yMin < 0 && yMax > 0 ? yOf(0) : (yMin >= 0 ? yOf(yMin) : yOf(yMax));
+
+      terms.forEach((val, i) => {
+        if (!isFinite(val)) return;
+        const xc = xOf(i + 1);
+        const yTop = yOf(Math.max(val, 0));
+        const yBot = yOf(Math.min(val, 0));
+        const barColor = val >= 0 ? '#3b6fe0' : '#e2524a';
+        ctx.fillStyle = barColor + 'cc';
+        ctx.fillRect(xc - barW / 2, yTop, barW, yBot - yTop);
+        // dot on top
+        ctx.fillStyle = barColor;
+        ctx.beginPath();
+        ctx.arc(xc, yOf(val), 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        // x label
+        ctx.fillStyle = '#5b6472';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'center';
+        if (v.n <= 12 || (i + 1) % 2 === 1) {
+          ctx.fillText(i + 1, xc, PAD.top + plotH + 20);
+        }
+      });
+
+      // connect dots
+      ctx.strokeStyle = '#3b6fe0';
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      terms.forEach((val, i) => {
+        if (!isFinite(val)) return;
+        const xc = xOf(i + 1);
+        if (i === 0) ctx.moveTo(xc, yOf(val));
+        else ctx.lineTo(xc, yOf(val));
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // x-axis label
+      ctx.fillStyle = '#8a93a3';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('项数 n', PAD.left + plotW / 2, H - 6);
+    }
+
+    [typeEl, a1El, dEl, rEl, nnEl].forEach(el => el.addEventListener('input', draw));
+    draw();
+  })();
+  </script>
+</body>
+</html>
