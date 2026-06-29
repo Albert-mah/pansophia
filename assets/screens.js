@@ -341,6 +341,10 @@
                 <div style="font-size:13.5px;font-weight:600;margin-top:4px;">${m.url ? html`<a href=${m.url} target="_blank" rel="noopener">${m.title} ↗</a>` : m.title}</div>
                 ${m.note ? html`<div style="font-size:12px;color:#9a8a6f;margin-top:2px;">${m.note}</div>` : null}
                 ${(m.refs && m.refs.length) ? html`<div style="font-size:11.5px;color:#bbab8c;margin-top:3px;">来源:${m.refs.map(function (rf, j) { return html`<span key=${j}>${j ? "、" : ""}${rf.url ? html`<a href=${rf.url} target="_blank" rel="noopener">${rf.name || rf.url}</a>` : (rf.name || "")}</span>`; })}</div>` : null}
+                ${m.url ? html`<div style="margin-top:6px;font-size:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+                  ${(function () { var lit = libMap[m.url]; return lit && lit.status === "ok" ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { openReader(lit.id); }}>📄 直接查看本地副本(${lit.chars}字)</span>` : lit ? html`<span style="color:#b6532f;">⚠ 未抓到正文</span>` : html`<span style="color:#bbab8c;">未缓存到本地</span>`; })()}
+                  <span class="lnk" style="color:#B6532F;cursor:pointer;font-weight:600;" onClick=${function () { if (!busy[m.url]) recache({ url: m.url, school: m.title, program: m.edition || "" }); }}>${busy[m.url] ? "抓取中…" : (libMap[m.url] ? "↻ 重新抓取" : "📥 缓存到本地")}</span>
+                </div>` : (m.fileId ? html`<div style="margin-top:6px;font-size:12px;"><a class="lnk" style="color:#1f7a44;font-weight:600;" href=${C.fileUrl(m.fileId)} target="_blank" rel="noopener">📄 直接查看文件</a></div>` : null)}
               </div>`;
             })}
             <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><span class="pan-btn ghost sm" onClick=${function () { setMgr(true); }}>⚙ 管理教材</span><span class="pan-btn ghost sm" onClick=${function () { C.sendMessage({ kind: "ask", text: "请帮「" + d.name + "」选定或生成课本(优先官方 / 权威,注明来源)。", context: { discId: id, disc: d.name } }).then(function () { app.go("messages"); }); }}>✉️ 请导师选 / 生成</span></div>
