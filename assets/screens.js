@@ -556,53 +556,28 @@
   /* =========================================================
    *  COURSE
    * ========================================================= */
-  // 用户"在学范围":优先取其学习计划(schedule)的 scope/pace,其次 profile subjects;都没有则不过滤
-  function userPrefScopes() {
-    var set = {}, any = false, sc = C.schedule();
-    if (sc) { if (sc.scope) { set[sc.scope] = 1; any = true; } (sc.pace || []).forEach(function (p) { if (p.scope) { set[p.scope] = 1; any = true; } }); }
-    // 档案默认范围(profile.subjects):决定这个学习者"在学哪个学段"(如马欢=本科及以上)
-    var subs = ((C.user() || {}).subjects) || ((window.STUDY_PROFILES || {})[C.userKey()] || {}).subjects || {};
-    Object.keys(subs).forEach(function (s) { (subs[s] || []).forEach(function (x) { set[x] = 1; any = true; }); });
-    return any ? set : null;
-  }
-  function courseScopeOK(e) {
-    var pref = userPrefScopes();
-    if (!pref) return true;                                   // 无偏好 → 全显示
-    if (e.profile && e.profile === C.userKey()) return true;  // 本人 profile 大纲
-    if (!e.scope) return true;
-    return !!pref[e.scope];
-  }
+  // userPrefScopes / courseScopeOK / coursesForUser 已统一到 core.js(HUD 与课程表共用同一口径)
+  var PHASE = { "no-book": ["待选课本", "#b6532f", "#FBF4E6"], planning: ["待规划", "#a86a00", "#FBF4E6"], learning: ["学习中", "#2c5fb3", "#eaf1fb"], verify: ["待最终校验", "#8e6a00", "#FBF4E6"], done: ["✅ 已补上", "#3f8a52", "#eef7f0"] };
 
   // 课程表:把"学科×范围"平铺成课程卡(只显示与"在学范围"匹配的),可按学科筛选
   function CourseList() {
     var app = useApp();
     var ff = useState(""); var filt = ff[0], setFilt = ff[1];   // 选中学科 id,"" = 全部
-    var mine = C.myDiscs();
-    var courses = [], discMeta = [];
-    mine.forEach(function (id) {
-      var dd = C.disciplineById(id) || { name: id }, cat = C.categoryOf(id) || { color: "#C8852E", name: dd.catName || "" };
-      var sk = C.skeletonForDiscipline(id).filter(courseScopeOK), n0 = courses.length;
-      if (!sk.length) {
-        courses.push({ discId: id, discName: dd.name, scope: null, scopeName: "", color: cat.color, total: 0, mastered: 0, lessons: 0 });
-      } else {
-        sk.forEach(function (e) {
-          var pts = 0, mas = 0, les = 0;
-          (e.topics || []).forEach(function (t) { (t.points || []).forEach(function (p) { pts++; if (C.isMastered(p.ref || p.title)) mas++; if (p.ref && C.catalogById(p.ref)) les++; }); });
-          courses.push({ discId: id, discName: dd.name, scope: e.scope || null, scopeName: (C.SCOPES[e.scope] || {}).name || e.scope || "", color: cat.color, total: pts, mastered: mas, lessons: les });
-        });
-      }
-      discMeta.push({ id: id, name: dd.name, n: courses.length - n0 });
-    });
+    var courses = C.coursesForUser();
+    var discMeta = [], seen = {};
+    courses.forEach(function (c) { if (!seen[c.discId]) { seen[c.discId] = { id: c.discId, name: c.discName, n: 0 }; discMeta.push(seen[c.discId]); } seen[c.discId].n++; });
     var shown = filt ? courses.filter(function (c) { return c.discId === filt; }) : courses;
     function card(c, i) {
-      var pct = c.total ? Math.round(c.mastered / c.total * 100) : 0;
+      var ph = C.coursePhase(c), pi = PHASE[ph] || PHASE.learning;
       return html`<div key=${i} class="pan-card pan-panel" style="cursor:pointer;" onClick=${function () { app.go("course", c.scope ? { disc: c.discId, scope: c.scope } : { disc: c.discId }); }}>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
           <div style=${"width:38px;height:38px;border-radius:11px;flex-shrink:0;background:" + c.color + ";display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;font-family:var(--serif);"}>${(c.discName || "?").slice(0, 1)}</div>
-          <div style="min-width:0;"><div style="font-family:var(--serif);font-size:16px;font-weight:700;">${c.discName}${c.scopeName ? html` <span style="font-size:12px;font-weight:600;color:#9a8a6f;">· ${c.scopeName}</span>` : ""}</div>
-          <div style="font-size:11.5px;color:#9a8a6f;">${c.total ? c.total + " 个考点" : "待排课"}</div></div></div>
-        ${c.total ? html`<div>${html`<${Bar} pct=${pct} color=${c.color} />`}<div style="font-size:12px;color:#9a8a6f;margin-top:6px;">已掌握 ${c.mastered}/${c.total} · ${pct}%${c.lessons ? " · " + c.lessons + " 讲解页" : ""}</div></div>`
-          : html`<div style="font-size:12.5px;color:#bbab8c;">待 AI 导师排课 —— 点进去对导师说「补全考点」</div>`}
+          <div style="min-width:0;flex:1;"><div style="font-family:var(--serif);font-size:16px;font-weight:700;">${c.discName}${c.scopeName ? html` <span style="font-size:12px;font-weight:600;color:#9a8a6f;">· ${c.scopeName}</span>` : ""}</div>
+          <div style="font-size:11.5px;color:#9a8a6f;">${c.total ? c.total + " 个考点" : "待排课"}</div></div>
+          <span class="pan-pill" style=${"color:" + pi[1] + ";background:" + pi[2] + ";white-space:nowrap;"}>${pi[0]}</span></div>
+        ${c.total ? html`<div>${html`<${Bar} pct=${c.pct} color=${c.color} />`}<div style="font-size:12px;color:#9a8a6f;margin-top:6px;">掌握 ${c.mastered}/${c.total} · ${c.pct}%${c.lessons ? " · " + c.lessons + " 讲解" : ""}</div></div>`
+          : html`<div style="font-size:12.5px;color:#bbab8c;">待 AI 导师排课</div>`}
+        <div style="font-size:12px;color:#7A6E5E;margin-top:8px;display:flex;align-items:center;gap:6px;">📕 ${c.textbook ? html`<b style="color:#5a4e3c;">${c.textbook.title}</b>` : html`<span style="color:#b6532f;">未选课本</span>`}</div>
       </div>`;
     }
     return html`<div class="pan-screen">
@@ -632,7 +607,7 @@
     useEffect(function () { if (did) C.materialsFor(did).then(setMats); }, [did]);
     if (!did) return html`<${CourseList} />`;               // 先进课程表
     var skelAll = C.skeletonForDiscipline(did);
-    var skelList = skelAll.filter(courseScopeOK); if (!skelList.length) skelList = skelAll;
+    var skelList = skelAll.filter(C.courseScopeOK); if (!skelList.length) skelList = skelAll;
     var entry = (app.params.scope && skelList.filter(function (e) { return e.scope === app.params.scope; })[0]) || skelList[0];
     var d = C.disciplineById(did);
     if (!entry) {

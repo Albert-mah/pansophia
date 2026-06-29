@@ -159,20 +159,19 @@
   function CourseHud() {
     var app = useContext(Ctx);
     var e0 = useState(false); var open = e0[0], setOpen = e0[1];
-    var discs = C.myDiscs();
-    if (!discs.length) return null;
-    var rows = discs.map(function (id) { var d = C.disciplineById(id) || { name: id }; var sm = C.subjectMastery(id); return { id: id, name: d.name, color: (C.categoryOf(id) || {}).color || "#C8852E", pct: sm.pct }; });
-    var tm = 0, tt = 0; discs.forEach(function (id) { var sm = C.subjectMastery(id); tm += sm.mastered; tt += sm.total; });
+    var courses = C.coursesForUser();
+    if (!courses.length) return null;
+    var tm = 0, tt = 0; courses.forEach(function (c) { tm += c.mastered; tt += c.total; });
     var pct = tt ? Math.round(tm / tt * 100) : 0;
     return html`<div>
       ${open ? html`<div class="pan-hud-panel">
-        <div style=${{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}><b style=${{ fontSize: "13px" }}>我的课程 · ${discs.length} 门</b><span class="lnk" style=${{ fontSize: "12px", color: "#B6532F", cursor: "pointer" }} onClick=${function () { setOpen(false); app.go("course"); }}>全部 →</span></div>
-        <div style=${{ maxHeight: "46vh", overflow: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>${rows.map(function (r) {
-          return html`<div key=${r.id} style=${{ cursor: "pointer" }} onClick=${function () { setOpen(false); app.go("course", { disc: r.id }); }}>
-            <div style=${{ display: "flex", justifyContent: "space-between", fontSize: "12.5px", marginBottom: "3px" }}><span>${r.name}</span><span style=${{ color: "#9a8a6f" }}>${r.pct}%</span></div>
-            <div style=${{ height: "6px", borderRadius: "3px", background: "#EEE3CF", overflow: "hidden" }}><div style=${{ height: "100%", width: r.pct + "%", background: r.color }}></div></div></div>`;
+        <div style=${{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}><b style=${{ fontSize: "13px" }}>我的课程 · ${courses.length} 门</b><span class="lnk" style=${{ fontSize: "12px", color: "#B6532F", cursor: "pointer" }} onClick=${function () { setOpen(false); app.go("course"); }}>全部 →</span></div>
+        <div style=${{ maxHeight: "46vh", overflow: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>${courses.map(function (c, i) {
+          return html`<div key=${i} style=${{ cursor: "pointer" }} onClick=${function () { setOpen(false); app.go("course", c.scope ? { disc: c.discId, scope: c.scope } : { disc: c.discId }); }}>
+            <div style=${{ display: "flex", justifyContent: "space-between", fontSize: "12.5px", marginBottom: "3px" }}><span>${c.discName}${c.scopeName ? "·" + c.scopeName : ""}${c.textbook ? "" : " · 未选课本"}</span><span style=${{ color: "#9a8a6f" }}>${c.pct}%</span></div>
+            <div style=${{ height: "6px", borderRadius: "3px", background: "#EEE3CF", overflow: "hidden" }}><div style=${{ height: "100%", width: c.pct + "%", background: c.color }}></div></div></div>`;
         })}</div></div>` : null}
-      <div class="pan-hud" onClick=${function () { setOpen(!open); }} title="我的课程进度">📚 ${discs.length} · ${pct}%</div>
+      <div class="pan-hud" onClick=${function () { setOpen(!open); }} title="我的课程进度">📚 ${courses.length} · ${pct}%</div>
     </div>`;
   }
 

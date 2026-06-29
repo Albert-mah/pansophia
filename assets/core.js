@@ -696,8 +696,47 @@ window.Core = (function () {
     return add.length;
   }
 
+  /* ---------------- 课程枚举(学科×范围,按学习者学段过滤)+ 课本/阶段 ---------------- */
+  function userPrefScopes() {
+    var set = {}, any = false, sc = schedule();
+    if (sc) { if (sc.scope) { set[sc.scope] = 1; any = true; } (sc.pace || []).forEach(function (p) { if (p.scope) { set[p.scope] = 1; any = true; } }); }
+    var u = user() || {}, subs = u.subjects || ((window.STUDY_PROFILES || {})[userKey()] || {}).subjects || {};
+    Object.keys(subs).forEach(function (s) { (subs[s] || []).forEach(function (x) { set[x] = 1; any = true; }); });
+    return any ? set : null;
+  }
+  function courseScopeOK(e) {
+    var pref = userPrefScopes();
+    if (!pref) return true;
+    if (e.profile && e.profile === userKey()) return true;     // 本人 profile 大纲
+    if (!e.scope) return true;
+    return !!pref[e.scope];
+  }
+  // 统一的"我的课程"单位 = 学科 × 范围(学段),按学习者学段过滤。HUD/课程表共用,口径一致。
+  function coursesForUser() {
+    var out = [];
+    myDiscs().forEach(function (id) {
+      var dd = disciplineById(id) || { name: id }, cat = categoryOf(id) || {};
+      var sk = skeletonForDiscipline(id).filter(courseScopeOK);
+      if (!sk.length) { out.push({ discId: id, discName: dd.name, scope: null, scopeName: "", color: cat.color || "#C8852E", total: 0, mastered: 0, pct: 0, lessons: 0, textbook: courseTextbook(id, null) }); return; }
+      sk.forEach(function (e) {
+        var pts = 0, mas = 0, les = 0;
+        (e.topics || []).forEach(function (t) { (t.points || []).forEach(function (p) { pts++; if (isMastered(p.ref || p.title)) mas++; if (p.ref && catalogById(p.ref)) les++; }); });
+        out.push({ discId: id, discName: dd.name, scope: e.scope || null, scopeName: (SCOPES[e.scope] || {}).name || e.scope || "", color: cat.color || "#C8852E", total: pts, mastered: mas, pct: pts ? Math.round(mas / pts * 100) : 0, lessons: les, textbook: courseTextbook(id, e.scope || null) });
+      });
+    });
+    return out;
+  }
+  // 一门课的阶段:待选课本 → 待规划(有课本无考点) → 学习中 → 待最终校验(考点全过) → 已补上(校验过)
+  function coursePhase(c) {
+    if (!c.textbook) return "no-book";
+    if (!c.total) return "planning";
+    if (c.pct >= 100) return c.verified ? "done" : "verify";
+    return "learning";
+  }
+
   return {
     esc: esc, uniqBy: uniqBy, SLOTS: SLOTS, HEAT_COLORS: HEAT_COLORS, CATS: CATS, SUBJECTS: SUBJECTS, SCOPES: SCOPES,
+    coursesForUser: coursesForUser, courseScopeOK: courseScopeOK, userPrefScopes: userPrefScopes, coursePhase: coursePhase,
     hydrate: hydrate, users: users, user: user, userKey: userKey, switchUser: switchUser, addUser: addUser,
     refreshUsers: refreshUsers, saveUser: saveUser, deleteUser: deleteUser, initials: initials,
     fetchMessages: fetchMessages, sendMessage: sendMessage, messageUpdate: messageUpdate,
