@@ -98,6 +98,24 @@ window.Core = (function () {
   function sendMessage(o) { return apiPost("/api/messages", { user: _curKey || userKey(), kind: (o && o.kind) || "note", text: (o && o.text) || "", context: (o && o.context) || {} }); }
   function messageUpdate(id, patch) { return apiPost("/api/messages/update", Object.assign({ id: id }, patch || {})); }
 
+  // 题库 / 答题 / 错题本(PG)
+  function questionsFor(o) {
+    o = o || {}; var qs = [];
+    if (o.kp && o.kp.length) qs.push("kp=" + encodeURIComponent(o.kp.slice(0, 80).join(",")));
+    if (o.subject) qs.push("subject=" + encodeURIComponent(o.subject));
+    if (o.scope) qs.push("scope=" + encodeURIComponent(o.scope));
+    if (o.edition) qs.push("edition=" + encodeURIComponent(o.edition));
+    qs.push("limit=" + (o.limit || 30));
+    return apiGet("/api/questions?" + qs.join("&")).then(function (r) { return (r && r.questions) || []; }).catch(function () { return []; });
+  }
+  function recordAnswer(o) { return apiPost("/api/answer", { user: _curKey || userKey(), questionId: o.questionId, kp: o.kp || null, correct: !!o.correct, examId: o.examId || null }); }
+  function wrongbookFetch(o) {
+    o = o || {}; var qs = ["user=" + encodeURIComponent(userKey())];
+    if (o.subject) qs.push("subject=" + encodeURIComponent(o.subject));
+    qs.push("limit=" + (o.limit || 100));
+    return apiGet("/api/wrongbook?" + qs.join("&")).then(function (r) { return (r && r.questions) || []; }).catch(function () { return []; });
+  }
+
   /* ---------------- 用户态存储(读缓存 / 写直达 DB) ---------------- */
   function store(name, fallback) { return (_cache && name in _cache && _cache[name] != null) ? _cache[name] : fallback; }
   function save(name, val) { _cache[name] = val; postState(_curKey || userKey(), name, val); }
@@ -661,6 +679,7 @@ window.Core = (function () {
     hydrate: hydrate, users: users, user: user, userKey: userKey, switchUser: switchUser, addUser: addUser,
     refreshUsers: refreshUsers, saveUser: saveUser, deleteUser: deleteUser,
     fetchMessages: fetchMessages, sendMessage: sendMessage, messageUpdate: messageUpdate,
+    questionsFor: questionsFor, recordAnswer: recordAnswer, wrongbookFetch: wrongbookFetch,
     uploadFile: uploadFile, fileUrl: fileUrl,
     libList: libList, libItem: libItem, cacheUrl: cacheUrl,
     store: store, save: save, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc,

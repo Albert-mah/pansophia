@@ -35,7 +35,7 @@
   window.AppCtx = Ctx;
   window.html = html; // 供 screens.js 共用
 
-  var SCREENS = ["home", "explore", "discipline", "plan", "course", "quiz", "vocab", "notes", "wishlist", "points", "analytics", "users", "messages"];
+  var SCREENS = ["home", "explore", "discipline", "plan", "course", "quiz", "vocab", "notes", "wishlist", "points", "analytics", "users", "messages", "practice", "wrongbook"];
   var NAV = [
     { key: "home", label: "首页" },
     { key: "explore", label: "学科探索", caret: true },

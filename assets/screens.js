@@ -564,7 +564,7 @@
         <div style="display:flex;gap:14px;align-items:center;font-size:13px;color:#9a8a6f;margin-bottom:24px;"><span>${sel.t}</span><span>·</span><span>${sc.name}</span></div>
         <p>${sel.kp.summary || ""}</p>
         <div class="pan-callout"><strong>打开完整讲解</strong><br/>这一节已有交互讲解页,点开看可调参数的可视化与例题。</div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;padding-top:24px;border-top:1px solid #EEE3CF;"><a class="pan-btn ink" href=${sel.kp.path}>打开讲解页 →</a><span class="pan-btn ghost" onClick=${function () { app.go("quiz"); }}>做随堂练习</span>${masterBtn()}</div></div>`;
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;padding-top:24px;border-top:1px solid #EEE3CF;"><a class="pan-btn ink" href=${sel.kp.path}>打开讲解页 →</a><span class="pan-btn ghost" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope }); }}>做练习</span>${masterBtn()}</div></div>`;
     } else if (sel) {
       center = html`<div class="pan-article"><div style="font-size:12.5px;color:#9a8a6f;margin-bottom:8px;">${sel.t} · ${sc.name}</div>
         <h1>${sel.p.title}</h1>
@@ -674,6 +674,10 @@
           <div style="font-size:34px;">📒</div>
           <div style="flex:1;"><div style="font-family:var(--serif);font-size:19px;font-weight:700;">单词专项训练</div><div style="font-size:13px;opacity:.92;margin-top:3px;">日语 JLPT · 英语 TOEFL · 我的单词本 —— 记忆曲线 + 单词卡 + 三关闯过才算掌握,答对得积分</div></div>
           <div style="font-weight:700;white-space:nowrap;">进入 →</div></div>
+        <div class="pan-row bordered" onClick=${function () { app.go("wrongbook"); }} style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;cursor:pointer;margin-bottom:22px;">
+          <div style="font-size:24px;">📕</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:15px;">错题本</div><div style="font-size:12.5px;color:#9a8a6f;">做错的题自动收进来,可一键重做;做对就移出</div></div>
+          <div style="color:#B6532F;font-weight:600;white-space:nowrap;">打开 →</div></div>
         ${all.length ? html`<div>
           <input value=${quizQ} onInput=${function (e) { setQuizQ(e.target.value); }} placeholder="🔍 搜练习标题、描述…" style="width:100%;border:1px solid #EBDEC8;border-radius:10px;padding:10px 13px;font-family:var(--sans);font-size:13.5px;margin-bottom:14px;outline:none;background:#FFFDF8;" />
           ${!query ? html`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;">
@@ -1042,5 +1046,103 @@
     </div>`;
   }
 
-  window.Screens = { home: HomeScreen, explore: ExploreScreen, discipline: DisciplineScreen, plan: PlanScreen, course: CourseScreen, quiz: QuizScreen, notes: NotesScreen, wishlist: WishlistScreen, points: PointsScreen, analytics: AnalyticsScreen, users: UsersScreen, messages: MessagesScreen };
+  /* =========================================================
+   *  刷题闭环:知识点练习(PG 题库)+ 错题本(答题写库,错题自动收集)
+   * ========================================================= */
+  function normQ(r) { return { qid: r.id, kp: r.kp, type: r.type || "choice", q: r.stem, options: r.options || [], answer: r.answer, explain: r.explain, subject: r.subject, difficulty: r.difficulty || 2 }; }
+
+  function QuizRun(p) {
+    var app = useApp();
+    var r0 = useState({ i: 0, answered: null, fill: "", fillOk: false, lastOk: false, correct: 0, earned: 0, wrong: 0 });
+    var run = r0[0], setRun = r0[1];
+    var qs = p.questions || [], q = qs[run.i];
+    function val(qq) { return 2 + (qq.difficulty || 2); }
+    function settle(qq, ok) { C.recordAnswer({ questionId: qq.qid, kp: qq.kp, correct: ok, examId: p.examId }); if (ok) C.award(val(qq), "答对练习 · " + String(qq.q || "").slice(0, 16), "q:" + qq.qid + ":" + Date.now()); }
+    function choose(idx) { if (run.answered != null) return; var ok = idx === q.answer; settle(q, ok); setRun(Object.assign({}, run, { answered: idx, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1) })); }
+    function submitFill() { if (run.answered != null) return; var v = (run.fill || "").trim().toLowerCase().replace(/[.。]$/, ""); var ok = (q.answer || []).some(function (a) { return String(a).trim().toLowerCase() === v; }); settle(q, ok); setRun(Object.assign({}, run, { answered: 1, fillOk: ok, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1) })); }
+    function next() { if (run.i + 1 >= qs.length) { C.logEvent({ kind: "quiz", subject: p.subject || "", label: p.title || "练习", correct: run.correct, total: qs.length }); app.checkAch(); } setRun(Object.assign({}, run, { i: run.i + 1, answered: null, fill: "", fillOk: false, lastOk: false })); }
+    if (!qs.length) return html`<div class="pan-empty">没有题目。</div>`;
+    if (run.i >= qs.length) {
+      var acc = Math.round(run.correct / qs.length * 100);
+      return html`<div class="pan-panel" style="text-align:center;padding:40px;"><div style="font-size:40px;margin-bottom:10px;">${acc >= 80 ? "🎉" : acc >= 60 ? "👍" : "💪"}</div>
+        <h1 style="font-family:var(--serif);font-size:26px;margin:0 0 6px;">${run.correct} / ${qs.length} 正确</h1>
+        <div style="color:#9a8a6f;margin-bottom:6px;">正确率 ${acc}% · 获得 ⬡ ${run.earned}</div>
+        <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${run.wrong ? "错 " + run.wrong + " 题,已进错题本" : "全对,漂亮!"}</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><span class="pan-btn ink" onClick=${p.onClose || function () { app.go("home"); }}>完成</span><span class="pan-btn ghost" onClick=${function () { app.go("wrongbook"); }}>错题本</span></div></div>`;
+    }
+    var optsEl;
+    if (q.type === "fill") {
+      var fb = run.answered != null;
+      optsEl = html`<div><div style="display:flex;gap:10px;"><input disabled=${fb} value=${run.fill} onInput=${function (e) { setRun(Object.assign({}, run, { fill: e.target.value })); }} onKeyDown=${function (e) { if (e.key === "Enter") submitFill(); }} placeholder="输入答案…" style=${"flex:1;border:1.5px solid " + (fb ? (run.fillOk ? "#6E7A4F" : "#B6532F") : "#EBDEC8") + ";border-radius:12px;padding:13px 16px;font-size:16px;outline:none;background:" + (fb ? (run.fillOk ? "#F2F4E8" : "#FAE9E2") : "#FFFDF8") + ";"} />${fb ? null : html`<span class="pan-btn ink" onClick=${submitFill}>提交</span>`}</div>${fb && !run.fillOk ? html`<div style="margin-top:10px;font-size:14px;color:#B6532F;">正确答案:<b>${(q.answer || []).join(" / ")}</b></div>` : null}</div>`;
+    } else {
+      optsEl = (q.options || []).map(function (o, i) {
+        var cls = "pan-opt", mark = "", mc = "#6E7A4F";
+        if (run.answered != null) { if (i === q.answer) { cls += " right"; mark = "✓"; } else if (i === run.answered) { cls += " wrong"; mark = "✕"; mc = "#B6532F"; } }
+        return html`<div key=${i} class=${cls} onClick=${run.answered == null ? function () { choose(i); } : null}><div class="k">${String.fromCharCode(65 + i)}</div><div class="tx">${o}</div><div style=${"font-size:18px;color:" + mc + ";"}>${mark}</div></div>`;
+      });
+    }
+    var scn = (SUBJECTS[q.subject] || {}).name || q.subject || "";
+    return html`<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div style="font-size:13px;color:#9a8a6f;">${p.title || "练习"} · ${scn}</div><div style="font-size:13px;color:#9a8a6f;">第 <b style="color:#33291E;">${run.i + 1}</b> / ${qs.length} 题</div></div>
+      <div class="pan-bar" style="height:7px;margin-bottom:20px;"><i style=${"width:" + Math.round(run.i / qs.length * 100) + "%;background:#C8852E;"}></i></div>
+      <div class="pan-panel" style="padding:30px 32px;">
+        <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;">${html`<${Pill} text=${q.type === "fill" ? "填空" : "单选"} color="#6E7A4F" />`}<span class="pan-pill" style="color:#C8852E;background:#FBF4E6;font-weight:700;margin-left:auto;">⬡ ${val(q)}</span></div>
+        <h1 style="font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.45;margin:0 0 22px;">${q.q}</h1>
+        <div style="display:flex;flex-direction:column;gap:12px;">${optsEl}</div>
+        ${run.answered != null && q.explain ? html`<div style="background:#FBF4E6;border-radius:14px;padding:18px 20px;margin-top:22px;"><div style="font-size:13px;font-weight:700;color:#6E7A4F;margin-bottom:6px;">${run.lastOk ? "✓ 答对了" : "✗ 解析"}</div><div style="font-size:14px;line-height:1.7;color:#3a3023;">${q.explain}</div></div>` : null}
+        ${run.answered != null ? html`<div style="display:flex;justify-content:flex-end;margin-top:22px;"><span class="pan-btn ink" onClick=${next}>${run.i + 1 >= qs.length ? "查看结果 →" : "下一题 →"}</span></div>` : null}
+      </div></div>`;
+  }
+
+  function PracticeScreen() {
+    var app = useApp();
+    var did = app.params.disc, scope = app.params.scope;
+    var d = did && C.disciplineById(did);
+    var q0 = useState(null); var qs = q0[0], setQs = q0[1];
+    useEffect(function () {
+      if (!d) { setQs([]); return; }
+      C.questionsFor({ subject: d.subject, scope: scope || null, limit: 20 }).then(function (rows) { setQs(rows.map(normQ)); });
+    }, [did, scope]);
+    return html`<div class="pan-screen narrow">
+      ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "我的课程", go: "course" }, { t: (d && d.name) || "练习" }]} />`}
+      <h1 class="pan-page-h">${(d && d.name) || ""} 练习 <span class="en">/ Practice</span></h1>
+      ${qs == null ? html`<div class="pan-empty">加载题目中…</div>`
+        : !qs.length ? html`<div class="pan-empty">这门课还没有题目。<br/>让 AI 导师出一套(挂知识点),或在留言箱发给导师。<br/>
+          <span class="pan-btn grad" style="margin-top:14px;" onClick=${function () { C.sendMessage({ kind: "ask", text: "请给「" + ((d && d.name) || "") + "」出一套随堂练习题(挂知识点)。", context: { discId: did, scope: scope } }).then(function () { app.go("messages"); }); }}>✉️ 请导师出题</span></div>`
+        : html`<${QuizRun} questions=${qs} title=${((d && d.name) || "") + " 练习"} subject=${d.subject} onClose=${function () { app.go("course", scope ? { disc: did, scope: scope } : { disc: did }); }} />`}
+    </div>`;
+  }
+
+  function WrongbookScreen() {
+    var app = useApp();
+    var w0 = useState(null); var rows = w0[0], setRows = w0[1];
+    var rd0 = useState(false); var redo = rd0[0], setRedo = rd0[1];
+    function load() { C.wrongbookFetch({}).then(setRows); }
+    useEffect(function () { load(); }, []);
+    if (redo && rows && rows.length) {
+      return html`<div class="pan-screen narrow">${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "错题本", go: "wrongbook" }, { t: "重做" }]} />`}
+        <${QuizRun} questions=${rows.map(normQ)} title="错题重做" onClose=${function () { setRedo(false); load(); }} /></div>`;
+    }
+    return html`<div class="pan-screen narrow">
+      ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "错题本" }]} />`}
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+        <div><h1 class="pan-page-h" style="margin:0 0 4px;">错题本 <span class="en">/ Wrong Answers</span></h1>
+        <div style="font-size:13px;color:#9a8a6f;">最近答错、还没再做对的题;做对后自动移出。</div></div>
+        ${rows && rows.length ? html`<span class="pan-btn ink" onClick=${function () { setRedo(true); }}>重做这 ${rows.length} 题 →</span>` : null}
+      </div>
+      ${rows == null ? html`<div class="pan-empty">加载中…</div>`
+        : !rows.length ? html`<div class="pan-empty">还没有错题。去课程里做练习,错的会自动收进来。</div>`
+        : html`<div style="display:flex;flex-direction:column;gap:12px;">${rows.map(function (r) {
+          var ans = r.type === "fill" ? (r.answer || []).join(" / ") : ((r.options || [])[r.answer] || "");
+          return html`<div key=${r.id} class="pan-panel" style="padding:14px 16px;">
+            <div style="font-size:11.5px;color:#9a8a6f;margin-bottom:5px;">${(SUBJECTS[r.subject] || {}).name || r.subject || ""}${r.kp ? " · " + r.kp : ""}</div>
+            <div style="font-size:14px;color:#3a3023;line-height:1.55;margin-bottom:6px;">${r.stem}</div>
+            <div style="font-size:13px;color:#3f8a52;">正确答案:${ans}</div>
+            ${r.explain ? html`<div style="font-size:12.5px;color:#9a8a6f;margin-top:4px;">${r.explain}</div>` : null}
+          </div>`;
+        })}</div>`}
+    </div>`;
+  }
+
+  window.Screens = { home: HomeScreen, explore: ExploreScreen, discipline: DisciplineScreen, plan: PlanScreen, course: CourseScreen, quiz: QuizScreen, notes: NotesScreen, wishlist: WishlistScreen, points: PointsScreen, analytics: AnalyticsScreen, users: UsersScreen, messages: MessagesScreen, practice: PracticeScreen, wrongbook: WrongbookScreen };
 })();
