@@ -5,3 +5,10 @@
 # 编辑器/工具
 .codex
 .DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# 私有运维手册(含个人 homelab 细节,不开源)
+AGENTS.local.md

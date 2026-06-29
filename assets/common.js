@@ -23,7 +23,7 @@ window.StudyHub = (function () {
       const u = new URLSearchParams(location.search).get("track");
       if (u && TRACKS[u]) return u;
     } catch (e) {}
-    // 2) 域名匹配（嘉欢打开自己的子域名 → 落到他的空间）
+    // 2) 域名匹配（Jiahuan打开自己的子域名 → 落到他的空间）
     const host = (location.hostname || "").toLowerCase();
     if (host) {
       for (const k of keys()) {

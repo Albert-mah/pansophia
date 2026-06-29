@@ -128,7 +128,7 @@ for (const [did, list] of Object.entries(PROGRAMS)) {
     const where = `programs "${did}"(${p.school || "?"})`;
     if (!p.school) E(`${where}: 缺 school`);
     if (!p.program) Wn(`${where}: 缺 program`);
-    if (!Number.isInteger(p.year) || p.year < 2000 || p.year > 2100) E(`${where}: year "${p.year}" 非法`);
+    if (p.year !== undefined && (!Number.isInteger(p.year) || p.year < 2000 || p.year > 2100)) E(`${where}: year "${p.year}" 非法`);
     if (!TAGS.has(p.tag)) E(`${where}: tag "${p.tag}" 非法（top/strong/solid）`);
     if (!p.note) Wn(`${where}: 缺 note`);
     if (p.url !== undefined && typeof p.url !== "string") E(`${where}: url 类型应为 string`);

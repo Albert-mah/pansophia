@@ -1,129 +1,60 @@
-# AGENTS.md — 给所有 AI agent 的项目说明
+# AGENTS.md — Pansophia 万象学院 · 给 AI agent / 贡献者的项目手册
 
-> 本文件供 Codex / Claude / Cursor 等任意 agent 阅读。动手前请先读完，尤其是「⚠️ 注意事项」。
+> 任意 agent(Codex / Claude / Cursor)或贡献者动手前先读完本文。
+> 一所家庭/小团体共用的「虚拟大学」学习平台:以个人为中心(进度/计划/笔记/积分/成就),
+> 全人类学科体系树为背景,知识点**懒加载**(按需生成),按价值生成**积分**。多用户、平等。
 
-## 一、这个项目是什么（定位）
+## 一、技术架构(★必读)
 
-这是一个**家庭共用的数据驱动静态「学习中心」**，已通用化为 **三个正交维度**（重构于 2026-06-26）：
+**前端 = React + htm(零构建)**,**数据库 = PostgreSQL(唯一真源)**,**后端 = Python `server.py`**。
 
-- **PROFILE 学习者（人）**：`siyu`（思雨 · 高考 · 物化生方向）、`ma-huan`（马欢 · 终身学习：日语体系 + 英语托福 + 各科高阶）、`mahuan`（嘉欢 · 六年级小升初 · 英语为主）。定义在 `data/model.js` 的 `STUDY_PROFILES`。（旧的 `STUDY_TRACKS` 是它的别名；URL/localStorage 仍用 `track` 这个参数名，值就是 profile id。）
-- **SUBJECT 学科**：语文/数学/英语/**日语**/物化生政史地/学习方法（`STUDY_SUBJECTS`，带 `kind: language|academic|meta`）。
-- **SCOPE 范围/等级**：小学/初中/高考 / CEFR / **JLPT** / CET / 雅思…（`STUDY_SCOPES`）。这是"圈出不同知识点"的标签维度，**多对多**：一个词/考点可同属多个 scope。
+- **React 本地内置,不走 CDN**:`assets/vendor/react*.production.min.js`、`htm.umd.js`。`window.html = htm.bind(h)`(`h` 见 `app.js`,把 `class=`/字符串 `style=` 转成 React 形态),JSX 风格、免 Babel、免打包。
+- **FullCalendar 本地内置**:`assets/vendor/fullcalendar.global.min.js`(进「学习计划」才懒加载)。
+- **内容数据 = 静态 JS 全局变量**(`data/*.js` 里的 `window.STUDY_*` / `WORD_BANK_*` / `QUIZ_BANK`)。**agent 直接改这些 JS 文件填内容**——这是懒加载玩法的命根,保留。
+- **用户态数据(进度/积分/愿望/笔记/计划/单词SRS)在 PostgreSQL**。前端启动从 `/api/state?user=` **水合**到内存缓存,组件同步读缓存,改动**写直达** `/api/state`。localStorage 只记「上次选了哪个用户」。
+- **逻辑全在 `assets/core.js`**(`window.Core`,框架无关)。**屏在** `assets/app.js`(根+顶栏+路由+context)、`assets/screens.js`、`assets/vocab.js`(单词 SRS)、`assets/plan.js`(学习计划=FullCalendar)。
 
-**核心模式（懒加载知识地图）**：地基是**考点大纲骨架**（`data/skeleton.js`，多为 `待填`），内容**慢慢填**，来源三种：① agent 按考点生成讲解页；② 用户喂的资料/书由 agent 拆解填充（嘉欢的冀教版 PDF 就是这么拆的）；③ 少量真题做例题。首页按 profile→subject→scope 展示，并显示**覆盖度 %**。语言类（英/日）可**批量导入开源词库**；学科类靠手写/半自动。
+### 缓存版本(★改前端必做)
+若用 CDN/边缘缓存,`.js/.css` 会被缓存。`index.html` 设 `no-store`,所有本地资源带 `?v=YYYYMMDD<字母>`。**每次改前端,把 index.html 里所有 `?v=` 统一 bump**,否则用户拿旧版。
 
-## 二、工作方式 ★最重要
+## 二、PostgreSQL 后端
 
-### A. 新增一个知识点（讲解类，两步）
-1. 复制 `templates/_template.html` → `subjects/<科目>/<英文短名>.html`，填内容。嘉欢的英语页用 `mh-` 前缀（如 `subjects/english/mh-xxx.html`）。
-2. 在 `data/catalog.js` 的 `STUDY_CATALOG` 加一条记录，带 `{ profile, subject, scopes[], status:"done" }`。若它对应大纲里的某考点，把 `data/skeleton.js` 那个考点写上 `ref:"<这条id>"`（自动算"已填"并可点进、覆盖度+1）。
-3. 用 `related` 互链。首页 `index.html` 会**自动**归类、统计、搜索、关联、算覆盖度——**不要手动改首页**。
+- 需要一个 PostgreSQL 实例(本机或容器均可),建一个**独立数据库**(默认名 `pansophia`)。连接信息写在仓库外的 `~/.studyhub/config.json`(见 `config.sample.json`)。
+- 表:`users`(key/name/icon/color/blurb/settings/...)、`user_state(user_key,name,value jsonb)`(KV:disc/points/progress/events/wishlist/notes/plan/schedule/tasks/vocab/wordbook/goals/achievements)、`files`(附件 bytea)、`library`(名校培养方案正文快照=本地资料库)。
+- `server.py` = Python + **psycopg2**(同源静态站 + `/api`)。用装了 psycopg2 的 python 启动。改 `server.py` 后重启,然后 `curl :8790/api/health`(应 `db:true`)。
+- 配置 `~/.studyhub/config.json`:`write_token`(前端公开,只写)、`read_key`(读 report 用,服务端)、`pg`(连接信息)。
+- API:`GET /api/health` · `GET|POST /api/users` · `GET|POST /api/state?user=` · `GET /api/overview` · `POST /api/event` · `POST /api/upload` / `GET /api/file?id=`(附件) · `GET /api/lib?disc=|?id=` / `POST /api/cache`(资料库) · `GET /api/report?user=&key=`(读密钥)。
+- **CLI agent(AI 导师)可直接读写 `pansophia.user_state`**:看进度/积分/掌握做反馈;消费 `wishlist` 里 `status:pending` 的项备课(检索/生成 catalog+skeleton,改状态 cooking→ready)。
 
-> **打通"知识库索引 ↔ 学习内容"**：catalog 记录和 skeleton 块都可带可选 `discipline:"<学科id>"`（见 disciplines.js），把内容显式挂到知识库某学科上。学术学科（math/physics/psychology…）能靠 `subject` 自动对上、不强求；但**给没有 subject 的现实学科填内容时（如 `personal-finance`/`law`），必须写 `discipline`**——否则用户在「我的学科」加了它也看不到大纲。典型：用户说"帮我补全『个人理财』的学习计划和考点" → 在 skeleton 加一个 `{ profile, subject:"methods", discipline:"personal-finance", scope:"general", topics:[…] }` 块。
+## 三、功能屏与对应代码
 
-### B. 新增单词检测（任意语言）
-- 英语等：`data/words.js` 的 `WORD_BANK` 加一组（词条 `{term, gloss, reading?, tip?}`；旧的 `{en,cn}` 仍兼容），带 `profile / subject / scopes[] / unit`。
-- 日语：`data/words.ja.js` 由 `tools/import_jlpt.py` **从开源词库生成，别手改**；要扩 N4/N3 改导入器重跑。
-- 组可带 `lang:"ja"` 和 `mode`（`term2reading` 看词→读音 / `term2gloss` 看词→义 / `gloss2term` 看义→拼词 / `dictation`）。检测中心按 lang/mode 自动给对应练习按钮。
+- **首页**(home):个人仪表盘(数据卡/继续学习/今日计划/热力图/各科进度/最近笔记)。
+- **学科探索**(explore→discipline):总览=六大门类+现实学科(`STUDY_CATEGORIES`)每类前 6;**点门类卡/「查看全部」= `explore?cat=<key>` 完整学科目录**(`ExploreScreen` 读 `app.params.cat`)→ 学科详情(二级方向 + 🎓名校培养方案 + 📚考点大纲 + 📚学习资源 + 加入我的空间)。培养方案每条可「📄 本地副本」(资料库缓存)/「重新抓取」。
+- **学习计划**(plan.js,FullCalendar):月/周/日;空白拖选建任务;拖拽/缩放改时间。**「✦ 新建计划」两型**:① **一定周期内**(选学科+周期+每天小时+☑自动百分比+☑每日固定时间表)→ `schedule(model:"pace")`:最低进度推荐面板(你已% vs 今天推荐≥%)+ 每日科目时间表(固定时间不固定考点);② **每天循环事件**(可关联学科+☑推荐进度,日历每天标「最起码≥Y%」)。任务首次完成→给分;挂了考点(ref)则联动掌握。
+- **我的课程**(course):**无 `disc` 先进「课程表」**(`CourseList`:把「学科×范围」平铺成课程卡,按学习者范围过滤[见 `courseScopeOK`/`userPrefScopes`],按学科 tab 筛选;同一学科可多门课)→ 点卡进单课(大纲/讲解/笔记 + 标记掌握)。
+- **习题测试**(quiz)+ **单词专项**(vocab.js):quiz 列表可搜索/科目筛选/分组/显示历史最好%;单词训练=词库(JLPT/TOEFL/单词本)→ 单词卡 → 3 关全对才通过 → Leitner 记忆曲线;答对/通过得分。词库 `words.*.js` 懒加载。
+- **笔记**(notes)/**愿望清单**(wishlist)/**积分·等级·成就**(points,按掌握/答对计,不按时长)/**数据分析中心**(analytics,多维+全员总览)。
 
-### C. 新增习题 / 摸底
-- `data/quizzes.js` 的 `QUIZ_BANK` 加题（`choice`/`fill` + `explain`），带 `profile / subject / scopes[]`。
-- 摸底在 `data/diagnostic.js`（`DIAG_TEST` 每题带 `point` 考点 + `DIAG_POINTS` 给弱项建议链接）。
+## 四、怎么填内容(懒加载)
 
-- **profile key**：`siyu / ma-huan / mahuan`（`data/model.js`）；**scope key**：见 `STUDY_SCOPES`。
-- **改完即时生效**：静态服务直接读文件，无需构建、无需重新部署，刷新即可。
-- ★**批量填内容前后都跑** `node tools/validate.js`：懒加载靠 agent / 喂书持续往 `data/*.js` 填，这个只读门禁能挡住 ref 悬空、profile/subject/scope 写错、id 重复、programs 形状不对等"把索引填乱"的问题。有 ERROR 退出码非 0。
+- 学科一句话说明:`data/disc_notes.js`;名校培养方案:`data/programs.js`(`{school,program?,year?,tag,note?,url?}`);考点大纲:`data/skeleton.js`(绑定 profile)+ `data/skeleton.syllabi.js`(共享,按 subject|scope);讲解页:`subjects/<科目>/<名>.html` + `data/catalog.js` 记录,skeleton 考点写 `ref` 回链;二级方向校订:`data/disc_sub_overrides.js`;现实学科资源:`data/disc_resources.js`;词库:`words.*.js`(脚本生成勿手改)。
+- ★批量填内容前后跑 `node tools/validate.js`(挡 ref 悬空/重复 id/形状非法)。
+- ★**内容级批量操作建议逐条做 + 校验,不要正则盲改**。
+- 培养方案批量缓存:`python3 tools/cache_programs.py`(抓 programs.js 链接正文存 `library` 表)。
 
-## 三、技术约束（不要破坏）
+## 五、本地验证清单(改完跑)
 
-- **纯静态、零构建、离线优先**，必须保证 `file://` 直接双击也能用：
-  - 数据用 `window.STUDY_CATALOG / STUDY_TRACKS / STUDY_SUBJECTS / WORD_BANK / QUIZ_BANK` 全局变量加载。**不要改成 `fetch()` 读 JSON**——`file://` 下会被 CORS 拦截。
-  - 知识页用相对路径 `../../`（页面固定在 `subjects/<科目>/` 两级深处）；检测页在 `quiz/`（一级深），用 `../`。
-- **检测的学习记录**（错题本 / 生词本 / 成绩）存在浏览器 **localStorage**，按 track 命名空间隔离（`studyhub.<track>.*`），见 `assets/common.js`。**这是预留 SQLite 的升级口**：将来要跨设备同步 / 后台出题，只需把 `StudyHub.load/save` 换成请求后端，调用方不用改（详见第六节）。
-- **数学公式**：MathJax（CDN，需联网渲染），正文写 `$...$` / `$$...$$`。
-- **交互示例**：原生 JS + `<canvas>`，**不要引入框架 / 打包器 / npm 依赖**。
-- **语言与风格**：用中文。给嘉欢讲英语要**面向六年级 / 小升初**，简单直白、口诀化、点出易错点；给高考内容则面向高中生。
-- 仓库用 git 管理（`main` 分支）。新增内容按需提交。
+- `node tools/validate.js` 全过;`node --check assets/*.js`。
+- 起服务后 `curl :8790/api/health`(db:true)、`/api/users`、`/api/overview`。
+- 浏览器硬刷走查;切用户看数据隔离。
 
-## 四、文件结构速查
+## 六、⚠️ 注意
 
-```
-index.html              首页（profile 切换 + 仪表盘 + 考点大纲覆盖度 + 目录）
-data/model.js           ★ STUDY_PROFILES / STUDY_SUBJECTS / STUDY_SCOPES（总入口）
-data/skeleton.js        ★ 考点大纲骨架 STUDY_SKELETON（懒加载，status/ref）
-data/catalog.js         讲解类知识点清单 STUDY_CATALOG（profile/subject/scopes/status）
-data/words.js           单词库 WORD_BANK（英语等）
-data/words.ja.js        ★ 日语 JLPT N5→N1 全套 WORD_BANK_JA（tools/import_jlpt.py 生成，勿手改）
-data/words.en.js        ★ 英语 TOEFL 词库 WORD_BANK_EN（tools/import_ecdict_toefl.py 生成，勿手改）
-data/quizzes.js         题库 QUIZ_BANK
-tools/import_jlpt.py     ★ 开源 JLPT 词库导入器（N5→N1，源在 tools/sources/，MIT）
-tools/import_ecdict_toefl.py ★ ECDICT→TOEFL 词导入器（源 tools/sources/ecdict_toefl.csv）
-注：words.ja.js/words.en.js 较大(各~600KB)，只在 quiz/ 页面加载，首页不载（省流量）。
-assets/common.js        StudyHub：profile 判定 + localStorage + logEvent 上报
-assets/hub.js           首页逻辑（profile 切换、仪表盘、大纲覆盖度、目录、搜索）
-data/diagnostic.js      知识点摸底题库 DIAG_TEST + 考点建议 DIAG_POINTS
-assets/quiz.js          检测引擎（单词检测 / 习题 / 摸底 / 错题本 / 生词本 / 成绩 / 上报）
-assets/page.js          知识页通用脚本（面包屑 / 相关 / 公式）
-quiz/index.html         检测中心
-quiz/run.html           通用检测运行器（?type=word|quiz|wrong|vocab&id=…&mode=…&track=…）
-quiz/diagnostic.html    知识点摸底（测完出强弱项报告）
-progress.html           ★家长/哥哥的学习跟踪面板（要读密钥 ?key=…）
-server.py               ★同源服务器：静态站 + /api 学习记录接口（SQLite）
-subjects/<科目>/*.html  一个知识点 = 一个网页
-templates/_template.html 新知识页模板
-data/disciplines.js / disciplines.intl.js  ★ 学科总目录索引 STUDY_DISCIPLINES(_INTL)（知识库浏览用；三级 门类→一级学科→二级方向；现实学科 item 带 kind:"custom"）
-data/programs.js         名校培养方案 STUDY_PROGRAMS，按 discipline id 关联（library 按 it.id 查；与学科树解耦，单独维护）
-library.html / assets/library.js          知识库浏览（国内门类 / 国际大类 切换，＋加入"我的空间"）
-tools/validate.js        ★ 数据完整性校验（`node tools/validate.js`）：ref 悬空 / 孤儿 catalog / discipline·programs 合法 / profile·subject·scope 合法 / 重复 id
-```
+- **站点若公开**:任何页面内容全网可见,**绝不把隐私写进静态 HTML/JS**(种子数据用示例名)。用户态数据在 DB;读 report 要 `read_key`。
+- **只在你建的 `pansophia` 库内操作**;若复用了别的 PG 实例,DDL 前确认连对库。
+- 改 `server.py` 用装了 psycopg2 的 python 重启;改前端 bump `?v=`。
+- 部署脚本、反向代理/隧道配置、`~/.studyhub` 密钥都在仓库外、不进 git。
 
-## 五、⚠️ 线上部署（已上线，改动需谨慎）
+## 七、示例学习者
 
-站点通过 **Cloudflare Tunnel** 发布到公网，手机可访问。**单一域名**（一个学习中心，`127.0.0.1:8790`）：
-
-- **<https://study.albertma.site>** → 学习中心（默认落「思雨·高考」空间）
-- 顶部 pill 切三个档案；也可用 `?track=siyu|ma-huan|mahuan` 直达（嘉欢 `?track=mahuan`、马欢 `?track=ma-huan`，切一次后 localStorage 记住）。
-- ⚠️ 旧的 `mahuan.albertma.site` 已于 2026-06-28 合并撤除（隧道 config 删该 ingress、多副本平滑切换零中断；DNS 若仍解析则落 catch-all 404）。再撤可删其 DNS 记录。
-- **链路**：`python3 server.py`（8790，**静态站 + /api**，watchdog `~/bin/ensure-study-server.sh`，cron 每分钟 + `@reboot`）→ cloudflared 隧道 `248c11e0-…`（watchdog `~/bin/ensure-cloudflared.sh`）。`server.py` 已替代原来的 `python3 -m http.server`；同源提供 API，故**不需要动隧道**。
-- 运行环境：WSL2，**没有 systemd**，常驻服务全靠 cron watchdog。改 `server.py` 后要重启它生效：`pkill -f server.py && ~/bin/ensure-study-server.sh`（会有几秒静态站中断，动作要快、改完先本地 `curl /api/health` 验证）。
-
-**改动红线：**
-
-- ⚠️ `~/.cloudflared/config.yml` **同时承载用户的其他生产服务**（crm / fleet / kb / nocobase 等）。对它**只能追加**，绝不可删除或重排别人的条目。改前先 `cp` 备份；改后用 `cloudflared --config <file> tunnel ingress validate` 校验。
-- ⚠️ 加新子域名要建 DNS：`cloudflared tunnel --origincert ~/.cloudflared/cert-albertma.pem route dns 248c11e0-e955-4a98-81d7-7445ddf53bcb <host>.albertma.site`。
-- ⚠️ 重启 cloudflared 会让**所有**隧道服务短暂中断：SIGTERM 后有 ~30s **优雅排空**才退出；用 `~/bin/ensure-cloudflared.sh` 拉起。识别进程用 `pgrep -x cloudflared`（`pgrep -f` 会误匹配命令行）。
-- ⚠️ **站点是公开的**：任何页面内容全网可见。**绝不要把隐私 / 校内成绩 / 家庭信息写进页面 HTML**。
-- ⚠️ **学习记录现在是中心化的**（见第六节）：每次练习的「类型 / 得分 / 摸底各考点对错」会上报到本机 SQLite（`~/.studyhub/`，仓库外、不进 git）。**读取要密钥**（`progress.html?key=…`），公网拿不到。写 token 在前端是公开的（只能写不能读），可被伪造灌假数据——风险可接受，要更严就上 Cloudflare Access。
-- 部署脚本在 `~/bin/`、隧道配置在 `~/.cloudflared/`、后端数据/密钥在 `~/.studyhub/`（都在仓库之外），不随 git 管理。
-
-## 六、中心化存储 / 学习跟踪（已实现，2026-06-25）
-
-为了让哥哥能**跟踪嘉欢的学习情况**，已上一个**轻量 SQLite 后端**（`server.py`，Python 标准库，无第三方依赖）。
-
-**模型 = 事件日志（不是全量同步）**：
-- 嘉欢每做完一次练习（摸底 / 单词 / 习题 / 错题 / 生词复习），`quiz.js` 的 `store.addScore` 会调 `StudyHub.logEvent` 往 `POST /api/event` 上报一条：`{track,kind,label,correct,total,detail,ts}`。摸底的 `detail` 带各考点对错。**fire-and-forget，失败不影响本地**，离线照常用。
-- 首次打开还会把本机已有的旧成绩 `migrateOnce` 补传上去。
-- 嘉欢的页面**只写不读**（不需要读密钥）；他的错题本/生词本仍是本地的（够他自己重练）。
-- 哥哥的 `progress.html?key=<读密钥>` 调 `GET /api/report`（**要读密钥**）看时间线、各考点掌握度、弱项聚合。
-- **防刷**：`POST /api/event` 有限流（按真实客户端 IP `Cf-Connecting-Ip`，单 IP 30 次/5 分钟，全局 120 次/分钟），超了返回 429。
-- ⚠️ **接口命名有意区分**：写=`/api/event`（开放+限流），读=`/api/report`（要密钥）。配 Cloudflare Access 时只圈 `progress.html` 和 `/api/report`，**千万别圈 `/api/event` 或用 `/api/*` 通配**，否则嘉欢匿名上报会被登录页挡住、跟踪就断了。
-
-**部署**：
-- 配置 + 数据库：`~/.studyhub/config.json`（`write_token` / `read_key` / `db_path`）、`~/.studyhub/studyhub.db`（events 表，WAL）。都在仓库外。
-- `server.py` 同源提供静态 + API（端口 8790），所以**没动隧道、没加子域名**。
-- 写 token 嵌在 `assets/common.js`（公开值，只能写）；读密钥只在哥哥的网址里，不进任何文件。
-
-**还没做（下一步可选）**：① 错题本/生词本的**跨设备全量同步**（现在只同步"事件"，没同步错题本内容）；② **真鉴权**（现在读密钥是 URL 明文 + 写 token 公开，建议上 Cloudflare Access 用 Google 登录把 `progress.html` 和 `/api` 圈起来）；③ 后台出题 UI。
-- 改 API/数据层时，保持 `StudyHub.load/save`（本地）与 `logEvent`（上报）解耦：本地仍是离线兜底，**别打破 `file://` 离线可用**。
-
-### 内容数据的存储演进（数据慢慢变多时按需迁，别过早）
-
-内容（disciplines / programs / skeleton / catalog）现在是静态 JS 全局变量，首页总载 ~220KB，**完全够用**。静态设计的好处（零构建 / `file://` 离线 / agent 直接改 JS 填内容——懒加载玩法的命根）是核心，**没到瓶颈别动**。真要迁，按这个顺序和阈值：
-
-1. **先迁词库**：`words.en.js`/`words.ja.js` 已各 ~600KB 且只在 quiz/ 页加载。当单文件超过 ~1–2MB（加更多语种/级别、全量 ECDICT）→ 把"查词"挪到 `server.py` 的 `/api`（已是 SQLite + 同源），按 `unit/scope` 按需取，不再整包载入全局。⚠️ 这会牺牲 quiz 的 `file://` 离线 → 做成"有后端走 API、无后端用本地静态兜底"的混合，别一刀切。
-2. **再看索引**：当首页总载超过 ~500KB–1MB，或 `programs.js` 显著变大 → 把 programs 改成"浏览到某学科才按需取"，或整个索引上 `/api`。
-3. **不变量**：任何迁移都保留现有 `window.STUDY_*` 形状作为离线兜底；`server.py` 继续只用 Python 标准库 + sqlite3，不引第三方依赖。
-
-## 七、关于用户
-
-中文交流。三个学习者：① 思雨（siyu）——高考物化生方向，讲解直奔重点、给例子、点易错点；② 马欢（ma-huan）——成人终身学习（日语 + 托福 + 各科高阶），可深入、成体系；③ 马嘉欢（mahuan）——六年级小升初、英语基础弱、时间紧，内容要更基础、更鼓励、口诀化、能立刻上手练。
+种子里有 3 个示例档案(`server.py` init / `data/model.js`):Siyu(高考方向)、Ma Huan(终身学习)、Jiahuan(小升初)——**演示数据**,部署后可在用户管理里改成自己的。

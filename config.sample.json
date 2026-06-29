@@ -1,0 +1,12 @@
+{
+  "_comment": "复制到 ~/.studyhub/config.json 并填好。write_token 会嵌进前端(仅写、限流);read_key 只在服务端用于 /api/report。",
+  "write_token": "CHANGE_ME_public_write_token",
+  "read_key": "CHANGE_ME_private_read_key",
+  "pg": {
+    "host": "127.0.0.1",
+    "port": 5432,
+    "user": "pansophia",
+    "password": "CHANGE_ME",
+    "dbname": "pansophia"
+  }
+}

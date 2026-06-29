@@ -10,7 +10,7 @@
  * ============================================================= */
 window.STUDY_CATALOG = [
 
-  /* ===== 档案：思雨（siyu · 高考） ===== */
+  /* ===== 档案：Siyu（siyu · 高考） ===== */
   {
     id: "math-quadratic-functions",
     profile: "siyu", subject: "math", discipline: "math", scopes: ["gaokao"], status: "done",
@@ -45,7 +45,7 @@ window.STUDY_CATALOG = [
     related: []
   },
 
-  /* ===== 档案：ma-huan（马欢 · 终身学习） ===== */
+  /* ===== 档案：ma-huan（Ma Huan · 终身学习） ===== */
   {
     id: "mh-psych-intro",
     profile: "ma-huan", subject: "psychology", discipline: "psychology", scopes: ["general"], status: "done",
@@ -58,7 +58,7 @@ window.STUDY_CATALOG = [
     related: []
   },
 
-  /* ===== 档案：mahuan（嘉欢 · 六年级英语） ===== */
+  /* ===== 档案：mahuan（Jiahuan · 六年级英语） ===== */
   {
     id: "mh-en-past-tense",
     profile: "mahuan", subject: "english", scopes: ["jijiao-6b", "xiaoxue"], status: "done",

@@ -12,7 +12,7 @@
  * ============================================================= */
 window.STUDY_SKELETON = [
 
-  /* ========== 思雨（siyu）· 高考 · 物化生方向 ========== */
+  /* ========== Siyu（siyu）· 高考 · 物化生方向 ========== */
   {
     profile: "siyu", subject: "math", discipline: "math", scope: "gaokao",
     topics: [
@@ -61,7 +61,7 @@ window.STUDY_SKELETON = [
     ]
   },
 
-  /* ========== 马欢（ma-huan）· 终身学习 ========== */
+  /* ========== Ma Huan（ma-huan）· 终身学习 ========== */
   /* 日语整套体系（从 N5 起步，词库已导入开源 JLPT） */
   {
     profile: "ma-huan", subject: "japanese", scope: "jlpt-n5",
@@ -172,7 +172,7 @@ window.STUDY_SKELETON = [
     topics: [ { title: "分子生物学", points: [ { title: "中心法则", status: "todo" }, { title: "基因调控", status: "todo" } ] } ]
   },
 
-  /* ========== 嘉欢（mahuan）· 英语（已填语法点 + 待填） ========== */
+  /* ========== Jiahuan（mahuan）· 英语（已填语法点 + 待填） ========== */
   {
     profile: "mahuan", subject: "english", scope: "jijiao-6b",
     topics: [

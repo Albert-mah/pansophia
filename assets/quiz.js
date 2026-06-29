@@ -76,7 +76,7 @@
       const a = store.scores(); rec.ts = Date.now(); a.push(rec);
       if (a.length > 200) a.splice(0, a.length - 200);
       SH.save(track(), "scores", a);
-      // 中心化上报（哥哥的跟踪面板用），失败不影响本地
+      // 中心化上报（管理者的跟踪面板用），失败不影响本地
       try { SH.logEvent(track(), { kind: rec.type, label: rec.label, correct: rec.correct, total: rec.total, detail: rec.detail }); } catch (e) {}
     },
     todayCount() {
@@ -443,7 +443,7 @@
       const weak = rows.filter(r => r.pct < 75);
       const info = window.DIAG_POINTS || {};
 
-      // 记录本次摸底（带各考点掌握度，供哥哥的跟踪面板）
+      // 记录本次摸底（带各考点掌握度，供管理者的跟踪面板）
       store.addScore({ label: "知识点摸底", type: "diag", correct, total: Q.length,
         detail: { points: rows.map(r => ({ p: r.p, c: r.c, t: r.t })), weak: weak.map(r => r.p) } });
 
