@@ -5,7 +5,7 @@
  *    title  考点名
  *    ref    若已有讲解页，写 catalog 里的 id（自动判为"完成"并可点进）
  *    status 没写 ref 时：todo 待填 / partial 部分（默认 todo）
- *  首页"覆盖度 %"口径（见 assets/hub.js）：一个考点算"已覆盖" ⟺ 有 ref 且能在
+ *  首页"覆盖度 %"口径（前端 core.js coverage）：一个考点算"已覆盖" ⟺ 有 ref 且能在
  *    catalog 找到，或 status==="done"。⚠️ partial 不计入覆盖度（只是给人看的中间态）。
  *  来源：① agent 生成讲解 ② 用户喂书拆解 ③ 少量真题做例题。
  *  按 { profile, subject, scope } 归类；新增考点直接往 topics 里加。
