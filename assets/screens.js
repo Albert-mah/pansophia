@@ -290,6 +290,7 @@
     function openReader(itId) { setReader({ loading: true }); C.libItem(itId).then(function (it) { setReader(it || { error: true }); }); }
     function refreshLib() { C.libList(id).then(function (items) { var m = {}; items.forEach(function (it) { m[it.url] = it; }); setLibMap(m); }); }
     function recache(p) { setBusy(function (b) { var n = Object.assign({}, b); n[p.url] = 1; return n; }); C.cacheUrl({ discId: id, url: p.url, school: p.school, program: p.program }).then(function () { refreshLib(); setBusy(function (b) { var n = Object.assign({}, b); delete n[p.url]; return n; }); }); }
+    function pdfRead(m) { var u = m.url; if (busy[u]) return; setBusy(function (b) { var n = Object.assign({}, b); n[u] = 1; return n; }); C.cachePdf(m.id).then(function (r) { setBusy(function (b) { var n = Object.assign({}, b); delete n[u]; return n; }); if (r && r.ok && r.fileId) { try { window.open(C.fileUrl(r.fileId), "_blank"); } catch (e) {} C.materialsFor(id).then(setMats); } else { window.alert((r && r.error) || "下载失败,试试在线打开。"); } }); }
     var d = id && C.disciplineById(id);
     if (!d) return html`<div class="pan-screen"><div class="pan-empty">没找到该学科。<br/><span class="pan-btn ghost" style="margin-top:12px;" onClick=${function () { app.go("explore"); }}>← 回学科探索</span></div></div>`;
     var cat = C.categoryOf(id) || { name: d.catName || "", color: d.catColor || "#C8852E", key: "" };
@@ -341,10 +342,21 @@
                 <div style="font-size:13.5px;font-weight:600;margin-top:4px;">${m.url ? html`<a href=${m.url} target="_blank" rel="noopener">${m.title} ↗</a>` : m.title}</div>
                 ${m.note ? html`<div style="font-size:12px;color:#9a8a6f;margin-top:2px;">${m.note}</div>` : null}
                 ${(m.refs && m.refs.length) ? html`<div style="font-size:11.5px;color:#bbab8c;margin-top:3px;">来源:${m.refs.map(function (rf, j) { return html`<span key=${j}>${j ? "、" : ""}${rf.url ? html`<a href=${rf.url} target="_blank" rel="noopener">${rf.name || rf.url}</a>` : (rf.name || "")}</span>`; })}</div>` : null}
-                ${m.url ? html`<div style="margin-top:6px;font-size:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
-                  ${(function () { var lit = libMap[m.url]; return lit && lit.status === "ok" ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { openReader(lit.id); }}>📄 直接查看本地副本(${lit.chars}字)</span>` : lit ? html`<span style="color:#b6532f;">⚠ 未抓到正文</span>` : html`<span style="color:#bbab8c;">未缓存到本地</span>`; })()}
-                  <span class="lnk" style="color:#B6532F;cursor:pointer;font-weight:600;" onClick=${function () { if (!busy[m.url]) recache({ url: m.url, school: m.title, program: m.edition || "" }); }}>${busy[m.url] ? "抓取中…" : (libMap[m.url] ? "↻ 重新抓取" : "📥 缓存到本地")}</span>
-                </div>` : (m.fileId ? html`<div style="margin-top:6px;font-size:12px;"><a class="lnk" style="color:#1f7a44;font-weight:600;" href=${C.fileUrl(m.fileId)} target="_blank" rel="noopener">📄 直接查看文件</a></div>` : null)}
+                ${(function () {
+                  var isPdf = m.url && /\.pdf$/i.test((m.url.split("#")[0]).split("?")[0]);
+                  var online = m.url && !isPdf && (m.kind === "course" || m.kind === "site" || m.kind === "video" || /khanacademy|ck12|smartedu|ocw\.mit|mit\.edu|youtube|bilibili/i.test(m.url));
+                  var lit = (m.url && !isPdf && !online) ? libMap[m.url] : null;
+                  var litOk = lit && lit.status === "ok" && (lit.chars || 0) >= 1200;
+                  if (!m.url && !m.file_id) return null;
+                  return html`<div style="margin-top:6px;font-size:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+                    ${m.file_id ? html`<a class="lnk" style="color:#1f7a44;font-weight:600;" href=${C.fileUrl(m.file_id)} target="_blank" rel="noopener">📖 阅读(本地)↗</a>`
+                      : isPdf ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { pdfRead(m); }}>${busy[m.url] ? "下载中…" : "📖 下载并阅读 PDF"}</span>` : null}
+                    ${litOk ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { openReader(lit.id); }}>📄 本地副本(${lit.chars}字)</span>` : null}
+                    ${m.url ? html`<a class="lnk" style="color:#2c5fb3;font-weight:600;" href=${m.url} target="_blank" rel="noopener">🔗 ${isPdf ? "GitHub" : "在线打开"} ↗</a>` : null}
+                    ${online ? html`<span style="color:#bbab8c;">在线课程/网站,在线浏览</span>` : null}
+                    ${(m.url && !isPdf && !online && !litOk) ? html`<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { if (!busy[m.url]) recache({ url: m.url, school: m.title, program: m.edition || "" }); }}>${busy[m.url] ? "抓取中…" : (lit ? "↻ 重抓" : "📥 缓存")}</span>` : null}
+                  </div>`;
+                })()}
               </div>`;
             })}
             <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><span class="pan-btn ghost sm" onClick=${function () { setMgr(true); }}>⚙ 管理教材</span><span class="pan-btn ghost sm" onClick=${function () { C.sendMessage({ kind: "ask", text: "请帮「" + d.name + "」选定或生成课本(优先官方 / 权威,注明来源)。", context: { discId: id, disc: d.name } }).then(function () { app.go("messages"); }); }}>✉️ 请导师选 / 生成</span></div>
@@ -682,7 +694,10 @@
           var liveMat = tb && (mats || []).filter(function (m) { return m.id === tb.materialId; })[0];
           var fileId = (liveMat && liveMat.file_id) || (tb && (tb.fileId || tb.file_id)) || null;
           var isPdf = tb && tb.url && /\.pdf$/i.test(((tb.url.split("#")[0]).split("?")[0]));   // 直链/网页都以 .pdf 结尾
-          var lit = (tb && tb.url && !isPdf) ? libMap[tb.url] : null;
+          var kind = (liveMat && liveMat.kind) || "";
+          var online = tb && tb.url && !isPdf && (kind === "course" || kind === "site" || kind === "video" || /khanacademy|ck12|smartedu|ocw\.mit|mit\.edu|youtube|bilibili/i.test(tb.url));  // 在线课程/网站:正文抓不全,只在线看
+          var lit = (tb && tb.url && !isPdf && !online) ? libMap[tb.url] : null;
+          var litOk = lit && lit.status === "ok" && (lit.chars || 0) >= 1200;   // 太短=没抓到正文,不当本地副本
           return html`<div style="font-size:12px;color:#9a8a6f;margin-bottom:14px;padding:8px 10px;background:#FBF6EC;border-radius:8px;display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;">
             <span style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">📕 课本:${tb ? html`<b style="color:#5a4e3c;">${tb.title}</b>${tb.auto ? html`<span style="color:#bbab8c;font-size:11px;"> 默认</span>` : null}` : html`<span style="color:#bbab8c;">未选</span>`}</span>
             <span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { setPickTb(true); }}>${tb ? "换" : "选 / 生成"} →</span>
@@ -690,10 +705,11 @@
               <span style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;">
                 ${fileId ? html`<a class="lnk" style="color:#1f7a44;font-weight:600;" href=${C.fileUrl(fileId)} target="_blank" rel="noopener">📖 阅读课本(本地)↗</a>`
                   : isPdf ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { cacheAndRead(tb); }}>${busy[tb.url] ? "下载中…(约十几MB)" : "📖 下载并阅读 PDF"}</span>` : null}
-                ${(lit && lit.status === "ok") ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { openReader(lit.id); }}>📄 本地副本(${lit.chars}字)</span>` : null}
+                ${litOk ? html`<span class="lnk" style="color:#1f7a44;cursor:pointer;font-weight:600;" onClick=${function () { openReader(lit.id); }}>📄 本地副本(${lit.chars}字)</span>` : null}
                 ${tb.url ? html`<a class="lnk" style="color:#2c5fb3;font-weight:600;" href=${tb.url} target="_blank" rel="noopener">🔗 ${isPdf ? "在 GitHub 打开" : "在线打开"} ↗</a>` : null}
-                ${(tb.url && !isPdf && !(lit && lit.status === "ok")) ? html`<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { if (!busy[tb.url]) cacheTb(tb); }}>${busy[tb.url] ? "抓取中…" : "📥 缓存到本地"}</span>` : null}
-                ${!tb.url && !fileId ? html`<span style="color:#bbab8c;">这本只有书名(如纸质书),没有可打开的链接 —— 点「换」选带链接的版本(如可汗学院/CK-12),或让导师补链接</span>` : null}
+                ${online ? html`<span style="color:#bbab8c;">在线课程/网站,直接在线浏览(正文不适合本地缓存)</span>` : null}
+                ${(tb.url && !isPdf && !online && !litOk) ? html`<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { if (!busy[tb.url]) cacheTb(tb); }}>${busy[tb.url] ? "抓取中…" : "📥 缓存到本地"}</span>` : null}
+                ${!tb.url && !fileId ? html`<span style="color:#bbab8c;">这本只有书名(如纸质书),没有可打开的链接 —— 点「换」选带链接的版本,或让导师补链接</span>` : null}
               </span>` : null}
           </div>`;
         })()}
