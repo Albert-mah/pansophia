@@ -20,7 +20,7 @@
  */
 window.STUDY_PROFILES = {
   siyu: {
-    name: "Siyu", short: "Siyu", icon: "🎯", color: "#6b4fd8",
+    name: "Siyu", short: "Siyu", icon: "SY", color: "#6b4fd8",
     desc: "高考备考（物化生方向）",
     hosts: ["study", "localhost", "127.0.0.1"],
     showQuiz: true,
@@ -32,7 +32,7 @@ window.STUDY_PROFILES = {
     }
   },
   "ma-huan": {
-    name: "Ma Huan", short: "Ma Huan", icon: "🧭", color: "#e07b39",
+    name: "Ma Huan", short: "Ma Huan", icon: "MH", color: "#e07b39",
     desc: "终身学习 · 日语体系 + 英语(托福) + 各科高阶",
     hosts: ["mahuanx"],
     showQuiz: true,
@@ -44,7 +44,7 @@ window.STUDY_PROFILES = {
     }
   },
   mahuan: {
-    name: "Jiahuan", short: "Jiahuan", icon: "🚀", color: "#16a085",
+    name: "Jiahuan", short: "Jiahuan", icon: "JH", color: "#16a085",
     desc: "六年级 · 小升初 · 英语为主",
     hosts: ["mahuan", "jiahuan"],
     showQuiz: true,

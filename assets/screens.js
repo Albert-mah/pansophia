@@ -212,9 +212,11 @@
     var lib0 = useState({}); var libMap = lib0[0], setLibMap = lib0[1];   // url -> {id,status,chars}
     var rd0 = useState(null); var reader = rd0[0], setReader = rd0[1];
     var bz0 = useState({}); var busy = bz0[0], setBusy = bz0[1];
+    var mt0 = useState(null); var mats = mt0[0], setMats = mt0[1];   // 课本/教材库
     useEffect(function () {
       if (!id) return; var alive = true;
       C.libList(id).then(function (items) { if (!alive) return; var m = {}; items.forEach(function (it) { m[it.url] = it; }); setLibMap(m); });
+      C.materialsFor(id).then(function (items) { if (alive) setMats(items); });
       return function () { alive = false; };
     }, [id]);
     function openReader(itId) { setReader({ loading: true }); C.libItem(itId).then(function (it) { setReader(it || { error: true }); }); }
@@ -257,6 +259,21 @@
         </div>
 
         <div style="display:flex;flex-direction:column;gap:22px;">
+          ${mats == null ? null : mats.length ? html`<div class="pan-panel"><h2 style="font-family:var(--serif);font-size:18px;font-weight:700;margin:0 0 4px;">📕 课本 / 教材</h2>
+            <div style="font-size:12px;color:#9a8a6f;margin-bottom:10px;">这门课以什么为主。官方 / 权威优先;AI 生成的会标注并附来源。</div>
+            ${mats.map(function (m, i) {
+              var au = m.authority === "official" ? ["官方", "#3f8a52", "#eef7f0"] : m.authority === "authoritative" ? ["权威参考", "#2c5fb3", "#eaf1fb"] : ["AI生成", "#a86a00", "#FBF4E6"];
+              return html`<div key=${i} style="padding:9px 0;border-bottom:1px solid #F4ECDC;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pan-pill" style=${"color:" + au[1] + ";background:" + au[2] + ";"}>${au[0]}</span>${m.edition ? html`<span style="font-size:11.5px;color:#9a8a6f;">${m.edition}</span>` : null}</div>
+                <div style="font-size:13.5px;font-weight:600;margin-top:4px;">${m.url ? html`<a href=${m.url} target="_blank" rel="noopener">${m.title} ↗</a>` : m.title}</div>
+                ${m.note ? html`<div style="font-size:12px;color:#9a8a6f;margin-top:2px;">${m.note}</div>` : null}
+                ${(m.refs && m.refs.length) ? html`<div style="font-size:11.5px;color:#bbab8c;margin-top:3px;">来源:${m.refs.map(function (rf, j) { return html`<span key=${j}>${j ? "、" : ""}${rf.url ? html`<a href=${rf.url} target="_blank" rel="noopener">${rf.name || rf.url}</a>` : (rf.name || "")}</span>`; })}</div>` : null}
+              </div>`;
+            })}
+            <div style="margin-top:12px;"><span class="pan-btn ghost sm" onClick=${function () { C.sendMessage({ kind: "ask", text: "请帮「" + d.name + "」选定或生成课本(优先官方 / 权威,注明来源)。", context: { discId: id, disc: d.name } }).then(function () { app.go("messages"); }); }}>✉️ 请导师选/生成课本</span></div>
+          </div>` : html`<div class="pan-panel"><h2 style="font-family:var(--serif);font-size:18px;font-weight:700;margin:0 0 6px;">📕 课本 / 教材</h2>
+            <div style="font-size:12.5px;color:#9a8a6f;margin-bottom:10px;">还没挂课本。选一本权威课本(人教 / 苏教…)或让 AI 按权威资料生成一版,都会注明来源。</div>
+            <span class="pan-btn grad sm" onClick=${function () { C.sendMessage({ kind: "ask", text: "请帮「" + d.name + "」选定或生成课本(优先官方 / 权威,注明来源)。", context: { discId: id, disc: d.name } }).then(function () { app.go("messages"); }); }}>✉️ 请导师选/生成课本</span></div>`}
           ${progs.length ? html`<div class="pan-panel"><h2 style="font-family:var(--serif);font-size:18px;font-weight:700;margin:0 0 6px;">🎓 名校培养方案</h2><div style="font-size:12px;color:#9a8a6f;margin-bottom:8px;">质量标:顶尖 / 很强 / 可参考</div>
             ${progs.map(function (p, i) {
               var lit = p.url ? libMap[p.url] : null;
@@ -937,20 +954,23 @@
   var AVATAR_COLOR = ["#B6532F", "#C8852E", "#6E7A4F", "#3b6fe0", "#8e44ad", "#16a085", "#e2524a", "#e67e22", "#27ae60", "#6b4fd8", "#0e7490", "#c0392b"];
   function Avatar(p) {
     var size = p.size || 44;
-    return html`<div style=${"width:" + size + "px;height:" + size + "px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:" + Math.round(size * 0.5) + "px;background:linear-gradient(135deg," + (p.color || "#C8852E") + ",#B6532F);color:#fff;box-shadow:inset 0 -2px 6px rgba(0,0,0,.12);"}>${p.icon || (p.name || "?")[0]}</div>`;
+    var ic = p.icon || C.initials(p.name);
+    var isText = /^[A-Za-z]{1,3}$/.test(ic);
+    var fs = isText ? Math.round(size * 0.4) : Math.round(size * 0.5);
+    return html`<div style=${"width:" + size + "px;height:" + size + "px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;text-transform:uppercase;letter-spacing:" + (isText ? ".5px" : "0") + ";font-size:" + fs + "px;background:linear-gradient(135deg," + (p.color || "#C8852E") + ",#B6532F);color:#fff;box-shadow:inset 0 -2px 6px rgba(0,0,0,.12);"}>${ic}</div>`;
   }
   function UsersScreen() {
     var app = useApp();
     var ed0 = useState(null); var edit = ed0[0], setEdit = ed0[1];
     var bz0 = useState(false); var busy = bz0[0], setBusy = bz0[1];
     var cur = C.userKey(), us = C.users();
-    function openNew() { setEdit({ name: "", icon: "🧑", color: AVATAR_COLOR[us.length % AVATAR_COLOR.length], blurb: "" }); }
+    function openNew() { setEdit({ name: "", icon: "", color: AVATAR_COLOR[us.length % AVATAR_COLOR.length], blurb: "" }); }
     function openEdit(u) { setEdit({ key: u.key, name: u.name, icon: u.icon || "🧑", color: u.color || "#C8852E", blurb: u.blurb || "" }); }
     function set(k, v) { setEdit(function (e) { var o = Object.assign({}, e); o[k] = v; return o; }); }
     function save() {
       if (!edit.name.trim()) { window.alert("请填名字"); return; }
       setBusy(true);
-      C.saveUser({ key: edit.key, name: edit.name.trim(), icon: edit.icon, color: edit.color, blurb: edit.blurb.trim() }).then(function (r) {
+      C.saveUser({ key: edit.key, name: edit.name.trim(), icon: edit.icon || C.initials(edit.name), color: edit.color, blurb: edit.blurb.trim() }).then(function (r) {
         setBusy(false);
         if (r && r.ok) { var wasNew = !edit.key; setEdit(null); if (wasNew && r.key) app.switchUser(r.key); else app.refresh(); }
         else window.alert("保存失败");
@@ -990,7 +1010,8 @@
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">${html`<${Avatar} icon=${edit.icon} color=${edit.color} name=${edit.name} size=${60} />`}
             <input value=${edit.name} onInput=${function (e) { set("name", e.target.value); }} placeholder="名字" style="flex:1;border:1px solid #EBDEC8;border-radius:9px;padding:10px;font-family:var(--sans);font-size:15px;" /></div>
           <input value=${edit.blurb} onInput=${function (e) { set("blurb", e.target.value); }} placeholder="一句话简介(如:高三冲刺 / 三年级)" style="width:100%;border:1px solid #EBDEC8;border-radius:9px;padding:9px 10px;margin-bottom:16px;font-family:var(--sans);font-size:13.5px;" />
-          <div class="pan-eyebrow" style="margin-bottom:8px;">头像</div>
+          <div class="pan-eyebrow" style="margin-bottom:8px;">头像 — 首字母(留空默认取名字)或选一个图标</div>
+          <input value=${/^[A-Za-z]{1,3}$/.test(edit.icon) ? edit.icon : ""} onInput=${function (e) { set("icon", e.target.value.toUpperCase().slice(0, 3)); }} placeholder=${"首字母,如 " + (C.initials(edit.name) || "SY")} maxlength="3" style="width:140px;border:1px solid #EBDEC8;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-family:var(--sans);font-size:14px;text-transform:uppercase;letter-spacing:1px;" />
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;max-height:148px;overflow:auto;">${AVATAR_EMOJI.map(function (em) { return html`<span key=${em} onClick=${function () { set("icon", em); }} style=${"width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;background:" + (edit.icon === em ? "#F4EAD8" : "#FBF6EC") + ";box-shadow:" + (edit.icon === em ? "0 0 0 2px " + edit.color : "inset 0 0 0 1px #EEE3CF") + ";"}>${em}</span>`; })}</div>
           <div class="pan-eyebrow" style="margin-bottom:8px;">颜色</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">${AVATAR_COLOR.map(function (c) { return html`<span key=${c} onClick=${function () { set("color", c); }} style=${"width:26px;height:26px;border-radius:50%;cursor:pointer;background:" + c + ";box-shadow:" + (edit.color === c ? "0 0 0 2px #fff,0 0 0 4px " + c : "none") + ";"}></span>`; })}</div>

@@ -69,6 +69,13 @@ window.Core = (function () {
     return us[0] ? us[0].key : "siyu";
   }
   function user() { var k = userKey(); return users().filter(function (u) { return u.key === k; })[0] || { key: k, name: k, icon: "🙂", color: "#B6532F" }; }
+  // 姓名 → 头像首字母(两词取首字母 / 单拉丁词取前两位 / 中文取前两字)
+  function initials(name) {
+    name = String(name || "").trim(); if (!name) return "?";
+    var w = name.split(/\s+/);
+    if (w.length >= 2) return (w[0].charAt(0) + w[1].charAt(0)).toUpperCase();
+    return /^[A-Za-z]/.test(name) ? name.slice(0, 2).toUpperCase() : name.slice(0, 2);
+  }
 
   // 水合:拉用户列表 + 当前用户全部状态。app 在启动/切换用户时 await。
   function hydrate() {
@@ -82,7 +89,7 @@ window.Core = (function () {
   function addUser(name) {
     name = (name || "").trim(); if (!name) return Promise.resolve(null);
     var palette = ["#B6532F", "#C8852E", "#6E7A4F", "#9c7a3d", "#5e6b6e"];
-    var body = { name: name, icon: "🧑", color: palette[(users().length) % palette.length], blurb: "新学习者" };
+    var body = { name: name, icon: initials(name), color: palette[(users().length) % palette.length], blurb: "新学习者" };
     return fetch("/api/users", { method: "POST", headers: { "Content-Type": "application/json", "X-Write-Token": WRITE_TOKEN }, body: JSON.stringify(body) })
       .then(function (r) { return r.json(); })
       .then(function (r) { if (r && r.ok && r.key) { if (_users) _users.push(Object.assign({ key: r.key }, body)); return r.key; } return null; })
@@ -115,6 +122,12 @@ window.Core = (function () {
     qs.push("limit=" + (o.limit || 100));
     return apiGet("/api/wrongbook?" + qs.join("&")).then(function (r) { return (r && r.questions) || []; }).catch(function () { return []; });
   }
+  // 课程教材 / 课本库
+  function materialsFor(disc, scope, edition) {
+    var qs = []; if (disc) qs.push("disc=" + encodeURIComponent(disc)); if (scope) qs.push("scope=" + encodeURIComponent(scope)); if (edition) qs.push("edition=" + encodeURIComponent(edition));
+    return apiGet("/api/materials?" + qs.join("&")).then(function (r) { return (r && r.items) || []; }).catch(function () { return []; });
+  }
+  function saveMaterial(o) { return apiPost("/api/materials", o); }
 
   /* ---------------- 用户态存储(读缓存 / 写直达 DB) ---------------- */
   function store(name, fallback) { return (_cache && name in _cache && _cache[name] != null) ? _cache[name] : fallback; }
@@ -677,9 +690,10 @@ window.Core = (function () {
   return {
     esc: esc, uniqBy: uniqBy, SLOTS: SLOTS, HEAT_COLORS: HEAT_COLORS, CATS: CATS, SUBJECTS: SUBJECTS, SCOPES: SCOPES,
     hydrate: hydrate, users: users, user: user, userKey: userKey, switchUser: switchUser, addUser: addUser,
-    refreshUsers: refreshUsers, saveUser: saveUser, deleteUser: deleteUser,
+    refreshUsers: refreshUsers, saveUser: saveUser, deleteUser: deleteUser, initials: initials,
     fetchMessages: fetchMessages, sendMessage: sendMessage, messageUpdate: messageUpdate,
     questionsFor: questionsFor, recordAnswer: recordAnswer, wrongbookFetch: wrongbookFetch,
+    materialsFor: materialsFor, saveMaterial: saveMaterial,
     uploadFile: uploadFile, fileUrl: fileUrl,
     libList: libList, libItem: libItem, cacheUrl: cacheUrl,
     store: store, save: save, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc,

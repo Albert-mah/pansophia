@@ -81,7 +81,7 @@
           <div class="pan-btn ink pill" style=${{ fontWeight: 700 }} onClick=${function () { app.go("points"); }}><span style=${{ color: "#C8852E", fontSize: "14px" }}>⬡</span> ${pts.toLocaleString()}</div>
           <div class="pan-offline pan-hide-sm">🔥 ${st.streak || 0} 天</div>
           <div class="pan-avatar" title=${u.name + " · 切换用户"} onClick=${function () { app.toggleUser(); }}
-            style=${{ background: "linear-gradient(135deg," + (u.color || "#C8852E") + ",#B6532F)" }}>${u.icon || u.name[0]}</div>
+            style=${{ background: "linear-gradient(135deg," + (u.color || "#C8852E") + ",#B6532F)", fontSize: /^[A-Za-z]{1,3}$/.test(u.icon || "") ? "15px" : "20px", fontWeight: 700, letterSpacing: ".5px" }}>${u.icon || C.initials(u.name)}</div>
         </div>
         ${app.menuOpen ? html`<${MegaMenu} />` : null}
         ${app.userPop ? html`<${UserPop} />` : null}
@@ -115,7 +115,7 @@
       <div class="pan-userpop">
         ${C.users().map(function (u) {
           return html`<div key=${u.key} class=${"u" + (u.key === cur ? " on" : "")} onClick=${function () { app.switchUser(u.key); }}>
-            <div class="av" style=${{ background: "linear-gradient(135deg," + (u.color || "#C8852E") + ",#B6532F)" }}>${u.icon || u.name[0]}</div>
+            <div class="av" style=${{ background: "linear-gradient(135deg," + (u.color || "#C8852E") + ",#B6532F)", fontSize: /^[A-Za-z]{1,3}$/.test(u.icon || "") ? "13px" : "", fontWeight: 700, letterSpacing: ".5px" }}>${u.icon || C.initials(u.name)}</div>
             <div style=${{ flex: 1 }}><div style=${{ fontWeight: 600, fontSize: "14px" }}>${u.name}</div>
             <div style=${{ fontSize: "11.5px", color: "#9a8a6f" }}>${u.blurb || ""}</div></div>
             ${u.key === cur ? html`<span style=${{ color: "#6E7A4F" }}>✓</span>` : null}</div>`;

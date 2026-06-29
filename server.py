@@ -148,7 +148,10 @@ def init_db():
                 CREATE TABLE IF NOT EXISTS course_materials(
                     id serial PRIMARY KEY, disc_id text, scope text, edition text,
                     kind text, title text, url text, file_id text, note text,
+                    authority text, refs jsonb,
                     created_at timestamptz NOT NULL DEFAULT now());""")
+            cur.execute("ALTER TABLE course_materials ADD COLUMN IF NOT EXISTS authority text;")   # 官方/权威参考/AI生成
+            cur.execute("ALTER TABLE course_materials ADD COLUMN IF NOT EXISTS refs jsonb;")        # 参考来源列表
             cur.execute("CREATE INDEX IF NOT EXISTS idx_materials_disc ON course_materials(disc_id, scope, edition);")
             # 给 AI 导师的统一异步消息/任务队列(选课通知、完成习题、错题扩展、随手提问…)。
             # 本地 CLI agent 轮询处理,逐条 status: new→seen→doing→done,可回 reply。
@@ -159,9 +162,9 @@ def init_db():
                     created_at bigint, processed_at bigint);""")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_messages_status ON messages(status, user_key);")
             cur.execute("""INSERT INTO users(key,name,icon,color,blurb,seed) VALUES
-                ('siyu','Siyu','🧑‍🎓','#6b4fd8','高考备考(物化生方向)',true),
-                ('ma-huan','Ma Huan','🧑','#e07b39','终身学习 · 日语+托福+各科高阶',true),
-                ('mahuan','Jiahuan','🧒','#16a085','六年级 · 小升初 · 英语为主',true)
+                ('siyu','Siyu','SY','#6b4fd8','高考备考(物化生方向)',true),
+                ('ma-huan','Ma Huan','MH','#e07b39','终身学习 · 日语+托福+各科高阶',true),
+                ('mahuan','Jiahuan','JH','#16a085','六年级 · 小升初 · 英语为主',true)
                 ON CONFLICT (key) DO NOTHING;""")
     finally:
         conn.close()
@@ -674,7 +677,7 @@ class Handler(SimpleHTTPRequestHandler):
         if disc: where.append("disc_id=%s"); args.append(disc)
         if scope: where.append("scope=%s"); args.append(scope)
         if edition: where.append("edition=%s"); args.append(edition)
-        sql = "SELECT id,disc_id,scope,edition,kind,title,url,file_id,note FROM course_materials"
+        sql = "SELECT id,disc_id,scope,edition,kind,title,url,file_id,note,authority,refs FROM course_materials"
         if where: sql += " WHERE " + " AND ".join(where)
         sql += " ORDER BY id DESC LIMIT 200"
         try:
@@ -694,10 +697,11 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             conn = pg()
             with conn, conn.cursor() as cur:
-                cur.execute("""INSERT INTO course_materials(disc_id,scope,edition,kind,title,url,file_id,note)
-                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
+                cur.execute("""INSERT INTO course_materials(disc_id,scope,edition,kind,title,url,file_id,note,authority,refs)
+                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
                     (d.get("discId"), d.get("scope"), d.get("edition"), d.get("kind") or "link",
-                     str(d["title"])[:300], d.get("url"), d.get("fileId"), str(d.get("note") or "")[:1000]))
+                     str(d["title"])[:300], d.get("url"), d.get("fileId"), str(d.get("note") or "")[:1000],
+                     d.get("authority") or "generated", json.dumps(d.get("refs") or [], ensure_ascii=False)))
                 rid = cur.fetchone()[0]
             conn.close()
             return self._json(200, {"ok": True, "id": rid})
