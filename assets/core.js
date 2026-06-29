@@ -128,6 +128,13 @@ window.Core = (function () {
     return apiGet("/api/materials?" + qs.join("&")).then(function (r) { return (r && r.items) || []; }).catch(function () { return []; });
   }
   function saveMaterial(o) { return apiPost("/api/materials", o); }
+  // 每门课选定的课本(存 user_state.textbooks,键 discId|scope)
+  function courseTextbook(discId, scope) { return (store("textbooks", {}) || {})[discId + "|" + (scope || "")] || null; }
+  function setCourseTextbook(discId, scope, m) {
+    var t = Object.assign({}, store("textbooks", {})), k = discId + "|" + (scope || "");
+    if (m) t[k] = { materialId: m.id, edition: m.edition || "", title: m.title, authority: m.authority }; else delete t[k];
+    save("textbooks", t);
+  }
 
   /* ---------------- 用户态存储(读缓存 / 写直达 DB) ---------------- */
   function store(name, fallback) { return (_cache && name in _cache && _cache[name] != null) ? _cache[name] : fallback; }
@@ -693,7 +700,7 @@ window.Core = (function () {
     refreshUsers: refreshUsers, saveUser: saveUser, deleteUser: deleteUser, initials: initials,
     fetchMessages: fetchMessages, sendMessage: sendMessage, messageUpdate: messageUpdate,
     questionsFor: questionsFor, recordAnswer: recordAnswer, wrongbookFetch: wrongbookFetch,
-    materialsFor: materialsFor, saveMaterial: saveMaterial,
+    materialsFor: materialsFor, saveMaterial: saveMaterial, courseTextbook: courseTextbook, setCourseTextbook: setCourseTextbook,
     uploadFile: uploadFile, fileUrl: fileUrl,
     libList: libList, libItem: libItem, cacheUrl: cacheUrl,
     store: store, save: save, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc,

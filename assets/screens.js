@@ -550,6 +550,9 @@
     var app = useApp();
     var did = app.params.disc;
     var selState = useState(null); var selRef = selState[0], setSel = selState[1];
+    var tb0 = useState(false); var pickTb = tb0[0], setPickTb = tb0[1];
+    var mt0 = useState(null); var mats = mt0[0], setMats = mt0[1];
+    useEffect(function () { if (did) C.materialsFor(did).then(setMats); }, [did]);
     if (!did) return html`<${CourseList} />`;               // 先进课程表
     var skelAll = C.skeletonForDiscipline(did);
     var skelList = skelAll.filter(courseScopeOK); if (!skelList.length) skelList = skelAll;
@@ -597,7 +600,8 @@
         <div style="font-size:12px;color:#9a8a6f;margin-bottom:6px;"><span class="lnk" style="cursor:pointer;" onClick=${function () { app.go("course"); }}>我的课程</span> › ${(d && d.name) || sc.name}</div>
         <h2 style="font-family:var(--serif);font-size:20px;font-weight:700;margin:0 0 4px;">${(d && d.name) || sc.name}${entry.scope ? html` <span style="font-size:13px;font-weight:600;color:#9a8a6f;">· ${(C.SCOPES[entry.scope] || {}).name || entry.scope}</span>` : ""}</h2>
         <div style="font-size:12.5px;color:#9a8a6f;margin-bottom:14px;">${allPts.length} 个考点 · 已填 ${cv.done}</div>
-        ${html`<${Bar} pct=${cv.pct} color="#C8852E" />`}<div style="font-size:11.5px;color:#9a8a6f;margin:6px 0 14px;">已完成 ${cv.pct}%</div>
+        ${html`<${Bar} pct=${cv.pct} color="#C8852E" />`}<div style="font-size:11.5px;color:#9a8a6f;margin:6px 0 12px;">已完成 ${cv.pct}%</div>
+        ${(function () { var tb = C.courseTextbook(did, entry.scope); return html`<div style="font-size:12px;color:#9a8a6f;margin-bottom:14px;padding:8px 10px;background:#FBF6EC;border-radius:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">📕 课本:${tb ? html`<b style="color:#5a4e3c;">${tb.title}</b>` : html`<span style="color:#bbab8c;">未选</span>`}<span class="lnk" style="color:#B6532F;cursor:pointer;margin-left:auto;" onClick=${function () { setPickTb(true); }}>${tb ? "换" : "选 / 生成"} →</span></div>`; })()}
         ${(entry.topics || []).map(function (t, ti) {
           return html`<div key=${ti}><div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#bbab8c;text-transform:uppercase;margin:14px 0 8px;">${t.title}</div>
             ${(t.points || []).map(function (p, pi) {
@@ -618,6 +622,25 @@
         ${noteList.length ? noteList.map(function (n, i) { return html`<div key=${i} style="background:#fff;border:1px solid #F0E6D2;border-radius:12px;padding:14px;margin-bottom:10px;"><div style="font-size:13px;line-height:1.65;color:#3a3023;">${n.body || n.title}</div></div>`; }) : html`<div style="font-size:12.5px;color:#9a8a6f;">还没有笔记。</div>`}
         <textarea class="pan-note-input" placeholder="在这里随手记…(回车保存)" style="margin-top:10px;" onKeyDown=${function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveCourseNote(e.target.value); e.target.value = ""; } }}></textarea>
       </div>
+      ${pickTb ? html`<div class="pan-modal-mask" onClick=${function (e) { if (e.target.classList.contains("pan-modal-mask")) setPickTb(false); }}>
+        <div class="pan-modal">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><h2 style="font-family:var(--serif);margin:0;font-size:19px;">选课本 · ${(d && d.name) || ""}${entry.scope ? " · " + ((C.SCOPES[entry.scope] || {}).name || entry.scope) : ""}</h2><span onClick=${function () { setPickTb(false); }} style="cursor:pointer;color:#9a8a6f;font-size:20px;">×</span></div>
+          <p style="font-size:12.5px;color:#8a7a62;margin:0 0 14px;">选一本作为这门课的主用课本(官方 / 权威优先);AI 排课、出题以它为准。</p>
+          ${mats == null ? html`<div class="pan-empty">加载中…</div>`
+            : !mats.length ? html`<div class="pan-empty" style="padding:24px;">还没有可选课本。<br/><span class="pan-btn grad" style="margin-top:12px;" onClick=${function () { setPickTb(false); C.sendMessage({ kind: "ask", text: "请帮「" + ((d && d.name) || "") + "」选定或生成课本(优先官方 / 权威,注明来源)。", context: { discId: did, scope: entry.scope } }).then(function () { app.go("messages"); }); }}>✉️ 请导师选 / 生成课本</span></div>`
+            : html`<div><div style="display:flex;flex-direction:column;gap:10px;max-height:50vh;overflow:auto;">${mats.map(function (m, i) {
+                var au = m.authority === "official" ? ["官方", "#3f8a52", "#eef7f0"] : m.authority === "authoritative" ? ["权威参考", "#2c5fb3", "#eaf1fb"] : ["AI生成", "#a86a00", "#FBF4E6"];
+                var curtb = C.courseTextbook(did, entry.scope); var on = curtb && curtb.materialId === m.id;
+                return html`<div key=${i} class="pan-row bordered" style=${"padding:11px 13px;border-radius:11px;cursor:pointer;" + (on ? "box-shadow:0 0 0 2px #6E7A4F;" : "")} onClick=${function () { C.setCourseTextbook(did, entry.scope, m); setPickTb(false); app.refresh(); }}>
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pan-pill" style=${"color:" + au[1] + ";background:" + au[2] + ";"}>${au[0]}</span>${m.edition ? html`<span style="font-size:11.5px;color:#9a8a6f;">${m.edition}</span>` : null}${on ? html`<span style="font-size:11.5px;color:#6E7A4F;margin-left:auto;">✓ 当前</span>` : null}</div>
+                  <div style="font-size:13.5px;font-weight:600;margin-top:4px;">${m.title}</div>
+                  ${m.note ? html`<div style="font-size:12px;color:#9a8a6f;margin-top:2px;">${m.note}</div>` : null}</div>`;
+              })}</div>
+              <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+                ${C.courseTextbook(did, entry.scope) ? html`<span class="lnk" style="font-size:12px;color:#b09a7a;cursor:pointer;" onClick=${function () { C.setCourseTextbook(did, entry.scope, null); setPickTb(false); app.refresh(); }}>清除选择</span>` : html`<span></span>`}
+                <span class="pan-btn ghost sm" onClick=${function () { setPickTb(false); C.sendMessage({ kind: "ask", text: "请帮「" + ((d && d.name) || "") + "」再选 / 生成一版课本(优先官方 / 权威,注明来源)。", context: { discId: did, scope: entry.scope } }).then(function () { app.go("messages"); }); }}>✉️ 让导师选 / 生成另一版</span>
+              </div></div>`}
+        </div></div>` : null}
     </div>`;
   }
   function ResRow(ic, t, sub) {
