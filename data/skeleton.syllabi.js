@@ -118,14 +118,14 @@ window.STUDY_SKELETON = (window.STUDY_SKELETON || []).concat([
   ] },
   { subject: "english", scope: "chuzhong", discipline: "foreign-lit", dir: "新概念英语", topics: [
     { title: "词汇 · 入门", points: [
-      { title: "26个字母与音标拼读", status: "todo" },
-      { title: "问候与课堂用语", status: "todo" },
+      { title: "26个字母与音标拼读", ref: "mh-en-alphabet" },
+      { title: "问候与课堂用语", ref: "mh-en-greetings" },
       { title: "生活高频词:家庭·学校·食物", status: "todo" } ] },
     { title: "语法 · 基础句型", points: [
       { title: "be 动词 am/is/are", ref: "mh-en-be-verb" },
       { title: "this/that/these/those", ref: "mh-en-this-that" },
       { title: "名词单复数", ref: "mh-en-nouns-plural" },
-      { title: "人称代词与物主代词", status: "todo" } ] },
+      { title: "人称代词与物主代词", ref: "mh-en-pronouns" } ] },
     { title: "语法 · 时态", points: [
       { title: "一般现在时", ref: "mh-en-present-simple" },
       { title: "现在进行时", ref: "mh-en-present-continuous" },
@@ -133,7 +133,7 @@ window.STUDY_SKELETON = (window.STUDY_SKELETON || []).concat([
       { title: "一般将来时 will", ref: "mh-en-future-tense" },
       { title: "形容词比较级", ref: "mh-en-comparatives" } ] },
     { title: "句子与文章", points: [
-      { title: "简单句结构(主谓宾)", status: "todo" },
+      { title: "简单句结构(主谓宾)", ref: "mh-en-sentence-svo" },
       { title: "一般疑问句与简答", ref: "mh-en-questions" },
       { title: "短文阅读:看图理解", status: "todo" } ] },
     { title: "习题与运用", points: [
