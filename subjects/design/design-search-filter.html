@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>搜索与筛选 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-search-filter"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">搜索与筛选</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>搜索与筛选</h1>
+      <div class="meta-row" data-meta>🎮 交互 · 难度 ●●○ · 落在后台列表、表格的搜索框与筛选器</div>
+    </header>
+
+    <p>后台系统里几乎每个列表页都有同一个难题:一张表里几百上千条数据,用户怎么快速找到他要的那几条。解决它的工具就三样——<b>搜索框、筛选器、排序</b>。听起来简单,但做后台/管理系统时,这三样最容易做歪:搜索框藏在角落、筛了之后看不出自己筛了什么、一刷新条件全没了。这一页把它们各自的分工、设计要点和常见坑讲清楚,例子全落在你天天看的「客户列表、订单表格」上。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 一句话先抓住分工</div>
+      <p style="margin:6px 0"><b>搜索</b>=用户脑子里已经有个关键词,想直接命中它(某个客户名、某个编号);<b>筛选</b>=用户不知道具体是哪条,只知道按某个维度收窄(只看华东的、只看活跃的);<b>排序</b>=不改变有哪些,只调先后顺序(按金额从高到低)。三件事经常被混在一起做,结果谁都没做好。先把它们拆开,再组合。</p>
+    </div>
+
+    <h2>1. 搜索、筛选、排序,别混成一团</h2>
+    <p>这三样解决的是不同的问题,放错位置用户就会别扭。</p>
+    <ul>
+      <li><b>搜索</b>——自由输入,模糊匹配。用户心里有目标:"我要找那个叫『王海』的客户"。给一个输入框,边打边找。</li>
+      <li><b>筛选</b>——按预设维度收窄。用户没有具体目标,只有范围:"给我看华东、状态是活跃的客户"。给一组可选的维度(地区、状态、标签),不是让他打字。</li>
+      <li><b>排序</b>——只换顺序,不删条目。"按成交金额从高到低排一下"。点表头或选下拉,列表里的条数一条不变。</li>
+    </ul>
+    <p>一个典型的 NocoBase 表格区块,这三样会同时出现:表格上方一个搜索框,旁边几个筛选 chips,表头点一下能升降序。它们是<b>叠加</b>关系——可以先搜「王」,再筛「华东」,再按金额排——而不是互相覆盖。这个"叠加"很关键,后面第 4 节会专门讲它最容易在哪里翻车。</p>
+
+    <h2>2. 搜索框:让人一眼看到、打了字就有反应</h2>
+    <p>搜索框是用户最先去找的东西,所以它的位置和反馈最不能含糊。</p>
+
+    <h3>位置要显眼</h3>
+    <p>搜索框放在<b>列表/表格正上方</b>,占一整行或半行宽,别缩成一个小图标藏进工具栏菜单里。后台用户一天要搜几十次,每次都先点开菜单再搜,会被烦死。</p>
+
+    <h3>即时搜索 vs 回车触发,看数据量选</h3>
+    <p>"边输入边出结果"(search-as-you-type)体验最顺,用户打一个字列表就收窄一截,很快就能看出该不该继续打。<b>但它不是无脑用的</b>:</p>
+    <ul>
+      <li>数据量小、前端能一次拿全(比如几百条已经在浏览器里):放心用即时搜索,在前端过滤,零延迟。</li>
+      <li>数据量大、每次搜索都要打后端接口:即时搜索会把请求打爆。这时要么<b>加防抖</b>(下面讲),要么干脆改成<b>回车 / 点按钮才查</b>,给用户一个明确的"我搜了"的动作。</li>
+    </ul>
+
+    <h3>即时搜索必须防抖</h3>
+    <p>"防抖"就是:用户在打字,先别急着查,<b>等他停下来 200~300 毫秒</b>再发起一次查询。否则输入「客户」两个字,会在「客」「客户」之间各查一次,白白多打一次后端,结果还可能因为先后返回顺序错乱而闪烁。本页底部的实验台就做了防抖,你可以连续快打感受一下。</p>
+
+    <h3>占位提示要写清能搜什么</h3>
+    <div class="box tip">
+      <div class="box-title">✅ 好的占位提示</div>
+      <p style="margin:6px 0">placeholder 写 <code>搜索客户名 / 电话 / 编号</code>。用户一看就知道这个框认哪些字段,不会拿订单号去搜一个只认名字的框。</p>
+    </div>
+    <div class="box warn">
+      <div class="box-title">⚠️ 偷懒的占位提示</div>
+      <p style="margin:6px 0">placeholder 只写 <code>搜索</code> 或 <code>请输入</code>。用户得自己猜:能搜名字吗?能搜手机号吗?支持模糊吗?猜错一次就对这个框失去信任,下次宁可手动一页页翻。</p>
+    </div>
+
+    <h3>空结果要给出路,不要只留白</h3>
+    <p>搜不到东西时,最差的做法是显示一片空白——用户分不清是"真没有"还是"页面挂了"。好的空结果会<b>说人话 + 给下一步</b>:"没找到包含『王海明』的客户。试试只搜一部分(比如『王海』),或检查有没有多打了字。"</p>
+
+    <h2>3. 筛选器:外露常用维度,且筛了要看得见</h2>
+
+    <h3>常用的外露,次要的收起来</h3>
+    <p>不要把十几个筛选维度全平铺出来,那等于没有重点。把<b>用得最多的 2~3 个维度做成一排可点的标签(chips)直接外露</b>(比如客户列表的「地区」「状态」),其余次要的收进一个「更多筛选」的弹层或抽屉。用户 80% 的需求靠外露那几个就解决了。</p>
+
+    <h3>多选还是单选,看维度性质</h3>
+    <ul>
+      <li><b>互斥的用单选</b>:一条记录的「状态」只能是活跃或流失之一,筛选时选了「活跃」就不该还能同时选「流失」(那等于没筛)。做成单选 chips,点一个亮一个。</li>
+      <li><b>可叠加的用多选</b>:「标签」一条记录可以同时有「大客户」「待回访」,用户也可能想看"大客户 <i>或</i> 待回访"的并集,这种做成多选。</li>
+    </ul>
+
+    <h3>已应用的筛选必须可见、可清除</h3>
+    <div class="box warn">
+      <div class="box-title">⚠️ 最常见的坑:筛完看不出筛了什么</div>
+      <p style="margin:6px 0">用户点了几下,列表变短了,但页面上<b>没有任何地方告诉他"当前正在按 华东 + 活跃 过滤"</b>。过一会儿他自己都忘了,看到列表里没有某个客户,以为系统丢数据了,其实只是被自己的筛选挡住了。这会直接引发"数据不见了"的误报工单。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 正确做法:filter chips + 清空</div>
+      <p style="margin:6px 0">把当前生效的每个条件,在列表上方排成一行小标签(filter chips):<code>地区:华东 ✕</code> <code>状态:活跃 ✕</code>。每个能单独点 ✕ 撤掉,旁边再放一个<b>「清空筛选」</b>一键还原。用户随时能看到"我现在被哪些条件框着",也能一步步松开。</p>
+    </div>
+
+    <h3>筛完实时告诉用户剩多少条</h3>
+    <p>每次筛选后,在显眼处更新一个计数:<b>显示 23 / 共 480 条</b>。这个数字让用户判断"筛得够不够狠"——还剩两百条说明条件太松,得再加一刀;只剩 0 条说明筛过头了,得松一点。没有这个数字,用户对自己离目标还有多远完全没数。</p>
+
+    <h2>4. 组合与状态:筛选条件要留得住</h2>
+    <p>搜索和筛选做对了单次体验,还有一层更隐蔽的体验:<b>条件能不能保留</b>。</p>
+
+    <h3>别一筛选就丢了搜索词</h3>
+    <p>用户先在搜索框打了「王」,再去点「华东」筛选——这两个条件应该<b>同时生效</b>(华东地区里名字带王的),而不是一点筛选就把搜索词清空、列表重新铺满。搜索和筛选是<b>与(AND)</b>的叠加,代码上要把它们当成同一组查询条件一起拼,而不是各管各的、互相覆盖。</p>
+
+    <h3>刷新、返回、分享都不该丢状态</h3>
+    <p>用户筛好了一屏,点进某条客户的详情看了看,<b>返回时筛选条件最好还在</b>,而不是回到一张白板从头再筛一次。更进一步,把筛选状态写进 URL 的 query 参数(<code>?region=华东&status=活跃</code>),这样刷新页面不丢,把链接发给同事,同事打开看到的是<b>同一个筛选视图</b>。后台系统里"把这个筛选结果发给老板看"是高频需求,URL 带状态能省掉大量截图和口头描述。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 搜索筛选自查清单</div>
+      <p style="margin:6px 0">下次做一个后台列表页,对着这几条过一遍:</p>
+      <p style="margin:6px 0">☐ 搜索框在列表正上方、足够显眼,没藏进菜单<br>
+      ☐ placeholder 写清了能搜哪些字段,不是光秃秃一个"搜索"<br>
+      ☐ 即时搜索做了防抖(或大数据量改成回车触发)<br>
+      ☐ 搜不到时有"说人话 + 给下一步"的空结果提示<br>
+      ☐ 最常用的 2~3 个维度外露成 chips,次要的收进"更多筛选"<br>
+      ☐ 当前生效的筛选以 filter chips 显示,可单独 ✕、可一键清空<br>
+      ☐ 筛选后实时显示"X / 共 Y 条"<br>
+      ☐ 搜索词和筛选条件是叠加,不互相覆盖<br>
+      ☐ 刷新 / 返回 / 分享 URL 不丢筛选状态<br>
+      ☐ 大数据量查询时有加载态,空结果区分"无匹配"和"可能打错"</p>
+    </div>
+
+    <h2>5. 性能与反馈:慢和空,都要给个交代</h2>
+    <p>前面讲的是"该有哪些功能",这一节讲"当它慢下来、当它什么都搜不到,界面怎么不让人慌"。</p>
+
+    <h3>大数据量要给加载态</h3>
+    <p>当搜索/筛选要走后端、一时半会儿回不来,别让列表区一片死寂。给一个<b>加载态</b>(骨架屏或转圈),明确告诉用户"在查了,等一下"。没有这个反馈,用户会以为点击没生效,于是疯狂重复点击,反而把请求叠得更多。</p>
+
+    <h3>空结果要分清两种"空"</h3>
+    <div class="box tip">
+      <div class="box-title">✅ 区分对待两种空</div>
+      <p style="margin:6px 0">• <b>条件太严,确实没有符合的</b>:提示"当前筛选下没有客户,试试放宽地区或状态条件",并把"清空筛选"按钮放在旁边。<br>
+      • <b>搜索词像是打错了</b>:提示"没找到『王海明明』,检查一下有没有多打字,或只搜一部分关键词"。</p>
+    </div>
+    <p>这两种空给用户的下一步动作完全不同:一个该去松筛选,一个该去改输入。混成同一句"暂无数据"就等于把判断负担全甩给用户。</p>
+
+    <div class="lab">
+      <div class="lab-title">🎮 实时筛选实验台</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">下面是一份模拟的「客户列表」。在搜索框里<b>边打边看</b>列表收窄(带防抖),点上面的<b>地区 / 状态</b> chips 实时过滤,选中的 chip 会高亮。中间那行<b>实时计数</b>告诉你筛剩多少条,「清空筛选」一键还原。感受一下:输入和点击之后,列表和计数是<b>立刻</b>变的。</p>
+
+      <div style="margin-top:16px">
+        <input id="sf-search" type="text" placeholder="🔍 搜索客户名 / 标签(边打边筛)"
+          style="width:100%; border:1px solid var(--border); background:var(--surface); color:var(--text);
+                 border-radius:999px; padding:12px 18px; font-size:1rem; outline:none">
+      </div>
+
+      <div style="margin-top:14px; display:flex; flex-direction:column; gap:10px">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+          <span style="font-weight:700; color:var(--text-soft); font-size:.88rem; width:48px">地区</span>
+          <div id="sf-region" style="display:flex; flex-wrap:wrap; gap:8px"></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+          <span style="font-weight:700; color:var(--text-soft); font-size:.88rem; width:48px">状态</span>
+          <div id="sf-status" style="display:flex; flex-wrap:wrap; gap:8px"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+                  padding:10px 14px; background:var(--bg); border-radius:var(--radius-sm)">
+        <span style="font-size:.95rem; color:var(--text-soft)">显示
+          <b id="sf-count" style="color:var(--accent); font-variant-numeric:tabular-nums">0</b>
+          / 共 <b id="sf-total" style="font-variant-numeric:tabular-nums">0</b> 条</span>
+        <button id="sf-clear" type="button"
+          style="margin-left:auto; border:1px solid var(--border); background:var(--surface); color:var(--text-soft);
+                 padding:6px 14px; border-radius:999px; font-size:.85rem; font-weight:700; cursor:pointer">清空筛选</button>
+      </div>
+
+      <div id="sf-list" style="margin-top:14px; display:flex; flex-direction:column; gap:8px"></div>
+    </div>
+
+    <h2>6. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 拿你自己的后台列表照一照</div>
+      <p style="margin:6px 0">打开你正在做的某个 NocoBase 列表/表格页,对着回答三个问题:</p>
+      <p style="margin:6px 0">1. 这张表里,用户<b>最常用来收窄</b>的是哪 2~3 个维度?(比如客户的「地区」「状态」、订单的「下单日期」「付款状态」)——这几个就该外露成 chips,而不是埋进"更多筛选"。</p>
+      <p style="margin:6px 0">2. 现在筛选之后,页面上<b>有没有一个地方显示"还剩多少条"</b>?如果没有,用户怎么知道筛得够不够狠?</p>
+      <p style="margin:6px 0">3. 筛完之后<b>看得出当前生效了哪些条件吗</b>?能单独撤掉某一个、能一键清空吗?如果不能,迟早会收到"数据怎么少了"的误报。</p>
+      <p style="margin:10px 0 2px; color:var(--text-soft); font-size:.9rem">把三个答案写下来,差哪条就补哪条。多数后台列表,补上"维度外露 + 实时计数 + 可见可清的 filter chips"这三件,可用性就上一个台阶。</p>
+    </div>
+
+    <p style="margin-top:14px">搜索负责"我知道找谁",筛选负责"我只知道范围",排序负责"换个顺序看"。把三者拆清楚、各自做到位,再让它们能叠加、能保留状态,一张几百上千条的后台表格就不再让人发怵了。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计:学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function(){
+    var searchEl = document.getElementById('sf-search');
+    var regionEl = document.getElementById('sf-region');
+    var statusEl = document.getElementById('sf-status');
+    var listEl   = document.getElementById('sf-list');
+    var countEl  = document.getElementById('sf-count');
+    var totalEl  = document.getElementById('sf-total');
+    var clearEl  = document.getElementById('sf-clear');
+    if(!searchEl || !listEl) return;
+
+    // —— 写死的模拟「客户列表」数据 ——
+    var CUSTOMERS = [
+      { name:'王海明',   region:'华东', status:'活跃', tags:['大客户','已签约'] },
+      { name:'李慧芬',   region:'华南', status:'流失', tags:['待回访'] },
+      { name:'张建国',   region:'华北', status:'活跃', tags:['大客户'] },
+      { name:'陈思远',   region:'华东', status:'潜在', tags:['新线索','待回访'] },
+      { name:'刘晓梅',   region:'西南', status:'活跃', tags:['老客户'] },
+      { name:'赵宇航',   region:'华南', status:'活跃', tags:['大客户','已签约'] },
+      { name:'孙丽娟',   region:'华北', status:'流失', tags:['待回访'] },
+      { name:'周伟强',   region:'华东', status:'活跃', tags:['老客户'] },
+      { name:'吴佳怡',   region:'西南', status:'潜在', tags:['新线索'] },
+      { name:'郑文博',   region:'华南', status:'流失', tags:['已签约'] },
+      { name:'冯海燕',   region:'华北', status:'活跃', tags:['大客户','老客户'] },
+      { name:'许志强',   region:'华东', status:'潜在', tags:['新线索'] },
+      { name:'何美玲',   region:'西南', status:'活跃', tags:['已签约'] },
+      { name:'马云飞',   region:'华南', status:'活跃', tags:['大客户','待回访'] }
+    ];
+
+    var REGIONS  = ['全部','华东','华南','华北','西南'];
+    var STATUSES = ['全部','活跃','流失','潜在'];
+
+    // 状态对应的颜色
+    var STATUS_COLOR = { '活跃':'#27ae60', '流失':'#e2524a', '潜在':'#e67e22' };
+
+    var state = { q:'', region:'全部', status:'全部' };
+
+    totalEl.textContent = CUSTOMERS.length;
+
+    // —— 生成一组单选 chips ——
+    function buildChips(box, values, groupKey){
+      values.forEach(function(v){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.dataset.value = v;
+        b.textContent = v;
+        b.style.cssText = 'border:1.5px solid var(--border); background:var(--surface); color:var(--text-soft);'
+          + 'padding:6px 14px; border-radius:999px; font-size:.85rem; font-weight:700; cursor:pointer; transition:all .12s';
+        b.addEventListener('click', function(){
+          state[groupKey] = v;
+          paintChips(box, groupKey);
+          render();
+        });
+        box.appendChild(b);
+      });
+      paintChips(box, groupKey);
+    }
+
+    // 高亮当前选中的 chip
+    function paintChips(box, groupKey){
+      Array.prototype.forEach.call(box.children, function(btn){
+        var on = btn.dataset.value === state[groupKey];
+        btn.style.background  = on ? 'var(--accent)' : 'var(--surface)';
+        btn.style.borderColor = on ? 'var(--accent)' : 'var(--border)';
+        btn.style.color       = on ? '#fff' : 'var(--text-soft)';
+      });
+    }
+
+    // —— 过滤逻辑:搜索词 + 地区 + 状态 三者叠加(AND) ——
+    function filtered(){
+      var q = state.q.trim().toLowerCase();
+      return CUSTOMERS.filter(function(c){
+        if(state.region !== '全部' && c.region !== state.region) return false;
+        if(state.status !== '全部' && c.status !== state.status) return false;
+        if(q){
+          var hay = (c.name + ' ' + c.tags.join(' ')).toLowerCase();
+          if(hay.indexOf(q) === -1) return false;
+        }
+        return true;
+      });
+    }
+
+    function rowHtml(c){
+      var sc = STATUS_COLOR[c.status] || 'var(--text-faint)';
+      var tags = c.tags.map(function(t){
+        return '<span style="font-size:.72rem; color:var(--text-soft); background:var(--bg);'
+          + ' border:1px solid var(--border); border-radius:6px; padding:1px 8px">'+t+'</span>';
+      }).join('');
+      return '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;'
+        + ' background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:11px 16px">'
+        + '<b style="font-size:.98rem; min-width:72px">'+c.name+'</b>'
+        + '<span style="font-size:.82rem; color:var(--text-faint)">'+c.region+'</span>'
+        + '<span style="font-size:.74rem; font-weight:700; color:#fff; background:'+sc+'; border-radius:999px; padding:2px 10px">'+c.status+'</span>'
+        + '<span style="display:flex; gap:5px; flex-wrap:wrap; margin-left:auto">'+tags+'</span>'
+        + '</div>';
+    }
+
+    function render(){
+      var rows = filtered();
+      countEl.textContent = rows.length;
+
+      if(rows.length === 0){
+        // 空状态:区分"输入有误"和"条件太严"
+        var hint = state.q.trim()
+          ? '没找到包含「'+state.q.trim()+'」的客户。检查一下有没有打错,或只搜一部分关键词。'
+          : '当前筛选下没有客户。试试放宽地区或状态,或点「清空筛选」。';
+        listEl.innerHTML =
+          '<div style="text-align:center; color:var(--text-faint); padding:28px 16px;'
+          + ' background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-sm)">'
+          + '🗒️ '+hint+'</div>';
+        return;
+      }
+      listEl.innerHTML = rows.map(rowHtml).join('');
+    }
+
+    // —— 搜索框:防抖 200ms ——
+    var timer = null;
+    searchEl.addEventListener('input', function(){
+      clearTimeout(timer);
+      timer = setTimeout(function(){
+        state.q = searchEl.value;
+        render();
+      }, 200);
+    });
+
+    // —— 清空筛选 ——
+    clearEl.addEventListener('click', function(){
+      state = { q:'', region:'全部', status:'全部' };
+      searchEl.value = '';
+      paintChips(regionEl, 'region');
+      paintChips(statusEl, 'status');
+      render();
+    });
+
+    buildChips(regionEl, REGIONS, 'region');
+    buildChips(statusEl, STATUSES, 'status');
+    render();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>信息架构:导航 · 分类 · 层级 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-nav-ia"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb><a href="../../index.html">🏠 学习中心</a><span class="sep">›</span><a href="../../index.html">🎨 设计</a><span class="sep">›</span><span>交互设计</span><span class="sep">›</span><span class="cur">信息架构:导航 · 分类 · 层级</span></nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计 / 信息架构</div>
+      <h1>信息架构:导航 · 分类 · 层级</h1>
+      <div class="meta-row" data-meta><span>🎮 交互</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>做后台系统,功能越堆越多,真正让人抓狂的往往不是某个功能不好用,而是<b>「东西找不到」</b>:这个操作到底在哪个菜单?为什么导出在「设置」里、新建却在「工具」里?把内容和功能<b>组织成用户找得到的结构</b>,这件事叫<b>信息架构</b>(Information Architecture,简称 IA)。这一页讲清三件互相咬合的事:<b>分类</b>(怎么分组)、<b>层级</b>(分几层、每层多宽)、<b>导航</b>(用什么形式把结构呈现出来),例子都落在后台的「左侧菜单、分组、面包屑、多级页面」上。</p>
+
+    <div class="box example">
+      <div class="box-title">🧭 先有个画面感</div>
+      <p style="margin:6px 0">把后台想成一栋大楼。<b>分类</b>是「哪些房间归在同一层」——财务的房间放一起、客服的房间放一起。<b>层级</b>是「大楼有几层、每层有几个门」——楼太高(深)爬得累,一层挤五十个门(宽)又眼花。<b>导航</b>是「楼里的指示牌」——左边的楼层索引(左侧菜单)、墙上的「您在 3 楼东侧」(面包屑)、房间内的分区标签(标签页)。</p>
+      <p style="margin:6px 0">好的信息架构有一个朴素的检验标准:用户<u>还没点开</u>,就能<b>猜到</b>东西大概在哪。猜得到,说明你的分法和他脑子里的分法对上了;每次都要靠搜索或者挨个点开试,说明 IA 没做到位。</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 一句话抓住它</div>
+      <p style="margin:6px 0">信息架构做三件事:<b>① 分类</b>——按<u>用户怎么想</u>把功能分组,不是按数据库表或公司部门;<b>② 层级</b>——在「太宽」和「太深」之间找平衡,后台一般 <b>2~3 层</b>最舒服;<b>③ 导航</b>——选对呈现形式(左侧菜单 / 顶部导航 / 面包屑 / 标签页),并随时告诉用户「你在哪、怎么回去」。三件事的共同目标只有一个:<b>让人猜得到、找得着、不迷路</b>。</p>
+    </div>
+
+    <h2>1. 分类:按用户的心智,不按你的数据库</h2>
+    <p>分类最常见的翻车,是<b>照着系统内部的样子去分</b>:数据库有几张表就分几个菜单、公司有几个部门就开几个入口。这对开发者很自然,对用户却是灾难——用户不知道你的表结构,也不关心你们部门怎么划分。他只带着一个<b>任务</b>来:「我要给这单退款」「我要导出这个月的报表」。分类要顺着<b>用户的任务和心智</b>来切。</p>
+    <div class="box">
+      <p style="margin:6px 0"><b>按内部结构分(别这样):</b>「主表」「子表」「关联数据」「日志表」——这是把数据库目录直接搬到了菜单上,用户一个都看不懂。</p>
+      <p style="margin:6px 0"><b>按用户任务分(这样):</b>「客户」「订单」「商品」「报表」「设置」——每一项都对应用户脑子里一件要做的事,他扫一眼就知道该往哪去。</p>
+    </div>
+    <p>同样重要的是<b>用用户的词,不用内部黑话</b>。菜单叫「实体管理」「工单流转」「主数据维护」,用户得先翻译一遍才敢点;叫「客户」「订单」「商品库」,他一眼就懂。命名是分类的门面——分得再对,名字看不懂也等于没分。</p>
+
+    <div class="box tip">
+      <div class="box-title">🃏 卡片分类法(card sorting):让用户帮你分</div>
+      <p style="margin:6px 0">不确定该怎么分组、怎么命名时,有个轻量又有效的办法叫<b>卡片分类法</b>:把每个功能 / 页面名字写在一张张卡片上,请几位真实用户<b>按他们觉得合理的方式把卡片归堆</b>,再给每堆起个名字。你会发现用户的分法常常和你设想的不一样——这正是值钱的地方。</p>
+      <p style="margin:6px 0">两种玩法:<b>开放式</b>(用户自己分堆、自己命名,用来「从零摸清用户怎么想」)和<b>封闭式</b>(你先定好几个分类桶,用户只把卡片往桶里放,用来「验证你这套分类好不好用」)。后台改版前花半小时做一轮,能省掉后面无数次「这功能到底放哪」的争论。</p>
+    </div>
+
+    <h2>2. 层级:广度和深度的拉锯</h2>
+    <p>把功能分好组之后,马上要决定:<b>分几层?每层放几项?</b>这就是信息架构里最经典的取舍——<b>广度(breadth)对深度(depth)</b>。</p>
+    <ul>
+      <li><b>广度</b> = 每一层摆很多项、但层数少。极端就是<b>全平铺</b>:一个长长的列表,什么都在第一层。好处是点一下就到;坏处是几十项排成一墙,眼睛得逐行扫,扫起来比点还累。</li>
+      <li><b>深度</b> = 每一层只摆几项、但层层往下钻。极端就是<b>深嵌套</b>:点开一级又一级,五六层才到目的地。好处是每屏很清爽;坏处是点到手酸,而且越深越容易<b>迷路</b>、忘了自己怎么进来的。</li>
+    </ul>
+    <p>两边都难受,所以要找中间那个甜区。对大多数后台系统,经验值是<b>不超过 2~3 层</b>:顶层放<b>能一眼扫完</b>的几个大分组(通常控制在七八个以内),每个分组里再放该分组的具体功能。下面这个实验台,让你亲手感受这条权衡曲线。</p>
+
+    <div class="lab">
+      <div class="lab-title">🎮 菜单结构实验台</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">同一组 12 个后台功能,用三种结构组织左侧菜单。点上面的开关<b>实时切换结构</b>,再到左边的菜单里<b>一路点到「导出报表」</b>,右边会实时算出「到达它要点几次、顶层有多少项、一路要扫过多少项」。亲手点几遍,「太宽」和「太深」为什么都难受,一下就懂了。</p>
+
+      <div id="ia-modes" class="ia-modes" style="margin-top:14px"></div>
+
+      <div class="ia-lab-cols">
+        <div class="ia-lab-col">
+          <div class="ia-sidebar-cap">后台 · 左侧菜单</div>
+          <div id="ia-menu" class="ia-menu"></div>
+        </div>
+        <div class="ia-lab-col">
+          <div id="ia-optimal" class="ia-panel"></div>
+          <div id="ia-status" class="ia-status"></div>
+        </div>
+      </div>
+
+      <p style="margin:12px 0 0; color:var(--text-faint); font-size:.84rem">小贴士:▸ 是没展开的分组,点一下展开;带「目标」标签的就是要找的「导出报表」。换一种结构,计数会重置。</p>
+    </div>
+
+    <h2>3. 导航模式:什么时候用哪一种</h2>
+    <p>结构定好了,还得选个<b>呈现形式</b>把它摆出来。后台常用四种,各有各的活,经常组合使用。</p>
+    <div class="box">
+      <p style="margin:6px 0"><b>左侧菜单(后台主流)。</b>纵向、能容纳多个分组和层级,是后台一级导航的默认选择。功能多、要分组、需要随时切换大模块时用它。注意控制顶层项数和层级深度——它最容易被塞成「深嵌套」。</p>
+      <p style="margin:6px 0"><b>顶部导航。</b>横向空间有限,只放得下<b>少数几个</b>顶级入口。适合模块不多、想要横向并列的产品;后台如果模块很多,顶部就放不下,还是交给左侧菜单。</p>
+      <p style="margin:6px 0"><b>面包屑。</b>不是用来「去别处」,而是用来<b>告诉你「你现在在哪」、并提供「回上一层」的退路</b>。一旦页面有了多级(列表 → 详情 → 子详情),面包屑几乎是必备,能极大缓解深层级带来的迷路感。</p>
+      <p style="margin:6px 0"><b>标签页(Tabs)。</b>用在<b>同一个对象的不同切面</b>上:一个客户详情页,用「基本信息 / 订单记录 / 跟进日志」几个标签平铺,而不是做成三个菜单项或三层页面。它把「同一层、并列的几块内容」摊开,避免无谓的深钻。</p>
+    </div>
+    <p style="color:var(--text-faint);font-size:.88rem">一句话分工:<b>左侧菜单</b>管「在功能之间跳」,<b>面包屑</b>管「我在树的哪个位置」,<b>标签页</b>管「同一个东西的不同侧面」,<b>顶部导航</b>管「少数几个并列大区」。</p>
+
+    <h2>4. 命名:一个功能,只用一个名字</h2>
+    <p>导航能不能用,一半看命名。两条铁律:</p>
+    <p><b>① 一致性——同一个东西,处处叫一样。</b>菜单里叫「客户」,按钮上就别叫「会员」,弹窗标题又写「用户」。同一个概念在不同地方换三个名字,用户会以为是三样东西,反复确认、反复犹豫。先定一套词,然后<b>全站统一</b>。</p>
+    <p><b>② 可预测、可区分。</b>好标签让人<b>没点开就猜得到点开是什么</b>(可预测),并且和旁边的标签<b>明显不同、不会混</b>(可区分)。「数据管理」和「信息管理」并排放,用户根本分不清差别,只能两个都点开试——这就是命名没做到「可区分」。</p>
+
+    <h2>5. 别让人迷路</h2>
+    <p>层级一深,人就容易丢失方向感。三个低成本的「防迷路」措施,后台尤其值得做齐:</p>
+    <ul>
+      <li><b>当前位置高亮。</b>左侧菜单里,用户正在看的那一项要<b>明确高亮</b>,所在的分组要<b>自动展开</b>。否则用户进了深页面,回头一看菜单全是收起来的,完全不知道自己在哪一支。</li>
+      <li><b>面包屑随时在线。</b>多级页面顶部放一条面包屑(首页 › 客户 › 张三 › 订单记录),既标明位置,又让每一层都能<b>一键回去</b>。</li>
+      <li><b>合理的返回。</b>从详情、弹窗、子页面出来,要有清楚的「返回 / 关闭」路径,别让用户只能靠浏览器后退键。给退路,就是给安全感。</li>
+    </ul>
+
+    <div class="box warn">
+      <div class="box-title">⚠️ 这样的后台菜单,用户找东西像寻宝</div>
+      <p style="margin:6px 0">• 顶层按<b>数据库表</b>分:「主实体」「关联实体」「字典表」「日志表」——没人看得懂。</p>
+      <p style="margin:6px 0">• 全平铺成<b>一长列三十多项</b>,不分组,每次都得从头扫到尾。</p>
+      <p style="margin:6px 0">• 或者反过来,<b>嵌套五六层</b>:「系统 › 业务 › 财务 › 报表 › 导出 › 导出报表」,点到怀疑人生。</p>
+      <p style="margin:6px 0">• 同一功能<b>多个名字</b>:菜单「客户」、按钮「会员」、标题「用户」,以为是三个模块。</p>
+      <p style="margin:6px 0">• 进了深层页面,<b>菜单不高亮、没有面包屑</b>,用户彻底不知道自己在哪、怎么回去。</p>
+    </div>
+
+    <div class="box tip">
+      <div class="box-title">✅ 这样的后台菜单,东西「猜得到在哪」</div>
+      <p style="margin:6px 0">• 顶层按<b>用户任务</b>分,七八个以内的大分组:客户 / 订单 / 商品 / 报表 / 设置。</p>
+      <p style="margin:6px 0">• 控制在 <b>2~3 层</b>:点开一个分组就能看到具体功能,不用层层下钻。</p>
+      <p style="margin:6px 0">• <b>用户的词</b>当标签,可预测、可区分,一个功能从头到尾只有一个名字。</p>
+      <p style="margin:6px 0">• 当前位置<b>高亮</b>、所在分组<b>自动展开</b>;多级页面配<b>面包屑</b>,处处有退路。</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 后台菜单自查清单(做完一版菜单挨条过)</div>
+      <ol style="margin:6px 0 0;padding-left:20px;line-height:1.9">
+        <li>顶层每个分组,都对得上<b>用户的一件任务</b>吗?有没有按数据库表 / 部门来分的?</li>
+        <li>顶层项数<b>一眼扫得完</b>吗(大致七八个以内)?有没有摊成一长墙?</li>
+        <li>最常用的功能,<b>点几次能到</b>?有没有被埋到第四层、第五层?</li>
+        <li>每个菜单名,用户<b>没点开能不能猜到</b>里面是什么?是用户的词还是内部黑话?</li>
+        <li>同一个功能,在菜单 / 按钮 / 标题里<b>是不是同一个名字</b>?</li>
+        <li>相邻的两个标签,差别<b>明显吗</b>?会不会让人「两个都点开试」?</li>
+        <li>进到深层页面,菜单<b>高亮</b>了吗、分组<b>展开</b>了吗、有<b>面包屑</b>吗、能<b>一键返回</b>吗?</li>
+      </ol>
+    </div>
+
+    <h2>6. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 画一画你自己的后台菜单</div>
+      <p style="margin:6px 0">拿你正在做(或最近用过)的一个后台,把左侧菜单的结构画成一棵树:顶层有哪些分组,每个分组下面挂哪些功能,挂到第几层。画完数三个数,再动手优化:</p>
+      <p style="margin:10px 0; line-height:2.0">
+        ① <b>最深几层?</b>从顶层点到最里面的功能,要点几下。超过 3 层的那几支,圈出来。<br>
+        ② <b>最宽几项?</b>哪一层项数最多。顶层超过七八项、或某层排成一长列的,圈出来。<br>
+        ③ <b>有没有同物异名 / 黑话标签?</b>把看不懂或叫法不统一的菜单名圈出来。
+      </p>
+      <p style="margin:10px 0"><b>然后做三件事:</b></p>
+      <p style="margin:4px 0; line-height:1.9">
+        • <b>能合并的合并</b>:意思相近、用户分不清的几项,并成一个,或收进同一个分组。<br>
+        • <b>能提升的提升</b>:埋太深的高频功能,往上挪一两层,让它两三步就能到。<br>
+        • <b>能改名的改名</b>:把黑话换成用户的词,把全站不统一的叫法统一成一个。
+      </p>
+      <p style="margin:10px 0 0;color:var(--text-faint);font-size:.86rem">改完再回到上面的「实验台」对照一下:你的结构更像「太宽」「太深」还是「平衡」?往甜区靠一靠。</p>
+    </div>
+
+    <p style="margin-top:14px">信息架构没有标准答案,但有个稳定的方向:<b>顺着用户的心智分类、把层级压在 2~3 层、用对导航形式、再处处标明「你在哪」</b>。做到这几条,用户就不用「学会」你的后台——他<b>猜</b>就能用对。这正是好交互最省力的样子。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="../../subjects/design/interaction-design.html" style="--rc:#B6532F"><b>交互设计:学习路线与每周练习</b><span>设计 · 用户体验 / 交互设计</span></a>
+      </div>
+    </section>
+  </article>
+
+  <style>
+    /* 实验台局部样式(仅作用于本页 .ia-* 元素,不改动全站 class) */
+    .ia-lab-cols { display:flex; gap:16px; flex-wrap:wrap; margin-top:14px; }
+    .ia-lab-col { flex:1 1 240px; min-width:230px; }
+    .ia-sidebar-cap { font-size:.76rem; font-weight:700; color:var(--text-faint); letter-spacing:.4px; margin-bottom:6px; }
+    .ia-menu { border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg); overflow:hidden; }
+    .ml-row { display:flex; align-items:center; gap:8px; padding:8px 10px; cursor:pointer; border-bottom:1px solid var(--border); font-size:.9rem; color:var(--text-soft); transition:background .1s; }
+    .ml-row:last-child { border-bottom:none; }
+    .ml-row:hover { background:var(--surface); }
+    .ml-group { font-weight:700; color:var(--text); }
+    .ml-caret { width:13px; text-align:center; color:var(--accent-page,var(--accent)); font-size:.8rem; flex:none; }
+    .ml-ico { flex:none; }
+    .ml-name { flex:1; }
+    .ml-flag { font-size:.64rem; font-weight:700; color:#fff; background:var(--text-faint); border-radius:999px; padding:1px 7px; white-space:nowrap; }
+    .ml-found { background:#f1faf3 !important; color:#1f7a44 !important; font-weight:800; }
+    .ml-found .ml-flag { background:#27ae60; }
+    .ia-modes { display:flex; flex-wrap:wrap; gap:8px; }
+    .ia-mode { border:2px solid var(--border); background:var(--surface); color:var(--text-soft); padding:7px 15px; border-radius:999px; font-size:.86rem; font-weight:700; cursor:pointer; transition:all .12s; }
+    .ia-panel { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; font-size:.86rem; }
+    .ia-panel .ia-metric { display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:4px 0; border-bottom:1px dashed var(--border); }
+    .ia-panel .ia-metric:last-of-type { border-bottom:none; }
+    .ia-panel .ia-metric span { color:var(--text-soft); }
+    .ia-panel .ia-metric b { font-size:1.15rem; font-weight:800; font-variant-numeric:tabular-nums; }
+    .ia-verdict { margin-top:9px; padding-top:9px; border-top:1px solid var(--border); font-weight:700; line-height:1.55; }
+    .ia-status { margin-top:10px; padding:11px 14px; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border); font-size:.9rem; line-height:1.55; min-height:46px; }
+    .ia-status b { font-variant-numeric:tabular-nums; color:var(--accent-page,var(--accent)); }
+  </style>
+
+  <script>
+  (function(){
+    var TARGET = '导出报表';
+
+    var MODES = [
+      { key:'flat',     label:'太扁平',  color:'#e67e22' },
+      { key:'deep',     label:'太深',    color:'#e2524a' },
+      { key:'balanced', label:'✅ 平衡', color:'#27ae60' }
+    ];
+
+    // 同一组 12 个后台功能,三种组织方式。leaf 没有 c,group 有 c。
+    var TREES = {
+      flat: [
+        { n:'仪表盘', i:'📊' },
+        { n:'客户列表', i:'👤' },
+        { n:'新增客户', i:'➕' },
+        { n:'订单列表', i:'📦' },
+        { n:'新增订单', i:'🧾' },
+        { n:'退款处理', i:'↩️' },
+        { n:'商品管理', i:'🏷️' },
+        { n:'库存盘点', i:'📥' },
+        { n:'数据看板', i:'📈' },
+        { n:'导出报表', i:'📤' },
+        { n:'用户管理', i:'🧑‍💼' },
+        { n:'系统设置', i:'⚙️' }
+      ],
+      deep: [
+        { n:'工作台', i:'🏠' },
+        { n:'系统', i:'🗂️', c:[
+          { n:'概览', i:'📊' },
+          { n:'业务', i:'💼', c:[
+            { n:'客户', i:'👤' },
+            { n:'财务', i:'💰', c:[
+              { n:'账单', i:'🧾' },
+              { n:'报表', i:'📈', c:[
+                { n:'查看报表', i:'👁️' },
+                { n:'导出', i:'📁', c:[
+                  { n:'导出客户', i:'👥' },
+                  { n:'导出报表', i:'📤' }
+                ]}
+              ]}
+            ]}
+          ]}
+        ]}
+      ],
+      balanced: [
+        { n:'客户', i:'👤', c:[
+          { n:'客户列表', i:'📋' },
+          { n:'新增客户', i:'➕' }
+        ]},
+        { n:'订单', i:'📦', c:[
+          { n:'订单列表', i:'📋' },
+          { n:'新增订单', i:'🧾' },
+          { n:'退款处理', i:'↩️' }
+        ]},
+        { n:'商品', i:'🏷️', c:[
+          { n:'商品管理', i:'🗂️' },
+          { n:'库存盘点', i:'📥' }
+        ]},
+        { n:'报表', i:'📈', c:[
+          { n:'数据看板', i:'📊' },
+          { n:'导出报表', i:'📤' }
+        ]},
+        { n:'系统', i:'⚙️', c:[
+          { n:'用户管理', i:'🧑‍💼' },
+          { n:'角色权限', i:'🔑' },
+          { n:'系统设置', i:'🛠️' }
+        ]}
+      ]
+    };
+
+    var VERDICT = {
+      flat:     { color:'#c0660f', text:'一层全摊开,点 1 次就到——但顶层 12 项像一堵墙,得逐行扫,项一多就找不着。这是“太宽”的代价。' },
+      deep:     { color:'#c0392b', text:'每层只 2 项、看着清爽,可惜埋了 6 层,点到手酸还容易迷路。这是“太深”的代价。' },
+      balanced: { color:'#1f7a44', text:'顶层 5 个分组扫得过来,点 2 次就到目标。后台菜单 2~3 层的甜区,就长这样。' }
+    };
+
+    var modesBox = document.getElementById('ia-modes');
+    var menuBox  = document.getElementById('ia-menu');
+    var optBox   = document.getElementById('ia-optimal');
+    var statBox  = document.getElementById('ia-status');
+    if(!modesBox || !menuBox) return;
+
+    var mode = 'balanced';
+    var expanded = {};     // 已展开的分组 id 集合
+    var clicks = 0;        // 本轮用户点击数
+    var found = false;
+
+    // 走最优路径分析:到达 TARGET 要展开几个分组、一路扫多少项、顶层多少项
+    function analyze(nodes){
+      for(var i=0;i<nodes.length;i++){
+        var nd = nodes[i];
+        if(nd.n === TARGET) return { expands:0, scan:nodes.length, top:nodes.length };
+        if(nd.c){
+          var sub = analyze(nd.c);
+          if(sub) return { expands:sub.expands+1, scan:sub.scan+nodes.length, top:nodes.length };
+        }
+      }
+      return null;
+    }
+
+    function renderModes(){
+      modesBox.innerHTML = '';
+      MODES.forEach(function(m){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'ia-mode' + (m.key === mode ? ' on' : '');
+        b.textContent = m.label;
+        if(m.key === mode){
+          b.style.background = m.color;
+          b.style.borderColor = m.color;
+          b.style.color = '#fff';
+        } else {
+          b.style.background = 'var(--surface)';
+          b.style.borderColor = 'var(--border)';
+          b.style.color = 'var(--text-soft)';
+        }
+        b.addEventListener('click', function(){
+          if(mode === m.key) return;
+          mode = m.key;
+          expanded = {};
+          clicks = 0;
+          found = false;
+          renderAll();
+        });
+        modesBox.appendChild(b);
+      });
+    }
+
+    function buildMenu(nodes, depth, prefix){
+      var box = document.createElement('div');
+      nodes.forEach(function(nd, idx){
+        var id = prefix + '/' + idx;
+        var isGroup  = !!nd.c;
+        var isTarget = nd.n === TARGET;
+        var row = document.createElement('div');
+        row.className = 'ml-row' + (isGroup ? ' ml-group' : '') + (isTarget && found ? ' ml-found' : '');
+        row.style.paddingLeft = (10 + depth * 18) + 'px';
+        var caret = isGroup ? (expanded[id] ? '▾' : '▸') : '·';
+        row.innerHTML =
+            '<span class="ml-caret">' + caret + '</span>'
+          + '<span class="ml-ico">' + nd.i + '</span>'
+          + '<span class="ml-name">' + nd.n + '</span>'
+          + (isTarget ? '<span class="ml-flag">目标</span>' : '');
+        row.addEventListener('click', function(e){
+          e.stopPropagation();
+          clicks++;
+          if(isGroup){
+            expanded[id] = !expanded[id];
+            found = false;
+          } else if(isTarget){
+            found = true;
+          } else {
+            found = false;
+            statBox.dataset.wrong = nd.n;
+          }
+          renderAll();
+        });
+        box.appendChild(row);
+        if(isGroup && expanded[id]){
+          box.appendChild(buildMenu(nd.c, depth + 1, id));
+        }
+      });
+      return box;
+    }
+
+    function renderMenu(){
+      menuBox.innerHTML = '';
+      menuBox.appendChild(buildMenu(TREES[mode], 0, 'r'));
+    }
+
+    function renderOptimal(){
+      var a = analyze(TREES[mode]) || { expands:0, scan:0, top:0 };
+      var optClicks = a.expands + 1;   // 展开各级 + 最后点中目标
+      var v = VERDICT[mode];
+      optBox.innerHTML =
+          '<div style="font-weight:800;margin-bottom:6px">这种结构的最优路径</div>'
+        + '<div class="ia-metric"><span>到达「导出报表」要点</span><b>' + optClicks + ' 次</b></div>'
+        + '<div class="ia-metric"><span>顶层菜单项</span><b>' + a.top + ' 项</b></div>'
+        + '<div class="ia-metric"><span>一路要扫过</span><b>≈ ' + a.scan + ' 项</b></div>'
+        + '<div class="ia-verdict" style="color:' + v.color + '">' + v.text + '</div>';
+    }
+
+    function renderStatus(){
+      var a = analyze(TREES[mode]) || { expands:0 };
+      var optClicks = a.expands + 1;
+      if(found){
+        var extra = clicks > optClicks
+          ? '比最优多点了 ' + (clicks - optClicks) + ' 次——结构越绕,越容易点冤枉路。'
+          : '正好踩中最优路径!';
+        statBox.innerHTML =
+            '🎉 找到「导出报表」!你一共点了 <b>' + clicks + '</b> 次,'
+          + '这种结构最优是 <b>' + optClicks + '</b> 次。' + extra;
+      } else if(statBox.dataset.wrong){
+        statBox.innerHTML =
+            '「' + statBox.dataset.wrong + '」不是「导出报表」,继续找 👀(已点 <b>' + clicks + '</b> 次)';
+        delete statBox.dataset.wrong;
+      } else if(clicks > 0){
+        statBox.innerHTML = '已点开 <b>' + clicks + '</b> 次,继续点到带「目标」的那一项。';
+      } else {
+        statBox.innerHTML = '👆 在左边的菜单里,一路点到「导出报表」,数数你点了几次。';
+      }
+    }
+
+    function renderAll(){
+      renderModes();
+      renderMenu();
+      renderOptimal();
+      renderStatus();
+    }
+
+    renderAll();
+  })();
+  </script>
+</body>
+</html>

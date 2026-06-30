@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>错误预防与错误恢复 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-error-prevention"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">错误预防与错误恢复</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>错误预防与错误恢复</h1>
+      <div class="meta-row" data-meta>
+        <span>🎮 交互</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span>
+      </div>
+    </header>
+
+    <p>在后台系统里,一次手滑就可能删掉一个客户、误提交一张错单、把"批量删除"套到了整页数据上。比起事后追问"为什么会出错",更划算的是一开始就让错误难以发生——这就是<b>错误预防 (Error Prevention)</b>;万一还是出了错,得让人能轻松看懂、轻松退回——这是<b>错误恢复 (Error Recovery)</b>。这两条在 Nielsen 十大可用性原则里各占一条,对天天和数据打交道的管理后台尤其要紧。这一页用后台最常见的四件事——<b>删除、提交、批量操作、表单校验</b>——把它们讲透,最后给你两个能上手反复点的实验台。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 一句话抓住它</div>
+      <p style="margin:6px 0">好设计的顺序是:<b>① 先让错误压根别发生</b>(预防)→ <b>② 真要做危险动作,给一层缓冲</b>(确认或撤销)→ <b>③ 出了错,说清哪儿错、怎么改,别让人重填</b>(恢复)。能在第 ① 步解决的,绝不留到第 ③ 步。报错弹窗做得再漂亮,也不如这个错根本没机会发生。</p>
+    </div>
+
+    <h2>1. 预防胜于治疗</h2>
+    <p>新手容易把精力全花在"报错信息怎么写得更友好"上,但更高明的做法是<b>让那个错根本没机会出现</b>。两个对照:</p>
+    <div class="box">
+      <p style="margin:6px 0">• <b>日期。</b>给一个日期选择器,只让人从合法范围里点——而不是开一个文本框,让人手打 <code>2026-13-45</code>,再弹红字告诉他错了。<u>不给犯错的入口,就不用写那条报错。</u></p>
+      <p style="margin:6px 0">• <b>必填。</b>必填项没填完,直接把"提交"按钮置灰、点不动——而不是让他点下去,整页飘红再退回来。</p>
+    </div>
+    <p>记住一条:<b>每写一条报错之前,先问一句"这个错能不能从源头堵掉"</b>。堵不掉的,才轮到把报错写好。</p>
+
+    <h2>2. 先分清两类错误:失误 vs 错误</h2>
+    <p>认知心理学(Don Norman、James Reason)把人犯的错分成两种,对策完全不同,别混为一谈。</p>
+    <div class="box example">
+      <div class="box-title">🪄 一个画面</div>
+      <p style="margin:6px 0"><b>失误 (slip)</b> = 你<u>清楚要干嘛,但手脚出了错</u>。想点"编辑",手一抖点到了旁边的"删除";想删第 3 行,选中了第 4 行;点太快连点了两下。根源在<b>操作和注意力</b>层面,跟你懂不懂业务无关——越熟练的人越容易因为"自动驾驶"而手滑。</p>
+      <p style="margin:6px 0"><b>错误 (mistake)</b> = 你<u>理解本身就错了</u>。以为"归档"只是收起来,其实归档会把数据对外下架;以为批量修改改的是筛选后的 20 条,其实套到了全表 2000 条。根源在<b>心智模型</b>——你按错误的认知做了一个"正确执行"的动作。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 对策不一样</div>
+      <p style="margin:6px 0">• <b>失误</b>靠<b>约束 + 撤销</b>兜底:让危险按钮远离常用按钮、让误触代价变小(能撤销)、让正确目标更大更显眼。</p>
+      <p style="margin:6px 0">• <b>错误</b>靠<b>说清楚 + 预览影响范围</b>纠正:操作前明确告诉他"这次会影响 <b>2000</b> 条数据""归档后客户将看不到此商品",用词别误导。光给撤销治不好"理解错"——他根本不知道自己理解错了。</p>
+    </div>
+
+    <h2>3. 五种预防手段(落在后台上)</h2>
+    <div class="box">
+      <p style="margin:6px 0">1. <b>约束 (constraint)——把非法选项直接禁掉。</b>必填没填 → 提交按钮置灰;状态是"已结算"的单子 → 干脆隐藏或禁用"删除"。让人<u>做不出</u>错的动作,比事后拦截更稳。</p>
+      <p style="margin:6px 0">2. <b>合理默认值。</b>新建订单默认填今天的日期、默认负责人是当前登录人、默认状态是"草稿"。一个好默认值能消掉一大半填写错误。</p>
+      <p style="margin:6px 0">3. <b>确认危险操作。</b>删除、批量、不可逆的提交,给一道确认关卡(下面第 5 节专门讲怎么选)。</p>
+      <p style="margin:6px 0">4. <b>即时校验 (inline validation)。</b>邮箱、手机号、金额,<u>边填边</u>在字段下方提示对错,而不是憋到点了"提交"才整页飘红。错误离它发生的那一刻越近,越容易当场改掉。</p>
+      <p style="margin:6px 0">5. <b>防呆——用撤销代替确认。</b>能给"撤销"就别老弹确认框。确认框点多了会麻木,撤销既不打断你、又能反悔(第 5 节细说)。</p>
+    </div>
+
+    <h2>4. 三种恢复手段</h2>
+    <div class="box">
+      <p style="margin:6px 0">1. <b>可撤销 (Undo)。</b>删了能撤、改了能回、批量错了能整批回滚。这是最宽容的一张安全网。</p>
+      <p style="margin:6px 0">2. <b>明确的错误信息。</b>别只甩一句"操作失败"。一条好报错要说清三件事:<b>哪里错</b>(哪个字段 / 哪条数据)、<b>为什么错</b>(违反了什么规则)、<b>怎么改</b>(下一步该干嘛)。</p>
+      <p style="margin:6px 0">3. <b>保留用户已填内容。</b>提交失败后<u>千万别清空表单</u>。让人把一张长表单从头再填一遍,是后台里最招人恨的设计。把填过的全留住,只标红那一项要改的。</p>
+    </div>
+
+    <div class="box warn">
+      <div class="box-title">⚠️ 常见的坏报错(反面教材)</div>
+      <p style="margin:6px 0">• 一行红字 <b style="color:#c0392b">「Error 500」</b> / <b style="color:#c0392b">「操作失败」</b> / <b style="color:#c0392b">「系统异常,请联系管理员」</b>。用户看完一脸懵:错在哪?我做错了什么?现在该怎么办?三件事一件没说。</p>
+      <p style="margin:6px 0">• 提交失败后,<b>整张表单被清空</b>,逼人从头再填一遍。</p>
+      <p style="margin:6px 0">• 校验提示飘在页面<b>最顶部</b>,而出错的字段在<b>最底下</b>,用户得上下来回找是哪一格红了。</p>
+    </div>
+
+    <div class="box tip">
+      <div class="box-title">✅ 同样的场景,好报错怎么写</div>
+      <p style="margin:6px 0">• <b>「邮箱格式不对:少了 @,应该长这样 name@company.com」</b> —— 指明<u>字段</u> + <u>原因</u> + <u>正确样例</u>。</p>
+      <p style="margin:6px 0">• <b>「这张订单已被『已结算』锁定,不能删除;如需作废,请把状态改成『已取消』」</b> —— 说清<u>为什么不让删</u>,并直接给出<u>替代动作</u>。</p>
+      <p style="margin:6px 0">• 提交失败后<b>保留全部已填内容</b>,只把"金额"那一格标红,并把光标自动定位过去——用户改完那一格就能再提交。</p>
+    </div>
+
+    <h2>5. 危险操作:三档保护策略怎么选</h2>
+    <p>同一个"删除",可以做成三种力度。没有哪档永远最好,关键看这个操作<b>能不能撤回、影响有多大</b>。</p>
+    <div class="box key">
+      <table>
+        <tr>
+          <th>策略</th>
+          <th>怎么做</th>
+          <th>什么时候用</th>
+          <th>代价 / 风险</th>
+        </tr>
+        <tr>
+          <td><b>① 无保护</b></td>
+          <td>点了立刻生效,没有任何拦截</td>
+          <td>错了无所谓、重建一条就行的数据(比如自己的临时筛选、草稿标签)</td>
+          <td>手滑就出事,完全没有后悔药</td>
+        </tr>
+        <tr>
+          <td><b>② 二次确认</b></td>
+          <td>弹出确认框 / 确认条,点"确定"才真删</td>
+          <td>真的<u>无法撤销</u>的动作(对外发钱、发短信)、或影响范围巨大(清空整表)</td>
+          <td>点多了会形成"啪啪两下"的肌肉记忆,保护力随习惯衰减</td>
+        </tr>
+        <tr>
+          <td><b>③ 可撤销</b></td>
+          <td>先软删除(soft delete),底部浮一个"已删除 · 撤销"提示,过几秒才真删</td>
+          <td>绝大多数日常删除 / 批量操作——这是<b>首选</b></td>
+          <td>实现稍复杂(要软删 + 撤销窗口),但手感最顺、最宽容</td>
+        </tr>
+      </table>
+    </div>
+    <p><b>一条反直觉但很重要的经验:撤销通常优于确认。</b>确认框点得多了,人会进入"看都不看就点确定"的自动驾驶状态,这道关卡其实已经形同虚设;而"撤销"不打断你的操作、又随时能反悔,体验更顺、也更安全。所以默认优先做"可撤销"。只有当操作<b>真的无法撤回</b>(钱已经打出去、短信已经发出去)或<b>影响范围特别大</b>时,才用更重的二次确认——必要时还可以要求输入确认词(比如让人手打表名)来逼他真正看清自己在干嘛。</p>
+
+    <div class="lab">
+      <div class="lab-title">🎮 删除操作 · 三种策略实验台</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">先在上面<b>选一种策略</b>,再点那行数据的「删除」。同一个删除动作,三种策略的手感天差地别——多切几次、多点几次,亲手体会哪种适合你后台里的哪类操作。</p>
+
+      <div id="ep-modes" style="display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px"></div>
+      <div id="ep-mode-desc" style="font-size:.88rem; color:var(--text-soft); min-height:2.4em; margin-bottom:12px; line-height:1.6"></div>
+
+      <div id="ep-rows" style="display:flex; flex-direction:column; gap:8px"></div>
+
+      <div id="ep-toast" style="display:none; align-items:center; gap:10px; margin-top:14px; padding:11px 16px; background:#2b2520; color:#f5efe6; border-radius:10px; font-size:.9rem; flex-wrap:wrap"></div>
+
+      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+        <button id="ep-reset" type="button"
+          style="border:1px solid var(--border); background:var(--bg); color:var(--text-soft); padding:7px 14px; border-radius:8px; font-size:.85rem; font-weight:700; cursor:pointer">↺ 重新放回这行数据</button>
+        <span id="ep-status" style="font-size:.82rem; color:var(--text-faint)"></span>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎮 即时校验:边输入,边检查</div>
+      <p style="margin:0 0 12px; color:var(--text-soft); font-size:.92rem">在下面输入一个邮箱。<b>不用点提交</b>——每敲一个字,右边就实时给 ✓ / ✗ 和一句提示。这就是"即时校验":把错误拦在它发生的那一刻,而不是憋到提交后才整页飘红。</p>
+      <div style="display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap">
+        <input id="ep-email" type="text" autocomplete="off" placeholder="试着输入:name@company.com"
+          style="flex:1; min-width:220px; border:1.5px solid var(--border); border-radius:10px; padding:12px 14px; font-size:1rem; background:var(--surface); color:var(--text); outline:none; transition:border-color .12s">
+        <div id="ep-email-fb" style="flex:1; min-width:220px; padding-top:11px; font-size:.92rem; line-height:1.6"></div>
+      </div>
+    </div>
+
+    <h2>6. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 给你自己的后台分档</div>
+      <p style="margin:6px 0">想一想你正在做(或用过)的后台系统,列出 <b>2~3 个危险操作</b>,各自该用哪一档策略。判断时只问两件事:<b>它能撤回吗?它一次影响多少条?</b></p>
+      <p style="margin:10px 0; line-height:2.0">
+        1. 删除一个<b>客户</b> → 该用哪档?(提示:能软删、影响 1 条 → 多半是"③ 可撤销")<br>
+        2. <b>批量删除</b>筛选出来的一批订单 → 该用哪档?(提示:影响多条 → 至少"③ 可撤销",条数巨大时叠加"② 确认并显示条数")<br>
+        3. 点"<b>提交结算</b>"把这个月工资真打出去 → 该用哪档?(提示:钱打出去撤不回 → "② 二次确认",甚至要求输入确认词)
+      </p>
+      <p style="margin:12px 0 4px"><b>没有标准答案</b>,但每一档的理由你都要说得出来:<u>能不能撤、影响多大</u>。说得出来,你就真的掌握了。</p>
+    </div>
+
+    <p style="margin-top:14px">把这一页收个尾:<b>先预防,再缓冲,最后才谈报错</b>。删除默认做成可撤销,真不可逆的才上确认;校验尽量即时、就近;报错永远说清"哪儿错、为什么、怎么改",失败了别清空人家辛苦填的内容。做到这几条,你的后台就从"动不动让人心惊胆战"变成了"放心点、错了能回头"。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  /* ===== 实验台 1:删除三策略 ===== */
+  (function () {
+    var modesBox = document.getElementById('ep-modes');
+    var modeDesc = document.getElementById('ep-mode-desc');
+    var rowsBox  = document.getElementById('ep-rows');
+    var toastBox = document.getElementById('ep-toast');
+    var resetBtn = document.getElementById('ep-reset');
+    var statusEl = document.getElementById('ep-status');
+    if (!modesBox || !rowsBox) return;
+
+    var MODES = [
+      { key: 'none',    label: '① 无保护',  color: '#e2524a',
+        desc: '点删除立刻生效,没有任何挽回余地。实现最省事,代价是手滑就出事——只配给"无所谓、错了再建一条"的数据。' },
+      { key: 'confirm', label: '② 二次确认', color: '#e67e22',
+        desc: '弹出确认条,点"确定"才真删。能挡住误触,但点多了会形成"啪啪两下"的肌肉记忆,保护力随习惯衰减。' },
+      { key: 'undo',    label: '③ 可撤销',  color: '#27ae60',
+        desc: '先软删除并给一个"撤销"窗口(这里设 5 秒),过期才真删。手感最顺、最宽容,是破坏性操作的首选。' }
+    ];
+
+    var RECORD = { name: '客户:山田太郎', sub: '订单 12 笔 · 注册于 2024-03 · 负责人 马欢' };
+
+    var mode = 'none';
+    var present = true;       // 这行数据是否还在
+    var countdownTimer = null;
+
+    function clearTimers() {
+      if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    }
+    function setStatus(t) { statusEl.textContent = t || ''; }
+    function hideToast() { toastBox.style.display = 'none'; toastBox.innerHTML = ''; }
+
+    function drawRow() {
+      rowsBox.innerHTML = '';
+      if (!present) {
+        var empty = document.createElement('div');
+        empty.style.cssText = 'padding:18px; border:1px dashed var(--border); border-radius:10px; color:var(--text-faint); text-align:center; font-size:.9rem';
+        empty.textContent = '（这行数据已不在列表里）';
+        rowsBox.appendChild(empty);
+        return;
+      }
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:12px; padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:10px';
+      row.innerHTML =
+        '<div style="flex:1; min-width:0">'
+        + '<div style="font-weight:700">' + RECORD.name + '</div>'
+        + '<div style="font-size:.8rem; color:var(--text-faint)">' + RECORD.sub + '</div>'
+        + '</div>';
+      var actionWrap = document.createElement('div');
+      actionWrap.id = 'ep-action';
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.textContent = '🗑 删除';
+      delBtn.style.cssText = 'border:1px solid #e2524a; color:#e2524a; background:var(--surface); padding:7px 14px; border-radius:8px; font-weight:700; cursor:pointer; font-size:.9rem; white-space:nowrap';
+      delBtn.addEventListener('click', onDeleteClick);
+      actionWrap.appendChild(delBtn);
+      row.appendChild(actionWrap);
+      rowsBox.appendChild(row);
+    }
+
+    function onDeleteClick() {
+      if (mode === 'none') {
+        present = false; drawRow();
+        toastBox.style.display = 'flex';
+        toastBox.innerHTML = '<span style="font-size:1.1rem">💥</span>'
+          + '<span>一去不复返,手滑就完了。数据库里也删了——没有后悔药。</span>';
+        return;
+      }
+      if (mode === 'confirm') { showConfirmBar(); return; }
+      if (mode === 'undo')    { startUndoFlow();  return; }
+    }
+
+    function showConfirmBar() {
+      var aw = document.getElementById('ep-action');
+      if (!aw) return;
+      aw.innerHTML = '';
+      var bar = document.createElement('div');
+      bar.style.cssText = 'display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end';
+      bar.innerHTML = '<span style="font-size:.85rem; color:#c0392b; font-weight:700">确定删除?</span>';
+      var cancel = document.createElement('button');
+      cancel.type = 'button'; cancel.textContent = '取消';
+      cancel.style.cssText = 'border:1px solid var(--border); background:var(--surface); color:var(--text-soft); padding:6px 12px; border-radius:8px; font-size:.85rem; cursor:pointer';
+      cancel.addEventListener('click', function () { drawRow(); setStatus('已取消,数据还在。'); });
+      var ok = document.createElement('button');
+      ok.type = 'button'; ok.textContent = '确定删除';
+      ok.style.cssText = 'border:1px solid #e2524a; background:#e2524a; color:#fff; padding:6px 12px; border-radius:8px; font-size:.85rem; font-weight:700; cursor:pointer';
+      ok.addEventListener('click', function () {
+        present = false; drawRow();
+        setStatus('已确认删除。二次确认挡住了手滑,但挡不住"习惯性点确定"。');
+      });
+      bar.appendChild(cancel); bar.appendChild(ok);
+      aw.appendChild(bar);
+    }
+
+    function startUndoFlow() {
+      clearTimers();
+      present = false; drawRow();
+      var left = 5;
+      toastBox.style.display = 'flex';
+      toastBox.innerHTML =
+        '<span>🗑 已删除「' + RECORD.name + '」</span>'
+        + '<span style="color:#c7bba6; font-size:.82rem">· <b id="ep-count">' + left + '</b> 秒后永久删除</span>'
+        + '<button type="button" id="ep-undo" style="margin-left:auto; border:1px solid #27ae60; background:#27ae60; color:#fff; padding:5px 14px; border-radius:8px; font-weight:700; cursor:pointer; font-size:.85rem">↩ 撤销</button>';
+      document.getElementById('ep-undo').addEventListener('click', function () {
+        clearTimers(); hideToast();
+        present = true; drawRow();
+        setStatus('已撤销,数据完好无损地回来了 ✅');
+      });
+      countdownTimer = setInterval(function () {
+        left--;
+        var c = document.getElementById('ep-count');
+        if (c) c.textContent = left;
+        if (left <= 0) {
+          clearTimers(); hideToast();
+          setStatus('撤销窗口已过,数据这才真正删除。');
+        }
+      }, 1000);
+    }
+
+    function setMode(key) {
+      mode = key;
+      clearTimers(); hideToast();
+      present = true; drawRow();
+      setStatus('');
+      Array.prototype.forEach.call(modesBox.children, function (b) {
+        var on = b.dataset.key === mode;
+        var m = MODES.filter(function (x) { return x.key === b.dataset.key; })[0];
+        b.style.background  = on ? m.color : 'var(--surface)';
+        b.style.color       = on ? '#fff'  : 'var(--text-soft)';
+        b.style.borderColor = on ? m.color : 'var(--border)';
+      });
+      var cur = MODES.filter(function (x) { return x.key === mode; })[0];
+      modeDesc.innerHTML = '<b style="color:' + cur.color + '">' + cur.label + '</b> — ' + cur.desc;
+    }
+
+    MODES.forEach(function (m) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.key = m.key;
+      b.textContent = m.label;
+      b.style.cssText = 'border:2px solid var(--border); background:var(--surface); color:var(--text-soft); padding:8px 16px; border-radius:999px; font-size:.9rem; font-weight:700; cursor:pointer; transition:all .12s';
+      b.addEventListener('click', function () { setMode(m.key); });
+      modesBox.appendChild(b);
+    });
+
+    resetBtn.addEventListener('click', function () {
+      clearTimers(); hideToast();
+      present = true; drawRow();
+      setStatus('已重置,数据放回来了。');
+    });
+
+    setMode('none');
+  })();
+
+  /* ===== 实验台 2:邮箱即时校验 ===== */
+  (function () {
+    var inp = document.getElementById('ep-email');
+    var fb  = document.getElementById('ep-email-fb');
+    if (!inp || !fb) return;
+
+    var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function check() {
+      var v = inp.value.trim();
+      if (v === '') {
+        inp.style.borderColor = 'var(--border)';
+        fb.innerHTML = '<span style="color:var(--text-faint)">边输入,这里边检查——不用等你点提交。</span>';
+        return;
+      }
+      if (re.test(v)) {
+        inp.style.borderColor = '#27ae60';
+        fb.innerHTML = '<span style="color:#1f7a44; font-weight:700">✓ 看起来是合法邮箱,可以提交</span>';
+        return;
+      }
+      inp.style.borderColor = '#e2524a';
+      var msg;
+      if (v.indexOf('@') < 0) {
+        msg = '还差一个 @,邮箱要长这样:name@company.com';
+      } else if (!/@[^\s@]+$/.test(v) || /@$/.test(v)) {
+        msg = '@ 后面还没填域名,比如 @company.com';
+      } else if (!/\.[^\s@]+$/.test(v)) {
+        msg = '域名后面要有后缀,比如 .com / .cn';
+      } else {
+        msg = '格式还不对,检查一下有没有空格或多打的符号';
+      }
+      fb.innerHTML = '<span style="color:#c0392b; font-weight:700">✗ ' + msg + '</span>';
+    }
+
+    inp.addEventListener('input', check);
+    check();
+  })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>诺曼五要素:可见性·映射·反馈·约束·示能 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-norman-principles"></script>
+  <style>
+    /* 本页自用:切换台所需的几个动画/控件样式,只作用于本页 */
+    @keyframes nm-spin { to { transform: rotate(360deg); } }
+    .nm-spinner {
+      display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.45); border-top-color: #fff;
+      animation: nm-spin .7s linear infinite; vertical-align: -2px;
+    }
+    .nm-mode-btn {
+      border: 2px solid var(--border); background: var(--surface); color: var(--text-soft);
+      padding: 9px 18px; border-radius: 999px; font-size: .95rem; font-weight: 800;
+      cursor: pointer; transition: all .12s;
+    }
+    .nm-stage-card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 22px 20px; min-height: 220px;
+      display: flex; flex-direction: column; gap: 18px; justify-content: center;
+    }
+    .nm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    @media (max-width: 640px) { .nm-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">诺曼五要素</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>诺曼五要素:可见性·映射·反馈·约束·示能</h1>
+      <div class="meta-row" data-meta><span>🎮 交互</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>唐纳·诺曼在《设计心理学》里讲过一句很扎心的话:<b>当你需要给一个东西贴使用说明、画箭头、写"请按这里"的时候,这个设计多半已经失败了。</b>好的设计应该让人一看就会用,用错了也能立刻发现。他把"好用"拆成几条可以逐条检查的原则。这一页挑出最常用的五条,全部落到我们天天打交道的<b>后台管理界面</b>上来讲——按钮、开关、表单、删除操作。学完你应该能拿起任何一个管理页面,逐条问出"它哪里不对劲"。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 先有个画面感</div>
+      <p style="margin:6px 0">你接手一个陌生的后台。<b>不用看文档</b>,你的眼睛和手就开始猜:这个能点吗?点了会发生什么?这个开关现在是开还是关?——你脑子里这一连串猜测,正是诺曼这几条原则在起作用。界面如果"接得住"你的猜测,你就觉得顺手;接不住,你就卡壳、点错、骂一句"这什么破系统"。</p>
+      <p style="margin:6px 0">这五条不是设计师的玄学,而是<b>一组可以拿来打分的检查项</b>。下面每讲一条,都配一个后台里的"坏例 / 好例"对照,最后给你一张能随身带走的自查清单。</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 一句话抓住五条</div>
+      <p style="margin:6px 0">
+        <b>可见性</b>=能做的操作要看得见;<b>映射</b>=控件和效果的对应要符合直觉;<b>反馈</b>=每个动作都要有即时回应;<b>约束</b>=用界面本身挡住非法操作;<b>示能与意符</b>=控件长得像它能干的事、并给出明确的可操作线索。一句话串起来:<b>看得见 → 对得上 → 有回应 → 错不了 → 一看就懂</b>。</p>
+    </div>
+
+    <h2>1. 可见性(Visibility):能做的操作要看得见</h2>
+    <p>用户只会用他<b>看得见</b>的功能。一个操作再强大,只要藏起来,对大多数人就等于不存在。后台里最常见的毛病就是把功能塞进右键菜单、塞进三个点的下拉、塞进某个不起眼的角落,然后抱怨"用户怎么不会用"。可见性的核心要求很简单:<b>在用户需要它的那一刻,让相关操作出现在他眼前。</b></p>
+    <div class="box warn">
+      <div class="box-title">❌ 坏例</div>
+      <p style="margin:6px 0">表格支持"批量删除",但这个功能<b>只藏在行的右键菜单里</b>。用户勾选了 20 行,满屏找按钮,找不到,最后只能一行一行删。功能明明做了,却像没做。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例</div>
+      <p style="margin:6px 0">用户一旦勾选了行,顶部<b>立刻浮出一条工具条</b>:"已选 20 项 · 批量删除 · 批量导出"。需要时它就在那儿,不需要时它收起来。操作的存在感是跟着用户的意图走的。</p>
+    </div>
+
+    <h2>2. 映射(Mapping):控件和效果的对应要符合直觉</h2>
+    <p>映射讲的是<b>"我动这个,那个就变",这两者之间的对应关系</b>。好的映射借用人天生的空间直觉:左对应小、右对应大;上对应增、下对应减;开关推到右边是开。一旦对应反了,用户每次都要在脑子里"翻译"一遍,慢且易错。</p>
+    <div class="box warn">
+      <div class="box-title">❌ 坏例</div>
+      <p style="margin:6px 0">一个数量调节器,<b>"+"放在左边、"−"放在右边</b>;旁边的滑块还是<b>往左拖数值变大</b>。用户每次都要停顿确认。再加一个老问题:表格列在屏幕上是 A、B、C 顺序,导出的 Excel 却是 C、A、B——<b>看到的顺序和拿到的顺序对不上</b>。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例</div>
+      <p style="margin:6px 0"><b>"−"在左、"+"在右</b>;滑块往右拖数值变大;开关<b>左关右开</b>,和现实里的电灯开关一致。表格里怎么排,导出就怎么排。用户不用思考,手就知道往哪儿动。</p>
+    </div>
+
+    <h2>3. 反馈(Feedback):每个动作都要有即时回应</h2>
+    <p>人按下任何东西,都本能地期待一个回应——按钮要凹一下,灯要亮一下。界面上的每个操作也一样,<b>必须立刻告诉用户"我收到了,正在处理 / 已经完成 / 出错了"</b>。没有反馈,用户就会反复点击(于是重复提交),或者干脆以为系统死了。反馈要<b>快</b>(几十毫秒内先有动静)、要<b>准</b>(说清结果)。</p>
+    <div class="box warn">
+      <div class="box-title">❌ 坏例</div>
+      <p style="margin:6px 0">点"保存",<b>页面纹丝不动</b>。到底存上了没有?用户不知道,于是又点一次、再点一次——后台收到三条重复请求。其实第一次就成功了,只是<b>什么都没说</b>。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例</div>
+      <p style="margin:6px 0">点"保存"的瞬间,按钮<b>变成转圈的"保存中…"并禁用</b>(顺便挡住了重复点击);存完弹一个 <b>"✓ 已保存"</b> 的 toast,一秒后淡出。整个过程用户全程知道发生了什么。</p>
+    </div>
+
+    <h2>4. 约束(Constraints):用界面本身挡住非法操作</h2>
+    <p>与其等用户犯错再报错,不如<b>从一开始就让错误做不出来</b>。这就是约束:用界面的设计限制掉非法的、没意义的操作。诺曼把约束分成几类,放到后台里看就是——</p>
+    <ul>
+      <li><b>物理/形态约束</b>:控件本身只允许合法输入。日期选择器里<b>过去的日期直接置灰、点不了</b>,用户压根没法选一个非法日期。</li>
+      <li><b>逻辑约束</b>:按状态推理出"现在不该做的事"并禁用。必填项还没填完,<b>"提交"按钮就是灰的</b>;数量为 0 时"减"按钮点不动。</li>
+      <li><b>文化/语义约束</b>:借用大家约定俗成的含义。<b>红色=危险/删除,灰色=不可用,绿色=确认</b>——把"删除"做成红色,用户自然会多看一眼。</li>
+    </ul>
+    <div class="box warn">
+      <div class="box-title">❌ 坏例</div>
+      <p style="margin:6px 0">提交按钮<b>永远可点</b>,必填项空着也能点,点了才弹一堆红字报错;数量框能输负数、能输 "abc";删除按钮和普通按钮长得一模一样。错误全靠用户事后被骂着改。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例</div>
+      <p style="margin:6px 0">必填没填完,提交按钮<b>就是禁用状态</b>,根本点不了;数量框只接受 0 起的整数,到 0 了"减"号自动失效;删除按钮是<b>红色</b>且二次确认。非法操作在界面层面就被挡在门外。</p>
+    </div>
+
+    <h2>5. 示能与意符(Affordance &amp; Signifier):一看就懂能干什么</h2>
+    <p>这两个词常被搞混,拆开就清楚了。<b>示能(Affordance)</b>是物体本身"暗示"出来的用法——一个有边框、有底色的方块,暗示"我能被按";一段纯文字,暗示"我只是给你看的"。<b>意符(Signifier)</b>是更明确的<b>提示线索</b>,专门用来告诉你"操作在这里发生":手型光标、下划线、"点击展开"几个字、一个箭头图标。示能是"它能不能用",意符是"它在告诉你怎么用"。在屏幕上,因为没有真实的物理触感,<b>意符尤其重要</b>——你得主动把线索画出来。</p>
+    <div class="box warn">
+      <div class="box-title">❌ 坏例</div>
+      <p style="margin:6px 0">一段普通的灰色文字其实是可以点的链接,但<b>没有下划线、没有颜色、鼠标移上去也不变手型</b>——没人知道它能点。反过来,一块看着像按钮的色块其实只是装饰,点了没反应,<b>骗了用户一下</b>。控件的长相和它的功能对不上。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例</div>
+      <p style="margin:6px 0">能点的东西<b>长得就像能点</b>:有边框或底色、鼠标移上去变手型光标、悬停时颜色加深(意符);纯展示的文字就老老实实是纯文字,不勾人去点。用户的"猜测"和界面的"实际"完全对得上。</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 五要素自查清单</div>
+      <p style="margin:6px 0">拿到任意一个界面,逐条问这五个问题。任何一条答不上"是",就是改进点:</p>
+      <p style="margin:6px 0">1. <b>可见性</b> — 这个页面"能做的所有操作",用户不点开任何菜单就看得见吗?</p>
+      <p style="margin:6px 0">2. <b>映射</b> — 每个控件动了之后的效果,符合"左小右大、左关右开、所见即所得"的直觉吗?</p>
+      <p style="margin:6px 0">3. <b>反馈</b> — 每个动作点下去,有没有在一瞬间给出"收到 / 处理中 / 完成 / 失败"的回应?</p>
+      <p style="margin:6px 0">4. <b>约束</b> — 那些非法的、没意义的操作,是被界面拦住了(置灰/禁用/限制输入),还是放进来再报错?</p>
+      <p style="margin:6px 0">5. <b>示能与意符</b> — 能点的看起来像能点(手型/边框/底色),不能点的不会骗人去点吗?</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎛️ 好设计 / 坏设计 切换台</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">下面是同一个后台控件:一个<b>「数量调节器」</b>加一个<b>「保存草稿」</b>操作。用总开关在 <b>❌ 坏设计</b> 和 <b>✅ 好设计</b> 之间切换,左边控件的<b>外观和行为会实时变样</b>,右边五要素列表会逐条<b>亮红或亮绿</b>。最关键的:<b>你可以真的去点那个控件</b>——好设计版点"保存草稿"会弹「✓ 已保存」,坏设计版点了……悄无声息。亲手感受一下差别。</p>
+
+      <div style="display:flex; gap:10px; align-items:center; margin:14px 0 2px; flex-wrap:wrap">
+        <span style="font-weight:700;color:var(--text-soft);font-size:.95rem">总开关:</span>
+        <button type="button" id="nm-bad"  class="nm-mode-btn">❌ 坏设计</button>
+        <button type="button" id="nm-good" class="nm-mode-btn">✅ 好设计</button>
+      </div>
+
+      <div class="nm-grid">
+        <!-- 左:可交互的演示控件 -->
+        <div>
+          <div style="font-size:.8rem;font-weight:700;color:var(--text-faint);margin-bottom:6px">演示控件 · 试着点点看 👇</div>
+          <div class="nm-stage-card" id="nm-stage"></div>
+          <div id="nm-toast" style="height:26px;margin-top:8px;text-align:center;font-weight:800;font-size:.9rem;opacity:0;transition:opacity .2s"></div>
+        </div>
+        <!-- 右:五要素实时评分 -->
+        <div>
+          <div style="font-size:.8rem;font-weight:700;color:var(--text-faint);margin-bottom:6px">五要素实时体检</div>
+          <div id="nm-check" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <h2>6. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 给你天天用的一个后台页面打分</div>
+      <p style="margin:6px 0">挑一个你最熟的后台页面(NocoBase 的某张表、某个表单、某个审批页都行),对照五要素<b>每条打 1~5 分</b>(1=完全没做到,5=做得很好),写在右边。然后只做一件事:<b>找出分数最低的那一条,想一个具体的改法。</b></p>
+      <p style="margin:12px 0; line-height:2.2">
+        可见性:常用操作是不是一眼可见,不用翻菜单? &nbsp;<b>__ / 5</b><br>
+        映射:控件方向、列顺序是不是符合直觉? &nbsp;<b>__ / 5</b><br>
+        反馈:每次保存/删除/提交是不是都有即时回应? &nbsp;<b>__ / 5</b><br>
+        约束:非法操作是被拦住,还是放进来再报错? &nbsp;<b>__ / 5</b><br>
+        示能与意符:能点的看着像能点、不能点的不骗人吗? &nbsp;<b>__ / 5</b>
+      </p>
+      <p style="margin:12px 0 4px"><b>找最弱一条的小窍门:</b><span style="color:#888">想想最近哪一步让你或同事"卡了一下、点错了、问了别人"——那一步对应的多半就是分最低的那条。</span></p>
+      <p style="margin:6px 0">把那条从 2 分提到 4 分,通常只要一个很小的改动:浮出一条工具条、把按钮做成红色、给保存加个 toast、把必填没填的提交按钮置灰。<b>诺曼五要素最大的价值,就是把"感觉不好用"翻译成"具体改哪儿"。</b></p>
+    </div>
+
+    <p style="margin-top:14px">这五条不需要背,多用几次就长在手上了。下次再打开一个别扭的后台,你不会再只说"它很难用"——你会指着具体某个按钮说:"这里违反了可见性""那个开关映射反了""保存没有反馈"。能说清问题在哪,就已经走完了改好它的一大半路。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function(){
+    var stage  = document.getElementById('nm-stage');
+    var check  = document.getElementById('nm-check');
+    var toast  = document.getElementById('nm-toast');
+    var badBtn = document.getElementById('nm-bad');
+    var goodBtn= document.getElementById('nm-good');
+    if(!stage || !check) return;
+
+    var GREEN = '#27ae60', RED = '#e2524a', ACCENT = '#B6532F';
+    var mode = 'bad';     // 'bad' | 'good'
+    var qty  = 1;         // 数量
+    var toastTimer = null;
+
+    // 五要素:每条在坏/好两种模式下的一句话评语
+    var PRINCIPLES = [
+      { name:'可见性', icon:'👁️',
+        bad:'“保存草稿”被做成一行灰字,看不出能点,操作藏起来了。',
+        good:'保存是一个带底色的主按钮,摆在显眼处,一眼可见。' },
+      { name:'映射', icon:'🧭',
+        bad:'“+”在左、“−”在右,和“左小右大”的直觉反着来。',
+        good:'“−”在左、“+”在右,动哪个变哪样,符合直觉。' },
+      { name:'反馈', icon:'📣',
+        bad:'点“保存”后界面纹丝不动,不知道存上没,容易重复点。',
+        good:'点击后按钮转圈“保存中…”,完成弹“✓ 已保存”,全程有回应。' },
+      { name:'约束', icon:'⛔',
+        bad:'数量能减成负数,数量为 0 时仍可保存,非法操作没人拦。',
+        good:'数量不能低于 0(到 0 时“−”失效),为 0 时保存按钮禁用。' },
+      { name:'示能与意符', icon:'🎯',
+        bad:'保存只是灰文字,鼠标移上去不变手型,根本不像能点。',
+        good:'按钮有边框底色、悬停变手型,长得就像“可以点”。' }
+    ];
+
+    function showToast(msg, color){
+      toast.textContent = msg;
+      toast.style.color = color || GREEN;
+      toast.style.opacity = '1';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function(){ toast.style.opacity = '0'; }, 1600);
+    }
+    function clearToast(){ toast.style.opacity = '0'; toast.textContent = ''; }
+
+    /* ---------- 渲染左侧演示控件 ---------- */
+    function renderStage(){
+      stage.innerHTML = '';
+      if(mode === 'bad'){
+        // 坏设计:数量调节器 + / − 左右颠倒,纯文字箭头;保存=灰文字,点了无反馈
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:14px;justify-content:center';
+        row.innerHTML =
+            '<span style="font-size:.85rem;color:var(--text-soft)">数量</span>'
+          + '<span id="nm-plus"  style="font-size:1.4rem;color:var(--text-faint);user-select:none">＋</span>'
+          + '<span id="nm-qty" style="font-size:1.6rem;font-weight:800;min-width:48px;text-align:center;color:var(--text)">'+qty+'</span>'
+          + '<span id="nm-minus" style="font-size:1.4rem;color:var(--text-faint);user-select:none">－</span>';
+        stage.appendChild(row);
+
+        var saveWrap = document.createElement('div');
+        saveWrap.style.cssText = 'text-align:center;margin-top:6px';
+        // 保存做成毫不起眼的灰色文字(无边框/无底色/默认光标)
+        saveWrap.innerHTML =
+          '<span id="nm-save" style="color:#9a8a6f;font-size:.95rem;cursor:default">保存草稿</span>';
+        stage.appendChild(saveWrap);
+
+        // 行为:+ 在左却是"加",- 在右(映射反);允许负数(无约束)
+        document.getElementById('nm-plus').onclick = function(){ qty++; updateQty(); };
+        document.getElementById('nm-minus').onclick = function(){ qty--; updateQty(); }; // 不设下限
+        // 保存:悄无声息(无反馈)
+        document.getElementById('nm-save').onclick = function(){ /* 什么都不做 */ };
+      } else {
+        // 好设计:− 左 + 右,真按钮,带约束;保存=主按钮,有转圈 + toast
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:12px;justify-content:center';
+        row.innerHTML =
+            '<span style="font-size:.85rem;color:var(--text-soft)">数量</span>'
+          + '<button type="button" id="nm-minus" '
+          +   'style="width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--surface);'
+          +   'font-size:1.3rem;font-weight:800;cursor:pointer;color:var(--text)">−</button>'
+          + '<span id="nm-qty" style="font-size:1.6rem;font-weight:800;min-width:48px;text-align:center">'+qty+'</span>'
+          + '<button type="button" id="nm-plus" '
+          +   'style="width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--surface);'
+          +   'font-size:1.3rem;font-weight:800;cursor:pointer;color:var(--text)">+</button>';
+        stage.appendChild(row);
+
+        var saveWrap = document.createElement('div');
+        saveWrap.style.cssText = 'text-align:center;margin-top:6px';
+        saveWrap.innerHTML =
+          '<button type="button" id="nm-save" '
+          + 'style="border:none;border-radius:10px;padding:11px 22px;font-size:1rem;font-weight:800;'
+          + 'cursor:pointer;color:#fff;background:'+ACCENT+';transition:opacity .12s">💾 保存草稿</button>';
+        stage.appendChild(saveWrap);
+
+        var minus = document.getElementById('nm-minus');
+        var plus  = document.getElementById('nm-plus');
+        var save  = document.getElementById('nm-save');
+
+        minus.onclick = function(){ if(qty > 0){ qty--; updateQty(); } };  // 约束:不低于 0
+        plus.onclick  = function(){ if(qty < 99){ qty++; updateQty(); } };
+        save.onclick  = function(){
+          if(qty === 0) return;            // 逻辑约束:数量为 0 不可保存
+          save.disabled = true;
+          save.innerHTML = '<span class="nm-spinner"></span> 保存中…';
+          save.style.opacity = '.85';
+          setTimeout(function(){
+            save.disabled = false;
+            save.innerHTML = '💾 保存草稿';
+            save.style.opacity = '1';
+            showToast('✓ 已保存', GREEN);
+          }, 700);
+        };
+      }
+      updateQty();
+    }
+
+    /* ---------- 数量变化后的连带更新(约束/外观) ---------- */
+    function updateQty(){
+      var q = document.getElementById('nm-qty');
+      if(q) q.textContent = qty;
+
+      if(mode === 'good'){
+        var minus = document.getElementById('nm-minus');
+        var save  = document.getElementById('nm-save');
+        if(minus){
+          var atZero = qty <= 0;
+          minus.disabled = atZero;
+          minus.style.opacity = atZero ? '.4' : '1';
+          minus.style.cursor  = atZero ? 'not-allowed' : 'pointer';
+        }
+        if(save){
+          var off = qty === 0;
+          save.disabled = off;
+          save.style.opacity = off ? '.45' : '1';
+          save.style.cursor  = off ? 'not-allowed' : 'pointer';
+          if(off) save.title = '数量为 0,无法保存'; else save.removeAttribute('title');
+        }
+      } else {
+        // 坏设计:数量为负数时,把它标红提示"非法状态没人拦"
+        if(q) q.style.color = qty < 0 ? RED : 'var(--text)';
+      }
+    }
+
+    /* ---------- 渲染右侧五要素体检 ---------- */
+    function renderCheck(){
+      var ok = (mode === 'good');
+      check.innerHTML = PRINCIPLES.map(function(p){
+        var color  = ok ? GREEN : RED;
+        var bg     = ok ? '#f1faf3' : '#fdf2f1';
+        var border = ok ? '#cdeed7' : '#f6d6d2';
+        var label  = ok ? '✓ 满足' : '✗ 违反';
+        var text   = ok ? p.good : p.bad;
+        return ''
+          + '<div style="display:flex;gap:10px;padding:10px 12px;border-radius:8px;background:'+bg+';border:1px solid '+border+'">'
+          +   '<span style="font-size:1.15rem;line-height:1.4">'+p.icon+'</span>'
+          +   '<div style="flex:1">'
+          +     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">'
+          +       '<b style="font-size:.95rem">'+p.name+'</b>'
+          +       '<span style="font-size:.7rem;font-weight:800;color:#fff;background:'+color+';padding:1px 9px;border-radius:999px;white-space:nowrap">'+label+'</span>'
+          +     '</div>'
+          +     '<div style="font-size:.82rem;color:var(--text-soft);line-height:1.6">'+text+'</div>'
+          +   '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    /* ---------- 切换模式 ---------- */
+    function setMode(m){
+      mode = m;
+      // 坏设计里如果把数量减成了负数,切到好设计先夹回 0,避免外观矛盾
+      if(mode === 'good' && qty < 0) qty = 0;
+      clearToast();
+      // 总开关按钮高亮
+      var on = mode === 'good';
+      goodBtn.style.background  = on ? GREEN : 'var(--surface)';
+      goodBtn.style.borderColor = on ? GREEN : 'var(--border)';
+      goodBtn.style.color       = on ? '#fff' : 'var(--text-soft)';
+      badBtn.style.background    = on ? 'var(--surface)' : RED;
+      badBtn.style.borderColor   = on ? 'var(--border)'  : RED;
+      badBtn.style.color         = on ? 'var(--text-soft)' : '#fff';
+      renderStage();
+      renderCheck();
+    }
+
+    badBtn.addEventListener('click', function(){ setMode('bad'); });
+    goodBtn.addEventListener('click', function(){ setMode('good'); });
+
+    // 初始:从坏设计开始,反差更明显
+    setMode('bad');
+  })();
+  </script>
+</body>
+</html>

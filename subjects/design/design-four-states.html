@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>界面四态:空 · 加载 · 错误 · 成功 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-four-states"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>信息架构与流程</span>
+        <span class="sep">›</span><span class="cur">界面四态</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 信息架构与流程</div>
+      <h1>界面四态:空 · 加载 · 错误 · 成功</h1>
+      <div class="meta-row" data-meta>
+        <span>🎮 交互</span> · <span>难度 ●○○</span> · <span>后台界面绕不开的四种状态</span>
+      </div>
+    </header>
+
+    <p>打开设计稿和原型,九成的画面画的都是同一种情况:<b>数据正好、网络正常、用户一路走对</b>。这一态当然要画,但它只是真实界面里的一小段。真正上线后,用户每天撞见的是另外三种没人画的情况:页面里<b>一条数据都没有</b>、数据<b>还在路上</b>、以及<b>请求直接失败了</b>。这三种你不设计,系统就用最难看的方式替你设计——白屏、转圈卡死、或者一行冷冰冰的「加载失败」。</p>
+
+    <p>所以一个像样的界面,每个区域都要把<b>四种状态</b>都想一遍:<b>空状态(Empty)、加载态(Loading)、错误态(Error)、成功/正常态(Success)</b>。这页就把这四态讲透,例子全部落在你天天做的 NocoBase 后台上:<b>列表、表格、详情、搜索、提交</b>。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 先有个画面感</div>
+      <p style="margin:6px 0">把界面上的<b>每一块区域</b>都想成一台自动售货机。多数时候它「有货、能买」(成功态),但它还得处理三件事:<b>货架空了</b>怎么显示(空状态)、<b>正在补货</b>时让人等多久、用什么提示(加载态)、<b>投币卡住</b>了怎么告诉人、怎么退钱(错误态)。一台只设计「有货能买」的机器,遇到另外三种情况就只会黑屏——用户不知道是没货、在补货、还是坏了,只能拍机器。</p>
+      <p style="margin:6px 0">界面也一样。一个客户列表,后端可能返回「一条没有」「还在查」「查崩了」「查到 50 条」四种结果。<u>这四种你都得提前画出一副样子</u>,而不是只画「查到 50 条」那一副,剩下三种听天由命。</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 一句话抓住它</div>
+      <p style="margin:6px 0">界面不是「一张画面」,而是<b>四张画面</b>:没数据时长什么样、加载时长什么样、出错时长什么样、有数据时长什么样。设计一个区块没做完,直到这四张都画了。判断标准很简单——<b>把网络拔掉、把数据清空、把接口打挂,你的页面还体面吗?</b></p>
+    </div>
+
+    <h2>1. 空状态(Empty):别给用户一片空白</h2>
+    <p>空状态是「这里本该有数据,但现在没有」。新手最容易在这里偷懒,直接留一片空白,或者就一行灰字「暂无数据」。用户看到只会犯嘀咕:<b>是没加载出来?是我没权限?是坏了?还是真的就没有?</b></p>
+    <p>一个好的空状态要回答三件事,缺一不可:</p>
+    <div class="box">
+      <p style="margin:6px 0"><b>① 一个图标或插画</b>——告诉人「这块是空的,不是坏的」,给页面一个落点,不至于慌。</p>
+      <p style="margin:6px 0"><b>② 一句人话解释</b>——「还没有客户」比「暂无数据」好,「这里会显示你负责的客户」更好,因为它顺带说清了<u>这块以后会有什么</u>。</p>
+      <p style="margin:6px 0"><b>③ 一个「下一步」按钮</b>——别让人卡在空页面上。直接给「<b>+ 新建第一个客户</b>」,把空状态变成引导用户上手的入口。</p>
+    </div>
+    <div class="box warn">
+      <div class="box-title">⚠️ 关键区分:首次空 ≠ 搜索空</div>
+      <p style="margin:6px 0"><b>首次空</b>(这个表本来就没数据)→ 给「+ 新建第一条」,鼓励他创建。</p>
+      <p style="margin:6px 0"><b>搜索/筛选空</b>(有数据,但当前条件筛没了)→ <u>绝对不能</u>叫人「新建」,这时候他要的是「<b>清除筛选 / 换个关键词</b>」。这两种空状态如果用同一套文案,搜不到东西时弹个「新建第一条」,用户会很懵。</p>
+    </div>
+    <p style="color:var(--text-faint);font-size:.86rem">在 NocoBase 里落地:列表区块、表格区块、关联数据的子表格、详情页里的「相关记录」标签页,都各自有自己的空状态。尤其是详情页里挂的子表(比如某客户下面的「跟进记录」),很容易被忘掉。</p>
+
+    <h2>2. 加载态(Loading):别让人对着白屏发呆</h2>
+    <p>数据在路上的那几百毫秒到几秒,屏幕上发生什么?如果什么都没有,用户会以为页面卡死了、点错了,甚至反复刷新,反而更慢。加载态的职责就是<b>明确告诉人「在转,等一下就好」</b>。</p>
+    <div class="box tip">
+      <div class="box-title">✅ 三条加载原则</div>
+      <p style="margin:6px 0"><b>① 骨架屏优于转圈。</b>骨架屏(skeleton)是先把<u>内容大概的形状</u>用灰色块占住——几行列表、一张表格的轮廓。它比一个居中转圈更好,因为它让人预感到「马上要出来的是什么、有多少」,等待的焦虑明显更低。转圈只告诉你「在转」,骨架屏告诉你「在转,而且快出来一个列表」。</p>
+      <p style="margin:6px 0"><b>② 局部加载别锁整页。</b>只是刷新表格里的数据,就只让<u>表格那块</u>转,别拿一个全屏遮罩把整页连同筛选栏、导航一起锁死。用户改个筛选条件,结果整页变灰不能动,体验很糟。该转的只是它自己那一块。</p>
+      <p style="margin:6px 0"><b>③ 超过几秒要给交代。</b>导出、批量、跑报表这种慢操作,光转圈不够。给<u>进度</u>(已处理 30/100)或一句<u>文案</u>(「正在生成报表,大概需要 10 秒」),让人知道还要等多久、值不值得等。</p>
+    </div>
+    <p style="color:var(--text-faint);font-size:.86rem">落地:列表/表格首次进入用骨架屏;改筛选、翻页用<b>局部</b> loading(表格自己转);提交按钮点下去要立刻进入「提交中…」并禁用按钮,防止用户狂点造成重复提交。</p>
+
+    <h2>3. 错误态(Error):说清哪里错、为什么、怎么办</h2>
+    <p>请求失败、超时、没权限、服务端 500——这些都会发生。错误态最常见的失败做法,是甩一句「<b>加载失败</b>」然后就没了:用户不知道哪错了、是不是自己的问题、下一步该干嘛,只能干瞪眼或者去找你。</p>
+    <p>一个负责任的错误态要给三样东西:</p>
+    <div class="box">
+      <p style="margin:6px 0"><b>① 哪里错 + 为什么(说人话)。</b>「网络连接失败,请检查网络后重试」远好过「Error: request failed (code 500)」。把技术错误码翻译成用户能懂、能行动的话。</p>
+      <p style="margin:6px 0"><b>② 怎么办——给一个明确动作。</b>最常见就是一个「<b>重试</b>」按钮。能重试的错误,一定要让用户一键重试,而不是逼他刷新整页、重新走一遍流程。</p>
+      <p style="margin:6px 0"><b>③ 留退路。</b>如果重试也没用,告诉他还能做什么(返回、联系管理员),别把人困在死页面里。</p>
+    </div>
+    <div class="box warn">
+      <div class="box-title">⚠️ 关键区分:整页错 ≠ 局部错</div>
+      <p style="margin:6px 0"><b>整页错</b>(整个页面没加载出来)→ 可以用一个整页的错误占位,带「重试 / 返回」。</p>
+      <p style="margin:6px 0"><b>局部错</b>(页面好好的,只有某个区块的数据没拉到)→ <u>只在那个区块里</u>提示错误 + 重试,别因为一个小图表挂了就把整页变成错误页。一个仪表盘上有 8 个图表,挂了 1 个,用户还想看另外 7 个。</p>
+    </div>
+    <p style="color:var(--text-faint);font-size:.86rem">落地:列表拉取失败给「重试」;<b>提交</b>失败尤其要小心——要明确告诉用户「<u>没提交成功,数据还在</u>」,别让他以为成了、关掉页面,结果白填一遍。校验类错误(必填没填、格式不对)还要定位到<b>具体哪个字段</b>,而不是顶上一句「提交失败」。</p>
+
+    <h2>4. 成功/正常态(Success):做完了要给个明确回执</h2>
+    <p>成功态有两层。第一层是大家都会画的:<b>数据正常显示出来</b>。第二层最容易漏:<b>用户做完一个操作,得有明确反馈</b>。保存了、提交了、删除了——如果点完按钮界面没动静,用户会犯嘀咕「到底成没成?」于是再点一次,或者反复检查。</p>
+    <div class="box">
+      <p style="margin:6px 0"><b>① 操作成功要有可见反馈。</b>一个 toast 提示(「保存成功」)、一个状态徽标从「待审批」变成「已通过」、列表里新增的那行高亮一下——任何让人确信「成了」的信号都行,就是别静悄悄。</p>
+      <p style="margin:6px 0"><b>② 反馈要落在用户的注意力上。</b>提交后页面跳走了,toast 还得跟着出现;状态变了,最好让用户能<u>看到变化的那一下</u>,而不是默默改完。</p>
+      <p style="margin:6px 0"><b>③ 成功之后给下一步。</b>新建完一条,是停在详情页、回到列表、还是接着建下一条?想清楚用户做完这件事最可能要干嘛,顺手把路给他铺好。</p>
+    </div>
+    <p style="color:var(--text-faint);font-size:.86rem">落地:NocoBase 表单提交默认会有提示,但<b>自定义动作 / JS Block 里发的请求</b>,成功反馈得你自己补,别让自定义按钮点完毫无声响。</p>
+
+    <div class="box key">
+      <div class="box-title">📋 四态检查清单(每个区块都过一遍)</div>
+      <p style="margin:6px 0">做完<b>列表、表格、详情、搜索、提交</b>里的任何一个区块,挨条问自己:</p>
+      <p style="margin:6px 0"><b>□ 空</b>——没数据时长什么样?有没有图标 + 一句解释 + 一个「下一步」?<b>首次空</b>和<b>搜索空</b>分开处理了吗?</p>
+      <p style="margin:6px 0"><b>□ 加载</b>——加载时长什么样?用了骨架屏还是白屏?是<b>局部</b>转还是把整页锁死?慢操作给进度了吗?</p>
+      <p style="margin:6px 0"><b>□ 错误</b>——出错时长什么样?说清了哪里错、怎么办、给了「重试」吗?是<b>整页错</b>还是<b>局部错</b>分清了吗?提交失败有没有保住用户的数据?</p>
+      <p style="margin:6px 0"><b>□ 成功</b>——有数据时长什么样?操作成功有没有<b>明确回执</b>(toast / 状态变化)?成功后给下一步了吗?</p>
+      <p style="margin:10px 0 2px;font-size:.9rem;color:var(--text-soft)">一个区块,四态全打勾,才算做完。任何一态空着,就是给用户埋了个坑。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎮 四态切换器</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">下面是一个模拟的后台「客户列表」卡片。点上面四个按钮,卡片会<b>实时</b>换成对应的状态——空、加载、错误、成功长什么样,一眼就看明白。试试点「<b>错误</b>」里的「重试」,它会真的走一遍<b>加载 → 成功</b>的过渡;点「<b>空</b>」里的新建按钮也一样,体会一下「创建第一条数据后列表活起来」的感觉。</p>
+
+      <!-- 仅作用于本组件的骨架屏呼吸动画,前缀 fs- 不污染全局 -->
+      <style>
+        @keyframes fsPulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+        .fs-card { border:1px solid var(--border); border-radius:12px; background:var(--surface); overflow:hidden; margin-top:14px; }
+        .fs-head { display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--border); background:var(--bg); }
+        .fs-head .fs-ttl { font-weight:800; font-size:1rem; }
+        .fs-head .fs-sub { font-size:.8rem; color:var(--text-faint); margin-left:auto; }
+        .fs-body { padding:8px 0; min-height:248px; }
+
+        /* 列表行(成功态) */
+        .fs-row { display:flex; align-items:center; gap:14px; padding:13px 18px; border-bottom:1px solid var(--border); }
+        .fs-row:last-child { border-bottom:0; }
+        .fs-av { width:38px; height:38px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff; font-size:.95rem; }
+        .fs-info { min-width:0; flex:1; }
+        .fs-info b { display:block; font-size:.95rem; }
+        .fs-info span { display:block; font-size:.8rem; color:var(--text-faint); }
+        .fs-amt { font-variant-numeric:tabular-nums; font-weight:700; color:var(--text-soft); white-space:nowrap; }
+        .fs-badge { font-size:.7rem; font-weight:700; padding:2px 9px; border-radius:999px; white-space:nowrap; }
+
+        /* 骨架行(加载态) */
+        .fs-skrow { display:flex; align-items:center; gap:14px; padding:13px 18px; border-bottom:1px solid var(--border); }
+        .fs-skrow:last-child { border-bottom:0; }
+        .fs-sk { background:linear-gradient(90deg, var(--border), #f0e7d6, var(--border)); border-radius:6px; animation:fsPulse 1.2s ease-in-out infinite; }
+        .fs-sk.circ { width:38px; height:38px; border-radius:50%; flex:none; }
+        .fs-sk.l1 { height:12px; width:46%; margin-bottom:7px; }
+        .fs-sk.l2 { height:10px; width:30%; }
+        .fs-sk.amt { height:12px; width:54px; margin-left:auto; }
+
+        /* 居中占位(空 / 错误) */
+        .fs-center { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; padding:34px 22px; min-height:248px; }
+        .fs-center .fs-ico { font-size:2.6rem; line-height:1; }
+        .fs-center .fs-msg { font-weight:700; font-size:1.02rem; }
+        .fs-center .fs-hint { font-size:.86rem; color:var(--text-faint); max-width:300px; }
+        .fs-act { margin-top:6px; border:none; border-radius:999px; padding:9px 20px; font-size:.9rem; font-weight:700; color:#fff; cursor:pointer; }
+        .fs-act:hover { opacity:.9; }
+      </style>
+
+      <div id="fs-tabs" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px"></div>
+
+      <div class="fs-card">
+        <div class="fs-head">
+          <span class="fs-ttl">👥 客户列表</span>
+          <span class="fs-sub" id="fs-sub">演示数据</span>
+        </div>
+        <div class="fs-body" id="fs-body"></div>
+      </div>
+    </div>
+
+    <h2>5. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 给你自己的后台页面补四态</div>
+      <p style="margin:6px 0">挑你正在做的、或者最近做过的<b>一个后台列表页</b>(客户、订单、工单、库存都行),拿张纸或者直接在 Figma 里,把它的四态各画一遍 / 各写一遍,然后看看<b>现在哪一态是缺的</b>。</p>
+      <p style="margin:10px 0; line-height:2">
+        1. <b>成功态</b>:有 5 条数据时,这页长什么样?(这个你多半已经有了)<br>
+        2. <b>空状态</b>:一条数据都没有时,显示什么?有没有图标 + 解释 + 「新建第一条」?搜索筛没了又显示什么?<br>
+        3. <b>加载态</b>:数据在路上时,是白屏、转圈,还是骨架屏?改筛选时是局部转还是锁整页?<br>
+        4. <b>错误态</b>:接口挂了显示什么?有没有「重试」?提交失败时,用户填的数据保住了吗?
+      </p>
+      <p style="margin:12px 0 4px;color:var(--text-soft)">大概率你会发现:成功态做得最细,空状态只有一行灰字,加载态是默认转圈,错误态压根没设计过。<b>缺的那两三态,就是这个页面下一步要补的功课。</b></p>
+    </div>
+
+    <p style="margin-top:14px">记住一句话:<b>界面不是一张画面,是四张。</b>下次评审任何一个页面,别只看「有数据、正常」那一态——把网络拔了、把数据清了、把接口打挂了再看一眼,四态都体面,这页才算真的做完。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计:学习路线与每周练习</b>
+          <span>设计 · 路线 / 后台界面自查清单</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function(){
+    var tabsBox = document.getElementById('fs-tabs');
+    var body    = document.getElementById('fs-body');
+    var sub     = document.getElementById('fs-sub');
+    if(!tabsBox || !body) return;
+
+    // 四个状态的标签 + 配色(用 style.css 调色板)
+    var STATES = [
+      { key:'empty',   label:'空',   color:'#8e44ad' },
+      { key:'loading', label:'加载', color:'#e67e22' },
+      { key:'error',   label:'错误', color:'#e2524a' },
+      { key:'success', label:'成功', color:'#27ae60' }
+    ];
+
+    // 假客户数据(全为虚构示例,不含任何真实信息)
+    var CUSTOMERS = [
+      { n:'蓝鲸科技',   c:'采购部 · 周宁',  amt:'¥ 86,000', st:'已成交', stc:'#27ae60', av:'#3b6fe0' },
+      { n:'远山贸易',   c:'王立',          amt:'¥ 32,500', st:'跟进中', stc:'#e67e22', av:'#8e44ad' },
+      { n:'晨光文创',   c:'运营 · 陈曦',    amt:'¥ 12,800', st:'待联系', stc:'#9a8a6f', av:'#16a085' },
+      { n:'海德设计事务所', c:'李航',       amt:'¥ 54,200', st:'已成交', stc:'#27ae60', av:'#c8852e' }
+    ];
+
+    var active = 'success';
+    var timer = null;
+
+    function color(k){ return STATES.filter(function(s){return s.key===k;})[0].color; }
+
+    function esc(s){ return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+
+    function renderSuccess(){
+      sub.textContent = CUSTOMERS.length + ' 个客户';
+      body.innerHTML = CUSTOMERS.map(function(r){
+        return '<div class="fs-row">'
+          + '<span class="fs-av" style="background:'+r.av+'">'+esc(r.n.charAt(0))+'</span>'
+          + '<span class="fs-info"><b>'+esc(r.n)+'</b><span>联系人:'+esc(r.c)+'</span></span>'
+          + '<span class="fs-badge" style="background:'+r.stc+'1a;color:'+r.stc+'">'+esc(r.st)+'</span>'
+          + '<span class="fs-amt">'+esc(r.amt)+'</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function renderLoading(){
+      sub.textContent = '加载中…';
+      var row = '<div class="fs-skrow">'
+        + '<span class="fs-sk circ"></span>'
+        + '<span class="fs-info"><span class="fs-sk l1"></span><span class="fs-sk l2"></span></span>'
+        + '<span class="fs-sk amt"></span>'
+        + '</div>';
+      body.innerHTML = row + row + row + row;
+    }
+
+    function renderEmpty(){
+      sub.textContent = '0 个客户';
+      body.innerHTML = '<div class="fs-center">'
+        + '<div class="fs-ico">📭</div>'
+        + '<div class="fs-msg">还没有客户</div>'
+        + '<div class="fs-hint">这里会显示你负责的客户。先建一条,列表就活起来了。</div>'
+        + '<button class="fs-act" id="fs-create" style="background:'+color('empty')+'">+ 新建第一个客户</button>'
+        + '</div>';
+      var btn = document.getElementById('fs-create');
+      if(btn) btn.addEventListener('click', function(){ transitionTo('success'); });
+    }
+
+    function renderError(){
+      sub.textContent = '加载失败';
+      body.innerHTML = '<div class="fs-center">'
+        + '<div class="fs-ico">⚠️</div>'
+        + '<div class="fs-msg">加载失败,请检查网络</div>'
+        + '<div class="fs-hint">服务器没有响应(错误码 500)。数据没丢,连上网络后重试即可。</div>'
+        + '<button class="fs-act" id="fs-retry" style="background:'+color('error')+'">↻ 重试</button>'
+        + '</div>';
+      var btn = document.getElementById('fs-retry');
+      if(btn) btn.addEventListener('click', function(){ transitionTo('success'); });
+    }
+
+    // 模拟「点了动作 → 先加载 → 再成功」的真实过渡
+    function transitionTo(target){
+      setActive('loading', false);   // 高亮加载,但不重复触发
+      renderLoading();
+      clearTimeout(timer);
+      timer = setTimeout(function(){
+        setActive(target, false);
+        render();
+      }, 1000);
+    }
+
+    function render(){
+      clearTimeout(timer);
+      if(active === 'success')      renderSuccess();
+      else if(active === 'loading') renderLoading();
+      else if(active === 'empty')   renderEmpty();
+      else if(active === 'error')   renderError();
+    }
+
+    // 只刷新按钮高亮,可选触发渲染
+    function setActive(key, doRender){
+      active = key;
+      Array.prototype.forEach.call(tabsBox.children, function(btn){
+        var on = btn.dataset.key === active;
+        var c  = color(btn.dataset.key);
+        btn.style.background  = on ? c : 'var(--surface)';
+        btn.style.borderColor = on ? c : 'var(--border)';
+        btn.style.color       = on ? '#fff' : 'var(--text-soft)';
+      });
+      if(doRender) render();
+    }
+
+    // 生成四个状态按钮
+    STATES.forEach(function(s){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.key = s.key;
+      b.textContent = s.label;
+      b.style.cssText = 'border:2px solid var(--border);background:var(--surface);color:var(--text-soft);'
+        + 'padding:8px 18px;border-radius:999px;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .12s';
+      b.addEventListener('click', function(){ setActive(s.key, true); });
+      tabsBox.appendChild(b);
+    });
+
+    // 初始:成功态
+    setActive('success', true);
+  })();
+  </script>
+</body>
+</html>

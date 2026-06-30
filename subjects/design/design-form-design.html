@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>表单设计:顺序 · 默认值 · 即时校验 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-form-design"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb></nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker></div>
+      <h1>表单设计:顺序 · 默认值 · 即时校验</h1>
+      <div class="meta-row" data-meta></div>
+    </header>
+
+    <p>做后台系统,你天天在跟表单打交道:新建客户、录入订单、配置参数。表单就是人和数据库之间那道门。门设计得顺,数据又快又干净地进来;门设计得别扭,人一边骂一边填,还填得到处是错。这一页讲的不是怎么把字段摆好看,而是<b>怎么让填表的人少动脑、少出错、少返工</b>——顺序怎么排、默认值怎么给、校验什么时候弹出来。例子全部落在后台录入表单上。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 先建立一个判断标准</div>
+      <p style="margin:6px 0">衡量一张表单好不好,不看它有多少功能,看一个填表的人<b>从打开到提交成功,一共要花多少“脑力”</b>。每多想一秒(这个字段填什么?标签到底指啥?我刚填的为什么没了?),都是设计上欠的债。好表单的目标只有一个:让人几乎不用想,顺着往下填,到底自然就提交了。</p>
+      <p style="margin:6px 0">所以下面每一条原则,你都可以拿同一个问题去验:<b>“这一步,能不能让用户少想一点?”</b> 能删的字段、能默认的值、能提前拦住的错误,本质上都是在替用户省脑子。</p>
+    </div>
+
+    <h2>1. 第一原则:能不问就不问</h2>
+    <p>表单设计最容易被忽略、却最值钱的一招,不是把字段排得多好看,而是<b>先把字段删掉</b>。每一个字段都是一次提问,都要占用户的时间和注意力。所以动手排版之前,先对着每个字段问三句话:</p>
+    <ul>
+      <li><b>这个值,现在非要不可吗?</b> 如果只是“以后也许用得上”,就别在新建时问,留到详情页里再补。新建客户时硬要填“客户行业细分”“年营业额”,十个里有九个空着或乱填。</li>
+      <li><b>这个值,系统能不能自己算/自己带?</b> 创建时间、创建人、单号、默认负责人——这些都不该让人手填。能自动带出的,绝不让用户动手。</li>
+      <li><b>这个值,能不能从已填的推出来?</b> 填了手机号归属地就别再单独问省份;选了产品就把单价带出来,而不是让人再抄一遍。</li>
+    </ul>
+    <p>一句话:<b>字段越少,完成率越高</b>。把一张 15 个字段的新建表砍到 6 个必填 + 几个可选,录入速度和数据质量往往一起变好。删字段是设计,不是偷懒。</p>
+
+    <h2>2. 字段顺序:顺着人的脑子走,别顺着数据库的表结构</h2>
+    <p>很多后台表单的字段顺序,是直接照数据库建表的顺序排下来的——id、外键、各种状态字段混在一起。但填表的人脑子里没有表结构,他有的是一条“做事的顺序”。排字段要顺着这条线:</p>
+    <ul>
+      <li><b>按用户的心理顺序。</b> 新建客户,人脑子里先想到的是“这家叫什么、联系谁、怎么联系”,所以姓名、电话、邮箱排前面;“客户来源”“标签”这种归类信息排后面。</li>
+      <li><b>从易到难。</b> 先填好填的(名字、电话),让人有“已经填了一半”的惯性,再面对要思考的字段(选分类、写备注)。一上来就是个让人卡壳的字段,人容易直接关掉。</li>
+      <li><b>相关字段分组。</b> 联系方式放一组,归属信息放一组,组与组之间留点间距或加个小标题。人是按“块”来理解表单的,分好组,一眼就知道这张表分几部分。</li>
+      <li><b>单列优先,别用多列并排。</b> 字段左右并排,眼睛要走 Z 字形,很容易看漏中间那个。单列从上往下,视线一条直线下来,最不费劲。除非是“省 / 市 / 区”这种天然成组的短字段,否则老老实实一列排下去。</li>
+    </ul>
+
+    <h2>3. 标签放哪儿:顶部最快,占位符不能当标签</h2>
+    <p>标签(label)就是字段名。它放哪、怎么放,直接决定扫读速度。</p>
+    <ul>
+      <li><b>标签放输入框顶部,扫读最快。</b> 标签在上、输入框在下,视线竖直往下走,标签和框成一条线,填到哪儿、这是什么,一目了然。标签放左边虽然省竖向空间,但眼睛要左右横跳,字段一多就乱。</li>
+      <li><b>占位符(placeholder)绝不能当标签用。</b> 这是最常见也最坑的错。把字段名写进灰色提示字里、不放正式标签——结果用户一开始打字,提示字就消失了。填到一半想回头确认“我这个框填的是手机还是座机”,标签早没了,只能把内容删掉看一眼。占位符的正确用法是<b>举个例子或给个格式提示</b>(“如:王伟”“11 位手机号”),它是标签的补充,不是替代。</li>
+      <li><b>必填标记和标签放一起。</b> 让人在看字段名的同时就知道这项要不要填,而不是填完提交才被告知。</li>
+    </ul>
+
+    <h2>4. 默认值与智能填充:合理的默认能省掉一大半操作</h2>
+    <p>默认值是性价比最高的设计。一个填得准的默认值,等于替用户做了一次选择。后台录入里到处是可以预填的地方:</p>
+    <ul>
+      <li><b>给最常见的选项当默认。</b> 八成客户都在华东,“地区”就默认华东;大多数单子都是“普通”优先级,就默认普通。让用户改少数情况,而不是每次都从头选。</li>
+      <li><b>记住上次的选择。</b> 同一个人连续录十条同一来源的客户,第二条就该把上次填的“客户来源”带出来。重复录入的场景,记忆上次比任何默认值都聪明。</li>
+      <li><b>从上下文带值。</b> 在某个项目下点“新建任务”,任务的“所属项目”就该自动填好、甚至不显示这个字段。当前登录人、当前日期、当前部门,都能直接带。</li>
+      <li><b>默认值要能改。</b> 默认是帮忙,不是锁死。带出来的值必须让用户一眼看见、随手能换。偷偷塞个用户没注意的默认值,比不给还糟。</li>
+    </ul>
+
+    <h2>5. 必填和选填:标清楚,但别满屏红星</h2>
+    <p>用户最怕的是“填到提交才发现还差三项必填”。所以必填 / 选填要在填之前就标明白。但标的方式有讲究:</p>
+    <ul>
+      <li><b>哪个是少数,就标哪个。</b> 如果一张表大部分字段都必填、只有两三个选填,那就<b>只标“选填”</b>,剩下的默认都得填。反过来,如果大多是选填、只有少数必填,就只标必填。满屏都是红星,等于没标——红星太多,人就当背景了,反而看不出哪个真要紧。</li>
+      <li><b>选填字段,明说“选填”。</b> 别让人猜“这个不填行不行”。写上“选填”两个字,用户就敢跳过,录入更快。</li>
+      <li><b>必填别用纯颜色区分。</b> 光靠红色,色弱的人和打印出来的表都分不清。文字“必填”或一个带文字提示的符号,比单纯一个红点可靠。</li>
+    </ul>
+
+    <h2>6. 即时校验:边填边验,错就近说清楚怎么改</h2>
+    <p>校验是表单体验的分水岭。同样一份会拦错的逻辑,<b>什么时候弹、弹在哪、怎么说</b>,决定了用户是顺手改掉还是当场炸毛。</p>
+    <ul>
+      <li><b>边填边验、失焦即验。</b> 手机号填到第 11 位就告诉他“对了”,而不是等他点提交。最常见的时机是<b>离开这个字段时(失焦)立刻验</b>——人填完一项、正准备填下一项,这时提示他刚填的那项有没有问题,改起来代价最小。</li>
+      <li><b>错误就近显示。</b> 哪个字段错,提示就贴在哪个字段下面,别把所有错误堆到表单顶部或弹个总框。让人“眼睛看到错,手就在错的旁边”。</li>
+      <li><b>说清楚怎么改,不只是说“错了”。</b> “格式不正确”是废话。要说“手机号应为 11 位”“邮箱应该长这样:name@company.com”。校验信息的价值在于<b>告诉人下一步怎么做对</b>。</li>
+      <li><b>别等提交后才整页报错。</b> 用户辛辛苦苦填完点提交,结果整页飘红、还得逐个找哪错了——这是体验最差的一种。错误应该在过程中就被拦下,提交那一刻应该是“早就知道全对了”。</li>
+      <li><b>失败绝不能清空已填内容。</b> 这是底线。校验没过、网络出错、后端报错,<b>用户填的每一个字都必须留着</b>。让人重填一遍,是表单设计里最不可原谅的事。</li>
+    </ul>
+
+    <h2>7. 提交反馈:别让人对着按钮猜</h2>
+    <p>点了提交之后,用户在等一个明确答复。这三件事必须有:</p>
+    <ul>
+      <li><b>按钮进入 loading,并禁用。</b> 点下去按钮就转圈、变灰,告诉用户“收到了,正在处理”。否则人不知道点没点上,会连点好几下,造出好几条重复记录。</li>
+      <li><b>成功要有明确提示。</b> 一句“✓ 已创建”,或者直接跳到新建好的详情页。让人确信“这一条真的进系统了”,而不是对着没反应的页面发愣。</li>
+      <li><b>失败要保留数据 + 说明原因。</b> 提交失败时,把人填的全留着,在显眼处说清为什么失败(“手机号已存在”),让他改一处就能重提,而不是从零再来。</li>
+    </ul>
+
+    <div class="box warn">
+      <div class="box-title">⚠️ 坏表单清单:见到这些就知道要返工</div>
+      <p style="margin:6px 0">• 字段照数据库表结构乱序排,id、状态字段混在联系方式中间</p>
+      <p style="margin:6px 0">• 没有标签,字段名只写在灰色占位符里,一打字就消失</p>
+      <p style="margin:6px 0">• 满屏红星,每个字段都必填,连“以后也许用得上”的都逼着填</p>
+      <p style="margin:6px 0">• 没有任何默认值,连“当前日期”“当前负责人”都让人手填</p>
+      <p style="margin:6px 0">• 校验只在点提交后触发,整页飘红还不说具体怎么改</p>
+      <p style="margin:6px 0">• 提交失败把填好的内容全清空,让人从头再来</p>
+      <p style="margin:6px 0">• 提交按钮点完没反应,用户连点导致重复记录</p>
+    </div>
+
+    <div class="box tip">
+      <div class="box-title">✅ 好表单清单:做到这些就顺手</div>
+      <p style="margin:6px 0">• 字段顺着人做事的顺序排,从易到难,相关字段分组、单列往下</p>
+      <p style="margin:6px 0">• 标签在输入框顶部,占位符只用来举例子和给格式</p>
+      <p style="margin:6px 0">• 必填 / 选填用文字标清楚,且只标少数那一类</p>
+      <p style="margin:6px 0">• 常见值给默认、记住上次选择、从上下文带值,且默认能改</p>
+      <p style="margin:6px 0">• 边填边验、失焦即验,错误贴在字段旁并说清怎么改</p>
+      <p style="margin:6px 0">• 任何失败都保留用户已填内容</p>
+      <p style="margin:6px 0">• 提交时按钮 loading、成功有明确提示、失败说明原因</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🧪 坏表单 / 好表单 对照实验</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">下面是同一张「新建客户」表单的两个版本。点上面的开关在<b>「❌ 坏版」</b>和<b>「✅ 好版」</b>之间切换,然后<b>真的去填一填</b>——尤其是好版的手机号、邮箱,边输入边看右边/下面的提示怎么实时变。两版填一遍,差别用身体就能记住。</p>
+
+      <div id="fd-mode" style="display:flex; gap:10px; margin:14px 0 0; flex-wrap:wrap"></div>
+      <div id="fd-caption" style="font-size:.85rem; color:var(--text-soft); background:var(--bg); border-radius:8px; padding:9px 13px; margin:12px 0 16px; line-height:1.6"></div>
+
+      <div>
+        <form id="fd-form" onsubmit="return false" style="max-width:460px"></form>
+        <div id="fd-result" style="margin-top:14px; max-width:460px"></div>
+      </div>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 一张表单上线前的 8 条自查</div>
+      <p style="margin:6px 0">逐条过一遍,有一条答不上“是”,就还没准备好上线:</p>
+      <p style="margin:6px 0">1. <b>字段能不能再删几个?</b> 每个字段都问过“现在非要不可吗、系统能不能自己带”了吗?</p>
+      <p style="margin:6px 0">2. <b>顺序顺着人的脑子吗?</b> 是从易到难、相关分组、单列往下,而不是照表结构排?</p>
+      <p style="margin:6px 0">3. <b>每个字段都有顶部标签吗?</b> 没有任何字段是只靠占位符当标签?</p>
+      <p style="margin:6px 0">4. <b>必填 / 选填标清楚了吗?</b> 而且只标了少数那一类,没满屏红星?</p>
+      <p style="margin:6px 0">5. <b>该给默认值的都给了吗?</b> 当前日期、当前负责人、最常见选项、上次选择,都带出来了?</p>
+      <p style="margin:6px 0">6. <b>校验是边填边验吗?</b> 失焦就提示,错误贴在字段旁,且说清了怎么改?</p>
+      <p style="margin:6px 0">7. <b>失败会不会清空已填?</b> 校验没过、后端报错时,用户填的内容一定留着?</p>
+      <p style="margin:6px 0">8. <b>提交有完整反馈吗?</b> 按钮 loading、成功有明确提示、失败说明原因并保留数据?</p>
+    </div>
+
+    <h2>8. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 拿你自己后台最长的一张表单开刀</div>
+      <p style="margin:6px 0">挑出你正在维护的系统里<b>字段最多的那张新建表单</b>,打开它,做三件事:</p>
+      <p style="margin:6px 0">1. <b>数字段。</b> 一共多少个?其中真正必填的有几个?把每个字段对着“现在非要不可吗”问一遍,圈出至少 2 个可以删掉或挪到详情页再补的。</p>
+      <p style="margin:6px 0">2. <b>找默认。</b> 哪些字段其实有个“八成都选它”的值,或者能从当前登录人 / 当前日期 / 上一条记录带出来?给它们标上,这些都是能省掉的操作。</p>
+      <p style="margin:6px 0">3. <b>找校验。</b> 哪些字段现在是提交后才报错的(手机号、邮箱、金额、编号)?把它们改成边填边验、就近提示。</p>
+      <p style="margin:8px 0 2px; color:var(--text-soft)">做完你会发现,大多数“难用的后台表单”,问题不在功能少,而在没人替填表的人省过这三样:删字段、给默认、早校验。</p>
+    </div>
+
+    <p style="margin-top:14px">表单设计没有玄学,就一句话:<b>每一步都替填表的人少想一点</b>。能不问就不问,该带的值自动带好,错误在过程中就拦住、就近说清楚怎么改,失败了数据一个字都不丢。把这一页的清单贴在工位上,下次设计任何录入界面,挨条过一遍就够了。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related></div>
+    </section>
+  </article>
+
+  <script>
+  (function(){
+    var modeBox = document.getElementById('fd-mode');
+    var form    = document.getElementById('fd-form');
+    var result  = document.getElementById('fd-result');
+    var caption = document.getElementById('fd-caption');
+    if(!form || !modeBox) return;
+
+    var GREEN = '#27ae60', RED = '#e2524a';
+    // 输入框统一样式(全部用 style.css 的 CSS 变量,不引外部主题)
+    var IS = 'width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;'
+           + 'font-size:1rem;background:var(--surface);color:var(--text);outline:none;font-family:inherit';
+
+    function el(html){ var d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstChild; }
+    function validPhone(v){ return /^\d{11}$/.test(v); }
+    function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+    /* ---------------- ❌ 坏版 ---------------- */
+    function renderBad(){
+      caption.innerHTML = '<b>这一版故意做坏:</b>字段乱序 · 全部红星必填 · 没有标签只有灰色提示字(一打字就没) · '
+        + '没有默认值 · 错误要等点了提交才知道,而且会把你填的全清空。';
+      form.innerHTML = '';
+      // 乱序:把归类字段甩到最前,联系方式打散
+      var fields = [
+        { ph:'地区',     tag:'select', opts:['华东','华北','华南','西南','东北'] },
+        { ph:'客户来源', tag:'select', opts:['搜索引擎','朋友介绍','广告投放','线下展会'] },
+        { ph:'姓名',     tag:'input' },
+        { ph:'邮箱',     tag:'input' },
+        { ph:'手机号',   tag:'input' }
+      ];
+      fields.forEach(function(f){
+        var row = el('<div style="display:flex;align-items:center;gap:9px;margin-bottom:11px"></div>');
+        row.appendChild(el('<span style="color:' + RED + ';font-weight:800;font-size:1.15rem">*</span>'));
+        var ctrl;
+        if(f.tag === 'select'){
+          ctrl = el('<select style="' + IS + ';cursor:pointer"></select>');
+          ctrl.appendChild(el('<option value="">' + f.ph + '</option>'));
+          f.opts.forEach(function(o){ ctrl.appendChild(el('<option>' + o + '</option>')); });
+        } else {
+          ctrl = el('<input style="' + IS + '" placeholder="' + f.ph + '">');
+        }
+        row.appendChild(ctrl);
+        form.appendChild(row);
+      });
+      var btn = el('<button type="button" style="margin-top:6px;border:none;background:var(--accent);color:#fff;'
+        + 'border-radius:10px;padding:12px 26px;font-size:1rem;font-weight:700;cursor:pointer">提交</button>');
+      btn.addEventListener('click', function(){
+        // 坏行为:无论填没填,一律清空 + 一个没用的大红框
+        Array.prototype.forEach.call(form.querySelectorAll('input,select'), function(c){ c.value = ''; });
+        result.innerHTML =
+            '<div style="border:1.5px solid ' + RED + ';background:#fdf2f1;color:' + RED + ';'
+          + 'border-radius:10px;padding:14px 16px;font-weight:700">❌ 提交失败:表单有错误,请检查后重新填写。</div>'
+          + '<div style="margin-top:7px;font-size:.85rem;color:var(--text-soft)">'
+          + '——没说哪一项错、错在哪;更糟的是,你刚填的全没了,只能从头再来。这就是用户最想摔鼠标的一刻。</div>';
+      });
+      form.appendChild(btn);
+      result.innerHTML = '';
+    }
+
+    /* ---------------- ✅ 好版 ---------------- */
+    function goodField(o){
+      var w = el('<div style="margin-bottom:15px"></div>');
+      var reqTag = o.req
+        ? '<span style="color:' + RED + ';margin-left:6px;font-size:.76rem;font-weight:700">必填</span>'
+        : '<span style="color:var(--text-faint);margin-left:6px;font-size:.76rem;font-weight:600">选填</span>';
+      w.appendChild(el('<label style="display:block;font-weight:700;font-size:.9rem;color:var(--text-soft);'
+        + 'margin-bottom:6px">' + o.label + reqTag + '</label>'));
+      w.appendChild(el('<input data-k="' + o.k + '" type="text" style="' + IS + '" placeholder="' + o.ph + '">'));
+      w.appendChild(el('<div data-msg="' + o.k + '" style="font-size:.82rem;margin-top:5px;min-height:18px;line-height:1.4"></div>'));
+      return w;
+    }
+    function goodSelect(o){
+      var w = el('<div style="margin-bottom:15px"></div>');
+      var defTag = o.def
+        ? '<span style="color:' + GREEN + ';margin-left:8px;font-size:.74rem;font-weight:600">已默认「' + o.def + '」</span>'
+        : '';
+      w.appendChild(el('<label style="display:block;font-weight:700;font-size:.9rem;color:var(--text-soft);margin-bottom:6px">'
+        + o.label + '<span style="color:var(--text-faint);margin-left:6px;font-size:.76rem;font-weight:600">选填</span>'
+        + defTag + '</label>'));
+      var sel = el('<select data-k="' + o.k + '" style="' + IS + ';cursor:pointer"></select>');
+      if(!o.def) sel.appendChild(el('<option value="">选填,可不填</option>'));
+      o.opts.forEach(function(x){ sel.appendChild(el('<option' + (x === o.def ? ' selected' : '') + '>' + x + '</option>')); });
+      w.appendChild(sel);
+      return w;
+    }
+
+    function renderGood(){
+      caption.innerHTML = '<b>这一版按原则做:</b>顺序顺手(姓名→手机→邮箱→归类) · 顶部标签 · 必填选填标清楚 · '
+        + '地区给了默认值 · 手机号/邮箱<b>边输入边校验</b> · 必填没填好提交按钮点不动 · 失败不丢数据。';
+      form.innerHTML = '';
+      form.appendChild(goodField({ k:'name',  label:'客户姓名', req:true,  ph:'如:王伟' }));
+      form.appendChild(goodField({ k:'phone', label:'手机号',   req:true,  ph:'11 位手机号' }));
+      form.appendChild(goodField({ k:'email', label:'邮箱',     req:false, ph:'选填,如 wang@acme.com' }));
+      form.appendChild(goodSelect({ k:'region', label:'地区',     opts:['华东','华北','华南','西南','东北'], def:'华东' }));
+      form.appendChild(goodSelect({ k:'source', label:'客户来源', opts:['搜索引擎','朋友介绍','广告投放','线下展会'], def:'' }));
+
+      var btn = el('<button type="button" style="margin-top:6px;border:none;background:var(--accent);color:#fff;'
+        + 'border-radius:10px;padding:12px 26px;font-size:1rem;font-weight:700;cursor:pointer">创建客户</button>');
+      form.appendChild(btn);
+
+      var name  = form.querySelector('[data-k=name]');
+      var phone = form.querySelector('[data-k=phone]');
+      var email = form.querySelector('[data-k=email]');
+
+      function msg(k, html){ form.querySelector('[data-msg=' + k + ']').innerHTML = html; }
+      function ok(s){ return '<span style="color:' + GREEN + '">' + s + '</span>'; }
+      function err(s){ return '<span style="color:' + RED + '">' + s + '</span>'; }
+
+      function recompute(){
+        var nv = name.value.trim(), pv = phone.value.trim(), ev = email.value.trim();
+
+        // 姓名:必填,填了打个勾
+        msg('name', nv ? ok('✓') : '');
+
+        // 手机号:边填边验,告诉他还差几位
+        if(pv === '')                     msg('phone', '');
+        else if(!/^\d+$/.test(pv))        msg('phone', err('手机号只能是数字'));
+        else if(pv.length < 11)           msg('phone', err('手机号应为 11 位,还差 ' + (11 - pv.length) + ' 位'));
+        else if(pv.length > 11)           msg('phone', err('超出 11 位了,多了 ' + (pv.length - 11) + ' 位'));
+        else                              msg('phone', ok('✓ 没问题'));
+
+        // 邮箱:选填,填了才验,说清正确长相
+        if(ev === '')                     msg('email', '');
+        else if(validEmail(ev))           msg('email', ok('✓ 没问题'));
+        else                              msg('email', err('邮箱格式不太对,应该长这样:name@company.com'));
+
+        // 提交按钮:必填没填好就点不动
+        var pass = nv !== '' && validPhone(pv) && (ev === '' || validEmail(ev));
+        btn.disabled      = !pass;
+        btn.style.opacity = pass ? '1' : '.45';
+        btn.style.cursor  = pass ? 'pointer' : 'not-allowed';
+      }
+
+      [name, phone, email].forEach(function(c){ c.addEventListener('input', recompute); });
+
+      btn.addEventListener('click', function(){
+        if(btn.disabled) return;
+        var region = form.querySelector('[data-k=region]').value;
+        result.innerHTML =
+            '<div style="border:1.5px solid ' + GREEN + ';background:#f1faf3;color:#1f7a44;'
+          + 'border-radius:10px;padding:14px 16px;font-weight:700">✓ 已创建客户「' + name.value.trim() + '」</div>'
+          + '<div style="margin-top:7px;font-size:.85rem;color:var(--text-soft)">'
+          + '地区默认带了「' + region + '」、提交前你早就知道每一项都对、数据一个字没丢。整张表零返工。</div>';
+      });
+
+      recompute();      // 初始把按钮置灰
+      result.innerHTML = '';
+    }
+
+    /* ---------------- 顶部开关 ---------------- */
+    var mode = 'bad';
+    function paint(){
+      Array.prototype.forEach.call(modeBox.children, function(b){
+        var on  = b.dataset.mode === mode;
+        var bad = b.dataset.mode === 'bad';
+        b.style.background  = on ? (bad ? RED : GREEN) : 'var(--surface)';
+        b.style.color       = on ? '#fff' : 'var(--text-soft)';
+        b.style.borderColor = on ? (bad ? RED : GREEN) : 'var(--border)';
+      });
+    }
+    function render(m){ if(m === 'bad') renderBad(); else renderGood(); }
+
+    [['bad','❌ 坏版'], ['good','✅ 好版']].forEach(function(pair){
+      var b = el('<button type="button" data-mode="' + pair[0] + '" style="border:2px solid var(--border);'
+        + 'background:var(--surface);color:var(--text-soft);padding:9px 20px;border-radius:999px;'
+        + 'font-size:.95rem;font-weight:700;cursor:pointer;transition:all .12s">' + pair[1] + '</button>');
+      b.addEventListener('click', function(){ mode = pair[0]; paint(); render(mode); });
+      modeBox.appendChild(b);
+    });
+
+    paint();
+    render('bad');   // 默认先看坏版,切到好版立刻感受差异
+  })();
+  </script>
+</body>
+</html>

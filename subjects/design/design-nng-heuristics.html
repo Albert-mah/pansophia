@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>尼尔森十大可用性原则 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-nng-heuristics"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb></nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>交互设计 · 可用性</div>
+      <h1>尼尔森十大可用性原则</h1>
+      <div class="meta-row" data-meta></div>
+    </header>
+
+    <p>1990 年，Jakob Nielsen 和 Rolf Molich 把大量界面问题归纳成几条「一看就懂、一用就准」的经验法则；1994 年定稿成<b>十条</b>，三十多年没变过。它们不是死规定，而是一把<b>检查界面好不好用的尺子</b>——拿着这十条把一个页面过一遍，问题基本都能照出来。这就是为什么做产品、做评审都爱用它。</p>
+
+    <p>你天天在做后台 / 管理系统（比如 NocoBase 这类）。后台界面常被当成「能用就行」，恰恰最该用这十条来量：因为后台是<b>每天高频、长时间、要录大量数据</b>的地方，一个小别扭乘以一天几百次，就是实打实的效率损失和录错。所以下面每一条，我都落到<b>后台界面</b>上给你正反例。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 先建立一个判断习惯</div>
+      <p style="margin:6px 0">看一个界面好不好用，别凭「感觉丑不丑」，而是逐条问自己：<b>用户现在知道发生了什么吗？看得懂这些字吗？点错了能反悔吗？同样的东西到处一致吗？会不会一不小心就出错？</b>……这十个问题，就是这一页要教你的十把尺子。先有「逐条体检」这个习惯，再记具体内容。</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 一句话记住十条</div>
+      <p style="margin:6px 0">十条说穿了就是一句话：<b>让用户随时知道在发生什么（1）、说人话（2）、能反悔（3）、前后一致（4）、别让他犯错（5）、能认就别让他背（6）、给老手开快车（7）、画面干净（8）、出错说清怎么救（9）、需要时有帮助（10）。</b></p>
+      <p style="margin:10px 0 2px">嫌十条多？再压成三组记：<br>
+        • <b>别让用户「懵」</b> → 1 状态可见、2 说人话、6 识别优于回忆、8 极简<br>
+        • <b>别让用户「慌」</b> → 3 能撤销、5 防错、9 错误能恢复<br>
+        • <b>别让用户「累」</b> → 4 一致、7 高效、10 有帮助</p>
+    </div>
+
+    <h2>1. 系统状态可见（Visibility of system status）</h2>
+    <p>原则：<b>系统要在合理的时间内，用合适的反馈，让用户随时知道「现在正在发生什么」。</b>人最怕的是点了一下、屏幕没反应，不知道是成功了、失败了，还是卡住了。</p>
+    <div class="box">
+      <p style="margin:6px 0">✅ <b>遵守</b>：点「保存」后按钮转圈并变成「已保存 ✓ 14:32」；批量导入时顶部显示「正在导入 120 / 500…」；列表刷新后弹一句「已更新 3 条记录」。</p>
+      <p style="margin:6px 0">❌ <b>违反</b>：点「保存」后页面纹丝不动，不刷新根本不知道存上没有；后台任务在跑却没有任何进度，用户以为没反应就一直重复点。</p>
+    </div>
+
+    <h2>2. 系统贴合现实（Match between system and the real world）</h2>
+    <p>原则：<b>用用户熟悉的语言、概念和顺序，而不是系统内部的黑话。</b>界面要照着用户脑子里现实世界的样子来，而不是照着数据库表结构来。</p>
+    <div class="box">
+      <p style="margin:6px 0">✅ <b>遵守</b>：字段叫「客户欠款金额」「下单日期」；状态写「待发货 / 已发货 / 已签收」；金额按习惯显示 ¥1,200.00；日期显示「2026-06-30」。</p>
+      <p style="margin:6px 0">❌ <b>违反</b>：界面里直接甩「entity」「fk_customer_id」「status = 2」；时间显示成时间戳 <code>1719720000</code>；让业务人员去理解「外键」「枚举值」这种开发概念。</p>
+    </div>
+
+    <h2>3. 用户控制与自由（User control and freedom）</h2>
+    <p>原则：<b>用户常会误操作，要给他们一个清楚的「紧急出口」——支持撤销、退出、返回，而不必走一长串流程。</b>能反悔的界面才让人敢用。</p>
+    <div class="box">
+      <p style="margin:6px 0">✅ <b>遵守</b>：删除记录后顶部出现「已删除 · 撤销」链接；弹窗永远有显眼的「取消」；多步表单能返回上一步且不丢已填内容；编辑页有「放弃修改」。</p>
+      <p style="margin:6px 0">❌ <b>违反</b>：删了就删了、无法撤销也没二次确认；弹窗只有「确定」没有关闭；误点进某流程只能靠强退浏览器逃出来。</p>
+    </div>
+
+    <h2>4. 一致性与标准（Consistency and standards）</h2>
+    <p>原则：<b>同样的东西，用同样的词、放同样的位置、用同样的操作；并尽量遵循大家都熟悉的平台惯例。</b>用户不该去猜「不同的词是不是不同的功能」。</p>
+    <div class="box">
+      <p style="margin:6px 0">✅ <b>遵守</b>：全站「新建」都在列表右上角、都是主色按钮；「保存 / 提交 / 确定」统一只用一个词；主键、操作列、筛选器位置在每个列表都一样。</p>
+      <p style="margin:6px 0">❌ <b>违反</b>：同一个「新建客户」在三个页面分别叫「新增」「添加」「创建」；有的页面保存按钮在左下、有的在右上；图标含义到处不统一。</p>
+    </div>
+
+    <h2>5. 错误预防（Error prevention）</h2>
+    <p>原则：<b>比给出好的报错更好的，是从一开始就让错误无法发生。</b>把容易出错的地方设计掉——能限制就限制，能确认就确认。</p>
+    <div class="box">
+      <p style="margin:6px 0">✅ <b>遵守</b>：危险的「清空数据 / 删除全部」要二次确认、甚至要求输入表名；日期用选择器、只能选合法值；必填项没填时「提交」置灰；金额输入框只收数字。</p>
+      <p style="margin:6px 0">❌ <b>违反</b>：日期靠手敲、格式随便填，点提交才报「格式错误」；一键清空没有任何拦截；下拉里混进了根本不该选的选项。</p>
+    </div>
+
+    <h2>6. 识别优于回忆（Recognition rather than recall）</h2>
+    <p>原则：<b>把选项、内容、操作摆在眼前让用户「认」，而不是逼他凭记忆「想」。</b>人脑认东西很轻松，回忆很费劲——界面要替用户记。</p>
+    <div class="box">
+      <p style="margin:6px 0">✅ <b>遵守</b>：关联客户用「下拉 + 搜索」选，显示的是客户名不是 ID；筛选器把所有可选状态列出来打勾；最近用过的值排在最前面。</p>
+      <p style="margin:6px 0">❌ <b>违反</b>：要关联客户必须背下并手敲客户编号；筛选要自己记字段名、拼查询语法；用户得记住「上一步选了什么」才能继续下一步。</p>
+    </div>
+
+    <h2>7. 灵活高效（Flexibility and efficiency of use）</h2>
+    <p>原则：<b>给新手够用的引导，同时给老手「加速器」——快捷键、批量操作、可保存的常用视图，让高频用户跑得更快。</b>后台尤其吃这一条。</p>
+    <div class="box">
+      <p style="margin:6px 0">✅ <b>遵守</b>：列表能勾选多行、批量改状态 / 批量删除；支持 <code>Ctrl+S</code> 保存；能把「我负责的 · 未完成」存成常用筛选视图，一键调出。</p>
+      <p style="margin:6px 0">❌ <b>违反</b>：改 50 条记录只能一条条点开改；没有任何快捷键；每次进来都要从头重设一遍筛选条件。</p>
+    </div>
+
+    <h2>8. 美观与极简（Aesthetic and minimalist design）</h2>
+    <p>原则：<b>界面上只放该放的；每多一条无关信息，都在稀释真正重要的信息。</b>「极简」不是好看，是把注意力让给重点。</p>
+    <div class="box">
+      <p style="margin:6px 0">✅ <b>遵守</b>：列表默认只显示关键几列，次要字段收进详情页；表单按使用频率分组，高级选项默认折叠；一屏只突出此刻最该做的那件事。</p>
+      <p style="margin:6px 0">❌ <b>违反</b>：一个列表塞 30 列、要左右横拉才能看全；表单一屏几十个字段不分组，80% 平时用不上却全摊开；满屏提示语抢走对真正操作的注意。</p>
+    </div>
+
+    <h2>9. 帮助用户识别和恢复错误（Help users recognize, diagnose, recover from errors）</h2>
+    <p>原则：<b>错误提示要用人话说清三件事：哪里错了、为什么错、怎么改。</b>并且最好直接把用户带到出错的地方。错误总会发生，关键是好不好「救」。</p>
+    <div class="box">
+      <p style="margin:6px 0">✅ <b>遵守</b>：提示「手机号应为 11 位数字」并把那个输入框标红、滚动定位过去；保存失败提示「客户名『张三』已存在，请换一个」，附「查看已有记录」。</p>
+      <p style="margin:6px 0">❌ <b>违反</b>：只弹一句红字「Error 500」或「操作失败」；一堆字段错了但不指出是哪个；报错直接甩英文堆栈，业务人员完全看不懂、也不知道下一步干嘛。</p>
+    </div>
+
+    <h2>10. 帮助文档（Help and documentation）</h2>
+    <p>原则：<b>最好的界面不靠文档就会用；但真需要帮助时，帮助要好找、贴着当前任务、步骤具体。</b>帮助是「就近、按需」，不是甩一本厚手册。</p>
+    <div class="box">
+      <p style="margin:6px 0">✅ <b>遵守</b>：复杂字段旁有「?」小图标，点开就是这一项的说明；空列表给一句「还没有数据，点右上角『新建』录入第一条」；配置页直接链到对应的操作步骤。</p>
+      <p style="margin:6px 0">❌ <b>违反</b>：界面零说明，新人盯着满屏字段不知从哪下手；文档藏在某个找不到的角落，而且内容和现在的界面对不上、早就过时了。</p>
+    </div>
+
+    <div class="box tip">
+      <div class="box-title">✅ 怎么用这十条做评审</div>
+      <p style="margin:6px 0">实际用的时候不用每条都死抠。挑界面里<b>最高频的那条主路径</b>（比如「新建一条客户记录并保存」），从头走一遍，每走一步对照十条问一句「这里违反了哪条？」。一条问题往往会同时踩中好几条——记下来、按「影响多少人 × 多严重」排序，先修最疼的。下面就用一个小组件让你练这个判断。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🔍 十原则巡检卡 + 找茬小测</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem"><b>上半部</b>：点任意一张编号卡片，下面实时显示这条原则「遵守的样子 / 违反的样子」的后台界面对照。先把十条一张张点一遍。</p>
+
+      <div id="nng-cards" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:8px; margin:14px 0 0"></div>
+
+      <div id="nng-detail" style="margin-top:16px; padding:18px 20px; background:var(--bg); border-radius:10px; min-height:120px; display:flex; flex-direction:column; gap:12px; justify-content:center">
+        <span style="color:var(--text-faint)">点上面任意一张卡片，对照示例就出现在这里 👆👇</span>
+      </div>
+
+      <div style="border-top:1px dashed var(--border); margin:22px 0 0; padding-top:18px">
+        <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem"><b>下半部 · 找茬小测</b>：每条是一个真实的后台界面毛病，点一下你觉得它<b>违反了哪条原则</b>，立刻判对错并给解释。</p>
+
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:14px 0 4px">
+          <div style="font-weight:800; font-size:1.05rem; color:var(--accent)">实时计分</div>
+          <div id="nng-score" style="font-variant-numeric:tabular-nums; font-weight:700; color:var(--text-soft)">已答 0 / 5 · 答对 0</div>
+          <button id="nng-reset" type="button" style="margin-left:auto; border:1px solid var(--border); background:var(--surface); color:var(--text-soft); padding:6px 14px; border-radius:999px; font-size:.82rem; font-weight:700; cursor:pointer">↺ 重做</button>
+        </div>
+
+        <div id="nng-quiz" style="display:flex; flex-direction:column; gap:14px; margin-top:6px"></div>
+      </div>
+    </div>
+
+    <h2>试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 给你自己的一个后台页面做一遍巡检</div>
+      <p style="margin:6px 0">挑一个你<b>每天都要打开</b>的后台页面（一个列表、一张表单，或某个流程页都行），拿这十条逐条问一遍，把「违反的条目」记下来：</p>
+      <p style="margin:10px 0; line-height:2.0">
+        1. 进行中 / 保存 / 加载，有没有<b>明确反馈</b>？（条 1）<br>
+        2. 字段名、状态词，业务同事<b>看得懂</b>吗，还是开发黑话？（条 2、9）<br>
+        3. 删除、误操作，能<b>撤销或取消</b>吗？（条 3）<br>
+        4. 同一个动作在不同页面，叫法和位置<b>一致</b>吗？（条 4）<br>
+        5. 有没有哪一步<b>特别容易填错</b>、本可以提前拦住？（条 5）<br>
+        6. 有没有逼用户<b>背 ID / 背格式</b>，而不给候选？（条 6）<br>
+        7. 高频操作有没有<b>批量 / 快捷键 / 常用视图</b>？（条 7）<br>
+        8. 这一屏是不是<b>塞太多</b>、重点被淹没？（条 8）<br>
+        9. 出错时提示<b>说清了怎么改</b>吗？（条 9）<br>
+        10. 新人上手有没有<b>就近的帮助</b>？（条 10）
+      </p>
+      <p style="margin:12px 0 4px">把命中的条目编号圈出来，按「影响多少人 × 有多疼」排个序——你就有了一张该页面的改进清单。回头再做一次，看清单是不是变短了。</p>
+    </div>
+
+    <p style="margin-top:14px">十条不用背得一字不差，记住那句「让用户<b>不懵、不慌、不累</b>」就够了。下次打开任何一个后台页面，脑子里自动过一遍这十把尺子，你看界面的眼光就和以前不一样了。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related></div>
+    </section>
+  </article>
+
+  <script>
+  (function(){
+    var cardsBox = document.getElementById('nng-cards');
+    var detail   = document.getElementById('nng-detail');
+    var quizBox  = document.getElementById('nng-quiz');
+    var scoreEl  = document.getElementById('nng-score');
+    var resetBtn = document.getElementById('nng-reset');
+    if(!cardsBox || !detail || !quizBox) return;
+
+    var GOOD = '#27ae60';   // 与 .box.tip 同色:绿=遵守
+    var BAD  = '#e2524a';   // 红=违反
+
+    // 十条:编号 + 中文名 + 英文名 + 一句话原则 + 遵守 / 违反 后台示例
+    var H = [
+      { n:1,  name:'系统状态可见', en:'Visibility of system status',
+        principle:'随时让用户知道「现在正在发生什么」,操作要有及时反馈。',
+        good:'点「保存」后按钮转圈并显示「已保存 ✓ 14:32」;批量导入时显示「120 / 500」进度。',
+        bad:'点保存后页面毫无变化,不刷新不知道成没成功,用户反复点同一个按钮。' },
+      { n:2,  name:'系统贴合现实', en:'Match between system and the real world',
+        principle:'用用户熟悉的语言和概念,而不是系统内部的黑话。',
+        good:'字段叫「客户欠款金额」「下单日期」;状态写「待发货 / 已发货」;金额 ¥1,200.00。',
+        bad:'界面里写 entity / fk_customer_id / status=2;时间显示成时间戳 1719720000。' },
+      { n:3,  name:'用户控制与自由', en:'User control and freedom',
+        principle:'给清楚的「紧急出口」——能撤销、能退出、能返回。',
+        good:'删除后顶部出现「已删除 · 撤销」;弹窗有显眼的「取消」;多步表单能返回上一步不丢数据。',
+        bad:'删了无法撤销也没二次确认;弹窗只有「确定」没关闭;误入流程只能强退浏览器。' },
+      { n:4,  name:'一致性与标准', en:'Consistency and standards',
+        principle:'同样的东西用同样的词、同样的位置、同样的操作。',
+        good:'全站「新建」都在右上角、都是主色;「保存 / 提交 / 确定」统一一个词。',
+        bad:'同一功能在三页分别叫「新增 / 添加 / 创建」;保存按钮一会儿左下一会儿右上。' },
+      { n:5,  name:'错误预防', en:'Error prevention',
+        principle:'比好的报错更好的,是一开始就让错误无法发生。',
+        good:'「清空数据」要输入表名二次确认;日期用选择器只能选合法值;必填没填则提交置灰。',
+        bad:'日期靠手敲、提交才报格式错误;一键清空毫无拦截;下拉里混进了不该选的项。' },
+      { n:6,  name:'识别优于回忆', en:'Recognition rather than recall',
+        principle:'把选项摆出来让人「认」,而不是逼人凭记忆「想」。',
+        good:'关联客户用「下拉 + 搜索」选,显示客户名;筛选状态列出来打勾;最近用过的排在前面。',
+        bad:'要关联客户必须背下并手敲客户 ID;筛选得自己记字段名、拼查询语法。' },
+      { n:7,  name:'灵活高效', en:'Flexibility and efficiency of use',
+        principle:'给新手够用,给老手加速器:快捷键、批量、可保存视图。',
+        good:'列表勾选多行批量改状态;支持 Ctrl+S 保存;能存「我负责的 · 未完成」常用筛选一键调出。',
+        bad:'改 50 条只能一条条点开改;没有任何快捷键;每次都要重设一遍筛选条件。' },
+      { n:8,  name:'美观与极简', en:'Aesthetic and minimalist design',
+        principle:'只放该放的;每多一样无关信息,都在稀释重点。',
+        good:'列表默认只显示关键几列,次要字段收进详情;表单按频率分组,高级选项折叠。',
+        bad:'一个列表塞 30 列要横拉;表单一屏几十个字段不分组,80% 用不上也全摊开。' },
+      { n:9,  name:'帮助用户识别和恢复错误', en:'Help users recognize, diagnose, recover from errors',
+        principle:'错误提示要用人话说清:哪里错、为什么、怎么改。',
+        good:'提示「手机号应为 11 位数字」并把出错输入框标红定位;失败提示「客户名已存在,请换一个」。',
+        bad:'只弹一句「Error 500」或「操作失败」;不知道是哪个字段错;直接甩英文堆栈。' },
+      { n:10, name:'帮助文档', en:'Help and documentation',
+        principle:'最好不用文档就会用;真需要时,帮助要好找、贴着任务、步骤清楚。',
+        good:'复杂字段旁有「?」点开说明;空列表提示「点右上角『新建』录入第一条」;配置页链到操作手册。',
+        bad:'界面零说明,新人不知从哪下手;文档藏在找不到的角落,且和现在的界面对不上。' }
+    ];
+
+    /* ---------- 上半部:十张巡检卡 ---------- */
+    var activeN = null;
+
+    function renderDetail(n){
+      var h = H.filter(function(x){ return x.n === n; })[0];
+      if(!h) return;
+      detail.innerHTML =
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+        +   '<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:.95rem">'+h.n+'</span>'
+        +   '<span style="font-size:1.2rem;font-weight:800;color:var(--text)">'+h.name+'</span>'
+        +   '<span style="font-size:.8rem;color:var(--text-faint)">'+h.en+'</span>'
+        + '</div>'
+        + '<div style="font-size:.95rem;color:var(--text-soft);line-height:1.7">'+h.principle+'</div>'
+        + '<div style="display:flex;flex-direction:column;gap:8px">'
+        +   '<div style="border-left:3px solid '+GOOD+';background:var(--surface);border:1px solid var(--border);border-left:3px solid '+GOOD+';border-radius:8px;padding:10px 13px;line-height:1.7">'
+        +     '<b style="color:'+GOOD+'">✅ 遵守的样子</b><br><span style="font-size:.93rem">'+h.good+'</span></div>'
+        +   '<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid '+BAD+';border-radius:8px;padding:10px 13px;line-height:1.7">'
+        +     '<b style="color:'+BAD+'">❌ 违反的样子</b><br><span style="font-size:.93rem">'+h.bad+'</span></div>'
+        + '</div>';
+    }
+
+    H.forEach(function(h){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.n = h.n;
+      b.innerHTML = '<span style="font-weight:800;font-size:1.05rem">'+h.n+'</span>'
+                  + '<span style="font-size:.82rem;line-height:1.3">'+h.name+'</span>';
+      b.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;gap:3px;'
+        + 'border:2px solid var(--border);background:var(--surface);color:var(--text-soft);'
+        + 'padding:9px 11px;border-radius:10px;cursor:pointer;text-align:left;transition:all .12s';
+      b.addEventListener('click', function(){
+        activeN = h.n;
+        Array.prototype.forEach.call(cardsBox.children, function(btn){
+          var on = (+btn.dataset.n === activeN);
+          btn.style.background  = on ? 'var(--accent)' : 'var(--surface)';
+          btn.style.borderColor = on ? 'var(--accent)' : 'var(--border)';
+          btn.style.color       = on ? '#fff'          : 'var(--text-soft)';
+        });
+        renderDetail(h.n);
+      });
+      cardsBox.appendChild(b);
+    });
+
+    /* ---------- 下半部:找茬小测 ---------- */
+    // desc=界面毛病; answer=正确条目编号; options=候选编号; explain=解释
+    var QUIZ = [
+      { desc:'删除一条客户记录后,界面没有任何撤销入口,删错了只能从头重新录入。',
+        options:[1,3,5,9], answer:3,
+        explain:'删除是破坏性操作,必须给「撤销」这样的紧急出口;做不到撤销,至少要二次确认。' },
+      { desc:'点了「保存」之后界面毫无变化,不手动刷新根本不知道到底存上了没有。',
+        options:[1,4,7,10], answer:1,
+        explain:'任何操作都该在合理时间内给出反馈——保存成功要提示,失败也要说清,别让用户干等。' },
+      { desc:'同一个「新建客户」的功能,在列表页叫「新增」,在首页叫「添加」,在导航里又叫「创建」。',
+        options:[2,4,6,8], answer:4,
+        explain:'同一个动作全站要用同一个词、同一个位置;三个名字会让人以为是三个不同功能。' },
+      { desc:'要把记录关联到某个客户,必须自己背下并手敲客户编号,界面不提供下拉搜索。',
+        options:[5,6,7,2], answer:6,
+        explain:'别逼用户凭记忆敲 ID,把候选项用下拉 / 搜索摆出来让他「认」,既快又不易错。' },
+      { desc:'表单提交失败,只弹出一句红色的「Error 500」,既不说哪里错,也不说怎么改。',
+        options:[3,5,8,9], answer:9,
+        explain:'错误提示要用人话讲清「哪里错、为什么、怎么改」,而不是甩一个用户看不懂的错误码。' }
+    ];
+
+    var answered = new Array(QUIZ.length).fill(false);
+    var correctCount = 0;
+
+    function nameOf(n){
+      var h = H.filter(function(x){ return x.n === n; })[0];
+      return h ? (h.n + ' ' + h.name) : ('第 ' + n + ' 条');
+    }
+
+    function updateScore(){
+      var done = answered.filter(Boolean).length;
+      scoreEl.textContent = '已答 ' + done + ' / ' + QUIZ.length + ' · 答对 ' + correctCount;
+    }
+
+    function renderQuiz(){
+      quizBox.innerHTML = '';
+      answered = new Array(QUIZ.length).fill(false);
+      correctCount = 0;
+      updateScore();
+
+      QUIZ.forEach(function(q, qi){
+        var card = document.createElement('div');
+        card.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px';
+
+        var head = document.createElement('div');
+        head.style.cssText = 'font-size:.95rem;line-height:1.6;margin-bottom:10px';
+        head.innerHTML = '<b style="color:var(--accent)">第 '+(qi+1)+' 题　</b>'
+          + '<span style="color:'+BAD+'">「'+q.desc+'」</span><br>'
+          + '<span style="font-size:.85rem;color:var(--text-faint)">它最主要违反了哪条原则?</span>';
+        card.appendChild(head);
+
+        var opts = document.createElement('div');
+        opts.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px';
+
+        q.options.forEach(function(n){
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = nameOf(n);
+          btn.style.cssText = 'border:2px solid var(--border);background:var(--bg);color:var(--text-soft);'
+            + 'padding:7px 13px;border-radius:999px;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .12s';
+          btn.addEventListener('click', function(){
+            if(answered[qi]) return;
+            answered[qi] = true;
+            var ok = (n === q.answer);
+            if(ok) correctCount++;
+
+            // 标记被点的按钮 + 高亮正确项 + 锁定全部
+            Array.prototype.forEach.call(opts.children, function(b2, idx){
+              var bn = q.options[idx];
+              b2.style.cursor = 'default';
+              if(bn === q.answer){
+                b2.style.background  = GOOD;
+                b2.style.borderColor = GOOD;
+                b2.style.color       = '#fff';
+                if(bn === q.answer && bn !== n) b2.textContent = '✓ ' + nameOf(bn);
+              } else if(bn === n){
+                b2.style.background  = BAD;
+                b2.style.borderColor = BAD;
+                b2.style.color       = '#fff';
+              } else {
+                b2.style.opacity = '.5';
+              }
+            });
+            if(ok) btn.textContent = '✓ ' + nameOf(n);
+            else   btn.textContent = '✗ ' + nameOf(n);
+
+            // 反馈行
+            var fb = document.createElement('div');
+            fb.style.cssText = 'margin-top:10px;font-size:.9rem;line-height:1.7;padding:10px 13px;border-radius:8px;'
+              + (ok ? ('background:#f1faf3;border:1px solid #cdeed7') : ('background:#fdf2f1;border:1px solid #f6d6d2'));
+            fb.innerHTML = (ok
+                ? '<b style="color:'+GOOD+'">✓ 答对了！</b> '
+                : '<b style="color:'+BAD+'">✗ 不对。</b> 正确答案是 <b>'+nameOf(q.answer)+'</b>。 ')
+              + q.explain;
+            card.appendChild(fb);
+
+            updateScore();
+          });
+          opts.appendChild(btn);
+        });
+
+        card.appendChild(opts);
+        quizBox.appendChild(card);
+      });
+    }
+
+    resetBtn.addEventListener('click', renderQuiz);
+    renderQuiz();
+
+    // 默认展开第 1 张巡检卡
+    cardsBox.children[0].click();
+  })();
+  </script>
+</body>
+</html>

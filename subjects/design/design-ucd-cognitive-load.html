@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户中心设计与认知负荷 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-ucd-cognitive-load"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb></nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker></div>
+      <h1>用户中心设计与认知负荷</h1>
+      <div class="meta-row" data-meta></div>
+    </header>
+
+    <p>做后台系统的人最容易掉进一个陷阱：<b>把界面当成功能的清单</b>——有多少个接口、多少张表、多少种操作，就往页面上摆多少个按钮和字段。结果用户打开页面，第一反应不是“我要干的事在哪”，而是“这一大片东西我得先看懂”。这一页讲两件互相咬合的事：<b>用户中心设计（UCD）</b>——把出发点从“我有什么功能”换成“用户要完成什么任务”；以及<b>认知负荷</b>——为什么界面一复杂，人就累、就出错、就开始抱怨“这系统太难用”，以及设计能从哪里下刀去减它。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 先有个画面感</div>
+      <p style="margin:6px 0">想象一个仓库管理员，每天要在你的后台录入到货单。他打开“新建入库单”，迎面是 <b>28 个字段</b>：供应商、合同号、税率、币种、仓位、批次、保质期、采购员、复核员……其中一大半他每次都填一样的，甚至根本不知道该填什么。他不是不会用电脑，他是被<b>一屏信息量</b>压住了——眼睛要逐个扫，脑子要记住填到哪了，手要在 28 个框之间找下一个。</p>
+      <p style="margin:6px 0">换个做法：默认把 5 个真正每次都变的字段放在最前面（供应商、商品、数量、批次、到货日期），其余 23 个收进“更多信息”折叠区，常填的供应商和仓位还能记住上次的值。同一个业务、同一批数据，<u>管理员的“脑力账单”却差了好几倍</u>。这中间的差距，就是这一页要拆给你看的东西。</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 一句话抓住它</div>
+      <p style="margin:6px 0"><b>UCD</b> 是流程：始终围着“用户在什么情境下、要完成什么任务”转，而不是围着功能列表转。<b>认知负荷</b>是结果度量：用户为了用你的界面，得动多少脑子。其中有一部分负荷是<u>设计造成的、纯属多余的</u>——好设计的核心动作，就是把这部分砍掉。</p>
+    </div>
+
+    <h2>1. 什么是用户中心设计（UCD）</h2>
+    <p>用户中心设计的本质，是把设计的“主语”换掉。功能视角的句子是：“<b>我</b>要做一个批量导出功能、一个审批流、一个多条件筛选。”用户视角的句子是：“<b>财务</b>每月末要把上月已收款的订单导出对账，<b>她</b>用的是一台分辨率不高的办公电脑，还经常被电话打断。”——后者立刻带出了一堆约束：导出要能记住上次的筛选条件、要能中断后接着来、列不能多到一屏放不下。这些都是“功能视角”想不到的。</p>
+    <p>所以 UCD 不是某个具体技巧，而是一个<b>循环</b>。国际标准（ISO 9241-210）把它拆成四个环节，做后台时同样适用：</p>
+    <div class="box">
+      <p style="margin:6px 0"><b>① 理解用户与情境</b> — 谁来用？仓管、财务还是老板？在什么场景下用：赶着出货时手忙脚乱地录单，还是月底安静地核对？设备、网络、被打断的频率都算情境。</p>
+      <p style="margin:6px 0"><b>② 明确需求</b> — 把“他要完成的任务”写成具体目标，而不是“做个管理页面”。例如：“仓管能在 30 秒内录完一张到货单，且不需要记住任何编号。”</p>
+      <p style="margin:6px 0"><b>③ 设计方案</b> — 才轮到画界面、定字段、排操作。这时每一个设计决定都要能回答“这是为了让谁更快完成什么”。</p>
+      <p style="margin:6px 0"><b>④ 评估迭代</b> — 让真实用户用一遍，看他在哪卡住、填错、来回翻。发现问题就回到①或②，<u>转着圈改</u>，而不是一次画完就交付。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 后台里最容易做的一步</div>
+      <p style="margin:6px 0">不必做完整的用户访谈。哪怕只是<b>盯着一个真实用户录三张单子</b>，你就会看到一堆自己想不到的东西：他每次都跳过某个字段、他把“备注”当成了主要输入框、他找不到“保存并新建”。这就是 UCD 最低成本的一轮“评估迭代”。</p>
+    </div>
+
+    <h2>2. 认知负荷：用户的“脑力账单”分三笔</h2>
+    <p>认知负荷指人在完成任务时，<b>工作记忆（短期记忆）</b>被占用的程度。工作记忆很小、很容易满，一满就开始出错、变慢、烦躁。心理学把它分成三类，理解这三类，你才知道哪些能砍、哪些不能砍：</p>
+    <div class="box">
+      <p style="margin:6px 0"><b>内在负荷（Intrinsic）</b> — 任务本身的固有难度。给一笔分期付款的订单算应收，本来就比记一个电话号码难。这部分由业务复杂度决定，<u>设计很难直接消除</u>，只能靠拆步骤、给中间结果来摊薄。</p>
+      <p style="margin:6px 0"><b>外在负荷（Extraneous）</b> — <b>界面强加给用户的、与任务本身无关的负担</b>。字段顺序混乱、术语和用户的说法对不上、要在三个标签页之间反复横跳、报错信息看不懂……这些都不是任务难，是<u>设计没做好</u>。这一笔，<b>就是设计能砍、也必须砍的</b>。</p>
+      <p style="margin:6px 0"><b>相关负荷（Germane）</b> — 用户为了真正理解、建立心智模型而付出的“有用的”思考。比如他第一次看懂“入库单和采购单是怎么对应的”。这部分是好的，设计要<u>保护甚至引导</u>它，而不是把它和外在负荷一起误删。</p>
+    </div>
+    <div class="box key">
+      <div class="box-title">🔑 设计的核心目标</div>
+      <p style="margin:6px 0">用户的总脑力 = 内在 + 外在 + 相关，而工作记忆的容量是固定的。外在负荷占得越多，留给“真正理解业务”的相关负荷就越少。所以好设计的动作非常明确：<b>把外在负荷压到最低</b>，把省下来的容量还给用户去完成真正的任务。每次你想往界面加东西，先问一句：“这是在帮用户完成任务，还是只是又给他一笔外在负荷？”</p>
+    </div>
+
+    <h2>3. 米勒法则 7±2 与「识别优于回忆」</h2>
+    <p>1956 年心理学家米勒在《神奇的数字 7±2》里提出：人的工作记忆一次大约只能<b>同时抓住 7 个左右（5 到 9 个）信息块</b>。这是个经典的经验值（现代研究认为有效容量可能更接近 4 个），重点不在精确数字，而在那个直觉：<b>一组东西一旦超过七八个，人就没法“一眼端在脑子里”了</b>，得分批扫、来回找、容易漏。</p>
+    <div class="box example">
+      <div class="box-title">📋 后台里的 7±2</div>
+      <p style="margin:6px 0">一个顶部工具栏塞了 15 个图标按钮，用户没法一次记住它们都是干嘛的，只能用一个找一个。一个下拉里有 40 个选项不分组，用户得从头滚到尾。一张表横着摆 20 列，眼睛永远在找“我要看的那一列在哪”。这些都是同一个病：<u>把超过工作记忆容量的东西一股脑摊开</u>。</p>
+    </div>
+    <p>第二条原则配套使用：<b>识别优于回忆（Recognition over Recall）</b>。让用户“认出来”远比让他“想起来”省力。下拉、菜单、自动补全、最近使用列表——都是把选项摆出来让他<b>选</b>，而不是让他凭空<b>记</b>住一个编码再敲进去。</p>
+    <div class="box warn">
+      <div class="box-title">⚠️ 逼用户“回忆”的典型后台设计</div>
+      <p style="margin:6px 0">让用户手填“仓库编号 WH-0037”而不是从下拉里选“北京中心仓”；让用户记住“状态码 3 = 已发货”而不是直接显示“已发货”；筛选条件里要他手敲客户全名而不是输入两个字就联想出来。每一个，都是把本该界面承担的记忆，硬塞回了用户脑子里。</p>
+    </div>
+
+    <h2>4. 落地到后台：坏 / 好对照</h2>
+    <p>原理讲完，看四组具体的“坏 vs 好”。它们对应的全是你天天在做的后台界面决定。</p>
+
+    <h3>① 表单：字段越多越累</h3>
+    <div class="box warn">
+      <div class="box-title">⚠️ 坏</div>
+      <p style="margin:6px 0">“新建客户”表单一上来 22 个字段全展开、全标红星必填，连“开票地址”“传真”都要求当场填。用户为了建一个客户，被迫凑齐一堆此刻根本没有的信息，要么瞎填、要么放弃。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好</div>
+      <p style="margin:6px 0">必填只留真正建档必需的 4～5 项（名称、联系人、电话、负责人）；其余设为选填并收进“补充信息”折叠区，等需要时再填。<b>少即是快</b>：字段数直接等于工作记忆负担，能晚填的就别在第一屏要。</p>
+    </div>
+
+    <h3>② 操作区：一屏 30 个动作 vs 分组折叠</h3>
+    <div class="box warn">
+      <div class="box-title">⚠️ 坏</div>
+      <p style="margin:6px 0">列表页每一行尾巴上挂着 8 个文字按钮（查看/编辑/复制/删除/审批/驳回/导出/日志），顶部工具栏再来十几个。一屏 30 多个操作平铺，用户每次都要从一堆里挑出那一个常用的。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好</div>
+      <p style="margin:6px 0">把最高频的 1～2 个（如“编辑”）留在外面，其余收进“更多 ⋯”下拉。按使用频率和场景分组，让<b>同时可见的操作数落回 7±2 以内</b>。下面的“认知负荷计量器”就是让你亲手感受这个临界点。</p>
+    </div>
+
+    <h3>③ 默认值与智能填充：让界面替用户记</h3>
+    <div class="box tip">
+      <div class="box-title">✅ 直接降负荷的三招</div>
+      <p style="margin:6px 0">• <b>给默认值</b>：日期默认今天、状态默认“草稿”、币种默认上次用的。用户不用每次决策。</p>
+      <p style="margin:6px 0">• <b>带出关联值</b>：选了供应商，自动填好它的联系人、付款方式、默认仓位——这些本来就在系统里，别让用户再敲一遍。</p>
+      <p style="margin:6px 0">• <b>记住上次</b>：筛选条件、列的显隐、排序方式，下次打开还在。把“识别”的成本也省了。</p>
+    </div>
+
+    <h3>④ 术语与反馈：说用户的话</h3>
+    <div class="box">
+      <p style="margin:6px 0">字段标签用业务词不用数据库字段名（是“客户名称”不是 <code>cust_nm</code>）；报错说清“哪错了、怎么改”（“收款金额不能大于订单总额”而不是 <code>validation failed: amount</code>）。<b>每一处看不懂，都是一笔外在负荷</b>，逼用户停下来猜。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎮 认知负荷计量器</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">把一个后台菜单（或操作区）的<b>选项数量</b>在 3 / 7 / 15 / 30 之间切一切，或拖动滑块自由调。下面会<b>实时</b>画出对应数量的菜单方块、一条随数量变长变色的“认知负荷”进度条，以及一句基于 7±2 的判断。试着找到那个由绿变橙、由“一眼扫完”变“开始头疼”的临界点。</p>
+
+      <div id="cl-levels" style="display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 0"></div>
+
+      <div class="control" style="margin-top:14px">
+        <label style="width:auto;font-weight:700;color:var(--text-soft);font-size:.9rem">拖动微调</label>
+        <input id="cl-slider" type="range" min="1" max="30" step="1" value="7" aria-label="选项数量">
+        <span class="val"><span id="cl-count">7</span> 项</span>
+      </div>
+
+      <div style="margin-top:16px">
+        <div style="font-size:.85rem;color:var(--text-soft);margin-bottom:7px">模拟菜单 / 操作区（共 <b><span id="cl-count2">7</span></b> 项）</div>
+        <div id="cl-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(64px, 1fr)); gap:6px; min-height:40px"></div>
+      </div>
+
+      <div style="margin-top:18px">
+        <div style="display:flex; justify-content:space-between; font-size:.82rem; color:var(--text-faint); margin-bottom:5px">
+          <span>认知负荷</span>
+          <span>容量上限（约 30 项就彻底过载）</span>
+        </div>
+        <div style="height:16px; background:var(--border); border-radius:999px; overflow:hidden">
+          <div id="cl-bar" style="height:100%; width:0; border-radius:999px; transition:width .25s, background .25s"></div>
+        </div>
+      </div>
+
+      <div id="cl-verdict" style="margin-top:16px; padding:13px 16px; background:var(--bg); border-radius:10px; font-size:.95rem; line-height:1.7"></div>
+    </div>
+
+    <h2>5. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 拿你正在做的后台，动手数一数</div>
+      <p style="margin:6px 0">原理记住了不算会，去你自己最近做的一个后台页面上对一遍：</p>
+      <p style="margin:10px 0; line-height:2.0">
+        1. 打开你常用的一个后台页面，<b>数一数主操作区（工具栏 + 行内按钮）一共有多少个按钮？</b>超过 7±2 了吗？哪些其实可以折叠进“更多”，或者按场景合并？<br>
+        2. 找一个新建/编辑表单，<b>数数有几个必填字段</b>。逐个问：这个字段，用户在“此刻”真的有信息能填吗？哪些可以改成选填、给默认值、或从关联数据带出来？<br>
+        3. 挑一个下拉或筛选框，问自己：<b>这里是在让用户“识别”还是逼他“回忆”？</b>有没有让他手敲编号、记状态码的地方？能不能换成可选、可联想？<br>
+        4. 找一处报错信息或字段标签，<b>假装你是第一次用的仓管</b>，你看得懂它在说什么、该怎么办吗？看不懂的，就是一笔可以立刻砍掉的外在负荷。
+      </p>
+    </div>
+
+    <p style="margin-top:14px">把这四条走一遍，你大概率会当场发现三五处能改的地方。这就是 UCD 那个循环最小的一圈：<b>盯着真实用户的真实任务，量一量他的脑力账单，把多余那笔砍掉，再看一眼</b>。后台不需要做得花哨，做得“不让人累”，就已经赢过大多数系统了。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related></div>
+    </section>
+  </article>
+
+  <script>
+  (function(){
+    var LEVELS = [3, 7, 15, 30];
+    var MAX    = 30;             // 进度条满格对应的项数
+    var btnBox = document.getElementById('cl-levels');
+    var slider = document.getElementById('cl-slider');
+    var grid   = document.getElementById('cl-grid');
+    var bar    = document.getElementById('cl-bar');
+    var verdict= document.getElementById('cl-verdict');
+    var countEl  = document.getElementById('cl-count');
+    var countEl2 = document.getElementById('cl-count2');
+    if(!btnBox || !grid || !bar || !verdict) return;
+
+    var current = 7;
+
+    // 模拟后台操作/菜单项的文字池
+    var LABELS = ['新建','编辑','删除','复制','导出','导入','刷新','筛选','排序',
+      '批量','打印','分享','归档','锁定','审批','驳回','指派','标签',
+      '设置','日志','统计','提醒','合并','拆分','移动','收藏','置顶',
+      '关注','转交','撤回'];
+
+    function colorFor(n){
+      if(n <= 9)  return '#27ae60';   // 5–9：短期记忆舒适区 → 绿
+      if(n <= 18) return '#e67e22';   // 偏重 → 橙
+      return '#e2524a';               // 超载 → 红
+    }
+
+    function render(){
+      // (1) 渲染对应数量的模拟菜单方块
+      grid.innerHTML = '';
+      for(var i = 0; i < current; i++){
+        var cell = document.createElement('div');
+        cell.textContent = LABELS[i % LABELS.length];
+        cell.style.cssText =
+          'padding:7px 4px;text-align:center;border-radius:7px;font-size:.8rem;' +
+          'background:var(--surface);border:1px solid var(--border);color:var(--text-soft);' +
+          'white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+        grid.appendChild(cell);
+      }
+      if(countEl)  countEl.textContent  = current;
+      if(countEl2) countEl2.textContent = current;
+
+      // (2) 进度条实时变长变色
+      var pct = Math.min(100, Math.round(current / MAX * 100));
+      var col = colorFor(current);
+      bar.style.width = pct + '%';
+      bar.style.background = col;
+
+      // (3) 基于 7±2 的实时判断
+      if(current <= 9){
+        verdict.innerHTML =
+          '<b style="color:#1f7a44">✅ 在短期记忆舒适区内</b>' +
+          '<span style="color:var(--text-soft)">　—— ' + current +
+          ' 项落在 7±2（约 5–9）之内，用户基本能一眼扫完、不用反复回头找。</span>';
+      } else {
+        verdict.innerHTML =
+          '<b style="color:#c0392b">⚠️ 超过 7±2，考虑分组、搜索或分页</b>' +
+          '<span style="color:var(--text-soft)">　—— ' + current +
+          ' 项已超出工作记忆容量，用户得逐个扫读、来回比对，外在负荷飙升。' +
+          '把高频的留在外面，其余收进“更多”、二级菜单或加搜索。</span>';
+      }
+    }
+
+    function syncButtons(){
+      Array.prototype.forEach.call(btnBox.children, function(btn){
+        var on = (+btn.dataset.n === current);
+        var c  = colorFor(current);
+        btn.style.background  = on ? c : 'var(--surface)';
+        btn.style.borderColor = on ? c : 'var(--border)';
+        btn.style.color       = on ? '#fff' : 'var(--text-soft)';
+      });
+    }
+
+    function setCurrent(n){
+      current = n;
+      if(slider) slider.value = n;
+      syncButtons();
+      render();
+    }
+
+    // 四个预设档位按钮
+    LEVELS.forEach(function(n){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.n = n;
+      b.textContent = n + ' 项';
+      b.style.cssText =
+        'border:2px solid var(--border);background:var(--surface);color:var(--text-soft);' +
+        'padding:8px 18px;border-radius:999px;font-size:.95rem;font-weight:700;' +
+        'cursor:pointer;transition:all .12s';
+      b.addEventListener('click', function(){ setCurrent(n); });
+      btnBox.appendChild(b);
+    });
+
+    // 滑块自由微调
+    if(slider){
+      slider.addEventListener('input', function(){
+        current = +slider.value;
+        syncButtons();   // 命中某个档位时该按钮会同步高亮
+        render();
+      });
+    }
+
+    // 初始：默认 7 项
+    setCurrent(7);
+  })();
+  </script>
+</body>
+</html>
