@@ -482,6 +482,18 @@ window.Core = (function () {
 
   /* ---------------- skeleton / catalog / 覆盖度 ---------------- */
   function catalogById(id) { return CATALOG.filter(function (k) { return k.id === id; })[0] || null; }
+  // 题目的 kp 可能是 catalog id,也可能是知识点中文名(老题库)。先按 id,再按标题精确,最后忽略空格/标点做前缀或包含匹配。
+  function catalogForKp(kp) {
+    if (!kp) return null;
+    var byId = catalogById(kp); if (byId) return byId;
+    var t = String(kp).trim(); if (!t) return null;
+    var exact = CATALOG.filter(function (k) { return k.title === t; })[0]; if (exact) return exact;
+    var norm = function (s) { return String(s || "").replace(/[\s·:：，,。.、()（）\/+-]+/g, "").toLowerCase(); };
+    var nt = norm(t); if (nt.length < 2) return null;
+    return CATALOG.filter(function (k) { var nk = norm(k.title); if (!nk) return false;
+      return nk.indexOf(nt) === 0 || nt.indexOf(nk) === 0 || (nt.length >= 4 && nk.indexOf(nt) >= 0) || (nk.length >= 4 && nt.indexOf(nk) >= 0);
+    })[0] || null;
+  }
   // 合并同 (subject|scope) 的大纲:topic 按标题并集、point 按标题并集(有 ref 的优先)。
   // 让"无 profile 的共享大纲(初高中/高考各科)"与旧的 profile 大纲(带已填 ref)自然融合。
   function mergeSkeletons(list) {
@@ -970,7 +982,7 @@ window.Core = (function () {
     setMastery: setMastery, isMastered: isMastered,
     catDisciplines: catDisciplines, catStats: catStats, allDisciplines: allDisciplines,
     disciplineById: disciplineById, categoryOf: categoryOf, programsFor: programsFor, resourcesFor: resourcesFor,
-    catalogById: catalogById, skeletonForUser: skeletonForUser, skeletonForDiscipline: skeletonForDiscipline,
+    catalogById: catalogById, catalogForKp: catalogForKp, skeletonForUser: skeletonForUser, skeletonForDiscipline: skeletonForDiscipline,
     coverage: coverage, categoryProgress: categoryProgress, stats: stats, heatmap: heatmap,
     masteryBySubject: masteryBySubject, recentMastered: recentMastered, accuracyBySubject: accuracyBySubject,
     pointsBySource: pointsBySource, eventsByKind: eventsByKind, fetchOverview: fetchOverview,

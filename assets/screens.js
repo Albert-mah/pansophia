@@ -1059,6 +1059,11 @@
         <h1 style="font-family:var(--serif);font-size:24px;font-weight:600;line-height:1.45;margin:0 0 26px;">${q.q}</h1>
         <div style="display:flex;flex-direction:column;gap:13px;">${optsEl}</div>
         ${run.answered != null && q.explain ? html`<div style="background:#FBF4E6;border-radius:14px;padding:20px 22px;margin-top:24px;"><div style="font-size:13px;font-weight:700;color:#6E7A4F;margin-bottom:8px;">${run.lastOk ? "✓ 答对了" : "✗ 解析"}</div><div style="font-size:14.5px;line-height:1.7;color:#3a3023;">${q.explain}</div></div>` : null}
+        ${run.answered != null && C.catalogForKp(q.kp) ? (function () { var ke = C.catalogForKp(q.kp); return html`<div style="margin-top:18px;border:1px solid #EEE3CF;border-radius:14px;padding:16px 18px;background:#fff;">
+          <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:6px;">📖 这道题考的知识点</div>
+          <div style="font-family:var(--serif);font-size:16px;font-weight:700;margin-bottom:${ke.summary ? "5" : "10"}px;">${ke.title}</div>
+          ${ke.summary ? html`<div style="font-size:13px;color:#7A6E5E;line-height:1.65;margin-bottom:10px;">${ke.summary}</div>` : null}
+          <span class="pan-btn ghost sm" onClick=${function () { app.openLesson(ke.path, ke.title); }}>📖 打开讲解 →</span></div>`; })() : null}
         ${run.answered != null ? html`<div style="display:flex;justify-content:flex-end;margin-top:24px;"><span class="pan-btn ink" onClick=${next}>${run.qIndex + 1 >= set.questions.length ? "查看结果 →" : "下一题 →"}</span></div>` : null}
       </div>`;
     }
@@ -1476,6 +1481,11 @@
         <h1 style="font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.45;margin:0 0 22px;">${q.q}</h1>
         <div style="display:flex;flex-direction:column;gap:12px;">${optsEl}</div>
         ${run.answered != null && q.explain ? html`<div style="background:#FBF4E6;border-radius:14px;padding:18px 20px;margin-top:22px;"><div style="font-size:13px;font-weight:700;color:#6E7A4F;margin-bottom:6px;">${run.lastOk ? "✓ 答对了" : "✗ 解析"}</div><div style="font-size:14px;line-height:1.7;color:#3a3023;">${q.explain}</div></div>` : null}
+        ${run.answered != null && C.catalogForKp(q.kp) ? (function () { var ke = C.catalogForKp(q.kp); return html`<div style="margin-top:16px;border:1px solid #EEE3CF;border-radius:14px;padding:16px 18px;background:#fff;">
+          <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:6px;">📖 这道题考的知识点</div>
+          <div style="font-family:var(--serif);font-size:16px;font-weight:700;margin-bottom:${ke.summary ? "5" : "10"}px;">${ke.title}</div>
+          ${ke.summary ? html`<div style="font-size:13px;color:#7A6E5E;line-height:1.65;margin-bottom:10px;">${ke.summary}</div>` : null}
+          <span class="pan-btn ghost sm" onClick=${function () { app.openLesson(ke.path, ke.title); }}>📖 打开讲解 →</span></div>`; })() : null}
         ${run.answered != null ? html`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;">${(run.reviewed || {})[run.i] ? html`<span class="pan-pill" style="background:#FBF4E6;color:#C8852E;font-weight:700;">⏳ 待点评 · 已申请导师点评</span><span style="font-size:12px;color:#9a8a6f;">做完后到「导师点评」让 AI 批改 →</span>` : html`<span class="pan-btn ghost" onClick=${reqReview}>🎓 申请 AI 导师点评</span>`}</div>` : null}
         ${run.answered != null ? html`<div style="display:flex;justify-content:flex-end;margin-top:22px;"><span class="pan-btn ink" onClick=${next}>${run.i + 1 >= qs.length ? "查看结果 →" : "下一题 →"}</span></div>` : null}
       </div></div>`;
