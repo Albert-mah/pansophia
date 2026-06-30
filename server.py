@@ -30,8 +30,8 @@ CONFIG_PATH = os.path.expanduser("~/.studyhub/config.json")
 PORT = int(os.environ.get("STUDYHUB_PORT", "8790"))
 BIND = os.environ.get("STUDYHUB_BIND", "127.0.0.1")
 MAX_BODY = 512 * 1024
-UPLOAD_MAX = 13 * 1024 * 1024          # 上传请求体上限(含 base64 膨胀,约对应 9MB 文件)
-FILE_MAX = 9 * 1024 * 1024
+UPLOAD_MAX = 70 * 1024 * 1024          # 上传请求体上限(含 base64 膨胀,约对应 50MB 文件)
+FILE_MAX = 50 * 1024 * 1024
 FILE_ID_RE = re.compile(r"^[0-9a-f]{8,40}$")
 USER_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 

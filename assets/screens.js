@@ -226,7 +226,7 @@
     }
     function upload(e) {
       var file = e.target.files && e.target.files[0]; if (!file) return;
-      if (file.size > 8 * 1024 * 1024) { window.alert("文件请小于 8MB"); e.target.value = ""; return; }
+      if (file.size > 50 * 1024 * 1024) { window.alert("文件请小于 50MB"); e.target.value = ""; return; }
       var rd = new FileReader();
       rd.onload = function () {
         var b64 = String(rd.result).split(",")[1] || "";
@@ -1440,7 +1440,7 @@
     }
     function upload(e) {
       var file = e.target.files && e.target.files[0]; if (!file) return;
-      if (file.size > 8 * 1024 * 1024) { window.alert("文件请小于 8MB(大书建议放直链后缓存)"); e.target.value = ""; return; }
+      if (file.size > 50 * 1024 * 1024) { window.alert("文件请小于 50MB(整本电子书直接传即可)"); e.target.value = ""; return; }
       var rd = new FileReader();
       rd.onload = function () { var b64 = String(rd.result).split(",")[1] || ""; C.uploadFile(file.name, file.type || "application/pdf", b64).then(function (r) { if (r && r.ok && r.id) C.saveMaterial({ discId: f.discId || null, kind: "pdf", title: file.name, fileId: r.id, authority: "authoritative", note: "上传" }).then(load); else window.alert("上传失败"); }); };
       rd.readAsDataURL(file); e.target.value = "";
