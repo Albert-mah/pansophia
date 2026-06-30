@@ -689,12 +689,22 @@
 
     var center;
     if (sel && sel.kp) {
-      center = html`<div class="pan-article"><div style="aspect-ratio:16/9;border-radius:16px;background:linear-gradient(135deg,#33291E,#5a4632);display:flex;align-items:center;justify-content:center;margin-bottom:24px;color:rgba(255,255,255,.7);font-size:13px;">${sel.kp.type || "讲解页"}</div>
-        <h1>${sel.kp.title}</h1>
-        <div style="display:flex;gap:14px;align-items:center;font-size:13px;color:#9a8a6f;margin-bottom:24px;"><span>${sel.t}</span><span>·</span><span>${sc.name}</span></div>
-        <p>${sel.kp.summary || ""}</p>
-        <div class="pan-callout"><strong>打开完整讲解</strong><br/>这一节已有交互讲解页,点开看可调参数的可视化与例题。</div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;padding-top:24px;border-top:1px solid #EEE3CF;"><span class="pan-btn ink" onClick=${function () { app.openLesson(sel.kp.path, sel.kp.title); }}>📖 打开讲解 →</span><a class="pan-btn ghost" href=${sel.kp.path} target="_blank" rel="noopener" title="新标签打开 / 分享">↗</a><span class="pan-btn ghost" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope }); }}>做练习</span><span class="pan-btn ghost" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope, mode: "exam" }); }}>📝 模拟试卷</span>${masterBtn()}</div></div>`;
+      var lp = sel.kp;
+      center = html`<div class="pan-lesson-inline">
+        <div class="pan-lesson-inbar">
+          <div style="min-width:0;flex:1;">
+            <div style="font-size:11.5px;color:#9a8a6f;margin-bottom:2px;">${sel.t} · ${sc.name}${lp.type ? html` · <span style="color:#B6532F;">${lp.type}</span>` : ""}</div>
+            <div style="font-family:var(--serif);font-size:17px;font-weight:700;color:#33291E;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${lp.title}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0;">
+            <span class="pan-btn ghost sm" onClick=${function () { app.openLesson(lp.path, lp.title); }} title="全屏查看">⛶ 全屏</span>
+            <a class="pan-btn ghost sm" href=${lp.path} target="_blank" rel="noopener" title="新标签打开 / 分享">↗ 新标签</a>
+            <span class="pan-btn ghost sm" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope }); }}>做练习</span>
+            ${masterBtn()}
+          </div>
+        </div>
+        <iframe src=${lp.path} class="pan-lesson-inframe" title=${lp.title} loading="lazy"></iframe>
+      </div>`;
     } else if (sel) {
       center = html`<div class="pan-article"><div style="font-size:12.5px;color:#9a8a6f;margin-bottom:8px;">${sel.t} · ${sc.name}</div>
         <h1>${sel.p.title}</h1>
