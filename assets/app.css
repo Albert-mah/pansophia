@@ -93,6 +93,11 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 .pan-brand .bt { font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
 .pan-brand .bs { font-size: 10px; letter-spacing: .18em; color: var(--faint); margin-top: 3px; }
 .pan-nav-row { display: flex; align-items: center; gap: 26px; margin-left: 14px; }
+.pan-burger { display: none; }
+.pan-navdrawer { display: flex; flex-direction: column; gap: 2px; width: 100%; order: 9; padding: 8px 2px 4px; margin-top: 8px; border-top: 1px solid var(--line-2); }
+.pan-navdrawer-item { padding: 12px 12px; border-radius: 10px; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.pan-navdrawer-item.sub { padding-left: 28px; font-weight: 500; font-size: 14px; color: var(--muted); }
+.pan-navdrawer-item.active { background: var(--tint-terra); color: var(--terra); }
 .pan-nav {
   font-size: 14.5px; font-weight: 500; cursor: pointer; padding: 6px 1px;
   color: #5e5240; white-space: nowrap; flex-shrink: 0;
@@ -336,6 +341,12 @@ h1, h2, h3, .serif { font-family: var(--serif); }
   .pan-nav-row { flex-wrap: wrap !important; gap: 12px 18px !important; margin-left: 0 !important; order: 5; width: 100%; }
   .pan-hide-sm { display: none !important; }
   .pan-screen { padding: 22px 18px 50px; }
+}
+/* 窄屏:整条导航折叠成 ☰ 按钮,点开下拉抽屉 */
+@media (max-width: 820px) {
+  .pan-nav-row { display: none !important; }
+  .pan-burger { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; margin-left: 4px; border-radius: 11px; font-size: 18px; color: var(--ink); background: var(--paper-2); cursor: pointer; flex-shrink: 0; }
+  .pan-burger.on { background: var(--terra); color: var(--paper); }
 }
 @media (max-width: 900px) {
   /* React 把内联 style 序列化成带空格的 repeat(N, 1fr);两种写法都匹配 */

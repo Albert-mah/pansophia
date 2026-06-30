@@ -68,6 +68,7 @@
             <div class="pan-logo">万</div>
             <div style=${{ lineHeight: 1 }}><div class="bt">Pansophia</div><div class="bs">万象学院</div></div>
           </div>
+          <div class=${"pan-burger" + (app.navOpen ? " on" : "")} title="菜单" onClick=${function () { app.toggleNav(); }}>${app.navOpen ? "✕" : "☰"}</div>
           <nav class="pan-nav-row">
             ${NAV.map(function (n) {
               var active = navActive(n.key) || (n.key === "more" && ((n.sub && n.sub.indexOf(app.screen) >= 0) || app.moreOpen));
@@ -79,7 +80,6 @@
           </nav>
           <div style=${{ flex: 1 }}></div>
           <div class="pan-search pan-hide-sm" onClick=${function () { app.go("explore"); }}><span>⌕</span> 搜索任何主题…</div>
-          <div class="pan-btn grad pill" onClick=${function () { app.go("wishlist"); }}><span>✦</span> 愿望清单</div>
           <div class="pan-btn ink pill" style=${{ fontWeight: 700 }} onClick=${function () { app.go("points"); }}><span style=${{ color: "#C8852E", fontSize: "14px" }}>⬡</span> ${pts.toLocaleString()}</div>
           <div class="pan-offline pan-hide-sm">🔥 ${st.streak || 0} 天</div>
           <div class="pan-avatar" title=${u.name + " · 切换用户"} onClick=${function () { app.toggleUser(); }}
@@ -87,6 +87,7 @@
         </div>
         ${app.menuOpen ? html`<${MegaMenu} />` : null}
         ${app.userPop ? html`<${UserPop} />` : null}
+        ${app.navOpen ? html`<${NavDrawer} />` : null}
       </div>`;
   }
 
@@ -95,6 +96,22 @@
     var sub = (NAV.filter(function (n) { return n.key === "more"; })[0] || {}).sub || [];
     return html`<div class="pan-morepop">
       ${sub.map(function (k) { return html`<div key=${k} class=${"u" + (app.screen === k ? " on" : "")} onClick=${function (e) { e.stopPropagation(); app.go(k); }}>${SUBLABELS[k] || k}</div>`; })}
+    </div>`;
+  }
+
+  // 移动端:整条导航折叠成 ☰,点开抽屉列出全部入口(含「更多」子项)
+  function NavDrawer() {
+    var app = useContext(Ctx);
+    var items = [];
+    NAV.forEach(function (n) {
+      if (n.key === "more") (n.sub || []).forEach(function (s) { items.push({ key: s, label: SUBLABELS[s] || s, sub: true }); });
+      else items.push({ key: n.key, label: n.label });
+    });
+    return html`<div class="pan-navdrawer">
+      ${items.map(function (it) {
+        var active = app.screen === it.key;
+        return html`<div key=${it.key} class=${"pan-navdrawer-item" + (active ? " active" : "") + (it.sub ? " sub" : "")} onClick=${function () { app.go(it.key); }}>${it.label}</div>`;
+      })}
     </div>`;
   }
 
@@ -292,7 +309,7 @@
   /* ---------------- 根组件 ---------------- */
   function App() {
     var initScreen = qsGet("screen"); if (SCREENS.indexOf(initScreen) < 0) initScreen = "home";
-    var s0 = useState({ screen: initScreen, params: { disc: qsGet("disc") || null, cat: qsGet("cat") || null }, menuOpen: false, userPop: false, moreOpen: false, ready: false, tick: 0, toast: null, lesson: null });
+    var s0 = useState({ screen: initScreen, params: { disc: qsGet("disc") || null, cat: qsGet("cat") || null }, menuOpen: false, userPop: false, moreOpen: false, navOpen: false, ready: false, tick: 0, toast: null, lesson: null });
     var st = s0[0], setSt = s0[1];
 
     // 启动:从数据库水合当前用户全部状态,完成后检测成就(基于已有进度回溯解锁),再渲染
@@ -301,17 +318,18 @@
     useEffect(function () { if (!st.toast) return; var t = setTimeout(function () { setSt(function (p) { return Object.assign({}, p, { toast: null }); }); }, 5200); return function () { clearTimeout(t); }; }, [st.toast]);
 
     var api = {
-      screen: st.screen, params: st.params, menuOpen: st.menuOpen, userPop: st.userPop, moreOpen: st.moreOpen,
+      screen: st.screen, params: st.params, menuOpen: st.menuOpen, userPop: st.userPop, moreOpen: st.moreOpen, navOpen: st.navOpen,
       go: function (screen, params) {
         if (SCREENS.indexOf(screen) < 0) screen = "home";
         setUrl({ screen: screen, disc: (params && params.disc) || null });
         try { window.scrollTo(0, 0); } catch (e) {}
-        setSt(function (p) { return Object.assign({}, p, { screen: screen, params: params || {}, menuOpen: false, userPop: false, moreOpen: false, tick: p.tick + 1 }); });
+        setSt(function (p) { return Object.assign({}, p, { screen: screen, params: params || {}, menuOpen: false, userPop: false, moreOpen: false, navOpen: false, tick: p.tick + 1 }); });
       },
       refresh: function () { setSt(function (p) { return Object.assign({}, p, { tick: p.tick + 1 }); }); },
-      toggleMenu: function () { setSt(function (p) { return Object.assign({}, p, { menuOpen: !p.menuOpen, userPop: false, moreOpen: false }); }); },
-      toggleUser: function () { setSt(function (p) { return Object.assign({}, p, { userPop: !p.userPop, menuOpen: false, moreOpen: false }); }); },
-      toggleMore: function () { setSt(function (p) { return Object.assign({}, p, { moreOpen: !p.moreOpen, menuOpen: false, userPop: false }); }); },
+      toggleMenu: function () { setSt(function (p) { return Object.assign({}, p, { menuOpen: !p.menuOpen, userPop: false, moreOpen: false, navOpen: false }); }); },
+      toggleUser: function () { setSt(function (p) { return Object.assign({}, p, { userPop: !p.userPop, menuOpen: false, moreOpen: false, navOpen: false }); }); },
+      toggleMore: function () { setSt(function (p) { return Object.assign({}, p, { moreOpen: !p.moreOpen, menuOpen: false, userPop: false, navOpen: false }); }); },
+      toggleNav: function () { setSt(function (p) { return Object.assign({}, p, { navOpen: !p.navOpen, menuOpen: false, userPop: false, moreOpen: false }); }); },
       switchUser: function (k) {
         C.switchUser(k);
         setSt(function (p) {
