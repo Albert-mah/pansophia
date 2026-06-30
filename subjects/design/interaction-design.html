@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>交互设计 · 学习路线与每周练习 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <style>
+    :root { --accent-page: #B6532F; }
+    .road { counter-reset: step; }
+    .road .step { position: relative; padding-left: 52px; margin: 18px 0; }
+    .road .step::before {
+      counter-increment: step; content: counter(step);
+      position: absolute; left: 0; top: 0; width: 34px; height: 34px;
+      border-radius: 50%; background: var(--accent-page); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-family: var(--serif, Georgia, serif);
+    }
+    .road .step h3 { margin: 4px 0 6px; }
+    .booklist { list-style: none; padding: 0; margin: 8px 0; }
+    .booklist li { padding: 10px 0; border-bottom: 1px dashed #e7dcc6; }
+    .booklist li:last-child { border-bottom: 0; }
+    .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; margin-right: 6px; vertical-align: middle; }
+    .b-main { background: #FAE9E2; color: #B6532F; }
+    .b-free { background: #eef7f0; color: #3f8a52; }
+    .b-buy  { background: #FBF4E6; color: #a86a00; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb"><a href="../../index.html">🏠 学习中心</a><span class="sep">›</span><span>设计学 · 交互设计</span></nav>
+      <a class="home-btn" href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker">设计学 · 用户体验 / 交互设计</div>
+      <h1>交互设计:学习路线与每周练习</h1>
+      <div class="meta-row">为「终身学习」整理 · 目标是把真正的交互设计经验提上去,不止于 Figma 或视觉。</div>
+    </header>
+
+    <p>交互设计的核心不是画好看的界面,而是一条链路:
+      <strong>理解用户任务 → 组织信息 → 设计流程和状态 → 处理异常 → 验证可用性 → 和业务/研发一起落地</strong>。
+      只学 Figma 或视觉课会停在表面;下面这条路线照着走,配合每周练习,经验才会真正长出来。</p>
+
+    <div class="box key">
+      <div class="box-title">🎯 一句话定方向</div>
+      <p style="margin:6px 0">你做的是 NocoBase 后台 / 业务系统,所以重心放在
+        <strong>信息架构、流程与状态、界面模式、可用性</strong>这几块,而不是品牌视觉。
+        主教材选偏软件产品的《About Face》,底层心智模型先读《设计心理学》。</p>
+    </div>
+
+    <h2>五步学习路线</h2>
+    <div class="road">
+      <div class="step">
+        <h3>UX / HCI 基础</h3>
+        <p>用户中心设计、认知负荷、可用性原则、反馈、映射、约束、错误预防。
+          重点吃透 <strong>NN/g 十大可用性原则</strong>(下面单列),它几乎是所有界面评审的尺子。</p>
+      </div>
+      <div class="step">
+        <h3>用户研究与需求分析</h3>
+        <p>访谈、观察、任务分析、persona、journey map、可用性测试。
+          目的不是写漂亮文档,而是判断「用户到底想完成什么任务」。轻量做就够,别闭门造车。</p>
+      </div>
+      <div class="step">
+        <h3>信息架构与流程设计</h3>
+        <p>导航、分类、层级、搜索、表单、列表、详情页、工作流、权限、空状态、错误状态。
+          这一块对后台系统、SaaS、业务工具最关键,也最容易被忽略。</p>
+      </div>
+      <div class="step">
+        <h3>界面模式与组件设计</h3>
+        <p>常见 UI pattern:表格、筛选、批量操作、向导、弹窗、抽屉、仪表盘、编辑器、设置页。
+          别每次从零发明交互——多数问题前人已有成熟解法,用《Designing Interfaces》当工具书查。</p>
+      </div>
+      <div class="step">
+        <h3>原型、评审与迭代</h3>
+        <p>低保真 wireframe → 高保真 prototype → 设计走查 → 可用性测试 → 设计 critique。
+          Google UX 证书课覆盖了 Figma、线框、原型、可用性测试这一整套流程。</p>
+      </div>
+    </div>
+
+    <h2>NN/g 十大可用性原则(随手对照的尺子)</h2>
+    <div class="box">
+      <ol style="margin:6px 0 0;padding-left:20px;line-height:1.9">
+        <li><strong>系统状态可见</strong>——让用户随时知道现在发生了什么(加载中、保存成功)。</li>
+        <li><strong>贴近现实</strong>——用用户的语言和习惯,不用系统术语。</li>
+        <li><strong>用户可控、有退路</strong>——支持撤销、返回、取消,别把人困住。</li>
+        <li><strong>一致性与标准</strong>——同样的东西长一样、叫一样,遵循平台惯例。</li>
+        <li><strong>错误预防</strong>——比报错更好的是一开始就不让错误发生。</li>
+        <li><strong>识别优于回忆</strong>——把选项摆出来给人认,别让人凭记忆输入。</li>
+        <li><strong>灵活高效</strong>——给新手清楚的路径,也给老手快捷方式。</li>
+        <li><strong>美观与极简</strong>——只放该放的,信息越多越稀释重点。</li>
+        <li><strong>帮用户识别/诊断/恢复错误</strong>——报错说人话,并给出下一步怎么办。</li>
+        <li><strong>帮助与文档</strong>——需要时找得到,且围绕用户的任务来写。</li>
+      </ol>
+      <p style="margin-top:10px;font-size:13px;color:#9a8a6f">原文:nngroup.com/articles/ten-usability-heuristics/</p>
+    </div>
+
+    <h2>教材(按优先级)</h2>
+    <ul class="booklist">
+      <li><span class="badge b-main">主教材</span><strong>《About Face: The Essentials of Interaction Design》</strong>(Alan Cooper)
+        —— 偏软件产品 / SaaS / 后台系统的交互设计,最贴合你做 NocoBase 后台。认真做工具类产品就读这本。</li>
+      <li><span class="badge b-main">必读底层</span><strong>《设计心理学 The Design of Everyday Things》</strong>(Don Norman)
+        —— 交互设计的底层心智模型:可见性、映射、反馈、约束、错误。先看这本打地基。</li>
+      <li><span class="badge b-free">免费在线全文</span><strong>IxDF《Encyclopedia of Human-Computer Interaction》</strong>
+        —— 4000+ 页、上百位作者的免费在线大百科,当作随时能翻的「大教材」从这读起。</li>
+      <li><span class="badge b-free">免费</span><strong>Laws of UX</strong>
+        —— 把心理学定律(费茨定律、希克定律、雅各布定律…)做成卡片,做判断时随手查。</li>
+      <li><span class="badge b-buy">工具书</span><strong>《Don't Make Me Think》</strong>(Steve Krug)
+        —— 可用性入门,训练「别让用户想太多」的直觉,很薄很实用。</li>
+      <li><span class="badge b-buy">工具书</span><strong>《Designing Interfaces》</strong>(Jenifer Tidwell 等,第 3 版)
+        —— UI pattern 工具书,表格 / 筛选 / 批量 / 弹窗 / 仪表盘的标准做法,后台最实用。</li>
+      <li><span class="badge b-buy">按需</span><strong>《Just Enough Research》</strong>(Erika Hall)
+        —— 用轻量研究支撑设计判断,别凭空想。</li>
+      <li><span class="badge b-buy">按需</span><strong>《Microinteractions》</strong>(Dan Saffer)
+        —— 状态、反馈、小交互、细节体验。</li>
+      <li><span class="badge b-buy">按需</span><strong>《Information Architecture》</strong>(Rosenfeld / Morville / Arango)
+        —— 做复杂网站、知识库、企业系统、管理后台时很有价值。</li>
+    </ul>
+
+    <h2>课程</h2>
+    <ul class="booklist">
+      <li><strong>Google UX Design Professional Certificate</strong>(Coursera)—— 从零补完整流程,线框/原型/可用性测试/评审都覆盖。</li>
+      <li><strong>NN/g UX Courses & Certification</strong>—— 方法论 + 实战判断,交互 / 研究方向最权威。</li>
+      <li><strong>Interaction Design Foundation(IxDF)Courses</strong>—— 性价比路线,适合长期补课。</li>
+    </ul>
+
+    <h2>最有效的练习:每周一次「拆解 + 重设计」</h2>
+    <div class="box key">
+      <div class="box-title">🛠️ 每周四步</div>
+      <ol style="margin:6px 0 0;padding-left:20px;line-height:1.9">
+        <li>选一个产品页面:飞书审批、Notion database、Linear issue、Stripe dashboard、淘宝下单流程……
+          (做后台的话,也可以直接拆你自己的 NocoBase 页面。)</li>
+        <li>画出:用户目标、入口、主路径、异常路径、状态变化。</li>
+        <li>写出 5 个交互问题:哪里认知负荷高、哪里反馈不足、哪里状态不清、哪里错误不可恢复、哪里步骤多余。</li>
+        <li>重画一个低保真方案,并对照 NN/g 十大原则自检。</li>
+      </ol>
+    </div>
+    <p style="color:#9a8a6f;font-size:13px">把每周的拆解存进「课程资料库」或知识卡片,攒一段时间就是你自己的交互设计案例库。</p>
+
+  </article>
+
+</body>
+</html>
