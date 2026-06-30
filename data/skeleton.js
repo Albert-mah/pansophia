@@ -62,28 +62,6 @@ window.STUDY_SKELETON = [
   },
 
   /* ========== Ma Huan（ma-huan）· 终身学习 ========== */
-  /* 日语整套体系（从 N5 起步，词库已导入开源 JLPT） */
-  {
-    profile: "ma-huan", subject: "japanese", scope: "jlpt-n5",
-    topics: [
-      { title: "语法 N5", points: [
-        { title: "です・ます 与名词句", status: "todo" }, { title: "助词 は/が/を/に/で/へ", status: "todo" },
-        { title: "形容词（い形 / な形）", status: "todo" }, { title: "动词分类与ます形", status: "todo" },
-        { title: "て形・ない形・た形", status: "todo" } ] },
-      { title: "假名与发音", points: [ { title: "平假名・片假名", status: "todo" }, { title: "长音・促音・拗音", status: "todo" } ] }
-    ]
-  },
-  /* 英语 · 托福（听说读写四项） */
-  {
-    profile: "ma-huan", subject: "english", scope: "toefl",
-    topics: [
-      { title: "Listening 听力", points: [ { title: "讲座笔记法", status: "todo" }, { title: "校园对话题型", status: "todo" } ] },
-      { title: "Speaking 口语", points: [ { title: "独立口语模板", status: "todo" }, { title: "综合口语（读+听+说）", status: "todo" } ] },
-      { title: "Writing 写作", points: [ { title: "综合写作结构", status: "todo" }, { title: "学术讨论写作", status: "todo" } ] },
-      { title: "Reading 阅读", points: [ { title: "句子简化题", status: "todo" }, { title: "篇章总结题", status: "todo" } ] },
-      { title: "核心词汇", points: [ { title: "学科高频词", status: "todo" } ] }
-    ]
-  },
   /* ---- 数学：大学 → 研究生知识体系 ---- */
   {
     profile: "ma-huan", subject: "math", discipline: "math", scope: "undergrad",
@@ -101,75 +79,6 @@ window.STUDY_SKELETON = [
       { title: "代数与几何", points: [ { title: "交换代数 / 代数几何", status: "todo" }, { title: "微分流形", status: "todo" }, { title: "代数拓扑", status: "todo" } ] },
       { title: "概率与离散", points: [ { title: "随机过程", status: "todo" }, { title: "测度论概率", status: "todo" }, { title: "图论与组合", status: "todo" } ] }
     ]
-  },
-
-  /* ---- 物理：大学 → 研究生知识体系 ---- */
-  {
-    profile: "ma-huan", subject: "physics", discipline: "physics", scope: "undergrad",
-    topics: [
-      { title: "普通物理", points: [ { title: "力学", status: "todo" }, { title: "电磁学", status: "todo" }, { title: "热学", status: "todo" }, { title: "光学", status: "todo" }, { title: "原子物理", status: "todo" } ] },
-      { title: "四大力学", points: [ { title: "理论力学（拉格朗日/哈密顿）", status: "todo" }, { title: "电动力学（麦克斯韦方程）", status: "todo" }, { title: "热力学与统计物理", status: "todo" }, { title: "量子力学", status: "todo" } ] },
-      { title: "专业基础", points: [ { title: "数学物理方法", status: "todo" }, { title: "固体物理", status: "todo" }, { title: "狭义相对论", status: "todo" } ] }
-    ]
-  },
-  {
-    profile: "ma-huan", subject: "physics", discipline: "physics", scope: "grad",
-    topics: [
-      { title: "场论与粒子", points: [ { title: "高等量子力学", status: "todo" }, { title: "量子场论", status: "todo" }, { title: "粒子物理与标准模型", status: "todo" } ] },
-      { title: "凝聚态与统计", points: [ { title: "高等统计力学", status: "todo" }, { title: "凝聚态物理（多体理论）", status: "todo" }, { title: "非线性与混沌", status: "todo" } ] },
-      { title: "引力与宇宙", points: [ { title: "广义相对论", status: "todo" }, { title: "宇宙学", status: "todo" } ] }
-    ]
-  },
-
-  /* ---- 电子信息：大学 → 研究生知识体系 ---- */
-  {
-    profile: "ma-huan", subject: "eecs", discipline: "eecs", scope: "undergrad",
-    topics: [
-      { title: "电路与电子", points: [ { title: "电路分析", status: "todo" }, { title: "模拟电子技术", status: "todo" }, { title: "数字电子技术", status: "todo" } ] },
-      { title: "信号与系统", points: [ { title: "信号与系统", status: "todo" }, { title: "数字信号处理(DSP)", status: "todo" }, { title: "通信原理", status: "todo" } ] },
-      { title: "电磁与器件", points: [ { title: "电磁场与电磁波", status: "todo" }, { title: "半导体物理与器件", status: "todo" }, { title: "微波技术", status: "todo" } ] },
-      { title: "计算与控制", points: [ { title: "数据结构与算法", status: "todo" }, { title: "微机原理与接口", status: "todo" }, { title: "自动控制原理", status: "todo" }, { title: "计算机网络", status: "todo" } ] }
-    ]
-  },
-  {
-    profile: "ma-huan", subject: "eecs", discipline: "eecs", scope: "grad",
-    topics: [
-      { title: "通信与信息", points: [ { title: "信息论与编码", status: "todo" }, { title: "现代/无线通信", status: "todo" }, { title: "统计信号处理", status: "todo" } ] },
-      { title: "信号处理应用", points: [ { title: "数字图像处理", status: "todo" }, { title: "语音/阵列信号", status: "todo" }, { title: "机器学习与模式识别", status: "todo" } ] },
-      { title: "微电子与系统", points: [ { title: "VLSI / 集成电路设计", status: "todo" }, { title: "射频电路", status: "todo" }, { title: "嵌入式系统", status: "todo" } ] }
-    ]
-  },
-
-  /* ---- 心理学（A 示范：浏览→加入→填充。二级方向大纲 + 导论已填） ---- */
-  {
-    profile: "ma-huan", subject: "psychology", discipline: "psychology", scope: "general",
-    topics: [
-      { title: "导论与方法", points: [
-        { title: "心理学是什么 · 分支地图", ref: "mh-psych-intro" },
-        { title: "研究方法（实验/相关/观察）", status: "todo" },
-        { title: "心理统计与测量", status: "todo" },
-        { title: "五大流派/视角", status: "todo" }
-      ] },
-      { title: "基础分支", points: [
-        { title: "普通心理学", status: "todo" }, { title: "认知心理学", status: "todo" },
-        { title: "发展心理学", status: "todo" }, { title: "社会心理学", status: "todo" },
-        { title: "人格心理学", status: "todo" }, { title: "生理/认知神经科学", status: "todo" }
-      ] },
-      { title: "应用分支", points: [
-        { title: "临床与咨询心理学", status: "todo" }, { title: "教育心理学", status: "todo" },
-        { title: "工业与组织心理学(I/O)", status: "todo" }, { title: "健康心理学", status: "todo" }
-      ] }
-    ]
-  },
-
-  /* ---- 化学/生物 · 高阶（兴趣，慢慢填） ---- */
-  {
-    profile: "ma-huan", subject: "chemistry", discipline: "chemistry", scope: "advanced",
-    topics: [ { title: "物理化学", points: [ { title: "热力学三定律", status: "todo" }, { title: "化学动力学", status: "todo" } ] } ]
-  },
-  {
-    profile: "ma-huan", subject: "biology", discipline: "biology", scope: "advanced",
-    topics: [ { title: "分子生物学", points: [ { title: "中心法则", status: "todo" }, { title: "基因调控", status: "todo" } ] } ]
   },
 
   /* ---- 交互设计 · 知识点大纲（自学路线,配 design 课程资料 + 总纲页） ---- */

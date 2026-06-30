@@ -33,14 +33,11 @@ window.STUDY_PROFILES = {
   },
   "ma-huan": {
     name: "Ma Huan", short: "Ma Huan", icon: "MH", color: "#e07b39",
-    desc: "终身学习 · 日语体系 + 英语(托福) + 各科高阶",
+    desc: "终身学习 · 数学高阶 + 外国语言文学 + 交互设计",
     hosts: ["mahuanx"],
     showQuiz: true,
     subjects: {
-      japanese: ["jlpt-n5", "jlpt-n4", "jlpt-n3", "jlpt-n2", "jlpt-n1"],
-      english: ["toefl"],
-      math: ["undergrad", "grad"], physics: ["undergrad", "grad"], eecs: ["undergrad", "grad"],
-      chemistry: ["advanced"], biology: ["advanced"], methods: ["general"]
+      math: ["undergrad", "grad"], design: ["general"], methods: ["general"]
     }
   },
   mahuan: {
