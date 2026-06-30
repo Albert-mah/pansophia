@@ -3,18 +3,21 @@
  * ============================================================= */
 
 :root {
-  --bg:        #f4f6fb;
-  --surface:   #ffffff;
-  --text:      #1f2430;
-  --text-soft: #5b6472;
-  --text-faint:#8a93a3;
-  --border:    #e6e9f0;
-  --accent:    #3b6fe0;
-  --shadow:    0 1px 3px rgba(20,30,60,.06), 0 6px 24px rgba(20,30,60,.06);
-  --shadow-lg: 0 8px 40px rgba(20,30,60,.14);
+  /* Pansophia 暖色主题(与主应用一致),让讲解页融入系统而非"白页" */
+  --bg:        #FCF6EC;   /* 奶油纸 · 画布 */
+  --surface:   #FFFDF8;   /* 卡面 */
+  --text:      #33291E;   /* 墨棕 */
+  --text-soft: #7A6E5E;
+  --text-faint:#9a8a6f;
+  --border:    #EBDEC8;
+  --accent:    #B6532F;   /* 陶土 · 主强调(page.js 会按学科覆盖 --accent-page) */
+  --shadow:    0 2px 8px rgba(150,110,50,.06), 0 8px 26px rgba(120,80,30,.07);
+  --shadow-lg: 0 12px 40px rgba(120,80,30,.16);
   --radius:    16px;
   --radius-sm: 10px;
   --maxw:      1080px;
+  --serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
+  --sans: 'Outfit', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -23,14 +26,14 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-               "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC",
-               "Noto Sans CJK SC", sans-serif;
+  font-family: var(--sans);
   color: var(--text);
   background: var(--bg);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
+
+h1, h2, h3 { font-family: var(--serif); }
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -39,7 +42,7 @@ a:hover { text-decoration: underline; }
 
 /* ---------------- 顶部大标题（首页） ---------------- */
 .hero {
-  background: linear-gradient(135deg, #4a6ee0 0%, #6b4fd8 55%, #8e44ad 100%);
+  background: linear-gradient(135deg, #C8852E 0%, #B6532F 60%, #9c5a2f 100%);
   color: #fff;
   padding: 48px 0 56px;
 }
