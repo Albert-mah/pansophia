@@ -11,6 +11,69 @@
 </head>
 <body>
 
+  <style>
+    /* —— 食物链页面专用样式（局部，不影响其它页）—— */
+    .role-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+    .role-card{border-radius:14px;padding:14px 16px;color:#fff;box-shadow:var(--shadow)}
+    .role-card .rc-emoji{font-size:1.9rem;line-height:1}
+    .role-card .rc-name{font-weight:800;font-size:1.05rem;margin:6px 0 2px}
+    .role-card .rc-job{font-size:.84rem;opacity:.96;line-height:1.5}
+    .role-card.producer{background:linear-gradient(135deg,#41b06e,#2e8b50)}
+    .role-card.consumer{background:linear-gradient(135deg,#f0a24b,#e07b2e)}
+    .role-card.decomposer{background:linear-gradient(135deg,#a8855f,#7d6244)}
+    @media(max-width:560px){.role-cards{grid-template-columns:1fr}}
+
+    /* 能量金字塔 */
+    .pyramid{margin:16px 0}
+    .pyr-row{display:flex;align-items:center;gap:10px;margin:5px 0}
+    .pyr-bar{height:32px;display:flex;align-items:center;padding-left:12px;color:#fff;font-weight:800;
+      font-size:.9rem;border-radius:7px;box-shadow:var(--shadow);min-width:70px;white-space:nowrap}
+    .pyr-num{font-size:.82rem;color:var(--text-soft);font-variant-numeric:tabular-nums}
+    .pyr-cap{font-size:.82rem;color:var(--text-faint);text-align:center;margin-top:6px}
+
+    /* 食物链搭建器 */
+    .fc-hint{font-size:.9rem;color:var(--text-soft);margin:4px 0 0}
+    .fc-palette{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+    .fc-card{display:flex;flex-direction:column;align-items:center;gap:3px;border:2px solid var(--border);
+      border-radius:12px;padding:8px 10px;min-width:64px;cursor:pointer;background:var(--surface);
+      transition:transform .1s,box-shadow .1s;user-select:none}
+    .fc-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+    .fc-card .fc-e{font-size:1.55rem;line-height:1}
+    .fc-card .fc-n{font-size:.78rem;font-weight:700}
+    .fc-card .fc-r{font-size:.62rem;color:#fff;border-radius:6px;padding:0 6px;line-height:1.5}
+    .fc-card.producer{border-color:#41b06e}.fc-card.producer .fc-r{background:#2e8b50}
+    .fc-card.consumer{border-color:#e07b2e}.fc-card.consumer .fc-r{background:#e07b2e}
+    .fc-card.decomposer{border-color:#7d6244}.fc-card.decomposer .fc-r{background:#7d6244}
+
+    .fc-stage{margin-top:8px;padding:16px;border:1px dashed var(--border);border-radius:12px;
+      background:var(--bg);min-height:84px}
+    .fc-chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+    .fc-empty{color:var(--text-faint);font-size:.9rem}
+    .fc-node{display:flex;flex-direction:column;align-items:center;gap:1px;border:2px solid var(--border);
+      border-radius:10px;padding:6px 10px;background:var(--surface);cursor:pointer;position:relative;
+      transition:transform .1s,box-shadow .1s}
+    .fc-node.producer{border-color:#41b06e;background:#f1faf3}
+    .fc-node.consumer{border-color:#e07b2e;background:#fff7ef}
+    .fc-node.sel{box-shadow:0 0 0 3px rgba(224,123,46,.45);transform:translateY(-2px)}
+    .fc-node .fc-e{font-size:1.6rem;line-height:1}
+    .fc-node .fc-n{font-size:.78rem;font-weight:700}
+    .fc-arrow{font-size:1.4rem;color:#e0853a;font-weight:800;user-select:none}
+    .fc-recycle{margin-top:10px;font-size:.85rem;color:#7d6244;background:#f6f1ea;border:1px dashed #b9a07f;
+      border-radius:10px;padding:8px 12px;line-height:1.5}
+    .fc-msg{margin-top:10px;font-size:.88rem;min-height:1.2em;line-height:1.5}
+    .fc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    .fc-btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;
+      padding:8px 16px;font-size:.9rem;font-weight:700;cursor:pointer}
+    .fc-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .fc-btn.danger:hover{border-color:#e2524a;color:#e2524a}
+    .fc-sim{margin-top:14px;border-radius:12px;background:var(--surface);border:1px solid var(--border);
+      border-left:4px solid #e2524a;padding:14px 16px}
+    .fc-sim h4{margin:0 0 8px;font-size:.98rem}
+    .fc-step{display:flex;align-items:flex-start;gap:8px;font-size:.9rem;margin:6px 0;line-height:1.55}
+    .fc-step .b{flex:none;font-weight:800}
+    .fc-up{color:#1f7a44}.fc-down{color:#c0392b}
+  </style>
+
   <div class="topbar">
     <div class="inner">
       <nav class="breadcrumb" data-breadcrumb></nav>
@@ -21,7 +84,7 @@
   <article class="page">
     <header class="page-header">
       <div class="kicker" data-kicker></div>
-      <h1>食物链与食物网：谁吃谁</h1>
+      <h1>食物链与食物网:谁吃谁</h1>
       <div class="meta-row" data-meta></div>
     </header>
 
@@ -34,6 +97,24 @@
 
     <h2>先认识三种"角色"</h2>
     <p>一个生态系统里,每个生物都在干一份"工作"。按工作不同,可以分成三类角色。</p>
+
+    <div class="role-cards">
+      <div class="role-card producer">
+        <div class="rc-emoji">🌱</div>
+        <div class="rc-name">生产者</div>
+        <div class="rc-job">自己做饭的"厨师"。绿色植物用阳光、水和二氧化碳造养分。<br>例:草、大树、水草</div>
+      </div>
+      <div class="role-card consumer">
+        <div class="rc-emoji">🐰</div>
+        <div class="rc-name">消费者</div>
+        <div class="rc-job">蹭饭吃的动物。吃植物的是初级,吃动物的是次级、三级……<br>例:蝗虫、青蛙、蛇、鹰</div>
+      </div>
+      <div class="role-card decomposer">
+        <div class="rc-emoji">🍄</div>
+        <div class="rc-name">分解者</div>
+        <div class="rc-job">收拾残局的"清洁工"。把遗体、粪便分解,养分还给土壤。<br>例:细菌、真菌、霉菌</div>
+      </div>
+    </div>
 
     <div class="box key">
       <div class="box-title">🌿 三种角色,各管一摊</div>
@@ -116,6 +197,62 @@
       </p>
     </div>
 
+    <h2>能量为什么越往上越少?</h2>
+    <p>
+      你有没有发现:草原上草多得数不清,蝗虫也很多,青蛙就少一些,蛇更少,而老鹰
+      往往整片天空才几只。<strong>越往食物链上层走,生物的数量就越少</strong>。
+      这不是巧合,背后有一条很重要的规律。
+    </p>
+
+    <div class="pyramid">
+      <div class="pyr-row"><span class="pyr-bar" style="width:13%;background:#c0392b">🦅 鹰</span><span class="pyr-num">大约 1 只</span></div>
+      <div class="pyr-row"><span class="pyr-bar" style="width:25%;background:#e07b2e">🐍 蛇</span><span class="pyr-num">大约 10 条</span></div>
+      <div class="pyr-row"><span class="pyr-bar" style="width:44%;background:#e0a23a">🐸 青蛙</span><span class="pyr-num">大约 100 只</span></div>
+      <div class="pyr-row"><span class="pyr-bar" style="width:68%;background:#7cb342">🦗 蝗虫</span><span class="pyr-num">大约 1000 只</span></div>
+      <div class="pyr-row"><span class="pyr-bar" style="width:100%;background:#2e8b50">🌱 草</span><span class="pyr-num">大约 10000 棵</span></div>
+    </div>
+    <p class="pyr-cap">数量像一座金字塔:底下宽、顶上尖。每往上一层,数量大约只剩下一层的十分之一。</p>
+
+    <div class="box tip">
+      <div class="box-title">🔟 十分之一法则:能量在"路上"花掉了</div>
+      <p>
+        用一句通俗话说:<strong>每往上一层,能量大约只剩下十分之一,另外九成在"路上"花掉了。</strong>
+      </p>
+      <p>
+        花到哪去了?动物活着要喘气、要跑动、要保暖,这些都得烧能量,烧完变成热散到空气里;
+        还有一部分变成粪便排掉了。所以青蛙吃下一肚子蝗虫,真正能长到自己身上、传给下一级的,
+        只有一小点点。
+      </p>
+      <p>
+        正因为每层都"打一折",养一只塔顶的老鹰,底下要垫上成千上万棵草。这就是为什么
+        <strong>大型猛兽、猛禽天生数量就少</strong>,也是为什么食物链一般不会很长——
+        通常四五环就到头了,再往上能量实在不够分了。
+      </p>
+    </div>
+
+    <h2>再说说分解者:最被低估的英雄</h2>
+    <p>
+      前面那座金字塔,只画了"吃来吃去"的生产者和消费者,好像把分解者忘了。其实它才是
+      让整台机器转得起来的关键。
+    </p>
+
+    <div class="box tip">
+      <div class="box-title">♻️ 没有它,养分就"卡住"了</div>
+      <p>
+        想象一下:草、蝗虫、青蛙、蛇、鹰……总有一天都会死去,落叶也会一层层落下。
+        如果没人收拾,养分就全被锁在这些遗体里,土壤越来越贫,生产者没东西可用,
+        慢慢地整条链都会饿垮。
+      </p>
+      <p>
+        <strong>分解者(细菌、真菌)的工作,就是把这些遗体和粪便重新拆开,把里面的养分
+        还给土壤</strong>,让草又能长出来。它不在"谁吃谁"那条直线上,而是悄悄连着这条线的
+        每一环,像一条隐形的"回收线",把养分一圈一圈转回起点。
+      </p>
+      <p>
+        所以别小看泥土里看不见的细菌——它们才是让森林、草原能年复一年绿下去的幕后功臣。
+      </p>
+    </div>
+
     <h2>牵一发而动全身</h2>
     <p>
       因为大家连成了一张网,动一个环节,别的环节都会跟着变。我们来做个推理,
@@ -137,6 +274,32 @@
         你试着在纸上画箭头推一推——<strong>答案不止一种,合理就行</strong>。这正是生态学有意思
         的地方:它不是一道只有标准答案的题,而是一连串"那接下来呢"。
       </p>
+      <p>道理讲完了,下面这个搭建器,能让你<strong>真的动手</strong>搭一条链、再亲手抽掉一环看看会怎样。</p>
+    </div>
+
+    <!-- ====== 交互组件:食物链搭建器 ====== -->
+    <div class="lab">
+      <div class="lab-title">🎮 食物链搭建器</div>
+      <p class="fc-hint">
+        点下面的生物卡片,按"谁先被吃"的顺序排队——<strong>先点生产者(🌱草 / 🌾麦子)</strong>,
+        系统会自动用 → 箭头帮你连成一条食物链(箭头方向 = 能量流动)。搭好后,点链子里的一个生物把它选中,
+        再按"移走这一环",看看会引发什么连锁反应。
+      </p>
+
+      <div class="fc-palette" id="fcPalette"></div>
+
+      <div class="fc-stage">
+        <div class="fc-chain" id="fcChain"></div>
+        <div class="fc-recycle" id="fcRecycle" hidden></div>
+        <div class="fc-msg" id="fcMsg"></div>
+      </div>
+
+      <div class="fc-actions">
+        <button id="fcRemove" class="fc-btn danger">🪓 移走选中的这一环</button>
+        <button id="fcReset" class="fc-btn">🔄 重置</button>
+      </div>
+
+      <div class="fc-sim" id="fcSim" hidden></div>
     </div>
 
     <h2>别忘了,人也在这张网里</h2>
@@ -144,6 +307,27 @@
       我们吃米饭(生产者)、吃鱼吃肉(消费者),所以人也是食物网上的一员;
       我们多砍一片林、多排一点污水,这张网就会跟着抖动,最后也会影响到我们自己的饭碗。
     </p>
+
+    <div class="box example">
+      <div class="box-title">🌍 拓展:当"外来户"和人类闯进食物网</div>
+      <p>
+        食物网是慢慢织出来、彼此磨合了很久的。一旦有外力突然插进来,常常会闹出大乱子。
+      </p>
+      <p>
+        <strong>① 外来物种入侵。</strong>把一种生物带到它原本不在的地方,如果那里<strong>没有天敌</strong>
+        管得住它,它就可能疯长。比如澳大利亚本来没有兔子,人带去几只后,兔子没有天敌、繁殖又快,
+        几十年就泛滥成灾,把草啃光,本地动物连饭都抢不过它。这就是食物网里突然多了一环、却没人能"吃"它,
+        平衡一下子被打破。
+      </p>
+      <p>
+        <strong>② 人类活动。</strong>过度捕捞会把海里某一级吃光,让下面的生物失控暴增;
+        农药在杀虫子的同时,也会顺着食物链<strong>一级一级累积</strong>到吃虫的鸟、吃鸟的猛禽身上,
+        越往上毒越浓(这叫"生物富集");乱砍森林、排放污水,则会让一大片网同时受损。
+      </p>
+      <p>
+        说到底,人是这张网上力气最大的一环。<strong>保护环境,其实就是在保护我们自己赖以吃饭的这张网。</strong>
+      </p>
+    </div>
 
     <div class="box">
       <div class="box-title">✏️ 动手画一画</div>
@@ -167,5 +351,210 @@
     </div>
 
   </article>
+
+  <script>
+    /* ====== 食物链搭建器逻辑(纯原生 JS,无依赖) ====== */
+    (function () {
+      var ORG = {
+        grass:    { emoji: '🌱', name: '草',   role: 'producer',   eats: [] },
+        wheat:    { emoji: '🌾', name: '麦子', role: 'producer',   eats: [] },
+        locust:   { emoji: '🦗', name: '蝗虫', role: 'consumer',   eats: ['grass', 'wheat'] },
+        rabbit:   { emoji: '🐰', name: '兔子', role: 'consumer',   eats: ['grass', 'wheat'] },
+        sparrow:  { emoji: '🐦', name: '麻雀', role: 'consumer',   eats: ['locust'] },
+        frog:     { emoji: '🐸', name: '青蛙', role: 'consumer',   eats: ['locust'] },
+        snake:    { emoji: '🐍', name: '蛇',   role: 'consumer',   eats: ['frog', 'rabbit', 'sparrow'] },
+        fox:      { emoji: '🦊', name: '狐狸', role: 'consumer',   eats: ['rabbit', 'sparrow'] },
+        eagle:    { emoji: '🦅', name: '鹰',   role: 'consumer',   eats: ['snake', 'fox', 'rabbit', 'sparrow'] },
+        mushroom: { emoji: '🍄', name: '真菌', role: 'decomposer', eats: [] },
+        bacteria: { emoji: '🦠', name: '细菌', role: 'decomposer', eats: [] }
+      };
+      var PALETTE = ['grass', 'wheat', 'locust', 'rabbit', 'sparrow', 'frog', 'snake', 'fox', 'eagle', 'mushroom', 'bacteria'];
+      var ROLE = { producer: '生产者', consumer: '消费者', decomposer: '分解者' };
+
+      var chain = [];        // 一条线性食物链(存 id)
+      var recycler = null;   // 选中的分解者 id
+      var sel = -1;          // 当前选中的链节下标
+
+      var elPalette = document.getElementById('fcPalette');
+      var elChain   = document.getElementById('fcChain');
+      var elRecycle = document.getElementById('fcRecycle');
+      var elMsg     = document.getElementById('fcMsg');
+      var elSim     = document.getElementById('fcSim');
+      var elRemove  = document.getElementById('fcRemove');
+      var elReset   = document.getElementById('fcReset');
+
+      function tag(id) { return ORG[id].emoji + ORG[id].name; }
+      function msg(type, t) {
+        elMsg.textContent = t || '';
+        elMsg.style.color = type === 'warn' ? '#c0392b' : (type === 'ok' ? '#1f7a44' : 'var(--text-soft)');
+      }
+      function clearSim() { elSim.hidden = true; elSim.innerHTML = ''; }
+
+      function renderPalette() {
+        elPalette.innerHTML = '';
+        PALETTE.forEach(function (id) {
+          var o = ORG[id];
+          var d = document.createElement('div');
+          d.className = 'fc-card ' + o.role;
+          d.innerHTML = '<span class="fc-e">' + o.emoji + '</span>' +
+                        '<span class="fc-n">' + o.name + '</span>' +
+                        '<span class="fc-r">' + ROLE[o.role] + '</span>';
+          d.addEventListener('click', function () { addOrg(id); });
+          elPalette.appendChild(d);
+        });
+      }
+
+      function render() {
+        // 食物链
+        if (chain.length === 0) {
+          elChain.innerHTML = '<span class="fc-empty">链子还是空的 —— 点上面的卡片开始搭建吧(记得先点🌱生产者)</span>';
+        } else {
+          var html = '';
+          chain.forEach(function (id, i) {
+            if (i > 0) html += '<span class="fc-arrow">→</span>';
+            var o = ORG[id];
+            html += '<div class="fc-node ' + o.role + (i === sel ? ' sel' : '') + '" data-i="' + i + '">' +
+                    '<span class="fc-e">' + o.emoji + '</span>' +
+                    '<span class="fc-n">' + o.name + '</span></div>';
+          });
+          elChain.innerHTML = html;
+          Array.prototype.forEach.call(elChain.querySelectorAll('.fc-node'), function (n) {
+            n.addEventListener('click', function () {
+              sel = parseInt(n.getAttribute('data-i'), 10);
+              clearSim();
+              msg('', '已选中 ' + tag(chain[sel]) + ',按"移走这一环"看看连锁反应。');
+              render();
+            });
+          });
+        }
+        // 分解者回收线
+        if (recycler) {
+          var r = ORG[recycler];
+          var prod = chain.length ? tag(chain[0]) : '生产者';
+          elRecycle.hidden = false;
+          elRecycle.innerHTML = '♻️ ' + r.emoji + r.name + '(分解者):把整条链上死去的生物分解 → 养分还给 ' + prod + ' ↩︎';
+        } else {
+          elRecycle.hidden = true;
+        }
+      }
+
+      function addOrg(id) {
+        var o = ORG[id];
+        clearSim();
+        if (o.role === 'decomposer') { addDecomposer(id); return; }
+        if (chain.indexOf(id) > -1) {
+          msg('warn', '这条链里已经有 ' + tag(id) + ' 啦,换一个试试~');
+          return;
+        }
+        if (chain.length === 0) {
+          if (o.role !== 'producer') {
+            msg('warn', '🍽️ 食物链要从【生产者】开头哦!先点一个 🌱草 或 🌾麦子。');
+            return;
+          }
+          chain.push(id);
+          msg('ok', '✅ 起点是生产者 ' + tag(id) + ',它晒着太阳、喝着水,自己造养分。');
+          render();
+          return;
+        }
+        if (o.role === 'producer') {
+          msg('warn', tag(id) + ' 是生产者,自己造养分、不吃别的生物,只能排在最前面。');
+          return;
+        }
+        var last = chain[chain.length - 1];
+        if (o.eats.indexOf(last) > -1) {
+          chain.push(id);
+          msg('ok', '✅ ' + tag(last) + ' → ' + tag(id) + ':养分顺着箭头,从 ' + ORG[last].name + ' 流给了 ' + o.name + '。');
+          render();
+        } else {
+          msg('warn', tag(id) + ' 不吃 ' + tag(last) + ' 呀!想想中间还缺哪一环?(箭头要一环扣一环,谁吃谁才连得上)');
+        }
+      }
+
+      function addDecomposer(id) {
+        recycler = id;
+        render();
+        msg('ok', tag(id) + ' 是【分解者】。它不在"谁吃谁"这条直线上,而是把整条链上死掉的生物、粪便分解掉,把养分还给最前面的生产者——像一条隐形的回收线!');
+      }
+
+      function simulate(idx) {
+        var ro = ORG[chain[idx]];
+        var steps = [];
+
+        // 下游(被它吃的,往生产者方向):交替「变多 / 变少」,从"变多"开始
+        var predDiminished = true; // 被移走的那个 = 消失了 = 变少
+        for (var j = idx - 1; j >= 0; j--) {
+          var o = ORG[chain[j]];
+          var pred = ORG[chain[j + 1]];
+          if (predDiminished) {
+            var why = (j === idx - 1)
+              ? '没有了 ' + ro.emoji + ro.name + ' 来吃它'
+              : '上面的 ' + pred.emoji + pred.name + ' 变少了、吃它吃得少';
+            steps.push({ dir: 'up', text: o.emoji + o.name + ':' + why + ' → 数量变多' });
+            predDiminished = false;
+          } else {
+            steps.push({ dir: 'down', text: o.emoji + o.name + ':被变多的 ' + pred.emoji + pred.name + ' 大量捕食 → 数量变少' });
+            predDiminished = true;
+          }
+        }
+
+        // 上游(吃它的,往顶端方向):一个个失去食物来源 → 都变少
+        var up = [];
+        for (var k = idx + 1; k < chain.length; k++) {
+          var o2 = ORG[chain[k]];
+          if (k === idx + 1) {
+            up.push({ dir: 'down', text: o2.emoji + o2.name + ':失去了 ' + ro.emoji + ro.name + ' 这个食物来源 → 数量变少' });
+          } else {
+            var below = ORG[chain[k - 1]];
+            up.push({ dir: 'down', text: o2.emoji + o2.name + ':它的食物 ' + below.emoji + below.name + ' 也变少了 → 跟着变少' });
+          }
+        }
+
+        var all = up.concat(steps);
+        var h = '<h4>🪓 移走 ' + ro.emoji + ro.name + ' 之后……</h4>';
+        if (idx === 0 && all.length) {
+          h += '<div class="fc-step"><span class="b">‼️</span><span>' + ro.emoji + ro.name +
+               ' 是整条链的【根基】(生产者)。它一消失,上面所有靠它吃饭的生物都会断粮:</span></div>';
+        }
+        if (all.length === 0) {
+          h += '<div class="fc-step"><span>这条链上只有它一个,移走后链子就空了。再搭一条更长的链,连锁反应会更精彩!</span></div>';
+        }
+        all.forEach(function (s) {
+          h += '<div class="fc-step ' + (s.dir === 'up' ? 'fc-up' : 'fc-down') + '">' +
+               '<span class="b">' + (s.dir === 'up' ? '⬆️' : '⬇️') + '</span><span>' + s.text + '</span></div>';
+        });
+        if (all.length) {
+          h += '<div class="fc-step"><span class="b">💡</span><span>看到了吗?动一个环节,上上下下全跟着变——这就是「牵一发而动全身」。' +
+               '在真实的食物网里,影响还会顺着别的链子传得更远。</span></div>';
+        }
+        elSim.innerHTML = h;
+        elSim.hidden = false;
+
+        // 真的把这一环移走
+        chain.splice(idx, 1);
+        sel = -1;
+        msg('', '已移走 ' + ro.emoji + ro.name + '。可以继续搭,或点"重置"重来。');
+        render();
+      }
+
+      elRemove.addEventListener('click', function () {
+        clearSim();
+        if (chain.length === 0) { msg('warn', '链子还是空的,先搭一条出来吧。'); return; }
+        if (sel < 0) { msg('warn', '先点一下链子里的某个生物把它选中,再按"移走这一环"。'); return; }
+        simulate(sel);
+      });
+
+      elReset.addEventListener('click', function () {
+        chain = []; recycler = null; sel = -1;
+        clearSim();
+        msg('', '已重置。点卡片重新开始搭建~');
+        render();
+      });
+
+      renderPalette();
+      render();
+      msg('', '试试看:草 → 蝗虫 → 青蛙 → 蛇 → 鹰');
+    })();
+  </script>
+
 </body>
 </html>

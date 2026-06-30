@@ -18,6 +18,55 @@
     </div>
   </div>
 
+  <style>
+    /* —— 六步法卡片 —— */
+    .steps { display: grid; gap: 14px; margin: 18px 0; }
+    .step { display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 4px solid var(--accent); border-radius: var(--radius-sm);
+      padding: 14px 16px; }
+    .step .num { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%;
+      background: var(--accent); color: #fff; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; font-size: 1.05rem; }
+    .step .step-body { flex: 1; min-width: 0; }
+    .step .step-body h4 { margin: 0 0 5px; font-size: 1.04rem; }
+    .step .step-body p { margin: 0; font-size: .95rem; line-height: 1.7; }
+    .step .how { color: var(--text-soft); margin-top: 4px !important; }
+    .step .how b { color: var(--text); }
+
+    /* —— 略读 vs 精读 对比 —— */
+    .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0 4px; }
+    .vs-col { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; background: var(--bg); }
+    .vs-col h4 { margin: 0 0 8px; font-size: 1rem; }
+    .vs-col.skim { border-top: 4px solid #e67e22; }
+    .vs-col.close { border-top: 4px solid var(--accent); }
+    .vs-col ul { margin: 0; padding-left: 18px; font-size: .92rem; line-height: 1.7; }
+    @media (max-width: 560px){ .vs { grid-template-columns: 1fr; } }
+
+    /* —— 可点击批注示范 widget —— */
+    .ds-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+    .ds-btn { padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px;
+      background: var(--bg); cursor: pointer; font-size: .9rem; font-weight: 600; color: var(--text); }
+    .ds-btn:hover { border-color: var(--accent); }
+    .ds-btn.is-active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .ds-btn.walk { background: #27ae60; color: #fff; border-color: #27ae60; }
+    .ds-btn.ghost { background: transparent; }
+    .ds-title-line { font-weight: 800; margin: 8px 0 2px; }
+    .ds-text { line-height: 2.3; font-size: 1.04rem; margin: 8px 0; }
+    .ds-sent { cursor: pointer; padding: 2px 2px; border-radius: 5px; transition: background .15s; }
+    .ds-sent:hover { background: #eef3ff; }
+    .ds-sent.active { box-shadow: 0 0 0 2px var(--accent) inset; }
+    .center-on .ds-center { background: #fff3b0; box-shadow: 0 0 0 2px #f5c518 inset; }
+    .kw-on .ds-kw { background: #cdeccd; border-radius: 3px; padding: 0 2px; font-weight: 700; }
+    .ds-flag { display: none; font-size: .72rem; margin: 0 1px; cursor: help; vertical-align: super; }
+    .anno-on .ds-flag { display: inline; }
+    .anno-on .ds-sent { text-decoration: underline dotted var(--accent); text-underline-offset: 5px; }
+    .ds-note { margin-top: 12px; padding: 12px 14px; background: var(--bg);
+      border-radius: var(--radius-sm); border-left: 3px solid #8e44ad; font-size: .94rem; line-height: 1.7; min-height: 1.6em; }
+    .ds-note b { color: #8e44ad; }
+    .ds-step { margin-top: 10px; font-size: .9rem; color: var(--text-soft); }
+  </style>
+
   <article class="page">
     <header class="page-header">
       <div class="kicker" data-kicker></div>
@@ -25,20 +74,97 @@
       <div class="meta-row" data-meta></div>
     </header>
 
-    <p>读文章有两种读法。略读是快快地扫一遍,知道大概讲了什么就行,比如看新闻、翻杂志。精读不一样,是慢慢地、一句一句地读,边读边想,把一篇文章真正吃透。简单说:略读是“看一眼”,精读是“嚼一嚼”。这一页教你怎么精读。</p>
+    <p>读文章有两种读法。略读是快快地扫一遍,知道大概讲了什么就行,比如看新闻、翻杂志。精读不一样,是慢慢地、一句一句地读,边读边想,把一篇文章真正吃透。简单说:略读是"看一眼",精读是"嚼一嚼"。这一页教你怎么精读。</p>
 
     <p>升入初一,语文里那些要背、要分析、要写读后感的文章,都得用精读。掌握下面这套方法,你读什么都不慌。</p>
 
-    <div class="box key">
-      <div class="box-title">🔑 精读六步法</div>
-      <ol>
-        <li><strong>通读知大意</strong>——先从头到尾读一遍,不停下来纠结生字,只为搞清楚一件事:这篇文章大概在讲什么?讲人?讲事?讲一个道理?读完能用一句话说出来就行。</li>
-        <li><strong>分段、概括每段段意</strong>——回过头看,文章自然分成了几块。每读完一段,就在心里(或在旁边)用一小句话说说这段讲了啥。段意串起来,文章的骨架就出来了。</li>
-        <li><strong>找中心句、关键词</strong>——很多段落里有一句话特别重要,作者的意思都压在它身上,这就是中心句,常常在段首或段尾。把它划出来。再圈出反复出现、或者特别有分量的词,这些关键词是理解的抓手。</li>
-        <li><strong>圈出不懂的词,联系上下文猜</strong>——遇到不认识或拿不准的词,先别急着查。把它圈起来,看看前后句在说什么,顺着意思猜一猜它大概是什么意思。猜完再查,你会记得更牢。</li>
-        <li><strong>边读边提问、做批注</strong>——读的时候脑子要动起来:这里为什么这么写?他想表达什么?把冒出来的问题和想法,随手写在文章旁边的空白处,这就是批注。批注是精读和走神最大的区别。</li>
-        <li><strong>合上书复述一遍</strong>——读完别马上翻篇。合上书,自己用嘴(或写下来)把文章的内容讲一遍:讲了什么、重点在哪、你怎么看。讲得出来,才算真读懂了;讲不出来,说明哪段还得回去再看。</li>
-      </ol>
+    <h2>略读还是精读?先看场合</h2>
+    <p>两种读法没有谁高谁低,关键是用对地方。东西太多、时间太紧、只想知道个大概,就略读;文章短而重要、要记要分析,就精读。一篇长文里也常常先略读找到要紧的段落,再对这几段精读。</p>
+
+    <div class="vs">
+      <div class="vs-col skim">
+        <h4>🏃 略读 · 用在</h4>
+        <ul>
+          <li>看新闻、刷公众号、翻一本书要不要读</li>
+          <li>查资料,只想找到那一句答案</li>
+          <li>考试时先扫一遍题目,心里有数</li>
+          <li>目标:<b>快</b>,知道"讲了啥"就停</li>
+        </ul>
+      </div>
+      <div class="vs-col close">
+        <h4>🔍 精读 · 用在</h4>
+        <ul>
+          <li>课文、范文、要背要默写的段落</li>
+          <li>阅读题里那篇要回答问题的选文</li>
+          <li>要写读后感、要分析写法的文章</li>
+          <li>目标:<b>透</b>,讲了啥、怎么写、为什么</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>精读六步法</h2>
+    <p>下面六步按顺序走,每一步都附上"具体怎么做"。第一遍照着做会有点慢,练几篇就成习惯了。</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="step-body">
+          <h4>通读知大意</h4>
+          <p>先从头到尾读一遍,只为搞清楚一件事:这篇大概在讲什么——讲人?讲事?讲一个道理?</p>
+          <p class="how"><b>怎么做:</b>遇到生字别停下来纠结,跳过去,保持速度读完。读完合上问自己一句:"这篇主要讲谁、讲什么事、讲什么道理?"能用<b>一句话</b>答上来,这一步就过关了。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="step-body">
+          <h4>分段、概括每段段意</h4>
+          <p>回过头看,文章自然分成了几块。每读完一段,就用一小句话说说这段讲了啥。</p>
+          <p class="how"><b>怎么做:</b>话题变了、时间或地点换了、由"总"转到"分"的地方,往往就是分段点。每段读完用"<b>谁+干什么</b>"或"<b>什么+怎么样</b>"造一句话当段意。把各段段意竖着排下来,就是文章的提纲,骨架一下就清楚了。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="step-body">
+          <h4>找中心句、关键词</h4>
+          <p>很多段落里有一句话特别重要,作者的意思都压在它身上,这就是中心句。</p>
+          <p class="how"><b>怎么做:</b>中心句常在<b>段首</b>(先总后分)或<b>段尾</b>(先分后总),就是那句"去掉它整段就散了"的话,划一道横线。关键词找<b>反复出现</b>的词、表示转折的词(但是、然而)、带感情的词,圈起来——它们是理解的抓手。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div class="step-body">
+          <h4>圈出不懂的词,联系上下文猜</h4>
+          <p>遇到不认识或拿不准的词,先别急着查。</p>
+          <p class="how"><b>怎么做:</b>先把它圈起来,看看前后句在说什么——是好事还是坏事,是一个动作还是一种样子,顺着意思<b>先猜</b>个大概,在旁边写下你猜的意思。读完整段再查字典对一对。先猜后查,这个词你记得最牢。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <div class="step-body">
+          <h4>边读边提问、做批注</h4>
+          <p>读的时候脑子要动起来,把冒出来的问题和想法,随手写在文章旁边的空白处,这就是批注。</p>
+          <p class="how"><b>怎么做:</b>可以问"这里为什么这么写""这个词什么意思",可以赞"这个词用得真准",可以联想"这让我想起……"。<b>一段至少写一条</b>,手不停,才不会读着读着走神。批注是精读和走神最大的区别。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">6</div>
+        <div class="step-body">
+          <h4>合上书复述一遍</h4>
+          <p>读完别马上翻篇。合上书,自己用嘴(或写下来)把文章讲一遍。</p>
+          <p class="how"><b>怎么做:</b>盖住原文,按"<b>讲了什么 → 重点在哪 → 我怎么看</b>"说一遍,说给自己或家人听。哪一段卡住、说不清,就翻回去重读那一段。复述顺了,文章才真正进了你的脑子。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="box tip">
+      <div class="box-title">📌 拓展:不同文体,精读重点不一样</div>
+      <p>六步法是通用的,但不同类型的文章,第三步"抓什么"各有侧重。读之前先认一认它是哪种文体:</p>
+      <ul>
+        <li><strong>写人的文章 → 抓事例。</strong>作者用了哪几件事来表现这个人?透过这些事,看出他是个什么样的人(性格、品质)。事例就是看人的窗口。</li>
+        <li><strong>写景的文章 → 抓顺序。</strong>作者按什么顺序写?(由远到近、从上到下、按时间变化)景物有什么特点,作者想借景表达什么心情。</li>
+        <li><strong>说明文 → 抓特征。</strong>它在说明什么事物?这个事物有哪些特点?用了什么说明方法(打比方、列数字、举例子)把特点讲清楚。</li>
+        <li><strong>议论文 → 抓观点。</strong>作者主张什么?用了哪些理由和例子来证明这个主张。</li>
+      </ul>
     </div>
 
     <p>下面用一段我现写的小短文,给你做个示范。看我怎么标中心句、关键词,怎么写批注。</p>
@@ -50,19 +176,19 @@
         ① <mark>楼下那只流浪猫,其实一点也不可怜。</mark>(中心句)
         ② 它每天准时蹲在垃圾桶旁边,谁路过都不躲,反而抬头看你一眼。
         ③ 有人扔给它半根火腿肠,它也不急,慢慢走过去,叼起来再走开。
-        ④ 整栋楼的人都<strong>认识</strong>它,有人叫它“大王”,有人偷偷给它留饭。
+        ④ 整栋楼的人都<strong>认识</strong>它,有人叫它"大王",有人偷偷给它留饭。
         ⑤ 比起被关在屋里的猫,它好像更自在。
       </p>
       <p>关键词:<strong>不可怜、准时、不躲、自在</strong>。</p>
       <p>我的两条批注:</p>
       <ol>
-        <li>批注在第①句旁:“开头就说‘不可怜’,有点反常——一般写流浪猫都写它惨。作者是不是想夸它?带着这个问题往下读。”</li>
-        <li>批注在第④句旁:“‘整栋楼的人都认识它’,说明它早就被大家接受了,这就是它‘不可怜’的原因。这句和中心句对上了。”</li>
+        <li>批注在第①句旁:"开头就说'不可怜',有点反常——一般写流浪猫都写它惨。作者是不是想夸它?带着这个问题往下读。"</li>
+        <li>批注在第④句旁:"'整栋楼的人都认识它',说明它早就被大家接受了,这就是它'不可怜'的原因。这句和中心句对上了。"</li>
       </ol>
-      <p>你看,标完中心句和关键词,再写两条批注,这段话的意思和写法就被我“抓住”了。</p>
+      <p>你看,标完中心句和关键词,再写两条批注,这段话的意思和写法就被我"抓住"了。</p>
     </div>
 
-    <p>很多同学卡在“批注不知道写什么”。其实批注没那么玄,下面四种你随便写一种都行:</p>
+    <p>很多同学卡在"批注不知道写什么"。其实批注没那么玄,下面四种你随便写一种都行:</p>
     <ol>
       <li><strong>不懂的</strong>:这个词/这句话我没看明白,先记个问号。</li>
       <li><strong>觉得好的</strong>:这里写得真妙,这个词用得真准,记下来,以后自己写作能用。</li>
@@ -70,18 +196,181 @@
       <li><strong>联想到的</strong>:这让我想起自己经历的一件事,或者另一篇文章。读书和你的生活一连上,就记得牢了。</li>
     </ol>
 
+    <div class="lab">
+      <div class="lab-title">🎮 精读示范:点一点</div>
+      <p style="margin:0 0 4px;font-size:.92rem;color:var(--text-soft)">下面是另一段我新写的短文。先点三个按钮看效果,再点 <b>▶ 六步走查</b> 跟着走一遍。每一句都能点——点开看老师怎么给它写批注。</p>
+
+      <div class="ds-toolbar">
+        <button class="ds-btn" id="ds-center" type="button">① 找中心句</button>
+        <button class="ds-btn" id="ds-kw" type="button">② 圈关键词</button>
+        <button class="ds-btn" id="ds-anno" type="button">③ 看批注</button>
+        <button class="ds-btn walk" id="ds-walk" type="button">▶ 六步走查</button>
+        <button class="ds-btn ghost" id="ds-reset" type="button">↺ 重置</button>
+      </div>
+
+      <div class="ds-title-line">《一场说来就来的大雨》</div>
+      <p class="ds-text" id="ds-text"><!-- 句子由脚本注入 --></p>
+
+      <div class="ds-step" id="ds-step">提示:点上面的 ①②③ 试试,或者点 ▶ 六步走查从头跟一遍。</div>
+      <div class="ds-note" id="ds-note">👆 点上面任意一句,看老师怎么给它写批注。</div>
+    </div>
+
     <div class="box">
       <div class="box-title">✏️ 动手练一练</div>
       <p>嘉欢,轮到你了。任务很简单,但要认真做完:</p>
       <ol>
         <li>找一篇你自己喜欢的短文——课本里的、课外读物里的、甚至一篇你喜欢的小故事都行,别太长。</li>
-        <li>按上面的六步法,从头精读一遍:先通读,再分段,划出中心句和关键词,圈出不懂的词猜一猜。</li>
+        <li>先认一认它是<strong>哪种文体</strong>(写人/写景/说明/记事),按上面那张"拓展"表想清楚这篇该重点抓什么。</li>
+        <li>按六步法从头精读一遍:先通读,再分段,划出中心句和关键词,圈出不懂的词猜一猜。</li>
         <li>一边读一边写下<strong>3 条批注</strong>(不懂的、觉得好的、有疑问的、联想到的,挑你想写的写)。</li>
         <li>最后合上书,用<strong>一句话</strong>把整篇文章复述出来:它到底讲了什么。</li>
       </ol>
       <p>写完读给爸爸妈妈听听,或者讲给自己听。能讲清楚,这篇文章就真正变成你的了。</p>
     </div>
 
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related></div>
+    </section>
+
   </article>
+
+  <script>
+    (function () {
+      // —— 自编例文(6 句),每句:文本 / 是否中心句 / 关键词 / 示范批注 ——
+      var SENTS = [
+        { n: '①', text: '那天下午的雨,来得急,去得也急。', center: true,
+          kw: ['急'],
+          note: '<b>这是中心句。</b>开头一句就点明"来得急、去得也急",后面全在替它作证。读到这种总起句,先划下来。' },
+        { n: '②', text: '本来还是大晴天,转眼乌云就压了过来,天一下子暗了。', center: false,
+          kw: ['转眼', '一下子'],
+          note: '"转眼""一下子"写出变化之快,正照应中心句里的"急"。<b>写景要抓顺序</b>——这里抓的是天气说变就变。' },
+        { n: '③', text: '豆大的雨点砸下来,啪啪打在窗台上,很快连成一片白茫茫的雨幕。', center: false,
+          kw: ['豆大', '啪啪', '白茫茫'],
+          note: '"豆大""啪啪""白茫茫"——又有样子又有声音,把雨下大的过程写活了。这是值得学的好词,<b>记下来以后自己写能用</b>。' },
+        { n: '④', text: '路上的行人全乱了套,有人举着书包狂奔,有人挤进屋檐下躲雨。', center: false,
+          kw: ['乱了套', '狂奔'],
+          note: '没直接说"雨大",而是写人"乱了套、狂奔、躲雨",用人的反应衬托雨大。<b>这招叫侧面描写</b>。' },
+        { n: '⑤', text: '可没过二十分钟,雨说停就停,云缝里漏下一道阳光。', center: false,
+          kw: ['说停就停'],
+          note: '"说停就停"和开头的"去得也急"对上了。<b>一头一尾呼应</b>,段落就有了整体感。' },
+        { n: '⑥', text: '地面湿漉漉的,空气里全是泥土和青草的味道,像被洗过一遍。', center: false,
+          kw: ['湿漉漉', '洗过一遍'],
+          note: '雨后的"湿漉漉""泥土青草味""像被洗过",调动了眼睛和鼻子,留下清新的余味。<b>结尾的感觉很重要</b>。' }
+      ];
+
+      var textEl  = document.getElementById('ds-text');
+      var noteEl  = document.getElementById('ds-note');
+      var stepEl  = document.getElementById('ds-step');
+      var btnC    = document.getElementById('ds-center');
+      var btnK    = document.getElementById('ds-kw');
+      var btnA    = document.getElementById('ds-anno');
+      var btnWalk = document.getElementById('ds-walk');
+      var btnRst  = document.getElementById('ds-reset');
+
+      function esc(s){ return s.replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+      function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+      // 把关键词包成 <span class="ds-kw">
+      function wrapKw(text, kws){
+        if (!kws || !kws.length) return esc(text);
+        var re = new RegExp('(' + kws.map(escRe).join('|') + ')', 'g');
+        // 先转义整句,再在转义后的串上替换(关键词均为纯中文,转义不影响)
+        return esc(text).replace(re, '<span class="ds-kw">$1</span>');
+      }
+
+      // 注入句子
+      function build(){
+        var h = '';
+        for (var i = 0; i < SENTS.length; i++){
+          var s = SENTS[i];
+          var inner = '<b>' + s.n + '</b> ' + wrapKw(s.text, s.kw)
+            + '<sup class="ds-flag" title="' + esc(s.note.replace(/<[^>]+>/g,'')) + '">📍</sup>';
+          h += '<span class="ds-sent' + (s.center ? ' ds-center' : '') + '" data-i="' + i + '">' + inner + '</span> ';
+        }
+        textEl.innerHTML = h;
+        // 句子点击
+        var spans = textEl.querySelectorAll('.ds-sent');
+        for (var j = 0; j < spans.length; j++){
+          spans[j].addEventListener('click', function(){
+            var idx = +this.getAttribute('data-i');
+            selectSent(idx);
+          });
+        }
+      }
+
+      function selectSent(i){
+        var spans = textEl.querySelectorAll('.ds-sent');
+        for (var k = 0; k < spans.length; k++) spans[k].classList.remove('active');
+        spans[i].classList.add('active');
+        var s = SENTS[i];
+        noteEl.innerHTML = '<b>批注 · ' + s.n + '</b> ' + s.note;
+      }
+
+      // —— 三个开关 ——
+      function setCenter(on){ textEl.classList.toggle('center-on', on); btnC.classList.toggle('is-active', on); }
+      function setKw(on){ textEl.classList.toggle('kw-on', on); btnK.classList.toggle('is-active', on); }
+      function setAnno(on){ textEl.classList.toggle('anno-on', on); btnA.classList.toggle('is-active', on); }
+
+      btnC.addEventListener('click', function(){
+        var on = !textEl.classList.contains('center-on'); setCenter(on);
+        stepEl.textContent = on ? '中心句是第①句——"来得急,去得也急",整段都在替它作证。' : '已取消中心句高亮。';
+      });
+      btnK.addEventListener('click', function(){
+        var on = !textEl.classList.contains('kw-on'); setKw(on);
+        stepEl.textContent = on ? '绿色底色的就是关键词:写样子、写声音、写动作的词,理解全靠它们。' : '已取消关键词底色。';
+      });
+      btnA.addEventListener('click', function(){
+        var on = !textEl.classList.contains('anno-on'); setAnno(on);
+        stepEl.textContent = on ? '每句后面出现了 📍——把鼠标放上去,或直接点句子,看示范批注。' : '已收起批注标记。';
+      });
+
+      // —— 六步走查 ——
+      var STEPS = [
+        { label:'第 1 步 · 通读', c:false, k:false, a:false,
+          msg:'先从头读一遍,别抠字。一句话说大意:一场来得急、去得也急的雨。' },
+        { label:'第 2 步 · 理顺序', c:false, k:false, a:false,
+          msg:'写景抓顺序。这段按时间走:变天 → 下雨 → 行人慌 → 雨停 → 雨后,顺着读。' },
+        { label:'第 3 步 · 找中心句', c:true, k:false, a:false,
+          msg:'第①句就是中心句(已点亮)。它总起全段,其余各句都在证明它。' },
+        { label:'第 4 步 · 圈关键词', c:true, k:true, a:false,
+          msg:'圈出关键词(绿底):豆大、啪啪、白茫茫、乱了套……抓住它们就抓住了画面。' },
+        { label:'第 5 步 · 做批注', c:true, k:true, a:true,
+          msg:'点任意一句(每句都有 📍),看老师怎么写批注。试试点第④句。' },
+        { label:'第 6 步 · 复述', c:true, k:true, a:true,
+          msg:'合上看,自己说一遍:这场雨来得急、去得也急,下时白茫茫、人乱套,二十分钟就停,雨后很清新——说得出,就读懂了。' }
+      ];
+      var walk = -1;
+
+      function applyStep(){
+        var s = STEPS[walk];
+        setCenter(s.c); setKw(s.k); setAnno(s.a);
+        stepEl.innerHTML = '<b>' + s.label + '</b> — ' + s.msg;
+        if (walk === 4) selectSent(3); // 走到批注步,顺手点开第④句示范
+        btnWalk.textContent = (walk >= STEPS.length - 1) ? '↺ 再走一遍' : '下一步 ▸';
+      }
+
+      btnWalk.addEventListener('click', function(){
+        if (walk >= STEPS.length - 1) { resetAll(); return; }
+        walk++;
+        applyStep();
+      });
+
+      function resetAll(){
+        walk = -1;
+        setCenter(false); setKw(false); setAnno(false);
+        var spans = textEl.querySelectorAll('.ds-sent');
+        for (var k = 0; k < spans.length; k++) spans[k].classList.remove('active');
+        btnWalk.textContent = '▶ 六步走查';
+        stepEl.textContent = '提示:点上面的 ①②③ 试试,或者点 ▶ 六步走查从头跟一遍。';
+        noteEl.innerHTML = '👆 点上面任意一句,看老师怎么给它写批注。';
+      }
+
+      btnRst.addEventListener('click', resetAll);
+
+      build();
+    })();
+  </script>
+
 </body>
 </html>

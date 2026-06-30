@@ -44,6 +44,47 @@
       <p style="margin:8px 0 0">五感不用每次全用上，挑两三个最明显的写，画面就立起来了。</p>
     </div>
 
+    <div class="lab">
+      <div class="lab-title">🎮 五感细节生成器</div>
+      <p style="margin:0 0 14px;font-size:.9rem;color:var(--text-soft)">先选一个观察对象，再点五个感官按钮——每点一下，就把这个对象在这种感觉下的一句"细节示范"加到下面"我的观察"里。下方还能切换看同一样东西的<b>笼统说法</b>和<b>细节说法</b>，对比一下差别有多大。</p>
+
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;margin-bottom:14px">
+        <div>
+          <label style="display:block;font-weight:700;font-size:.9rem;margin-bottom:6px">观察对象</label>
+          <select id="obs-object" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:1rem;background:var(--bg)">
+            <option value="苹果">🍎 苹果</option>
+            <option value="一片落叶">🍂 一片落叶</option>
+            <option value="一场雨">🌧️ 一场雨</option>
+            <option value="路边小猫">🐱 路边小猫</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+        <button class="btn" data-sense="看" type="button">👀 看</button>
+        <button class="btn" data-sense="听" type="button">👂 听</button>
+        <button class="btn" data-sense="闻" type="button">👃 闻</button>
+        <button class="btn" data-sense="尝" type="button">👅 尝</button>
+        <button class="btn" data-sense="触" type="button">✋ 触</button>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-weight:700;font-size:.92rem">📝 我的观察</span>
+        <button id="obs-clear" class="btn" type="button" style="padding:4px 12px;font-size:.82rem;font-weight:600">清空</button>
+      </div>
+      <ul id="obs-list" style="margin:0 0 18px;padding:14px 14px 14px 32px;background:var(--bg);border-radius:8px;min-height:54px;max-height:230px;overflow-y:auto;font-size:.95rem;line-height:1.7">
+        <li id="obs-hint" style="list-style:none;margin-left:-18px;color:var(--text-faint)">点上面的感官按钮，观察句会一条条出现在这里…</li>
+      </ul>
+
+      <div style="border-top:1px dashed var(--border);padding-top:16px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+          <button id="obs-toggle" class="btn primary" type="button">笼统说法 ↔ 细节说法</button>
+          <span style="font-size:.82rem;color:var(--text-faint)">（点一下切换，看同一样东西的两种写法）</span>
+        </div>
+        <div id="obs-compare" class="readout" style="margin-top:0"></div>
+      </div>
+    </div>
+
     <h2>笼统 vs 细节：同一件事的两种写法</h2>
     <p>左边是大家随手就写的"笼统句"，右边是动用了观察的"细节句"。你读一读，感受一下差别有多大。</p>
     <table>
@@ -67,11 +108,46 @@
     </table>
     <p>看出规律了吗？右边没有一个"美""好吃""冷""开心"，可你全感受到了。<b>把形容词换成具体的样子、动作和感觉，这就是细节描写。</b></p>
 
+    <h2>把笼统换具体的三招</h2>
+    <p>知道要写细节，可"细节"到底怎么挤出来？这里有三个最好用、最容易上手的法子。</p>
+
+    <div class="box example">
+      <div class="box-title">① 用数字，代替"很多 / 很大 / 很久"</div>
+      <p style="margin:0 0 6px">❌ 笼统：树上结了<b>很多</b>果子。</p>
+      <p style="margin:0 0 8px">✅ 具体：那棵树上挂了<b>三四十个</b>橘子，压得枝条都弯下了腰。</p>
+      <p style="margin:0">数字一出来，读者脑子里立刻有了画面。不用精确，"三四十个""走了半个钟头""高过我两个头"都算数。</p>
+    </div>
+
+    <div class="box example">
+      <div class="box-title">② 用比喻，把看不见的变成看得见的</div>
+      <p style="margin:0 0 6px">❌ 笼统：她跑得<b>很快</b>。</p>
+      <p style="margin:0 0 8px">✅ 具体：她<b>像离弦的箭一样</b>冲了出去，转眼就到了操场那头。</p>
+      <p style="margin:0">把不好描述的东西（快、亮、白、静），比成一个大家都熟悉的事物，读者一下就懂了。比喻要贴切，别硬凑——快比成箭、白比成雪都行，可别说"快得像一张桌子"。</p>
+    </div>
+
+    <div class="box example">
+      <div class="box-title">③ 用动作，代替直接说情绪</div>
+      <p style="margin:0 0 6px">❌ 笼统：他<b>很紧张</b>。</p>
+      <p style="margin:0 0 8px">✅ 具体：他<b>攥着衣角，脚不停地抖，眼睛盯着门口一眨也不眨</b>。</p>
+      <p style="margin:0">情绪一个字不提，全藏在动作里。这一招最重要，下面专门拆给你看。</p>
+    </div>
+
     <h2>动作分解：把"很慌张"拆成一连串小动作</h2>
     <p>写人物的心情，也别直接说"他很慌张"。你想想，一个人慌张的时候，身体会做什么？把这些小动作一个个写下来，慌张就藏在动作里了。</p>
     <p>❌ 笼统：<b>他很慌张。</b></p>
     <p>✅ 分解：<b>他猛地站起来，椅子在地上刮出一声响。手在书包里翻来翻去，作业本掉了一地，他蹲下去捡，又把笔碰飞了，额头上渗出细汗，半天说不出一句完整的话。</b></p>
     <p>诀窍：先想清楚那是什么情绪，再问自己"这种感觉会让身体做哪几个动作"，然后<b>按先后顺序，一个动作接一个动作地写</b>。情绪你一个字没提，读者却全看懂了。</p>
+
+    <div class="box tip">
+      <div class="box-title">🌱 拓展：再上一层楼的三个小技巧</div>
+      <p style="margin:0 0 10px">五感和三招会用了，想让文字更活，再加这三手。</p>
+      <p style="margin:0 0 4px"><b>动静结合</b>——写景别只写不动的。先写"静"的（老屋、大树、石阶），再添一笔"动"的（飞过的鸟、晃动的影子），画面一下就活了。</p>
+      <p style="margin:0 0 10px;padding-left:14px;color:var(--text-soft)">例：老屋静静立在巷口，一只花猫"嗖"地从屋檐跳下，惊飞了檐下两只麻雀。</p>
+      <p style="margin:0 0 4px"><b>调动多感官</b>——一段话别只用眼睛。把看到的、听到的、闻到的搭在一起写，读者像站在了现场。</p>
+      <p style="margin:0 0 10px;padding-left:14px;color:var(--text-soft)">例：厨房里油锅滋滋响（听），一股葱花香窜出来（闻），妈妈的背影在热气里忙个不停（看）。</p>
+      <p style="margin:0 0 4px"><b>抓最特别的一点</b>——不用面面俱到。这样东西最打动你的是哪一处，就重点写哪一处。</p>
+      <p style="margin:0;padding-left:14px;color:var(--text-soft)">例：写奶奶，别从头发写到鞋，只写她那双"指节粗大、布满裂口"的手，人就立住了。</p>
+    </div>
 
     <div class="box">
       <div class="box-title">✏️ 试一试（嘉欢的小练习）</div>
@@ -80,6 +156,7 @@
       <ul>
         <li>句子里<b>不许出现</b>"美""好""香""好吃"这类大词；</li>
         <li>每句都要让人能"看见"或"感觉到"具体的样子；</li>
+        <li>试着用上今天学的<b>数字</b>或<b>比喻</b>，让句子更准、更活；</li>
         <li>写完读给爸爸妈妈听，问他们：你能猜出我写的是什么吗？</li>
       </ul>
       <p style="margin:8px 0 0">写完别急着满足。挑出自己最喜欢的那一句，想想还能不能再加一个小细节，让它更清楚一点。</p>
@@ -90,5 +167,127 @@
       <div class="related-grid" data-related></div>
     </section>
   </article>
+
+  <script>
+    // ─── 五感细节生成器 ───
+    (function () {
+      var DATA = {
+        '苹果': {
+          emoji: '🍎',
+          senses: {
+            '看': '红里透着一点黄，表皮上有几道浅浅的纹路，被灯一照，泛着一层薄薄的亮。',
+            '听': '咔嚓一声咬下去，脆响在嘴里炸开，连旁边的人都听见了。',
+            '闻': '凑近一闻，一股清清甜甜的果香，像刚下过雨的果园。',
+            '尝': '第一口又脆又甜，汁水一下子涌出来，顺着嘴角往下滑。',
+            '触': '摸上去凉凉的、滑滑的，握在手里沉甸甸，像攥着一个小皮球。'
+          },
+          plain: '这个苹果真好吃。',
+          detail: '咬下去咔嚓一声脆响，凉滑的果皮握在手心，甜汁顺着嘴角往下滑。'
+        },
+        '一片落叶': {
+          emoji: '🍂',
+          senses: {
+            '看': '叶子是焦黄带褐的，边缘卷了起来，叶脉一根根，像细细的小路。',
+            '听': '踩上去咔嚓一声碎响，风一吹，几片在地上沙沙地打着转。',
+            '闻': '捡起来凑近闻，有股干干的、泥土混着草的味道。',
+            '尝': '叶子可不能往嘴里送——真咬一小角，舌尖只剩又苦又涩，赶紧吐了出来。',
+            '触': '摸上去脆脆的、薄薄的，稍一用力就碎成几瓣，边缘还有点扎手。'
+          },
+          plain: '地上的叶子很好看。',
+          detail: '焦黄卷边的叶子叶脉像一根根小路，踩上去咔嚓碎成几瓣，干干的草土味往鼻子里钻。'
+        },
+        '一场雨': {
+          emoji: '🌧️',
+          senses: {
+            '看': '雨丝斜斜地织成一片灰白，落进水洼里，溅起一个个小圆圈。',
+            '听': '噼里啪啦砸在屋檐上，雨大的时候，连成一片哗哗的水声。',
+            '闻': '空气里全是潮湿的土腥味，还混着一点青草的清气。',
+            '尝': '仰起头，一颗雨点正好落进嘴里，凉凉的、淡淡的，几乎没什么味道。',
+            '触': '伸手出去，雨点打在手心又凉又麻，一会儿手背就湿成了一片。'
+          },
+          plain: '今天的雨下得很大。',
+          detail: '雨丝斜斜砸在屋檐上哗哗作响，水洼里溅起一个个小圆圈，伸出手，雨点打在掌心又凉又麻。'
+        },
+        '路边小猫': {
+          emoji: '🐱',
+          senses: {
+            '看': '一身灰白相间的花纹，缩在墙角，两只圆眼睛警觉地盯着你。',
+            '听': '喉咙里发出细细的呼噜声，偶尔"喵"地叫一下，又软又短。',
+            '闻': '凑近时有股淡淡的、暖暖的绒毛味，还混着一点路边的灰尘气。',
+            '尝': '猫可不能往嘴里送——它舔过你的手背，留下一点湿湿的、咸咸的口水味。',
+            '触': '手指轻轻碰它的背，毛软得像晒过太阳的棉花，底下还摸得到温温的体温。'
+          },
+          plain: '路边有只很可爱的小猫。',
+          detail: '一身灰白花纹的小猫缩在墙角，喉咙里呼噜呼噜，圆眼睛警觉地盯着你，背上的毛软得像晒过太阳的棉花。'
+        }
+      };
+
+      var SENSE_ICON = { '看': '👀', '听': '👂', '闻': '👃', '尝': '👅', '触': '✋' };
+
+      var sel     = document.getElementById('obs-object');
+      var list    = document.getElementById('obs-list');
+      var hint    = document.getElementById('obs-hint');
+      var clearBt = document.getElementById('obs-clear');
+      var toggle  = document.getElementById('obs-toggle');
+      var compare = document.getElementById('obs-compare');
+      var mode    = 'plain'; // 'plain' 笼统 / 'detail' 细节
+
+      // 点感官按钮 → 追加一条细节句
+      var btns = document.querySelectorAll('[data-sense]');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener('click', function () {
+          var obj   = sel.value;
+          var sense = this.getAttribute('data-sense');
+          var sentence = DATA[obj].senses[sense];
+
+          if (hint) { hint.remove(); hint = null; }
+
+          var li = document.createElement('li');
+          li.style.marginBottom = '4px';
+          li.innerHTML = '<b>' + SENSE_ICON[sense] + ' ' + sense + '</b>'
+                       + '<span style="color:var(--text-faint)"> · ' + DATA[obj].emoji + obj + '：</span>'
+                       + sentence;
+          list.appendChild(li);
+          list.scrollTop = list.scrollHeight; // 滚到最新一条
+        });
+      }
+
+      // 清空观察列表
+      clearBt.addEventListener('click', function () {
+        list.innerHTML = '';
+        hint = document.createElement('li');
+        hint.id = 'obs-hint';
+        hint.style.listStyle = 'none';
+        hint.style.marginLeft = '-18px';
+        hint.style.color = 'var(--text-faint)';
+        hint.textContent = '点上面的感官按钮，观察句会一条条出现在这里…';
+        list.appendChild(hint);
+      });
+
+      // 笼统 ↔ 细节 对照
+      function renderCompare() {
+        var obj = sel.value;
+        if (mode === 'plain') {
+          compare.innerHTML =
+            '<span style="display:inline-block;font-size:.78rem;font-weight:700;color:#fff;background:#e67e22;border-radius:6px;padding:2px 8px;margin-right:8px">笼统说法</span>'
+            + DATA[obj].plain;
+        } else {
+          compare.innerHTML =
+            '<span style="display:inline-block;font-size:.78rem;font-weight:700;color:#fff;background:#27ae60;border-radius:6px;padding:2px 8px;margin-right:8px">细节说法</span>'
+            + DATA[obj].detail;
+        }
+      }
+
+      toggle.addEventListener('click', function () {
+        mode = (mode === 'plain') ? 'detail' : 'plain';
+        renderCompare();
+      });
+
+      // 换对象时，对照区跟着更新（保留当前是看笼统还是细节）
+      sel.addEventListener('change', renderCompare);
+
+      renderCompare();
+    })();
+  </script>
 </body>
 </html>
