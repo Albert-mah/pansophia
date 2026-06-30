@@ -626,6 +626,7 @@
     var rd0 = useState(null); var reader = rd0[0], setReader = rd0[1]; // 阅读器弹窗
     var bz0 = useState({}); var busy = bz0[0], setBusy = bz0[1];
     var rt0 = useState("res"); var resTab = rt0[0], setResTab = rt0[1];   // 右栏:资料 / 笔记 两个 tab
+    var mn0 = useState(null); var mnav = mn0[0], setMnav = mn0[1];        // 移动端:null=只看详情 / "list"=唤出考点目录 / "res"=唤出资料
     useEffect(function () { if (did) C.materialsFor(did).then(setMats); }, [did]);
     // 点选带讲解的考点 → 记一次「读讲解」事件(achStats 按 path 去重,支持「读讲解」类成就)
     useEffect(function () { if (selRef) { var k = C.catalogById(selRef); if (k && k.path) C.logEvent({ kind: "lesson", path: k.path, label: k.title }); } }, [selRef]);
@@ -718,8 +719,15 @@
     var noteList = C.notes().filter(function (n) { return n.subject && n.subject.indexOf(sc.name) >= 0; }).slice(0, 12);
     function saveCourseNote(v) { v = (v || "").trim(); if (!v) return; var nt = C.notes(); nt.unshift({ title: v.slice(0, 24), body: v, subject: "随堂笔记", ts: Date.now() }); C.save("notes", nt); app.refresh(); }
 
-    return html`<div class="pan-course">
+    return html`<div class=${"pan-course" + (mnav ? " m-open-" + mnav : "")}>
+      <div class="pan-course-mtop">
+        <span class="t-back" title="返回课程表" onClick=${function () { app.go("course"); }}>‹</span>
+        <span class="t-title">${(d && d.name) || sc.name}</span>
+        <span class=${"t-btn" + (mnav === "list" ? " on" : "")} onClick=${function () { setMnav(mnav === "list" ? null : "list"); }}>📋 目录</span>
+        <span class=${"t-btn" + (mnav === "res" ? " on" : "")} onClick=${function () { setMnav(mnav === "res" ? null : "res"); }}>📚 资料</span>
+      </div>
       <div class="pan-pane pan-scroll side">
+        <div class="pan-msheet-bar">考点目录<span class="x" onClick=${function () { setMnav(null); }}>✕</span></div>
         <div style="font-size:12px;color:#9a8a6f;margin-bottom:6px;"><span class="lnk" style="cursor:pointer;" onClick=${function () { app.go("course"); }}>我的课程</span> › ${(d && d.name) || sc.name}</div>
         <h2 style="font-family:var(--serif);font-size:20px;font-weight:700;margin:0 0 4px;">${(d && d.name) || sc.name}${hdrDir ? html` <span style="font-size:14px;font-weight:700;color:${hdrColor};">· ${hdrDir}</span>` : ""}${entry.scope ? html` <span style="font-size:13px;font-weight:600;color:#9a8a6f;">· ${(C.SCOPES[entry.scope] || {}).name || entry.scope}</span>` : ""}</h2>
         <div style="font-size:12.5px;color:#9a8a6f;margin-bottom:14px;">${allPts.length} 个考点 · 已填 ${cv.done}</div>
@@ -754,15 +762,16 @@
             ${(t.points || []).map(function (p, pi) {
               var kp = p.ref ? C.catalogById(p.ref) : null; var isSel = sel && sel.p === p;
               if (isSel) return html`<div key=${pi} style="display:flex;gap:10px;padding:11px 9px;border-radius:8px;font-size:13.5px;font-weight:600;background:#33291E;color:#F2E8D6;"><span>▸</span> ${p.title}</div>`;
-              return html`<div key=${pi} class="pan-row" onClick=${function () { setSel(p.ref || p.title); }} style=${"display:flex;gap:10px;padding:9px 8px;font-size:13px;cursor:pointer;" + (kp ? "" : "color:#7A6E5E;")}>${kp ? html`<span style="color:#6E7A4F;">✓</span>` : html`<span style="color:#d8cbb3;">○</span>`} ${p.title}</div>`;
+              return html`<div key=${pi} class="pan-row" onClick=${function () { setSel(p.ref || p.title); setMnav(null); }} style=${"display:flex;gap:10px;padding:9px 8px;font-size:13px;cursor:pointer;" + (kp ? "" : "color:#7A6E5E;")}>${kp ? html`<span style="color:#6E7A4F;">✓</span>` : html`<span style="color:#d8cbb3;">○</span>`} ${p.title}</div>`;
             })}</div>`;
         })}
       </div>
       <div class="pan-pane pan-scroll main">
-        <div style="font-size:12.5px;color:#9a8a6f;margin-bottom:14px;"><span class="lnk" onClick=${function () { app.go("home"); }}>首页</span> › 我的课程 › ${(d && d.name) || sc.name}</div>
+        <div class="pan-main-crumb" style="font-size:12.5px;color:#9a8a6f;margin-bottom:14px;"><span class="lnk" onClick=${function () { app.go("home"); }}>首页</span> › 我的课程 › ${(d && d.name) || sc.name}</div>
         ${center}
       </div>
       <div class="pan-pane pan-scroll res">
+        <div class="pan-msheet-bar">资料 / 笔记<span class="x" onClick=${function () { setMnav(null); }}>✕</span></div>
         <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid #EEE3CF;">
           <span onClick=${function () { setResTab("res"); }} style=${"padding:8px 10px;margin-bottom:-1px;font-size:13.5px;cursor:pointer;border-bottom:2px solid " + (resTab === "res" ? "#B6532F;color:#B6532F;font-weight:700;" : "transparent;color:#9a8a6f;font-weight:600;")}>📚 资料</span>
           <span onClick=${function () { setResTab("notes"); }} style=${"padding:8px 10px;margin-bottom:-1px;font-size:13.5px;cursor:pointer;border-bottom:2px solid " + (resTab === "notes" ? "#B6532F;color:#B6532F;font-weight:700;" : "transparent;color:#9a8a6f;font-weight:600;")}>📝 笔记${noteList.length ? html` <span style="font-size:11px;color:#bbab8c;font-weight:600;">${noteList.length}</span>` : ""}</span>
