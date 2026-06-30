@@ -341,6 +341,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_materials_post()
         if p.path == "/api/materials/delete":
             return self.api_materials_delete()
+        if p.path == "/api/materials/update":
+            return self.api_materials_update()
         if p.path == "/api/material/cachepdf":
             return self.api_material_cachepdf()
         if p.path == "/api/coursefiles":
@@ -899,6 +901,28 @@ class Handler(SimpleHTTPRequestHandler):
                 rid = cur.fetchone()[0]
             conn.close()
             return self._json(200, {"ok": True, "id": rid})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_materials_update(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        d = self._read_json()
+        if not isinstance(d, dict) or d.get("id") is None: return self._json(400, {"ok": False, "error": "bad body"})
+        sets, args = [], []
+        if "url" in d: sets.append("url=%s"); args.append((str(d.get("url") or "")[:1000]) or None)
+        if "note" in d: sets.append("note=%s"); args.append(str(d.get("note") or "")[:1000])
+        if "authority" in d: sets.append("authority=%s"); args.append(str(d.get("authority") or "")[:40] or None)
+        if "kind" in d: sets.append("kind=%s"); args.append(str(d.get("kind") or "")[:40] or None)
+        if "title" in d: sets.append("title=%s"); args.append(str(d.get("title") or "")[:300])
+        if "refs" in d: sets.append("refs=%s"); args.append(json.dumps(d.get("refs") or [], ensure_ascii=False))
+        if not sets: return self._json(400, {"ok": False, "error": "no fields"})
+        args.append(int(d["id"]))
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("UPDATE course_materials SET " + ",".join(sets) + " WHERE id=%s", tuple(args))
+            conn.close()
+            return self._json(200, {"ok": True})
         except Exception as e:
             return self._json(500, {"ok": False, "error": str(e)})
 

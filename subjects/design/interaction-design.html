@@ -24,7 +24,9 @@
     .b-main { background: #FAE9E2; color: #B6532F; }
     .b-free { background: #eef7f0; color: #3f8a52; }
     .b-buy  { background: #FBF4E6; color: #a86a00; }
-  </style>
+    .acc { font-size: 13px; color: #6E7A4F; margin-top: 4px; }
+    .acc a { color: #B6532F; }
+</style>
 </head>
 <body>
 
@@ -100,25 +102,36 @@
     </div>
 
     <h2>教材(按优先级)</h2>
+    <p style="color:#9a8a6f;font-size:13px;margin-top:-2px">买不到实体书也没关系:下面每本都给了合法的免费入口——
+      <strong>Internet Archive 受控借阅</strong>(注册后一次借一本,像图书馆)、官方授权的免费样章、或免费等价资源。</p>
     <ul class="booklist">
-      <li><span class="badge b-main">主教材</span><strong>《About Face: The Essentials of Interaction Design》</strong>(Alan Cooper)
-        —— 偏软件产品 / SaaS / 后台系统的交互设计,最贴合你做 NocoBase 后台。认真做工具类产品就读这本。</li>
+      <li><span class="badge b-main">主教材</span><strong>《About Face:交互设计精髓》</strong>(Alan Cooper)
+        —— 偏软件产品 / SaaS / 后台系统的交互设计,最贴合你做 NocoBase 后台。认真做工具类产品就读这本。
+        <div class="acc">📖 免费借阅:<a href="https://archive.org/details/aboutfaceessenti0000coop" target="_blank" rel="noopener">Internet Archive(第4版)</a></div></li>
       <li><span class="badge b-main">必读底层</span><strong>《设计心理学 The Design of Everyday Things》</strong>(Don Norman)
-        —— 交互设计的底层心智模型:可见性、映射、反馈、约束、错误。先看这本打地基。</li>
-      <li><span class="badge b-free">免费在线全文</span><strong>IxDF《Encyclopedia of Human-Computer Interaction》</strong>
-        —— 4000+ 页、上百位作者的免费在线大百科,当作随时能翻的「大教材」从这读起。</li>
+        —— 交互设计的底层心智模型:可见性、映射、反馈、约束、错误。先看这本打地基。
+        <div class="acc">📖 免费借阅:<a href="https://archive.org/details/designofeveryday00norm" target="_blank" rel="noopener">Internet Archive</a> · 作者免费文章:<a href="https://jnd.org/" target="_blank" rel="noopener">jnd.org</a></div></li>
+      <li><span class="badge b-free">免费在线全文</span><strong>IxDF《人机交互百科全书》</strong>
+        —— 4000+ 页、上百位作者的免费在线大百科,当作随时能翻的「大教材」从这读起。
+        <div class="acc">🌐 直接读:<a href="https://ixdf.org/literature/book/the-encyclopedia-of-human-computer-interaction-2nd-ed" target="_blank" rel="noopener">44 章全文免费</a></div></li>
       <li><span class="badge b-free">免费</span><strong>Laws of UX</strong>
-        —— 把心理学定律(费茨定律、希克定律、雅各布定律…)做成卡片,做判断时随手查。</li>
+        —— 把心理学定律(费茨定律、希克定律、雅各布定律…)做成卡片,做判断时随手查。
+        <div class="acc">🌐 直接读:<a href="https://lawsofux.com/" target="_blank" rel="noopener">lawsofux.com</a></div></li>
       <li><span class="badge b-buy">工具书</span><strong>《Don't Make Me Think》</strong>(Steve Krug)
-        —— 可用性入门,训练「别让用户想太多」的直觉,很薄很实用。</li>
+        —— 可用性入门,训练「别让用户想太多」的直觉,很薄很实用。
+        <div class="acc">📖 官方免费样章 + 全书借阅:<a href="https://sensible.com/dont-make-me-think/" target="_blank" rel="noopener">sensible.com</a> / <a href="https://archive.org/details/dontmakemethinkr0000krug" target="_blank" rel="noopener">Internet Archive</a></div></li>
       <li><span class="badge b-buy">工具书</span><strong>《Designing Interfaces》</strong>(Jenifer Tidwell 等,第 3 版)
-        —— UI pattern 工具书,表格 / 筛选 / 批量 / 弹窗 / 仪表盘的标准做法,后台最实用。</li>
+        —— UI pattern 工具书,表格 / 筛选 / 批量 / 弹窗 / 仪表盘的标准做法,后台最实用。
+        <div class="acc">📖 借阅:<a href="https://archive.org/details/designinginterfa00tidw" target="_blank" rel="noopener">Internet Archive</a> · 🌐 免费等价:<a href="https://ui-patterns.com/patterns" target="_blank" rel="noopener">UI Patterns 模式库</a></div></li>
       <li><span class="badge b-buy">按需</span><strong>《Just Enough Research》</strong>(Erika Hall)
-        —— 用轻量研究支撑设计判断,别凭空想。</li>
+        —— 用轻量研究支撑设计判断,别凭空想。
+        <div class="acc">📄 官方免费样章:<a href="https://www.uxmatters.com/mt/archives/2019/02/sample-chapter-just-enough-research.php" target="_blank" rel="noopener">UXmatters</a></div></li>
       <li><span class="badge b-buy">按需</span><strong>《Microinteractions》</strong>(Dan Saffer)
-        —— 状态、反馈、小交互、细节体验。</li>
+        —— 状态、反馈、小交互、细节体验。
+        <div class="acc">🎬 作者免费同名演讲:<a href="https://archive.org/details/vimeo-89543518" target="_blank" rel="noopener">Webstock'14(Internet Archive)</a></div></li>
       <li><span class="badge b-buy">按需</span><strong>《Information Architecture》</strong>(Rosenfeld / Morville / Arango)
-        —— 做复杂网站、知识库、企业系统、管理后台时很有价值。</li>
+        —— 做复杂网站、知识库、企业系统、管理后台时很有价值。
+        <div class="acc">📖 免费借阅:<a href="https://archive.org/details/louis-rosenfeld-peter-morville-jorge-arango-information-architecture-for-the-web" target="_blank" rel="noopener">Internet Archive(第4版)</a></div></li>
     </ul>
 
     <h2>课程</h2>
