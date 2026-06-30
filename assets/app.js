@@ -314,7 +314,13 @@
       toggleMore: function () { setSt(function (p) { return Object.assign({}, p, { moreOpen: !p.moreOpen, menuOpen: false, userPop: false }); }); },
       switchUser: function (k) {
         C.switchUser(k);
-        setSt(function (p) { return Object.assign({}, p, { userPop: false, menuOpen: false, ready: false, tick: p.tick + 1 }); });
+        setSt(function (p) {
+          var np = Object.assign({}, p, { userPop: false, menuOpen: false, ready: false, tick: p.tick + 1 });
+          // 切换用户后,带「课程上下文」的页面(课程详情 / 练习 / 测验)回到课程表 —— 新用户未必选了上一个用户那门课,
+          // 不重置会停在别人的课上(disc 参数是 URL 残留)。hydrate 完成后 CourseList 会显示新用户自己的课。
+          if (p.screen === "course" || p.screen === "practice" || p.screen === "quiz") { np.screen = "course"; np.params = {}; }
+          return np;
+        });
         C.hydrate().then(function () { var fresh = C.checkAchievements(); setSt(function (p) { return Object.assign({}, p, { ready: true, tick: p.tick + 1, toast: (fresh && fresh.length) ? fresh : null }); }); });
       },
       // 动作后检测成就:刷新 + 若有新解锁则弹 toast
