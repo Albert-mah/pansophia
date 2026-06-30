@@ -238,6 +238,13 @@ window.Core = (function () {
   function plan() { return store("plan", null); }              // 首页"今日计划"小清单
   function schedule() { return store("schedule", null); }      // 学习计划(完整日程)
   function goals() { return store("goals", []); }
+  // 刷题记录(客户端):qstat 按 qid 存最近一次结果(供章节状态 icon);quizruns 按课程存最近一套整卷(供完成回顾 + 不盲目重来)
+  function quizStat() { return store("quizstat", {}); }
+  function recordQuiz(it) { if (!it || it.qid == null) return; var m = Object.assign({}, quizStat()); m[String(it.qid)] = { kp: it.kp || null, ok: !!it.correct, ts: Date.now() }; save("quizstat", m); }
+  function kpQuiz(ref) { if (!ref) return null; var m = quizStat(), answered = 0, correct = 0; Object.keys(m).forEach(function (qid) { if (m[qid].kp === ref) { answered++; if (m[qid].ok) correct++; } }); return answered ? { answered: answered, correct: correct } : null; }
+  function quizRuns() { return store("quizruns", {}); }
+  function saveQuizRun(key, data) { if (!key) return; var m = Object.assign({}, quizRuns()); m[key] = data; save("quizruns", m); }
+  function quizRunFor(key) { return quizRuns()[key] || null; }
 
   function logEvent(ev) {
     var list = events().slice();
@@ -956,6 +963,7 @@ window.Core = (function () {
     store: store, save: save, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc, uninstallCourse: uninstallCourse,
     myCourses: myCourses, hasCourse: hasCourse, enrollCourse: enrollCourse, unenrollCourse: unenrollCourse, toggleCourse: toggleCourse, courseScopesOf: courseScopesOf, courseKey: courseKey,
     points: points, wishlist: wishlist, notes: notes, events: events, progress: progress, plan: plan, schedule: schedule, goals: goals,
+    recordQuiz: recordQuiz, kpQuiz: kpQuiz, saveQuizRun: saveQuizRun, quizRunFor: quizRunFor,
     logEvent: logEvent, award: award,
     LEVELS: LEVELS, levelOf: levelOf, knowledgeValue: knowledgeValue,
     ACHIEVEMENTS: ACHIEVEMENTS, evalAchievements: evalAchievements, checkAchievements: checkAchievements,

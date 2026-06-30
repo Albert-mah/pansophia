@@ -761,8 +761,11 @@
           return html`<div key=${ti}><div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#bbab8c;text-transform:uppercase;margin:14px 0 8px;">${t.title}</div>
             ${(t.points || []).map(function (p, pi) {
               var kp = p.ref ? C.catalogById(p.ref) : null; var isSel = sel && sel.p === p;
-              if (isSel) return html`<div key=${pi} style="display:flex;gap:10px;padding:11px 9px;border-radius:8px;font-size:13.5px;font-weight:600;background:#33291E;color:#F2E8D6;"><span>▸</span> ${p.title}</div>`;
-              return html`<div key=${pi} class="pan-row" onClick=${function () { setSel(p.ref || p.title); setMnav(null); }} style=${"display:flex;gap:10px;padding:9px 8px;font-size:13px;cursor:pointer;" + (kp ? "" : "color:#7A6E5E;")}>${kp ? html`<span style="color:#6E7A4F;">✓</span>` : html`<span style="color:#d8cbb3;">○</span>`} ${p.title}</div>`;
+              var qz = p.ref ? C.kpQuiz(p.ref) : null;   // 做题状态:已练几题、对几题
+              var qzAllOk = qz && qz.correct >= qz.answered;
+              var qChip = qz ? html`<span style=${"margin-left:auto;flex-shrink:0;font-size:10.5px;font-weight:700;white-space:nowrap;color:" + (isSel ? "#E8B06A" : qzAllOk ? "#6E7A4F" : "#C8852E") + ";"} title="练习:答对 ${qz.correct}/${qz.answered}">${qzAllOk ? "✓" : "✎"} ${qz.correct}/${qz.answered}</span>` : null;
+              if (isSel) return html`<div key=${pi} style="display:flex;gap:10px;align-items:center;padding:11px 9px;border-radius:8px;font-size:13.5px;font-weight:600;background:#33291E;color:#F2E8D6;"><span>▸</span> <span style="flex:1;min-width:0;">${p.title}</span>${qChip}</div>`;
+              return html`<div key=${pi} class="pan-row" onClick=${function () { setSel(p.ref || p.title); setMnav(null); }} style=${"display:flex;gap:10px;align-items:center;padding:9px 8px;font-size:13px;cursor:pointer;" + (kp ? "" : "color:#7A6E5E;")}>${kp ? html`<span style="color:#6E7A4F;flex-shrink:0;">✓</span>` : html`<span style="color:#d8cbb3;flex-shrink:0;">○</span>`} <span style="flex:1;min-width:0;">${p.title}</span>${qChip}</div>`;
             })}</div>`;
         })}
       </div>
@@ -1408,25 +1411,50 @@
    * ========================================================= */
   function normQ(r) { return { qid: r.id, kp: r.kp, type: r.type || "choice", q: r.stem, options: r.options || [], answer: r.answer, explain: r.explain, subject: r.subject, difficulty: r.difficulty || 2 }; }
 
+  // 答题回顾:逐题列出「你的作答 / 正确答案 / 解析」,供完成页与再次进入时回顾
+  function QuizReview(props) {
+    var items = props.items || [];
+    if (!items.length) return null;
+    return html`<div class="pan-panel" style="padding:24px 26px;">
+      <div style="font-family:var(--serif);font-size:17px;font-weight:700;margin-bottom:4px;">📋 答题回顾</div>
+      <div style="font-size:12.5px;color:#9a8a6f;margin-bottom:14px;">逐题看你的作答、正确答案和解析。错题已自动进错题本。</div>
+      ${items.map(function (it, i) {
+        var your = it.type === "fill" ? (it.chosen || "(未填)") : ((it.options || [])[it.chosen] != null ? it.options[it.chosen] : "(未选)");
+        var right = it.type === "fill" ? (it.answer || []).join(" / ") : (it.options || [])[it.answer];
+        return html`<div key=${i} style="padding:13px 0;border-top:1px solid #F4ECDC;">
+          <div style="display:flex;gap:8px;"><span style=${"flex-shrink:0;font-weight:700;color:" + (it.correct ? "#6E7A4F" : "#B6532F") + ";"}>${it.correct ? "✓" : "✗"} ${i + 1}.</span><div style="font-size:14px;font-weight:600;line-height:1.5;">${it.q}</div></div>
+          <div style="margin:7px 0 0 22px;font-size:13px;line-height:1.7;">
+            <div style=${"color:" + (it.correct ? "#6E7A4F" : "#B6532F") + ";"}>你的答案:${your}</div>
+            ${!it.correct ? html`<div style="color:#3f8a52;">正确答案:${right}</div>` : null}
+            ${it.explain ? html`<div style="color:#7A6E5E;margin-top:5px;background:#FBF4E6;border-radius:9px;padding:9px 12px;">${it.explain}</div>` : null}
+          </div></div>`;
+      })}
+    </div>`;
+  }
+
   function QuizRun(p) {
     var app = useApp();
-    var r0 = useState({ i: 0, answered: null, fill: "", fillOk: false, lastOk: false, correct: 0, earned: 0, wrong: 0, reviewed: {} });
+    var r0 = useState({ i: 0, answered: null, fill: "", fillOk: false, lastOk: false, correct: 0, earned: 0, wrong: 0, reviewed: {}, items: [] });
     var run = r0[0], setRun = r0[1];
     var qs = p.questions || [], q = qs[run.i];
     function val(qq) { return 2 + (qq.difficulty || 2); }
-    function settle(qq, ok) { C.recordAnswer({ questionId: qq.qid, kp: qq.kp, correct: ok, examId: p.examId }); if (ok) C.award(val(qq), "答对练习 · " + String(qq.q || "").slice(0, 16), "q:" + qq.qid + ":" + Date.now()); }
-    function choose(idx) { if (run.answered != null) return; var ok = idx === q.answer; settle(q, ok); setRun(Object.assign({}, run, { answered: idx, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1) })); }
-    function submitFill() { if (run.answered != null) return; var v = (run.fill || "").trim().toLowerCase().replace(/[.。]$/, ""); var ok = (q.answer || []).some(function (a) { return String(a).trim().toLowerCase() === v; }); settle(q, ok); setRun(Object.assign({}, run, { answered: 1, fillOk: ok, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1) })); }
+    function settle(qq, ok) { C.recordAnswer({ questionId: qq.qid, kp: qq.kp, correct: ok, examId: p.examId }); C.recordQuiz({ qid: qq.qid, kp: qq.kp, correct: ok }); if (ok) C.award(val(qq), "答对练习 · " + String(qq.q || "").slice(0, 16), "q:" + qq.qid + ":" + Date.now()); }
+    function logItem(qq, chosen, ok) { return { q: qq.q, type: qq.type, options: qq.options || [], answer: qq.answer, explain: qq.explain || "", kp: qq.kp || null, chosen: chosen, correct: ok }; }
+    function choose(idx) { if (run.answered != null) return; var ok = idx === q.answer; settle(q, ok); setRun(Object.assign({}, run, { answered: idx, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1), items: run.items.concat([logItem(q, idx, ok)]) })); }
+    function submitFill() { if (run.answered != null) return; var v = (run.fill || "").trim().toLowerCase().replace(/[.。]$/, ""); var ok = (q.answer || []).some(function (a) { return String(a).trim().toLowerCase() === v; }); settle(q, ok); setRun(Object.assign({}, run, { answered: 1, fillOk: ok, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1), items: run.items.concat([logItem(q, run.fill, ok)]) })); }
     function reqReview() { if (run.answered == null || (run.reviewed || {})[run.i]) return; var chosen = q.type === "fill" ? (run.fill || "") : ((q.options || [])[run.answered]); var rv = Object.assign({}, run.reviewed); rv[run.i] = "pending"; setRun(Object.assign({}, run, { reviewed: rv })); C.requestReview({ questionId: q.qid, kp: q.kp, subject: q.subject, stem: q.q, options: q.options, answer: q.answer, chosen: chosen, correct: run.lastOk, explain: q.explain }); }
-    function next() { if (run.i + 1 >= qs.length) { C.logEvent({ kind: "quiz", subject: p.subject || "", label: p.title || "练习", correct: run.correct, total: qs.length }); app.checkAch(); if (p.onDone) p.onDone({ correct: run.correct, total: qs.length, acc: qs.length ? Math.round(run.correct / qs.length * 100) : 0 }); } setRun(Object.assign({}, run, { i: run.i + 1, answered: null, fill: "", fillOk: false, lastOk: false })); }
+    function next() { if (run.i + 1 >= qs.length) { C.logEvent({ kind: "quiz", subject: p.subject || "", label: p.title || "练习", correct: run.correct, total: qs.length }); if (p.runKey) C.saveQuizRun(p.runKey, { ts: Date.now(), correct: run.correct, total: qs.length, earned: run.earned, title: p.title, items: run.items }); app.checkAch(); if (p.onDone) p.onDone({ correct: run.correct, total: qs.length, acc: qs.length ? Math.round(run.correct / qs.length * 100) : 0 }); } setRun(Object.assign({}, run, { i: run.i + 1, answered: null, fill: "", fillOk: false, lastOk: false })); }
     if (!qs.length) return html`<div class="pan-empty">没有题目。</div>`;
     if (run.i >= qs.length) {
       var acc = Math.round(run.correct / qs.length * 100);
-      return html`<div class="pan-panel" style="text-align:center;padding:40px;"><div style="font-size:40px;margin-bottom:10px;">${acc >= 80 ? "🎉" : acc >= 60 ? "👍" : "💪"}</div>
-        <h1 style="font-family:var(--serif);font-size:26px;margin:0 0 6px;">${run.correct} / ${qs.length} 正确</h1>
-        <div style="color:#9a8a6f;margin-bottom:6px;">正确率 ${acc}% · 获得 ⬡ ${run.earned}</div>
-        <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${run.wrong ? "错 " + run.wrong + " 题,已进错题本" : "全对,漂亮!"}</div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><span class="pan-btn ink" onClick=${p.onClose || function () { app.go("home"); }}>完成</span><span class="pan-btn ghost" onClick=${function () { app.go("reviews"); }}>导师点评</span><span class="pan-btn ghost" onClick=${function () { app.go("wrongbook"); }}>错题本</span></div></div>`;
+      return html`<div>
+        <div class="pan-panel" style="text-align:center;padding:36px;margin-bottom:18px;"><div style="font-size:40px;margin-bottom:10px;">${acc >= 80 ? "🎉" : acc >= 60 ? "👍" : "💪"}</div>
+          <h1 style="font-family:var(--serif);font-size:26px;margin:0 0 6px;">${run.correct} / ${qs.length} 正确</h1>
+          <div style="color:#9a8a6f;margin-bottom:6px;">正确率 ${acc}% · 获得 ⬡ ${run.earned}</div>
+          <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${run.wrong ? "错 " + run.wrong + " 题,已进错题本" : "全对,漂亮!"} · 成绩已保存,下次进来可直接回顾</div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><span class="pan-btn ink" onClick=${p.onClose || function () { app.go("home"); }}>完成</span><span class="pan-btn ghost" onClick=${function () { app.go("reviews"); }}>导师点评</span><span class="pan-btn ghost" onClick=${function () { app.go("wrongbook"); }}>错题本</span></div></div>
+        ${html`<${QuizReview} items=${run.items} />`}
+      </div>`;
     }
     var optsEl;
     if (q.type === "fill") {
@@ -1458,6 +1486,8 @@
     var did = app.params.disc, scope = app.params.scope, mode = app.params.mode;
     var isExam = mode === "exam";
     var d = did && C.disciplineById(did);
+    var runKey = did ? (did + "|" + (scope || "") + "|" + (mode || "practice")) : null;
+    var rd0 = useState(false); var redo = rd0[0], setRedo = rd0[1];   // true=用户选了重新练习
     var q0 = useState(null); var qs = q0[0], setQs = q0[1];
     useEffect(function () {
       if (!d) { setQs([]); return; }
@@ -1474,14 +1504,24 @@
     }, [did, scope, mode]);
     var title = ((d && d.name) || "") + (isExam ? " 模拟试卷" : " 练习");
     function back() { app.go("course", scope ? { disc: did, scope: scope } : { disc: did }); }
+    var saved = (runKey && !redo) ? C.quizRunFor(runKey) : null;   // 上次完成的整套(没选重做时优先展示回顾,不盲目重来)
+    var savedAcc = saved && saved.total ? Math.round(saved.correct / saved.total * 100) : 0;
     return html`<div class="pan-screen narrow">
       ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "我的课程", go: "course" }, { t: title }]} />`}
       <h1 class="pan-page-h">${title} <span class="en">/ ${isExam ? "Final Exam" : "Practice"}</span></h1>
       ${isExam ? html`<p class="pan-page-sub">覆盖本课各知识点各一题(尽量用变体,不照搬原题);≥80% 视为通过最终校验,这门课就标「✅ 已补上」。</p>` : null}
-      ${qs == null ? html`<div class="pan-empty">加载题目中…</div>`
+      ${saved ? html`<div>
+          <div class="pan-panel" style="padding:24px 26px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div style="font-size:34px;">${savedAcc >= 80 ? "🎉" : savedAcc >= 60 ? "👍" : "💪"}</div>
+            <div style="flex:1;min-width:140px;"><div style="font-family:var(--serif);font-size:19px;font-weight:700;">上次成绩 ${saved.correct}/${saved.total} · ${savedAcc}%</div><div style="font-size:12.5px;color:#9a8a6f;">${relTime(saved.ts)}${saved.earned ? " · 获得 ⬡ " + saved.earned : ""} · 下面是逐题回顾</div></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;"><span class="pan-btn ink" onClick=${function () { setRedo(true); }}>🔄 重新练习</span><span class="pan-btn ghost" onClick=${function () { app.go("wrongbook"); }}>错题本</span></div>
+          </div>
+          ${html`<${QuizReview} items=${saved.items} />`}
+        </div>`
+        : qs == null ? html`<div class="pan-empty">加载题目中…</div>`
         : !qs.length ? html`<div class="pan-empty">这门课还没有题目。<br/>让 AI 导师出一套(挂知识点),或在留言箱发给导师。<br/>
           <span class="pan-btn grad" style="margin-top:14px;" onClick=${function () { C.sendMessage({ kind: "ask", text: "请给「" + ((d && d.name) || "") + "」" + (isExam ? "出一份覆盖全部知识点的模拟试卷(用变体题防过拟合)" : "出一套随堂练习题(挂知识点)") + "。", context: { discId: did, scope: scope } }).then(function () { app.go("messages"); }); }}>✉️ 请导师出题</span></div>`
-        : html`<${QuizRun} questions=${qs} title=${title} subject=${d.subject} examId=${isExam ? "exam-" + did + "-" + (scope || "") : null}
+        : html`<${QuizRun} questions=${qs} title=${title} subject=${d.subject} runKey=${runKey} examId=${isExam ? "exam-" + did + "-" + (scope || "") : null}
             onDone=${isExam ? function (r) { if (r.acc >= 80) C.setCourseVerified(did, scope || null, { score: r.acc, ts: Date.now() }); } : null}
             onClose=${back} />`}
     </div>`;
