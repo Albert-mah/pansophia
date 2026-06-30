@@ -211,8 +211,35 @@ def init_db():
                 ('ma-huan','Ma Huan','MH','#e07b39','终身学习 · 日语+托福+各科高阶',true),
                 ('mahuan','Jiahuan','JH','#16a085','六年级 · 小升初 · 英语为主',true)
                 ON CONFLICT (key) DO NOTHING;""")
+            seed_course_materials(cur)   # 内置课程模板(交互设计…),幂等
     finally:
         conn.close()
+
+def seed_course_materials(cur):
+    """从 data/*-course.seed.json 幂等载入内置课程模板:按 (disc_id,title) 不存在才插入。
+    模板只含标题/外链/我方原创备注,不含受版权保护的全文,所有学习者都能看到。"""
+    import glob
+    for path in sorted(glob.glob(os.path.join(SITE_DIR, "data", "*-course.seed.json"))):
+        try:
+            with open(path, encoding="utf-8") as f:
+                spec = json.load(f)
+        except Exception:
+            continue
+        disc = spec.get("discId")
+        if not disc:
+            continue
+        for m in spec.get("materials", []):
+            title = str(m.get("title") or "").strip()
+            if not title:
+                continue
+            cur.execute("SELECT 1 FROM course_materials WHERE disc_id=%s AND title=%s", (disc, title[:300]))
+            if cur.fetchone():
+                continue
+            cur.execute("""INSERT INTO course_materials(disc_id,scope,edition,kind,title,url,file_id,note,authority,refs)
+                VALUES(%s,%s,%s,%s,%s,%s,NULL,%s,%s,%s)""",
+                (disc, m.get("scope"), m.get("edition"), m.get("kind") or "link", title[:300],
+                 m.get("url"), str(m.get("note") or "")[:1000], m.get("authority") or "generated",
+                 json.dumps(m.get("refs") or [], ensure_ascii=False)))
 
 def user_exists(cur, key):
     cur.execute("SELECT 1 FROM users WHERE key=%s", (key,))

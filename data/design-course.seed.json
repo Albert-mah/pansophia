@@ -1,0 +1,232 @@
+{
+  "_comment": "交互设计课程模板(内置 seed)。init_db 幂等载入:按 (disc_id,title) 不存在才插入。只存标题/外链/我方原创备注,不含受版权保护的书/文章全文。",
+  "discId": "design",
+  "defaultTextbookTitle": "IxDF:人机交互百科全书(免费在线全文)",
+  "materials": [
+    {
+      "title": "About Face:交互设计精髓(第4版)",
+      "kind": "textbook",
+      "url": "https://archive.org/details/aboutfaceessenti0000coop",
+      "authority": "authoritative",
+      "note": "★主教材:软件/SaaS/后台系统交互设计,最贴 NocoBase 后台。Cooper 等第4版。免费看:Internet Archive 受控借阅(注册后一次借一本)。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://archive.org/details/aboutfaceessenti0000coop",
+          "name": "About Face"
+        }
+      ]
+    },
+    {
+      "title": "设计心理学 The Design of Everyday Things",
+      "kind": "textbook",
+      "url": "https://archive.org/details/designofeveryday00norm",
+      "authority": "authoritative",
+      "note": "★必读底层:可见性/映射/反馈/约束/错误。Don Norman。免费看:Internet Archive 借阅;作者免费文章见 jnd.org。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://archive.org/details/designofeveryday00norm",
+          "name": "设计心理学"
+        }
+      ]
+    },
+    {
+      "title": "IxDF:人机交互百科全书(免费在线全文)",
+      "kind": "textbook",
+      "url": "https://www.interaction-design.org/literature/book/the-encyclopedia-of-human-computer-interaction-2nd-ed",
+      "authority": "authoritative",
+      "note": "免费在线全文,4000+页、上百位作者的大百科,可直接读。设为本课默认课本,从这读起。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://www.interaction-design.org/literature/book/the-encyclopedia-of-human-computer-interaction-2nd-ed",
+          "name": "IxDF:人机交互百科全书(免费在线全文)"
+        }
+      ]
+    },
+    {
+      "title": "Laws of UX(交互心理学定律卡片,免费)",
+      "kind": "site",
+      "url": "https://lawsofux.com/",
+      "authority": "authoritative",
+      "note": "免费:费茨/希克/雅各布等定律做成卡片,做交互判断时随手查。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://lawsofux.com/",
+          "name": "Laws of UX(交互心理学定律卡片,免费)"
+        }
+      ]
+    },
+    {
+      "title": "NN/g 十大可用性原则(免费)",
+      "kind": "site",
+      "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+      "authority": "official",
+      "note": "免费:界面评审的标准尺子(状态可见/错误预防/识别优于回忆…),先背下来。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+          "name": "NN/g 十大可用性原则(免费)"
+        }
+      ]
+    },
+    {
+      "title": "Don't Make Me Think(可用性入门)",
+      "kind": "textbook",
+      "url": "https://sensible.com/dont-make-me-think/",
+      "authority": "authoritative",
+      "note": "可用性入门,薄而实用。Steve Krug。官网有作者授权的免费样章(可用性测试章 PDF);全书可在 Internet Archive 借阅(dontmakemethinkr0000krug)。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://sensible.com/dont-make-me-think/",
+          "name": "Don't Make Me Think"
+        }
+      ]
+    },
+    {
+      "title": "Designing Interfaces(UI 模式工具书,第3版)",
+      "kind": "textbook",
+      "url": "https://archive.org/details/designinginterfa00tidw",
+      "authority": "authoritative",
+      "note": "UI pattern 工具书:表格/筛选/批量/弹窗/仪表盘,后台最实用。Tidwell。免费看:Internet Archive 借阅;免费等价见下方 UI Patterns 模式库。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://archive.org/details/designinginterfa00tidw",
+          "name": "Designing Interfaces"
+        }
+      ]
+    },
+    {
+      "title": "Just Enough Research(轻量用户研究)",
+      "kind": "link",
+      "url": "https://www.uxmatters.com/mt/archives/2019/02/sample-chapter-just-enough-research.php",
+      "authority": "authoritative",
+      "note": "按需:轻量用户研究支撑设计判断。Erika Hall。UXmatters 有出版社授权的免费样章;全书 A Book Apart 出版。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://www.uxmatters.com/mt/archives/2019/02/sample-chapter-just-enough-research.php",
+          "name": "Just Enough Research"
+        }
+      ]
+    },
+    {
+      "title": "Microinteractions(微交互)",
+      "kind": "video",
+      "url": "https://archive.org/details/vimeo-89543518",
+      "authority": "authoritative",
+      "note": "按需:状态/反馈/微交互细节。Dan Saffer。免费看作者 Webstock'14 同名演讲(本链接);全书 O'Reilly 出版。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://archive.org/details/vimeo-89543518",
+          "name": "Microinteractions"
+        }
+      ]
+    },
+    {
+      "title": "Information Architecture(北极熊书)",
+      "kind": "textbook",
+      "url": "https://archive.org/details/louis-rosenfeld-peter-morville-jorge-arango-information-architecture-for-the-web",
+      "authority": "authoritative",
+      "note": "按需:复杂系统/知识库/管理后台的信息架构(北极熊书,第4版 For the Web and Beyond)。Rosenfeld 等。免费看:Internet Archive 借阅。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://archive.org/details/louis-rosenfeld-peter-morville-jorge-arango-information-architecture-for-the-web",
+          "name": "Information Architecture"
+        }
+      ]
+    },
+    {
+      "title": "Google UX Design 专业证书(Coursera)",
+      "kind": "course",
+      "url": "https://www.coursera.org/professional-certificates/google-ux-design",
+      "authority": "authoritative",
+      "note": "系统课:从零补完整流程(线框/原型/可用性测试/评审)。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://www.coursera.org/professional-certificates/google-ux-design",
+          "name": "Google UX Design 专业证书(Coursera)"
+        }
+      ]
+    },
+    {
+      "title": "NN/g UX 课程与认证",
+      "kind": "course",
+      "url": "https://www.nngroup.com/courses/",
+      "authority": "official",
+      "note": "方法论+实战判断,交互/研究方向最权威。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://www.nngroup.com/courses/",
+          "name": "NN/g UX 课程与认证"
+        }
+      ]
+    },
+    {
+      "title": "Interaction Design Foundation 课程",
+      "kind": "course",
+      "url": "https://www.interaction-design.org/courses",
+      "authority": "authoritative",
+      "note": "性价比路线,适合长期补课。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://www.interaction-design.org/courses",
+          "name": "Interaction Design Foundation 课程"
+        }
+      ]
+    },
+    {
+      "title": "交互设计学习路线 + 每周练习(总纲)",
+      "kind": "guide",
+      "url": "/subjects/design/interaction-design.html",
+      "authority": "generated",
+      "note": "AI 整理:5步路线 + NN/g 十大原则 + 每周「拆解+重设计」练习。先看这个总纲。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "/subjects/design/interaction-design.html",
+          "name": "交互设计学习路线 + 每周练习(总纲)"
+        }
+      ]
+    },
+    {
+      "title": "UI Patterns(免费 UI 模式库)",
+      "kind": "site",
+      "url": "https://ui-patterns.com/patterns",
+      "authority": "authoritative",
+      "note": "免费:常见 UI 交互模式的标准做法(《Designing Interfaces》的免费等价),做后台时直接查。",
+      "scope": null,
+      "edition": null,
+      "refs": [
+        {
+          "url": "https://ui-patterns.com/patterns",
+          "name": "UI Patterns"
+        }
+      ]
+    }
+  ]
+}

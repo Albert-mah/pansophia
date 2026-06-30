@@ -154,6 +154,41 @@
     </div>
     <p style="color:#9a8a6f;font-size:13px">把每周的拆解存进「课程资料库」或知识卡片,攒一段时间就是你自己的交互设计案例库。</p>
 
+    <h2>后台界面自查清单(直接拿去用)</h2>
+    <p>这是把上面十大原则落到「做后台 / 业务系统」的一张可执行清单。每做完一个页面,挨条过一遍。</p>
+    <div class="box">
+      <p style="margin:0 0 6px"><strong>① 任务与入口</strong></p>
+      <ul style="margin:0 0 12px;padding-left:20px;line-height:1.8">
+        <li>这个页面用户最想完成的<strong>一件事</strong>是什么?它是不是一眼就能找到的主按钮?</li>
+        <li>次要操作有没有抢走主操作的视觉重量?(主操作一个就够,别一排同色按钮)</li>
+      </ul>
+      <p style="margin:0 0 6px"><strong>② 列表与表格</strong></p>
+      <ul style="margin:0 0 12px;padding-left:20px;line-height:1.8">
+        <li>默认排序合不合理?常用的筛选有没有放在手边,而不是藏进二级菜单?</li>
+        <li>列多的时候,关键列(状态、金额、时间)有没有固定/突出?</li>
+        <li>支持批量操作吗?选中后能不能清楚看到"选了几条、要对它们做什么"?</li>
+      </ul>
+      <p style="margin:0 0 6px"><strong>③ 表单</strong></p>
+      <ul style="margin:0 0 12px;padding-left:20px;line-height:1.8">
+        <li>字段顺序跟用户的思考顺序一致吗?能不能默认值/带出,少让人手填?</li>
+        <li>校验是<strong>即时</strong>提示还是提交后才报错?错误信息有没有说"怎么改"?</li>
+        <li>必填和选填分得清吗?长表单有没有分组/分步,而不是一长条到底?</li>
+      </ul>
+      <p style="margin:0 0 6px"><strong>④ 状态(最容易漏)</strong></p>
+      <ul style="margin:0 0 12px;padding-left:20px;line-height:1.8">
+        <li><strong>空状态</strong>:没有数据时,是不是空白一片?有没有告诉用户"这里会有什么、怎么加第一条"?</li>
+        <li><strong>加载中</strong>:慢操作有没有反馈?(骨架屏/进度,而不是卡住像死机)</li>
+        <li><strong>出错</strong>:报错说人话吗?给没给"重试/联系谁"的下一步?</li>
+        <li><strong>成功</strong>:做完一个动作,有没有明确回执?(保存了/提交了)</li>
+      </ul>
+      <p style="margin:0 0 6px"><strong>⑤ 可逆与安全</strong></p>
+      <ul style="margin:0;padding-left:20px;line-height:1.8">
+        <li>危险操作(删除/批量改)有没有二次确认,或者更好——给"撤销"?</li>
+        <li>误触代价大不大?能不能用更安全的默认值把错误挡在前面?</li>
+      </ul>
+    </div>
+    <p style="color:#9a8a6f;font-size:13px">配合每周练习用:拆解别人的页面时,就拿这张清单逐条打分,问题自然冒出来。</p>
+
   </article>
 
 </body>
