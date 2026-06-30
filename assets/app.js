@@ -357,7 +357,7 @@
     var loader = html`<div class="pan-screen" style="min-height:60vh;display:flex;align-items:center;justify-content:center;color:#9a8a6f;">正在从云端同步学习数据…</div>`;
 
     return html`<${Ctx.Provider} value=${api}>
-      <div class="pan-app" onClick=${function (e) {
+      <div class=${"pan-app screen-" + st.screen} onClick=${function (e) {
         if ((st.menuOpen || st.userPop || st.moreOpen) && !e.target.closest(".pan-mega") && !e.target.closest(".pan-userpop") && !e.target.closest(".pan-morepop") && !e.target.closest(".pan-nav") && !e.target.closest(".pan-avatar")) {
           setSt(function (p) { return Object.assign({}, p, { menuOpen: false, userPop: false, moreOpen: false }); });
         }

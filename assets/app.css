@@ -216,6 +216,8 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 /* 课程详情移动端:工具条 + 侧栏收起按钮(桌面隐藏) */
 .pan-course-mtop, .pan-msheet-bar { display: none; }
 @media (max-width: 900px) {
+  /* 课程页:全局顶栏不吸顶(随内容滚走),只留课程工具条吸顶 —— 避免两条 sticky 在顶部互相盖 */
+  .pan-app.screen-course .pan-topbar-wrap { position: static; }
   /* 顶部工具条:返回 + 课名 + 目录 / 资料 按钮 */
   .pan-course-mtop { display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 1200; background: var(--paper); border-bottom: 1px solid var(--line-2); padding: 9px 12px; }
   .pan-course-mtop .t-back { font-size: 24px; line-height: 1; color: var(--terra); cursor: pointer; padding: 0 4px; }

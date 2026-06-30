@@ -1059,11 +1059,7 @@
         <h1 style="font-family:var(--serif);font-size:24px;font-weight:600;line-height:1.45;margin:0 0 26px;">${q.q}</h1>
         <div style="display:flex;flex-direction:column;gap:13px;">${optsEl}</div>
         ${run.answered != null && q.explain ? html`<div style="background:#FBF4E6;border-radius:14px;padding:20px 22px;margin-top:24px;"><div style="font-size:13px;font-weight:700;color:#6E7A4F;margin-bottom:8px;">${run.lastOk ? "✓ 答对了" : "✗ 解析"}</div><div style="font-size:14.5px;line-height:1.7;color:#3a3023;">${q.explain}</div></div>` : null}
-        ${run.answered != null && C.catalogForKp(q.kp) ? (function () { var ke = C.catalogForKp(q.kp); return html`<div style="margin-top:18px;border:1px solid #EEE3CF;border-radius:14px;padding:16px 18px;background:#fff;">
-          <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:6px;">📖 这道题考的知识点</div>
-          <div style="font-family:var(--serif);font-size:16px;font-weight:700;margin-bottom:${ke.summary ? "5" : "10"}px;">${ke.title}</div>
-          ${ke.summary ? html`<div style="font-size:13px;color:#7A6E5E;line-height:1.65;margin-bottom:10px;">${ke.summary}</div>` : null}
-          <span class="pan-btn ghost sm" onClick=${function () { app.openLesson(ke.path, ke.title); }}>📖 打开讲解 →</span></div>`; })() : null}
+        ${run.answered != null && C.catalogForKp(q.kp) ? html`<${KpCard} kp=${C.catalogForKp(q.kp)} app=${app} />` : null}
         ${run.answered != null ? html`<div style="display:flex;justify-content:flex-end;margin-top:24px;"><span class="pan-btn ink" onClick=${next}>${run.qIndex + 1 >= set.questions.length ? "查看结果 →" : "下一题 →"}</span></div>` : null}
       </div>`;
     }
@@ -1416,6 +1412,37 @@
    * ========================================================= */
   function normQ(r) { return { qid: r.id, kp: r.kp, type: r.type || "choice", q: r.stem, options: r.options || [], answer: r.answer, explain: r.explain, subject: r.subject, difficulty: r.difficulty || 2 }; }
 
+  // 知识点卡:从讲解页正文抓「开头的通俗解释」(比 catalog 的晦涩 summary 详细可读),缓存
+  var _kpIntroCache = {};
+  function fetchKpIntro(path) {
+    if (_kpIntroCache[path] != null) return Promise.resolve(_kpIntroCache[path]);
+    return fetch(path).then(function (r) { return r.text(); }).then(function (t) {
+      var doc = new DOMParser().parseFromString(t, "text/html");
+      var ps = doc.querySelectorAll("article.page p"), out = "";
+      for (var i = 0; i < ps.length && out.length < 230; i++) { var s = (ps[i].textContent || "").replace(/\s+/g, " ").trim(); if (s.length >= 24) out += (out ? " " : "") + s; }
+      if (out.length > 300) out = out.slice(0, 300) + "…";
+      return (_kpIntroCache[path] = out);
+    }).catch(function () { return (_kpIntroCache[path] = ""); });
+  }
+  // 做题后展示「这道题考的知识点」:讲解正文开头 + 关联知识点(可点开)+ 打开完整讲解
+  function KpCard(props) {
+    var app = props.app, ke = props.kp;
+    var i0 = useState(_kpIntroCache[ke && ke.path] || null); var intro = i0[0], setIntro = i0[1];
+    useEffect(function () { if (ke && ke.path) fetchKpIntro(ke.path).then(setIntro); }, [ke && ke.path]);
+    if (!ke) return null;
+    var rel = (ke.related || []).map(function (id) { return C.catalogById(id); }).filter(Boolean);
+    return html`<div style="margin-top:16px;border:1px solid #EEE3CF;border-radius:14px;padding:16px 18px;background:#fff;">
+      <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:6px;">📖 这道题考的知识点</div>
+      <div style="font-family:var(--serif);font-size:16.5px;font-weight:700;margin-bottom:7px;">${ke.title}</div>
+      <div style="font-size:13.5px;color:#3a3023;line-height:1.78;margin-bottom:13px;">${intro || ke.summary || ""}</div>
+      <span class="pan-btn ink sm" onClick=${function () { app.openLesson(ke.path, ke.title); }}>📖 打开完整讲解 →</span>
+      ${rel.length ? html`<div style="margin-top:13px;padding-top:11px;border-top:1px solid #F4ECDC;">
+        <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;margin-bottom:7px;">🔗 关联知识点(点开看)</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">${rel.map(function (r, i) { return html`<span key=${i} onClick=${function () { app.openLesson(r.path, r.title); }} style="cursor:pointer;font-size:12.5px;font-weight:600;color:#2c5fb3;background:#eaf1fb;border-radius:999px;padding:5px 12px;">${r.title} →</span>`; })}</div>
+      </div>` : null}
+    </div>`;
+  }
+
   // 答题回顾:逐题列出「你的作答 / 正确答案 / 解析」,供完成页与再次进入时回顾
   function QuizReview(props) {
     var items = props.items || [];
@@ -1481,11 +1508,7 @@
         <h1 style="font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.45;margin:0 0 22px;">${q.q}</h1>
         <div style="display:flex;flex-direction:column;gap:12px;">${optsEl}</div>
         ${run.answered != null && q.explain ? html`<div style="background:#FBF4E6;border-radius:14px;padding:18px 20px;margin-top:22px;"><div style="font-size:13px;font-weight:700;color:#6E7A4F;margin-bottom:6px;">${run.lastOk ? "✓ 答对了" : "✗ 解析"}</div><div style="font-size:14px;line-height:1.7;color:#3a3023;">${q.explain}</div></div>` : null}
-        ${run.answered != null && C.catalogForKp(q.kp) ? (function () { var ke = C.catalogForKp(q.kp); return html`<div style="margin-top:16px;border:1px solid #EEE3CF;border-radius:14px;padding:16px 18px;background:#fff;">
-          <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:6px;">📖 这道题考的知识点</div>
-          <div style="font-family:var(--serif);font-size:16px;font-weight:700;margin-bottom:${ke.summary ? "5" : "10"}px;">${ke.title}</div>
-          ${ke.summary ? html`<div style="font-size:13px;color:#7A6E5E;line-height:1.65;margin-bottom:10px;">${ke.summary}</div>` : null}
-          <span class="pan-btn ghost sm" onClick=${function () { app.openLesson(ke.path, ke.title); }}>📖 打开讲解 →</span></div>`; })() : null}
+        ${run.answered != null && C.catalogForKp(q.kp) ? html`<${KpCard} kp=${C.catalogForKp(q.kp)} app=${app} />` : null}
         ${run.answered != null ? html`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;">${(run.reviewed || {})[run.i] ? html`<span class="pan-pill" style="background:#FBF4E6;color:#C8852E;font-weight:700;">⏳ 待点评 · 已申请导师点评</span><span style="font-size:12px;color:#9a8a6f;">做完后到「导师点评」让 AI 批改 →</span>` : html`<span class="pan-btn ghost" onClick=${reqReview}>🎓 申请 AI 导师点评</span>`}</div>` : null}
         ${run.answered != null ? html`<div style="display:flex;justify-content:flex-end;margin-top:22px;"><span class="pan-btn ink" onClick=${next}>${run.i + 1 >= qs.length ? "查看结果 →" : "下一题 →"}</span></div>` : null}
       </div></div>`;
