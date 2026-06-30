@@ -163,7 +163,15 @@ window.Core = (function () {
     return m ? { materialId: m.id, title: m.title, edition: m.edition || "", authority: m.authority, url: m.url || null, fileId: m.file_id || m.fileId || null, note: m.note || "", auto: true } : null;
   }
   // 每门课的课本:用户选定的优先(user_state.textbooks),否则自动默认
-  function courseTextbook(discId, scope) { return ((store("textbooks", {}) || {})[discId + "|" + (scope || "")]) || defaultTextbook(discId, scope); }
+  // ⚠️ 用户存的 override 只是个指针({materialId,title,...}),不含 url/file/note —— 这些一律从活的 material 实时补全,
+  //    否则换过课本后卡片只剩书名、点不开(历史 bug)。
+  function courseTextbook(discId, scope) {
+    var ov = (store("textbooks", {}) || {})[discId + "|" + (scope || "")];
+    if (!ov) return defaultTextbook(discId, scope);
+    var live = (ov.materialId != null) ? _materials.filter(function (m) { return m.id === ov.materialId; })[0] : null;
+    if (live) return { materialId: live.id, title: ov.title || live.title, edition: ov.edition || live.edition || "", authority: ov.authority || live.authority, url: live.url || null, fileId: live.file_id || live.fileId || null, note: live.note || "", auto: false };
+    return ov;   // 材料已删:退回存的浅信息(只有书名)
+  }
   function setCourseTextbook(discId, scope, m) {
     var t = Object.assign({}, store("textbooks", {})), k = discId + "|" + (scope || "");
     if (m) t[k] = { materialId: m.id, edition: m.edition || "", title: m.title, authority: m.authority }; else delete t[k];

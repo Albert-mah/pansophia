@@ -760,7 +760,7 @@
         ${center}
       </div>
       <div class="pan-pane pan-scroll res">
-        ${html`<${CourseFilesPanel} disc=${did} scope=${entry.scope} />`}
+        ${html`<${CourseFilesPanel} disc=${did} scope=${entry.scope} materials=${mats} onPickTb=${function () { setPickTb(true); }} />`}
         <div class="pan-eyebrow" style="margin:24px 0 12px;">我的笔记 · My Notes</div>
         ${noteList.length ? noteList.map(function (n, i) { return html`<div key=${i} style="background:#fff;border:1px solid #F0E6D2;border-radius:12px;padding:14px;margin-bottom:10px;"><div style="font-size:13px;line-height:1.65;color:#3a3023;">${n.body || n.title}</div></div>`; }) : html`<div style="font-size:12.5px;color:#9a8a6f;">还没有笔记。</div>`}
         <textarea class="pan-note-input" placeholder="在这里随手记…(回车保存)" style="margin-top:10px;" onKeyDown=${function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveCourseNote(e.target.value); e.target.value = ""; } }}></textarea>
@@ -837,8 +837,25 @@
     var groups = {}; (files || []).forEach(function (it) { var f = it.folder || ""; (groups[f] = groups[f] || []).push(it); });
     var folders = Object.keys(groups).sort();
     function iconOf(it) { var s = (it.mime || "") + " " + (it.name || ""); return /pdf/i.test(s) ? "📕" : /image|png|jpg|jpeg|gif|webp|svg/i.test(s) ? "🖼" : /zip|rar|7z/i.test(s) ? "🗜" : /ppt|presentation/i.test(s) ? "📊" : /doc|word/i.test(s) ? "📝" : /xls|sheet|csv/i.test(s) ? "📈" : /mp4|video/i.test(s) ? "🎬" : "📄"; }
+    var recs = (props.materials || []).slice().sort(function (a, b) { var r = { official: 0, authoritative: 1, generated: 2 }; return (r[a.authority] == null ? 3 : r[a.authority]) - (r[b.authority] == null ? 3 : r[b.authority]); });
     return html`<div>
-      <div class="pan-eyebrow" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">课程资料库 <span class="lnk" style="color:#B6532F;cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;" onClick=${function () { setAdding(true); }}>＋ 添加</span></div>
+      ${recs.length ? html`<div style="margin-bottom:22px;">
+        <div class="pan-eyebrow" style="margin-bottom:10px;">📚 推荐资料 · 点开就能看</div>
+        ${recs.map(function (m, i) {
+          var au = m.authority === "official" ? ["官方", "#3f8a52", "#eef7f0"] : m.authority === "authoritative" ? ["权威", "#2c5fb3", "#eaf1fb"] : ["AI", "#a86a00", "#FBF4E6"];
+          var open = m.file_id ? C.fileUrl(m.file_id) : m.url;
+          return html`<div key=${i} style="padding:8px 0;border-bottom:1px solid #F0E6D2;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="pan-pill" style=${"color:" + au[1] + ";background:" + au[2] + ";font-size:10.5px;flex-shrink:0;"}>${au[0]}</span>
+              ${open ? html`<a href=${open} target="_blank" rel="noopener" style="font-size:12.5px;font-weight:600;color:#3a3023;text-decoration:none;flex:1;min-width:0;line-height:1.4;">${m.title} <span style="color:#B6532F;">↗</span></a>`
+                : html`<span style="font-size:12.5px;font-weight:600;color:#9a8a6f;flex:1;min-width:0;line-height:1.4;">${m.title}</span>`}
+            </div>
+            ${m.note ? html`<div style="font-size:11px;color:#9a8a6f;line-height:1.55;margin-top:3px;">${m.note}</div>` : null}
+          </div>`;
+        })}
+        <div style="font-size:11px;color:#bbab8c;margin-top:9px;line-height:1.65;">免费的(NN/g、Laws of UX、IxDF 百科)点开直接读;受版权的书给的是正规借阅 / 购买页,自己取用。${props.onPickTb ? html` <span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${props.onPickTb}>· 选作课本 →</span>` : null}</div>
+      </div>` : null}
+      <div class="pan-eyebrow" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">我的资料库 · 上传 / 链接 <span class="lnk" style="color:#B6532F;cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;" onClick=${function () { setAdding(true); }}>＋ 添加</span></div>
       ${files == null ? html`<div style="font-size:12px;color:#9a8a6f;">加载中…</div>`
         : !folders.length ? html`<div style="font-size:12.5px;color:#9a8a6f;line-height:1.7;">还没有资料。点「＋ 添加」上传文件,或粘一个课件/PDF 直链缓存进来 —— PDF/图片/文本能在浏览器直接看,Office/压缩包可下载。</div>`
         : folders.map(function (f, fi) {
