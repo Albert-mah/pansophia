@@ -169,6 +169,17 @@ window.Core = (function () {
     if (m) t[k] = { materialId: m.id, edition: m.edition || "", title: m.title, authority: m.authority }; else delete t[k];
     save("textbooks", t);
   }
+  // 上传本地电子书 → 新建一条带文件的课本材料,并自动设为这门课的课本(上传即匹配到课本位)
+  function setTextbookFromUpload(discId, scope, name, mime, dataB64) {
+    return uploadFile(name, mime, dataB64).then(function (r) {
+      if (!r || !r.ok || !r.id) return { ok: false, error: (r && r.error) || "上传失败" };
+      return saveMaterial({ discId: discId, scope: scope || null, kind: "pdf", title: name, fileId: r.id, authority: "authoritative", note: "本地上传的课本" }).then(function (m) {
+        if (!m || !m.ok || !m.id) return { ok: false, error: "保存失败" };
+        setCourseTextbook(discId, scope, { id: m.id, title: name, authority: "authoritative", edition: "" });
+        return { ok: true, id: m.id, fileId: r.id };
+      });
+    });
+  }
 
   /* ---------------- 用户态存储(读缓存 / 写直达 DB) ---------------- */
   function store(name, fallback) { return (_cache && name in _cache && _cache[name] != null) ? _cache[name] : fallback; }
@@ -836,7 +847,7 @@ window.Core = (function () {
     assistantChat: assistantChat, addCard: addCard,
     questionsFor: questionsFor, recordAnswer: recordAnswer, wrongbookFetch: wrongbookFetch,
     requestReview: requestReview, reviewsFetch: reviewsFetch, runReviews: runReviews,
-    materialsFor: materialsFor, saveMaterial: saveMaterial, deleteMaterial: deleteMaterial, cachePdf: cachePdf, courseTextbook: courseTextbook, setCourseTextbook: setCourseTextbook,
+    materialsFor: materialsFor, saveMaterial: saveMaterial, deleteMaterial: deleteMaterial, cachePdf: cachePdf, courseTextbook: courseTextbook, setCourseTextbook: setCourseTextbook, setTextbookFromUpload: setTextbookFromUpload,
     courseFiles: courseFiles, addCourseFile: addCourseFile, cacheCourseFile: cacheCourseFile, deleteCourseFile: deleteCourseFile,
     uploadFile: uploadFile, fileUrl: fileUrl,
     libList: libList, libItem: libItem, cacheUrl: cacheUrl,

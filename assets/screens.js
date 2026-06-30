@@ -639,6 +639,24 @@
         else { window.alert((r && r.error) || "下载失败,试试「在 GitHub 打开」。"); }
       });
     }
+    // 上传本地电子书 → 自动成为这门课的课本(填到课本位)
+    var ub0 = useState(false); var upBusy = ub0[0], setUpBusy = ub0[1];
+    function uploadTb(e) {
+      var file = e.target.files && e.target.files[0]; if (!file) return;
+      if (file.size > 50 * 1024 * 1024) { window.alert("文件请小于 50MB"); e.target.value = ""; return; }
+      setUpBusy(true);
+      var rd = new FileReader();
+      rd.onload = function () {
+        var b64 = String(rd.result).split(",")[1] || "";
+        C.setTextbookFromUpload(did, entry.scope, file.name, file.type || "application/pdf", b64).then(function (r) {
+          setUpBusy(false);
+          if (r && r.ok) { if (did) C.materialsFor(did).then(setMats); app.refresh(); }
+          else window.alert((r && r.error) || "上传失败");
+        });
+      };
+      rd.onerror = function () { setUpBusy(false); window.alert("读取文件失败"); };
+      rd.readAsDataURL(file); e.target.value = "";
+    }
     if (!did) return html`<${CourseList} />`;               // 先进课程表
     var skelAll = C.skeletonForDiscipline(did);
     var skelList = skelAll.filter(function (e) { return C.hasCourse(did, e.scope || null); });   // 优先显示已领取的范围
@@ -705,6 +723,7 @@
           return html`<div style="font-size:12px;color:#9a8a6f;margin-bottom:14px;padding:8px 10px;background:#FBF6EC;border-radius:8px;display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;">
             <span style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">📕 课本:${tb ? html`<b style="color:#5a4e3c;">${tb.title}</b>${tb.auto ? html`<span style="color:#bbab8c;font-size:11px;"> 默认</span>` : null}` : html`<span style="color:#bbab8c;">未选</span>`}</span>
             <span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { setPickTb(true); }}>${tb ? "换" : "选 / 生成"} →</span>
+            <label class="lnk" style="color:#1f7a44;cursor:pointer;white-space:nowrap;" title="上传你自己的电子书,自动设为本课课本(单文件≤50MB)">${upBusy ? "上传中…" : "⬆ 上传课本"}<input type="file" accept="application/pdf,.pdf,.epub,image/*" onChange=${uploadTb} style="display:none;" /></label>
             ${tb ? html`<span style="flex-basis:100%;height:0;"></span>
               <span style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;">
                 ${fileId ? html`<a class="lnk" style="color:#1f7a44;font-weight:600;" href=${C.fileUrl(fileId)} target="_blank" rel="noopener">📖 阅读课本(本地)↗</a>`
