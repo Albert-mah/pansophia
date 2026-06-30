@@ -910,10 +910,16 @@
           <div style="font-size:34px;">📒</div>
           <div style="flex:1;"><div style="font-family:var(--serif);font-size:19px;font-weight:700;">单词专项训练</div><div style="font-size:13px;opacity:.92;margin-top:3px;">日语 JLPT · 英语 TOEFL · 我的单词本 —— 记忆曲线 + 单词卡 + 三关闯过才算掌握,答对得积分</div></div>
           <div style="font-weight:700;white-space:nowrap;">进入 →</div></div>
-        <div class="pan-row bordered" onClick=${function () { app.go("wrongbook"); }} style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;cursor:pointer;margin-bottom:22px;">
-          <div style="font-size:24px;">📕</div>
-          <div style="flex:1;"><div style="font-weight:700;font-size:15px;">错题本</div><div style="font-size:12.5px;color:#9a8a6f;">做错的题自动收进来,可一键重做;做对就移出</div></div>
-          <div style="color:#B6532F;font-weight:600;white-space:nowrap;">打开 →</div></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px;">
+          <div class="pan-row bordered" onClick=${function () { app.go("wrongbook"); }} style="flex:1;min-width:220px;display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;cursor:pointer;">
+            <div style="font-size:24px;">📕</div>
+            <div style="flex:1;"><div style="font-weight:700;font-size:15px;">错题本</div><div style="font-size:12.5px;color:#9a8a6f;">做错的题自动收进来,可一键重做;做对就移出</div></div>
+            <div style="color:#B6532F;font-weight:600;white-space:nowrap;">打开 →</div></div>
+          <div class="pan-row bordered" onClick=${function () { app.go("reviews"); }} style="flex:1;min-width:220px;display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;cursor:pointer;">
+            <div style="font-size:24px;">🎓</div>
+            <div style="flex:1;"><div style="font-weight:700;font-size:15px;">导师点评</div><div style="font-size:12.5px;color:#9a8a6f;">申请点评的题在这,让 AI 导师批改、收藏好点评</div></div>
+            <div style="color:#6E7A4F;font-weight:600;white-space:nowrap;">打开 →</div></div>
+        </div>
         ${all.length ? html`<div>
           <input value=${quizQ} onInput=${function (e) { setQuizQ(e.target.value); }} placeholder="🔍 搜练习标题、描述…" style="width:100%;border:1px solid #EBDEC8;border-radius:10px;padding:10px 13px;font-family:var(--sans);font-size:13.5px;margin-bottom:14px;outline:none;background:#FFFDF8;" />
           ${!query ? html`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;">
@@ -1293,13 +1299,14 @@
 
   function QuizRun(p) {
     var app = useApp();
-    var r0 = useState({ i: 0, answered: null, fill: "", fillOk: false, lastOk: false, correct: 0, earned: 0, wrong: 0 });
+    var r0 = useState({ i: 0, answered: null, fill: "", fillOk: false, lastOk: false, correct: 0, earned: 0, wrong: 0, reviewed: {} });
     var run = r0[0], setRun = r0[1];
     var qs = p.questions || [], q = qs[run.i];
     function val(qq) { return 2 + (qq.difficulty || 2); }
     function settle(qq, ok) { C.recordAnswer({ questionId: qq.qid, kp: qq.kp, correct: ok, examId: p.examId }); if (ok) C.award(val(qq), "答对练习 · " + String(qq.q || "").slice(0, 16), "q:" + qq.qid + ":" + Date.now()); }
     function choose(idx) { if (run.answered != null) return; var ok = idx === q.answer; settle(q, ok); setRun(Object.assign({}, run, { answered: idx, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1) })); }
     function submitFill() { if (run.answered != null) return; var v = (run.fill || "").trim().toLowerCase().replace(/[.。]$/, ""); var ok = (q.answer || []).some(function (a) { return String(a).trim().toLowerCase() === v; }); settle(q, ok); setRun(Object.assign({}, run, { answered: 1, fillOk: ok, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1) })); }
+    function reqReview() { if (run.answered == null || (run.reviewed || {})[run.i]) return; var chosen = q.type === "fill" ? (run.fill || "") : ((q.options || [])[run.answered]); var rv = Object.assign({}, run.reviewed); rv[run.i] = "pending"; setRun(Object.assign({}, run, { reviewed: rv })); C.requestReview({ questionId: q.qid, kp: q.kp, subject: q.subject, stem: q.q, options: q.options, answer: q.answer, chosen: chosen, correct: run.lastOk, explain: q.explain }); }
     function next() { if (run.i + 1 >= qs.length) { C.logEvent({ kind: "quiz", subject: p.subject || "", label: p.title || "练习", correct: run.correct, total: qs.length }); app.checkAch(); if (p.onDone) p.onDone({ correct: run.correct, total: qs.length, acc: qs.length ? Math.round(run.correct / qs.length * 100) : 0 }); } setRun(Object.assign({}, run, { i: run.i + 1, answered: null, fill: "", fillOk: false, lastOk: false })); }
     if (!qs.length) return html`<div class="pan-empty">没有题目。</div>`;
     if (run.i >= qs.length) {
@@ -1308,7 +1315,7 @@
         <h1 style="font-family:var(--serif);font-size:26px;margin:0 0 6px;">${run.correct} / ${qs.length} 正确</h1>
         <div style="color:#9a8a6f;margin-bottom:6px;">正确率 ${acc}% · 获得 ⬡ ${run.earned}</div>
         <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${run.wrong ? "错 " + run.wrong + " 题,已进错题本" : "全对,漂亮!"}</div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><span class="pan-btn ink" onClick=${p.onClose || function () { app.go("home"); }}>完成</span><span class="pan-btn ghost" onClick=${function () { app.go("wrongbook"); }}>错题本</span></div></div>`;
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><span class="pan-btn ink" onClick=${p.onClose || function () { app.go("home"); }}>完成</span><span class="pan-btn ghost" onClick=${function () { app.go("reviews"); }}>导师点评</span><span class="pan-btn ghost" onClick=${function () { app.go("wrongbook"); }}>错题本</span></div></div>`;
     }
     var optsEl;
     if (q.type === "fill") {
@@ -1330,6 +1337,7 @@
         <h1 style="font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.45;margin:0 0 22px;">${q.q}</h1>
         <div style="display:flex;flex-direction:column;gap:12px;">${optsEl}</div>
         ${run.answered != null && q.explain ? html`<div style="background:#FBF4E6;border-radius:14px;padding:18px 20px;margin-top:22px;"><div style="font-size:13px;font-weight:700;color:#6E7A4F;margin-bottom:6px;">${run.lastOk ? "✓ 答对了" : "✗ 解析"}</div><div style="font-size:14px;line-height:1.7;color:#3a3023;">${q.explain}</div></div>` : null}
+        ${run.answered != null ? html`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;">${(run.reviewed || {})[run.i] ? html`<span class="pan-pill" style="background:#FBF4E6;color:#C8852E;font-weight:700;">⏳ 待点评 · 已申请导师点评</span><span style="font-size:12px;color:#9a8a6f;">做完后到「导师点评」让 AI 批改 →</span>` : html`<span class="pan-btn ghost" onClick=${reqReview}>🎓 申请 AI 导师点评</span>`}</div>` : null}
         ${run.answered != null ? html`<div style="display:flex;justify-content:flex-end;margin-top:22px;"><span class="pan-btn ink" onClick=${next}>${run.i + 1 >= qs.length ? "查看结果 →" : "下一题 →"}</span></div>` : null}
       </div></div>`;
   }
@@ -1495,5 +1503,58 @@
     </div>`;
   }
 
-  window.Screens = { home: HomeScreen, explore: ExploreScreen, discipline: DisciplineScreen, plan: PlanScreen, course: CourseScreen, library: LibraryScreen, quiz: QuizScreen, notes: NotesScreen, wishlist: WishlistScreen, points: PointsScreen, analytics: AnalyticsScreen, users: UsersScreen, messages: MessagesScreen, practice: PracticeScreen, wrongbook: WrongbookScreen };
+  /* =========================================================
+   *  REVIEWS · 导师点评(答完→申请→AI 批改→已点评,可收藏)
+   * ========================================================= */
+  function ReviewsScreen() {
+    var app = useApp();
+    var r0 = useState(null); var rows = r0[0], setRows = r0[1];
+    var b0 = useState(false); var busy = b0[0], setBusy = b0[1];
+    var m0 = useState(""); var msg = m0[0], setMsg = m0[1];
+    function load() { C.reviewsFetch({}).then(setRows); }
+    useEffect(function () { load(); }, []);
+    function runAll() {
+      if (busy) return; setBusy(true); setMsg("AI 导师批改中…(每题几秒,稍等)");
+      C.runReviews({ limit: 8 }).then(function (r) {
+        if (r && r.ok) setMsg("✓ 已点评 " + (r.processed || 0) + " 题" + (r.remaining ? ",还剩 " + r.remaining + " 待点评(可再点一次)" : ""));
+        else setMsg((r && r.msg) || "批改没成功,稍后再试");
+        setBusy(false); load();
+      });
+    }
+    var pending = (rows || []).filter(function (r) { return r.status === "pending"; });
+    var done = (rows || []).filter(function (r) { return r.status === "done"; });
+    function ansText(r) { var ans = r.answer; if (Array.isArray(ans)) return ans.join(" / "); if (typeof ans === "number") return (r.options || [])[ans] || String(ans); return ans == null ? "" : String(ans); }
+    function card(r) {
+      var ok = !!r.correct;
+      return html`<div key=${r.id} class="pan-panel" style="padding:15px 17px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap;">
+          <span class="pan-pill" style=${"font-weight:700;color:" + (ok ? "#3f8a52" : "#B6532F") + ";background:" + (ok ? "#eef7f0" : "#FAE9E2") + ";"}>${ok ? "✓ 答对" : "✗ 答错"}</span>
+          <span style="font-size:11.5px;color:#9a8a6f;">${(SUBJECTS[r.subject] || {}).name || r.subject || ""}${r.kp ? " · " + r.kp : ""}</span>
+          ${r.status === "pending" ? html`<span class="pan-pill" style="margin-left:auto;background:#FBF4E6;color:#C8852E;font-weight:700;">⏳ 待点评</span>` : html`<span class="pan-pill" style="margin-left:auto;background:#EEF2E3;color:#6E7A4F;font-weight:700;">🎓 已点评</span>`}
+        </div>
+        <div style="font-size:14px;color:#3a3023;line-height:1.55;margin-bottom:6px;">${r.stem}</div>
+        <div style="font-size:12.5px;color:#9a8a6f;">你的作答:<b style=${"color:" + (ok ? "#3f8a52" : "#B6532F") + ";"}>${r.chosen || "(空)"}</b>${ok ? "" : html` · 正确答案:<b style="color:#3f8a52;">${ansText(r)}</b>`}</div>
+        ${r.status === "done" && r.review ? html`<div style="background:#F6F8EE;border:1px solid #E4EAD2;border-radius:13px;padding:14px 16px;margin-top:11px;">
+          <div style="font-size:12.5px;font-weight:700;color:#6E7A4F;margin-bottom:6px;">🎓 导师点评</div>
+          <div style="font-size:14px;line-height:1.75;color:#33291E;white-space:pre-wrap;">${r.review}</div>
+          <div style="margin-top:10px;"><span class="lnk" style="font-size:12px;color:#B6532F;cursor:pointer;" onClick=${function () { C.addCard(r.review, { title: "点评:" + String(r.stem || "").slice(0, 18), subject: "🎓 导师点评" }); setMsg("已收藏到知识卡片 ⭐"); }}>⭐ 收藏到知识卡片</span></div>
+        </div>` : null}
+      </div>`;
+    }
+    return html`<div class="pan-screen narrow">
+      ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "习题测试", go: "quiz" }, { t: "导师点评" }]} />`}
+      <h1 class="pan-page-h" style="margin:0 0 4px;">导师点评 <span class="en">/ Feedback</span></h1>
+      <p class="pan-page-sub">做题时点「🎓 申请 AI 导师点评」的题会进这里。让 AI 导师批改后,能看到针对你这次作答的点评,可收藏成知识卡片。</p>
+      <div class="pan-panel" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;margin-bottom:18px;">
+        <div style="flex:1;min-width:150px;"><div style="font-weight:700;font-size:15px;">待点评 ${pending.length} 题 · 已点评 ${done.length} 题</div>
+        <div style="font-size:12.5px;color:#9a8a6f;">${msg || "申请过的题攒在这,点右边让 AI 导师一次批改几道。"}</div></div>
+        <span class=${"pan-btn " + (pending.length && !busy ? "grad" : "ghost")} onClick=${pending.length ? runAll : null}>${busy ? "批改中…" : "🎓 让 AI 导师批改" + (pending.length ? " (" + pending.length + ")" : "")}</span>
+      </div>
+      ${rows == null ? html`<div class="pan-empty">加载中…</div>`
+        : !rows.length ? html`<div class="pan-empty">还没有申请点评的题。<br/>去做练习,答完点「🎓 申请 AI 导师点评」就会收到这里。</div>`
+        : html`<div style="display:flex;flex-direction:column;gap:12px;">${rows.map(card)}</div>`}
+    </div>`;
+  }
+
+  window.Screens = { home: HomeScreen, explore: ExploreScreen, discipline: DisciplineScreen, plan: PlanScreen, course: CourseScreen, library: LibraryScreen, quiz: QuizScreen, notes: NotesScreen, wishlist: WishlistScreen, points: PointsScreen, analytics: AnalyticsScreen, users: UsersScreen, messages: MessagesScreen, practice: PracticeScreen, wrongbook: WrongbookScreen, reviews: ReviewsScreen };
 })();

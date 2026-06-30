@@ -190,6 +190,14 @@ def init_db():
                     name text, url text, file_id text, mime text, size bigint, note text,
                     created_at timestamptz NOT NULL DEFAULT now());""")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_coursefiles_disc ON course_files(disc_id, scope);")
+            # 习题点评:学生答完每题自动落状态(对/错),可「申请 AI 导师点评」→ status pending→done(review 文本)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS reviews(
+                    id serial PRIMARY KEY, user_key text, question_id int, kp text, subject text,
+                    stem text, options jsonb, answer jsonb, chosen text, correct boolean, explain text,
+                    status text DEFAULT 'pending', review text,
+                    created_at bigint, reviewed_at bigint);""")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_reviews_user ON reviews(user_key, status);")
             # 给 AI 导师的统一异步消息/任务队列(选课通知、完成习题、错题扩展、随手提问…)。
             # 本地 CLI agent 轮询处理,逐条 status: new→seen→doing→done,可回 reply。
             cur.execute("""
@@ -209,6 +217,30 @@ def init_db():
 def user_exists(cur, key):
     cur.execute("SELECT 1 FROM users WHERE key=%s", (key,))
     return cur.fetchone() is not None
+
+def llm_complete(system, messages, max_tokens=600, temperature=0.5):
+    """OpenAI 兼容 chat 调用(复用咨询助教配置)。messages=[{role,content}…]。返回 (reply, err)。"""
+    cfg = ASSISTANT or {}
+    if not cfg.get("api_key") or not cfg.get("base_url"):
+        return None, "assistant_not_configured"
+    payload = {
+        "model": cfg.get("model", "qwen-plus"),
+        "messages": [{"role": "system", "content": system}] + messages,
+        "temperature": float(temperature),
+        "max_tokens": int(max_tokens),
+    }
+    try:
+        url = cfg["base_url"].rstrip("/") + "/chat/completions"
+        req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), method="POST",
+            headers={"Content-Type": "application/json", "Authorization": "Bearer " + cfg["api_key"]})
+        r = urllib.request.urlopen(req, timeout=45, context=_ssl_ctx)
+        resp = json.loads(r.read().decode("utf-8"))
+        reply = (((resp.get("choices") or [{}])[0].get("message") or {}).get("content") or "").strip()
+        return (reply, None) if reply else (None, "empty_reply")
+    except urllib.error.HTTPError as e:
+        return None, "upstream_" + str(e.code)
+    except Exception as e:
+        return None, str(e)[:200]
 
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
@@ -280,6 +312,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_coursefiles_get(parse_qs(p.query))
         if p.path == "/api/messages":
             return self.api_messages_get(parse_qs(p.query))
+        if p.path == "/api/reviews":
+            return self.api_reviews_get(parse_qs(p.query))
         if p.path.startswith("/api/"):
             return self._json(404, {"ok": False, "error": "not found"})
         return super().do_GET()
@@ -321,6 +355,10 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_messages_update()
         if p.path == "/api/assistant":
             return self.api_assistant()
+        if p.path == "/api/review":
+            return self.api_review_request()
+        if p.path == "/api/review/run":
+            return self.api_review_run()
         return self._json(404, {"ok": False, "error": "not found"})
 
     # ---------- health ----------
@@ -718,6 +756,111 @@ class Handler(SimpleHTTPRequestHandler):
                 cur.execute(sql, tuple(args)); rows = cur.fetchall()
             conn.close()
             return self._json(200, {"ok": True, "questions": rows})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    # ---------- 习题点评(答完落状态 → 申请 → AI 导师批改) ----------
+    def api_reviews_get(self, q):
+        user = (q.get("user") or [""])[0]
+        if not USER_RE.match(user): return self._json(400, {"ok": False, "error": "bad user"})
+        status = (q.get("status") or [""])[0]
+        sql = ("SELECT id,question_id,kp,subject,stem,options,answer,chosen,correct,explain,status,review,created_at,reviewed_at "
+               "FROM reviews WHERE user_key=%s")
+        args = [user]
+        if status: sql += " AND status=%s"; args.append(status)
+        sql += " ORDER BY (status='pending') DESC, created_at DESC LIMIT 200"
+        try:
+            conn = pg()
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(sql, tuple(args)); rows = cur.fetchall()
+            conn.close()
+            return self._json(200, {"ok": True, "reviews": rows})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_review_request(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        if not rate_ok(self.client_ip()): return self._json(429, {"ok": False, "error": "too many requests"})
+        d = self._read_json()
+        if not isinstance(d, dict) or d.get("questionId") is None: return self._json(400, {"ok": False, "error": "bad body"})
+        user = str(d.get("user") or "")
+        if not USER_RE.match(user): return self._json(400, {"ok": False, "error": "bad user"})
+        try:
+            qid = int(d["questionId"])
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("SELECT id FROM reviews WHERE user_key=%s AND question_id=%s AND status='pending'", (user, qid))
+                ex = cur.fetchone()
+                if ex:
+                    result = {"ok": True, "id": ex[0], "status": "pending", "dup": True}
+                else:
+                    cur.execute("""INSERT INTO reviews(user_key,question_id,kp,subject,stem,options,answer,chosen,correct,explain,status,created_at)
+                        VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'pending',%s) RETURNING id""",
+                        (user, qid, d.get("kp"), d.get("subject"), str(d.get("stem") or "")[:4000],
+                         json.dumps(d.get("options") or [], ensure_ascii=False), json.dumps(d.get("answer"), ensure_ascii=False),
+                         str(d.get("chosen") or "")[:500], bool(d.get("correct")), str(d.get("explain") or "")[:4000],
+                         int(time.time() * 1000)))
+                    result = {"ok": True, "id": cur.fetchone()[0], "status": "pending"}
+            conn.close()
+            return self._json(200, result)
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_review_run(self):
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        if not rate_ok(self.client_ip()): return self._json(429, {"ok": False, "error": "too many requests"})
+        d = self._read_json()
+        if not isinstance(d, dict): return self._json(400, {"ok": False, "error": "bad body"})
+        user = str(d.get("user") or "")
+        if not USER_RE.match(user): return self._json(400, {"ok": False, "error": "bad user"})
+        if not (ASSISTANT or {}).get("api_key"):
+            return self._json(200, {"ok": False, "error": "assistant_not_configured",
+                "msg": "AI 导师还没接上线;在 ~/.studyhub/config.json 配好 assistant 即可批改。"})
+        try: limit = min(20, max(1, int(d.get("limit") or 8)))
+        except Exception: limit = 8
+        rid = d.get("id")
+        sys_p = ("你是「万象学院」的 AI 导师,正在批改学生这道练习题。给一段简短点评(简体中文,3-6 句):"
+                 "先说答对还是答错;若答错,指出他大概错在哪一步、正确的思路是什么;"
+                 "最后给一个好记的要点或下一步小建议。语气温和鼓励,面向中小学生,"
+                 "不要长篇大论,也不要只是照搬标准答案。")
+        try:
+            conn = pg()
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                if rid is not None:
+                    cur.execute("SELECT * FROM reviews WHERE id=%s AND user_key=%s AND status='pending'", (int(rid), user))
+                else:
+                    cur.execute("SELECT * FROM reviews WHERE user_key=%s AND status='pending' ORDER BY created_at LIMIT %s", (user, limit))
+                rows = cur.fetchall()
+            processed, last_err = [], None
+            for row in rows:
+                opts = row.get("options") or []
+                ans = row.get("answer")
+                try:
+                    if isinstance(ans, bool): correct_txt = str(ans)
+                    elif isinstance(ans, int) and 0 <= ans < len(opts): correct_txt = str(opts[ans])
+                    elif isinstance(ans, list): correct_txt = " / ".join(str(x) for x in ans)
+                    else: correct_txt = str(ans)
+                except Exception: correct_txt = str(ans)
+                opt_lines = ("选项:\n" + "\n".join(chr(65 + i) + ". " + str(o) for i, o in enumerate(opts)) + "\n") if opts else ""
+                umsg = ("题目:" + str(row.get("stem") or "") + "\n" + opt_lines +
+                        "正确答案:" + correct_txt + "\n" +
+                        "学生作答:" + (str(row.get("chosen") or "") or "(空)") + "\n" +
+                        "结果:" + ("答对" if row.get("correct") else "答错") + "\n" +
+                        (("已有解析:" + str(row.get("explain"))) if row.get("explain") else ""))
+                reply, err = llm_complete(sys_p, [{"role": "user", "content": umsg[:2500]}], max_tokens=500)
+                if reply:
+                    with conn, conn.cursor() as cur:
+                        cur.execute("UPDATE reviews SET review=%s,status='done',reviewed_at=%s WHERE id=%s",
+                                    (reply[:4000], int(time.time() * 1000), row["id"]))
+                    processed.append({"id": row["id"], "review": reply})
+                else:
+                    last_err = err
+            with conn.cursor() as cur:
+                cur.execute("SELECT count(*) FROM reviews WHERE user_key=%s AND status='pending'", (user,))
+                remaining = cur.fetchone()[0]
+            conn.close()
+            return self._json(200, {"ok": True, "processed": len(processed), "items": processed,
+                                    "remaining": remaining, "error": last_err if not processed else None})
         except Exception as e:
             return self._json(500, {"ok": False, "error": str(e)})
 

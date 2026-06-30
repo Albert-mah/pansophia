@@ -122,6 +122,13 @@ window.Core = (function () {
     return apiGet("/api/questions?" + qs.join("&")).then(function (r) { return (r && r.questions) || []; }).catch(function () { return []; });
   }
   function recordAnswer(o) { return apiPost("/api/answer", { user: _curKey || userKey(), questionId: o.questionId, kp: o.kp || null, correct: !!o.correct, examId: o.examId || null }); }
+  // 习题点评:答完每题状态已落库(对/错),学生可「申请 AI 导师点评」→ 待点评 → AI 批改 → 已点评
+  function requestReview(o) {
+    return apiPost("/api/review", { user: _curKey || userKey(), questionId: o.questionId, kp: o.kp || null, subject: o.subject || null,
+      stem: o.stem || "", options: o.options || [], answer: o.answer, chosen: o.chosen == null ? "" : String(o.chosen), correct: !!o.correct, explain: o.explain || "" });
+  }
+  function reviewsFetch(o) { o = o || {}; var qs = ["user=" + encodeURIComponent(userKey())]; if (o.status) qs.push("status=" + encodeURIComponent(o.status)); return apiGet("/api/reviews?" + qs.join("&")).then(function (r) { return (r && r.reviews) || []; }).catch(function () { return []; }); }
+  function runReviews(o) { o = o || {}; return apiPost("/api/review/run", { user: _curKey || userKey(), id: o.id || null, limit: o.limit || 8 }); }
   function wrongbookFetch(o) {
     o = o || {}; var qs = ["user=" + encodeURIComponent(userKey())];
     if (o.subject) qs.push("subject=" + encodeURIComponent(o.subject));
@@ -825,6 +832,7 @@ window.Core = (function () {
     fetchMessages: fetchMessages, sendMessage: sendMessage, messageUpdate: messageUpdate,
     assistantChat: assistantChat, addCard: addCard,
     questionsFor: questionsFor, recordAnswer: recordAnswer, wrongbookFetch: wrongbookFetch,
+    requestReview: requestReview, reviewsFetch: reviewsFetch, runReviews: runReviews,
     materialsFor: materialsFor, saveMaterial: saveMaterial, deleteMaterial: deleteMaterial, cachePdf: cachePdf, courseTextbook: courseTextbook, setCourseTextbook: setCourseTextbook,
     courseFiles: courseFiles, addCourseFile: addCourseFile, cacheCourseFile: cacheCourseFile, deleteCourseFile: deleteCourseFile,
     uploadFile: uploadFile, fileUrl: fileUrl,
