@@ -70,7 +70,8 @@ window.STUDY_SUBJECTS = {
   politics:  { name: "政治", color: "#c0392b", icon: "⚖️", kind: "academic" },
   history:   { name: "历史", color: "#a0522d", icon: "📜", kind: "academic" },
   geography: { name: "地理", color: "#2980b9", icon: "🌏", kind: "academic" },
-  methods:   { name: "学习方法", color: "#607d8b", icon: "🧠", kind: "meta" }
+  methods:   { name: "学习方法", color: "#607d8b", icon: "🧠", kind: "meta" },
+  design:    { name: "设计", color: "#B6532F", icon: "🎨", kind: "academic" }
 };
 
 /* ---------- 范围 / 等级（scope）---------- */

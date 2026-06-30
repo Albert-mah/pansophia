@@ -172,6 +172,44 @@ window.STUDY_SKELETON = [
     topics: [ { title: "分子生物学", points: [ { title: "中心法则", status: "todo" }, { title: "基因调控", status: "todo" } ] } ]
   },
 
+  /* ---- 交互设计 · 知识点大纲（自学路线,配 design 课程资料 + 总纲页） ---- */
+  {
+    profile: "ma-huan", subject: "design", discipline: "design", scope: "general",
+    topics: [
+      { title: "UX / HCI 基础", points: [
+        { title: "用户中心设计与认知负荷", status: "todo" },
+        { title: "可见性·映射·反馈·约束(诺曼五要素)", status: "todo" },
+        { title: "NN/g 十大可用性原则", status: "todo" },
+        { title: "错误预防与错误恢复", status: "todo" }
+      ] },
+      { title: "用户研究与需求", points: [
+        { title: "访谈与观察", status: "todo" },
+        { title: "任务分析(用户到底要完成什么)", status: "todo" },
+        { title: "Persona 与 Journey Map", status: "todo" },
+        { title: "可用性测试基础", status: "todo" }
+      ] },
+      { title: "信息架构与流程", points: [
+        { title: "导航·分类·层级", status: "todo" },
+        { title: "搜索与筛选", status: "todo" },
+        { title: "表单设计(顺序/默认值/即时校验)", status: "todo" },
+        { title: "列表·详情·工作流", status: "todo" },
+        { title: "空状态·加载·错误·成功 四态", status: "todo" }
+      ] },
+      { title: "界面模式与组件", points: [
+        { title: "表格与批量操作", status: "todo" },
+        { title: "向导·弹窗·抽屉", status: "todo" },
+        { title: "仪表盘与设置页", status: "todo" },
+        { title: "模式复用(别从零发明交互)", status: "todo" }
+      ] },
+      { title: "原型·评审·迭代", points: [
+        { title: "低保真 wireframe", status: "todo" },
+        { title: "高保真 prototype", status: "todo" },
+        { title: "设计走查与 critique", status: "todo" },
+        { title: "后台界面自查清单(每周拆解练习)", status: "todo" }
+      ] }
+    ]
+  },
+
   /* ========== Jiahuan（mahuan）· 英语（已填语法点 + 待填） ========== */
   {
     profile: "mahuan", subject: "english", scope: "jijiao-6b",
