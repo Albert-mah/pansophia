@@ -380,6 +380,14 @@
     if (ReactDOM.createRoot) ReactDOM.createRoot(root).render(html`<${App} />`);
     else ReactDOM.render(html`<${App} />`, root);
   }
+  // 内嵌讲解页上报高度 → 把对应 iframe 高度设为内容高度,消除「iframe 与外页分开滚动」(移动端尤其明显)
+  window.addEventListener("message", function (e) {
+    var d = e.data; if (!d || d.type !== "pan-lesson-height" || !d.h) return;
+    var frames = document.querySelectorAll("iframe.pan-lesson-inframe");
+    for (var i = 0; i < frames.length; i++) {
+      if (frames[i].contentWindow === e.source) { frames[i].style.height = Math.ceil(d.h) + "px"; frames[i].style.minHeight = "0"; }
+    }
+  });
   if (document.readyState !== "loading") boot();
   else document.addEventListener("DOMContentLoaded", boot);
 })();
