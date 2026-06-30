@@ -589,7 +589,7 @@
       return html`<div key=${i} class="pan-card pan-panel" style="cursor:pointer;" onClick=${function () { app.go("course", c.scope ? { disc: c.discId, scope: c.scope } : { disc: c.discId }); }}>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
           <div style=${"width:38px;height:38px;border-radius:11px;flex-shrink:0;background:" + c.color + ";display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;font-family:var(--serif);"}>${(c.discName || "?").slice(0, 1)}</div>
-          <div style="min-width:0;flex:1;"><div style="font-family:var(--serif);font-size:16px;font-weight:700;">${c.discName}${c.scopeName ? html` <span style="font-size:12px;font-weight:600;color:#9a8a6f;">· ${c.scopeName}</span>` : ""}</div>
+          <div style="min-width:0;flex:1;"><div style="font-family:var(--serif);font-size:16px;font-weight:700;">${c.discName}${c.dir ? html` <span style="font-size:13px;font-weight:700;color:${c.color};">· ${c.dir}</span>` : ""}${c.scopeName ? html` <span style="font-size:12px;font-weight:600;color:#9a8a6f;">· ${c.scopeName}</span>` : ""}</div>
           <div style="font-size:11.5px;color:#9a8a6f;">${c.total ? c.total + " 个考点" : "待排课"}</div></div>
           <span class="pan-pill" style=${"color:" + pi[1] + ";background:" + pi[2] + ";white-space:nowrap;"}>${pi[0]}</span></div>
         ${c.total ? html`<div>${html`<${Bar} pct=${c.pct} color=${c.color} />`}<div style="font-size:12px;color:#9a8a6f;margin-top:6px;">掌握 ${c.mastered}/${c.total} · ${c.pct}%${c.lessons ? " · " + c.lessons + " 讲解" : ""}</div></div>`
@@ -652,6 +652,10 @@
         <span class="pan-btn ghost" style="margin-top:12px;" onClick=${function () { app.go("discipline", { disc: did }); }}>← 学科详情</span> <span class="pan-btn ghost" style="margin-top:12px;" onClick=${function () { app.go("course"); }}>← 课程表</span></div></div>`;
     }
     var sc = SUBJECTS[entry.subject] || { name: entry.subject };
+    // 二级方向(如 外国语言文学 → 英语):仅当与一级学科名明显不同才标
+    var _hdn = (d && d.name) || sc.name, _hsj = sc.name || "";
+    var hdrDir = (_hsj && _hsj !== _hdn && _hdn.indexOf(_hsj) < 0 && _hsj.indexOf(_hdn) < 0) ? _hsj : "";
+    var hdrColor = (C.categoryOf(did) || {}).color || "#B6532F";
     var cv = C.coverage(entry);
     var allPts = [];
     (entry.topics || []).forEach(function (t) { (t.points || []).forEach(function (p) { allPts.push({ t: t.title, p: p, kp: p.ref ? C.catalogById(p.ref) : null }); }); });
@@ -686,7 +690,7 @@
     return html`<div class="pan-course">
       <div class="pan-pane pan-scroll side">
         <div style="font-size:12px;color:#9a8a6f;margin-bottom:6px;"><span class="lnk" style="cursor:pointer;" onClick=${function () { app.go("course"); }}>我的课程</span> › ${(d && d.name) || sc.name}</div>
-        <h2 style="font-family:var(--serif);font-size:20px;font-weight:700;margin:0 0 4px;">${(d && d.name) || sc.name}${entry.scope ? html` <span style="font-size:13px;font-weight:600;color:#9a8a6f;">· ${(C.SCOPES[entry.scope] || {}).name || entry.scope}</span>` : ""}</h2>
+        <h2 style="font-family:var(--serif);font-size:20px;font-weight:700;margin:0 0 4px;">${(d && d.name) || sc.name}${hdrDir ? html` <span style="font-size:14px;font-weight:700;color:${hdrColor};">· ${hdrDir}</span>` : ""}${entry.scope ? html` <span style="font-size:13px;font-weight:600;color:#9a8a6f;">· ${(C.SCOPES[entry.scope] || {}).name || entry.scope}</span>` : ""}</h2>
         <div style="font-size:12.5px;color:#9a8a6f;margin-bottom:14px;">${allPts.length} 个考点 · 已填 ${cv.done}</div>
         ${html`<${Bar} pct=${cv.pct} color="#C8852E" />`}<div style="font-size:11.5px;color:#9a8a6f;margin:6px 0 12px;">已完成 ${cv.pct}%</div>
         ${(function () {
