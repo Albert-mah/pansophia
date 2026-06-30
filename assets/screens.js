@@ -626,6 +626,8 @@
     var rd0 = useState(null); var reader = rd0[0], setReader = rd0[1]; // 阅读器弹窗
     var bz0 = useState({}); var busy = bz0[0], setBusy = bz0[1];
     useEffect(function () { if (did) C.materialsFor(did).then(setMats); }, [did]);
+    // 点选带讲解的考点 → 记一次「读讲解」事件(achStats 按 path 去重,支持「读讲解」类成就)
+    useEffect(function () { if (selRef) { var k = C.catalogById(selRef); if (k && k.path) C.logEvent({ kind: "lesson", path: k.path, label: k.title }); } }, [selRef]);
     function loadLib() { if (did) C.libList(did).then(function (items) { var m = {}; (items || []).forEach(function (it) { m[it.url] = it; }); setLibMap(m); }); }
     useEffect(function () { loadLib(); }, [did]);
     function openReader(itId) { setReader({ loading: true }); C.libItem(itId).then(function (it) { setReader(it || { error: true }); }); }
@@ -1142,7 +1144,19 @@
       </div>
 
       <div class="pan-panel" style="margin-bottom:22px;"><div class="pan-sec-h"><h2>🏅 成就墙 <span style="font-weight:400;color:#9a8a6f;font-size:13px;">${unlockedN}/${achs.length}</span></h2><span style="font-size:12.5px;color:#9a8a6f;">掌握知识、坚持学习即可点亮</span></div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;">${achs.map(function (a) { return AchBadge(a); })}</div></div>
+      ${(function () {
+        var ORDER = ["入门", "坚持", "精通", "题海", "探索", "收集", "计划", "习惯", "设计课", "英语课", "语文课", "生物课", "数学课", "学习方法"];
+        var byG = {}; achs.forEach(function (a) { var g = a.group || "其他"; (byG[g] = byG[g] || []).push(a); });
+        var gs = ORDER.filter(function (g) { return byG[g]; }).concat(Object.keys(byG).filter(function (g) { return ORDER.indexOf(g) < 0; }));
+        return gs.map(function (g, gi) {
+          var list = byG[g], on = list.filter(function (a) { return a.unlocked; }).length;
+          var course = ORDER.indexOf(g) >= 8;
+          return html`<div key=${gi} style="margin-bottom:18px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style=${"font-size:13px;font-weight:700;color:" + (course ? "#B6532F" : "#5a4e3c") + ";"}>${course ? "📘 " : ""}${g}</span><span style="font-size:11.5px;color:#bbab8c;">${on}/${list.length}</span><span style="flex:1;height:1px;background:#F0E6D2;"></span></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;">${list.map(function (a) { return AchBadge(a); })}</div>
+          </div>`;
+        });
+      })()}</div>
 
       <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:22px;">
         <div style="display:flex;flex-direction:column;gap:22px;">

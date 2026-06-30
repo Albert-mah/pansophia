@@ -290,6 +290,10 @@ window.Core = (function () {
     var st = stats(), pts = points(), bal = pts.balance || 0;
     var cats = {}; myDiscs().forEach(function (id) { var d = disciplineById(id); if (d) cats[d.catKey] = 1; });
     var sch = schedule(), sp = sch ? scheduleProgress(sch) : null;
+    // 按知识点 / 学科细分(支持课程专用成就):mastRefs=已掌握 ref 集合;mastSubj=各学科掌握数(按 catalog 的 subject 归类,与成就 key 对齐)
+    var prog = progress(), mastRefs = {}, mastSubj = {}, subjSet = {};
+    Object.keys(prog).forEach(function (ref) { mastRefs[ref] = 1; var k = catalogById(ref); var sj = k ? k.subject : (prog[ref] && prog[ref].subject); if (sj) { mastSubj[sj] = (mastSubj[sj] || 0) + 1; subjSet[sj] = 1; } });
+    var lessons = {}; ev.forEach(function (e) { if (e.kind === "lesson" && e.path) lessons[e.path] = 1; });
     function hr(ts) { return new Date(ts).getHours(); }
     return {
       bal: bal, streak: st.streak, activeDays: st.activeDays, accuracy: st.accuracy,
@@ -301,31 +305,103 @@ window.Core = (function () {
       hasPlan: sch ? 1 : 0, planPct: sp ? sp.pct : 0, planDone: sp ? sp.done : 0,
       wishlist: wishlist().length,
       night: ev.some(function (e) { var h = hr(e.ts); return h >= 23 || h < 5; }) ? 1 : 0,
-      early: ev.some(function (e) { var h = hr(e.ts); return h >= 5 && h < 7; }) ? 1 : 0
+      early: ev.some(function (e) { var h = hr(e.ts); return h >= 5 && h < 7; }) ? 1 : 0,
+      mastRefs: mastRefs, mastSubj: mastSubj, subjectsMastered: Object.keys(subjSet).length, lessons: Object.keys(lessons).length
     };
   }
   // 成就定义:val(s) 取当前值,target 达标即解锁;pts 解锁奖励分
   var ACHIEVEMENTS = [
-    { id: "first-step",  icon: "🌱", name: "第一步",   desc: "加入第一门学科",        tier: "bronze", pts: 10,  target: 1,   val: function (s) { return s.enrolled; } },
-    { id: "explorer",    icon: "🧭", name: "博览者",   desc: "加入 5 门学科",         tier: "silver", pts: 30,  target: 5,   val: function (s) { return s.enrolled; } },
-    { id: "polymath",    icon: "🌐", name: "通才",     desc: "涉猎 4 大门类",         tier: "gold",   pts: 60,  target: 4,   val: function (s) { return s.cats; } },
-    { id: "first-quiz",  icon: "✏️", name: "小试牛刀", desc: "完成第一套测验",        tier: "bronze", pts: 10,  target: 1,   val: function (s) { return s.quizDone; } },
-    { id: "sharp",       icon: "🎯", name: "百发百中", desc: "一套测验全部答对",      tier: "silver", pts: 25,  target: 1,   val: function (s) { return s.allCorrect; } },
-    { id: "q100",        icon: "📚", name: "题海初渡", desc: "累计答对 100 题",       tier: "gold",   pts: 50,  target: 100, val: function (s) { return s.totalCorrect; } },
-    { id: "streak3",     icon: "🔥", name: "小火苗",   desc: "连续学习 3 天",         tier: "bronze", pts: 15,  target: 3,   val: function (s) { return s.streak; } },
-    { id: "streak7",     icon: "🔥", name: "七日之约", desc: "连续学习 7 天",         tier: "silver", pts: 40,  target: 7,   val: function (s) { return s.streak; } },
-    { id: "streak30",    icon: "🏔️", name: "铁人",     desc: "连续学习 30 天",        tier: "gold",   pts: 120, target: 30,  val: function (s) { return s.streak; } },
-    { id: "first-master",icon: "💎", name: "融会贯通", desc: "掌握第一个知识点",      tier: "bronze", pts: 15,  target: 1,   val: function (s) { return s.mastered; } },
-    { id: "master20",    icon: "🧠", name: "积少成多", desc: "掌握 20 个知识点",      tier: "silver", pts: 50,  target: 20,  val: function (s) { return s.mastered; } },
-    { id: "master60",    icon: "🎓", name: "学贯古今", desc: "掌握 60 个知识点",      tier: "gold",   pts: 120, target: 60,  val: function (s) { return s.mastered; } },
-    { id: "planner",     icon: "🗺️", name: "运筹帷幄", desc: "制定一份学习计划",      tier: "bronze", pts: 15,  target: 1,   val: function (s) { return s.hasPlan; } },
-    { id: "plan-half",   icon: "⛳", name: "渐入佳境", desc: "学习计划完成过半",      tier: "silver", pts: 35,  target: 50,  val: function (s) { return s.planPct; } },
-    { id: "note10",      icon: "🗂️", name: "集卡人",   desc: "收藏 10 张知识卡",      tier: "silver", pts: 25,  target: 10,  val: function (s) { return s.cards; } },
-    { id: "pts1000",     icon: "⬡", name: "千分学者", desc: "积分达到 1000",         tier: "gold",   pts: 0,   target: 1000,val: function (s) { return s.bal; } },
-    { id: "wish3",       icon: "✦", name: "求知若渴", desc: "许下 3 个学习愿望",     tier: "bronze", pts: 10,  target: 3,   val: function (s) { return s.wishlist; } },
-    { id: "night-owl",   icon: "🦉", name: "夜猫子",   desc: "深夜(23–5 点)学习一次", tier: "bronze", pts: 10,  target: 1,   val: function (s) { return s.night; } },
-    { id: "early-bird",  icon: "🐦", name: "早起鸟",   desc: "清晨(5–7 点)学习一次", tier: "bronze", pts: 10,  target: 1,   val: function (s) { return s.early; } }
+    { id: "first-step",  icon: "🌱", name: "第一步",   desc: "加入第一门学科",        group: "入门", tier: "bronze", pts: 10,  target: 1,   val: function (s) { return s.enrolled; } },
+    { id: "first-quiz",  icon: "✏️", name: "小试牛刀", desc: "完成第一套测验",        group: "入门", tier: "bronze", pts: 10,  target: 1,   val: function (s) { return s.quizDone; } },
+    { id: "first-master",icon: "💎", name: "融会贯通", desc: "掌握第一个知识点",      group: "入门", tier: "bronze", pts: 15,  target: 1,   val: function (s) { return s.mastered; } },
+    { id: "streak3",     icon: "🔥", name: "小火苗",   desc: "连续学习 3 天",         group: "坚持", tier: "bronze", pts: 15,  target: 3,   val: function (s) { return s.streak; } },
+    { id: "streak7",     icon: "🔥", name: "七日之约", desc: "连续学习 7 天",         group: "坚持", tier: "silver", pts: 40,  target: 7,   val: function (s) { return s.streak; } },
+    { id: "streak30",    icon: "🏔️", name: "铁人",     desc: "连续学习 30 天",        group: "坚持", tier: "gold",   pts: 120, target: 30,  val: function (s) { return s.streak; } },
+    { id: "master20",    icon: "🧠", name: "积少成多", desc: "掌握 20 个知识点",      group: "精通", tier: "silver", pts: 50,  target: 20,  val: function (s) { return s.mastered; } },
+    { id: "master60",    icon: "🎓", name: "学贯古今", desc: "掌握 60 个知识点",      group: "精通", tier: "gold",   pts: 120, target: 60,  val: function (s) { return s.mastered; } },
+    { id: "pts1000",     icon: "⬡", name: "千分学者", desc: "积分达到 1000",         group: "精通", tier: "gold",   pts: 0,   target: 1000,val: function (s) { return s.bal; } },
+    { id: "sharp",       icon: "🎯", name: "百发百中", desc: "一套测验全部答对",      group: "题海", tier: "silver", pts: 25,  target: 1,   val: function (s) { return s.allCorrect; } },
+    { id: "q100",        icon: "📚", name: "题海初渡", desc: "累计答对 100 题",       group: "题海", tier: "gold",   pts: 50,  target: 100, val: function (s) { return s.totalCorrect; } },
+    { id: "explorer",    icon: "🧭", name: "博览者",   desc: "加入 5 门学科",         group: "探索", tier: "silver", pts: 30,  target: 5,   val: function (s) { return s.enrolled; } },
+    { id: "polymath",    icon: "🌐", name: "通才",     desc: "涉猎 4 大门类",         group: "探索", tier: "gold",   pts: 60,  target: 4,   val: function (s) { return s.cats; } },
+    { id: "wish3",       icon: "✦", name: "求知若渴", desc: "许下 3 个学习愿望",     group: "探索", tier: "bronze", pts: 10,  target: 3,   val: function (s) { return s.wishlist; } },
+    { id: "note10",      icon: "🗂️", name: "集卡人",   desc: "收藏 10 张知识卡",      group: "收集", tier: "silver", pts: 25,  target: 10,  val: function (s) { return s.cards; } },
+    { id: "planner",     icon: "🗺️", name: "运筹帷幄", desc: "制定一份学习计划",      group: "计划", tier: "bronze", pts: 15,  target: 1,   val: function (s) { return s.hasPlan; } },
+    { id: "plan-half",   icon: "⛳", name: "渐入佳境", desc: "学习计划完成过半",      group: "计划", tier: "silver", pts: 35,  target: 50,  val: function (s) { return s.planPct; } },
+    { id: "night-owl",   icon: "🦉", name: "夜猫子",   desc: "深夜(23–5 点)学习一次", group: "习惯", tier: "bronze", pts: 10,  target: 1,   val: function (s) { return s.night; } },
+    { id: "early-bird",  icon: "🐦", name: "早起鸟",   desc: "清晨(5–7 点)学习一次", group: "习惯", tier: "bronze", pts: 10,  target: 1,   val: function (s) { return s.early; } }
   ];
+  // 扩展成就(子 agent 设计:通用补充 + 各课程专用)。cond 为声明式,buildAch 转成 val/target 后并入 ACHIEVEMENTS。
+  //   { refs:[…] }            掌握列出的全部 ref 才解锁
+  //   { refsAny:[…], n:N }    掌握其中任意 N 个
+  //   { mastDisc:"subject", target:N }  在该学科累计掌握 N 个考点(按 catalog 的 subject 归类)
+  //   { metric:"X", target:N }          全局指标 ≥ N
+  var ACH_EXTRA = [
+    { id: "g-first-read", icon: "📖", name: "初读者", desc: "读完第一篇知识讲解", group: "入门", tier: "bronze", pts: 10, cond: { metric: "lessons", target: 1 } },
+    { id: "g-open-card", icon: "💌", name: "开启收藏", desc: "收藏你的第一张知识卡", group: "入门", tier: "bronze", pts: 10, cond: { metric: "cards", target: 1 } },
+    { id: "g-streak-14", icon: "🔥", name: "两周不断", desc: "连续学习天数达14天", group: "坚持", tier: "silver", pts: 30, cond: { metric: "streak", target: 14 } },
+    { id: "g-active-15", icon: "🌱", name: "习惯萌芽", desc: "累计活跃学习满15天", group: "坚持", tier: "bronze", pts: 10, cond: { metric: "activeDays", target: 15 } },
+    { id: "g-active-50", icon: "🏃", name: "长跑者", desc: "累计活跃学习满50天", group: "坚持", tier: "silver", pts: 30, cond: { metric: "activeDays", target: 50 } },
+    { id: "g-active-100", icon: "🏆", name: "百日功成", desc: "累计活跃学习满100天", group: "坚持", tier: "gold", pts: 60, cond: { metric: "activeDays", target: 100 } },
+    { id: "g-mastered-100", icon: "🧠", name: "学富五车", desc: "掌握知识点总数达100个", group: "精通", tier: "gold", pts: 60, cond: { metric: "mastered", target: 100 } },
+    { id: "g-subjects-5", icon: "🌐", name: "全科达人", desc: "在5门以上学科各掌握过知识点", group: "精通", tier: "silver", pts: 30, cond: { metric: "subjectsMastered", target: 5 } },
+    { id: "g-bal-2200", icon: "💰", name: "知识富翁", desc: "当前积分达到2200分", group: "精通", tier: "gold", pts: 60, cond: { metric: "bal", target: 2200 } },
+    { id: "g-correct-300", icon: "🎯", name: "百步穿杨", desc: "累计答对题目达300道", group: "题海", tier: "silver", pts: 30, cond: { metric: "totalCorrect", target: 300 } },
+    { id: "g-correct-500", icon: "💥", name: "题海霸主", desc: "累计答对题目达500道", group: "题海", tier: "gold", pts: 60, cond: { metric: "totalCorrect", target: 500 } },
+    { id: "g-sharp-shot", icon: "🏹", name: "神准", desc: "答题正确率达到90%", group: "题海", tier: "silver", pts: 30, cond: { metric: "accuracy", target: 90 } },
+    { id: "g-enrolled-10", icon: "🗺️", name: "十科先锋", desc: "加入10门以上学科", group: "探索", tier: "silver", pts: 30, cond: { metric: "enrolled", target: 10 } },
+    { id: "g-cross-3", icon: "🔭", name: "跨界达人", desc: "在至少3门学科各掌握过知识点", group: "探索", tier: "bronze", pts: 10, cond: { metric: "subjectsMastered", target: 3 } },
+    { id: "g-cards-30", icon: "📚", name: "藏经阁", desc: "收藏知识卡累计达30张", group: "收集", tier: "silver", pts: 30, cond: { metric: "cards", target: 30 } },
+    { id: "g-lessons-5", icon: "📰", name: "勤读者", desc: "读过5篇及以上知识讲解", group: "收集", tier: "bronze", pts: 10, cond: { metric: "lessons", target: 5 } },
+    { id: "g-lessons-20", icon: "📕", name: "博览群书", desc: "读过20篇及以上知识讲解", group: "收集", tier: "silver", pts: 30, cond: { metric: "lessons", target: 20 } },
+    { id: "g-plan-done-5", icon: "✅", name: "计划践行者", desc: "完成学习计划任务块满5个", group: "计划", tier: "bronze", pts: 10, cond: { metric: "planDone", target: 5 } },
+    { id: "g-plan-full", icon: "🎖️", name: "全勤达成", desc: "学习计划完成百分比达100%", group: "计划", tier: "gold", pts: 60, cond: { metric: "planPct", target: 100 } },
+    { id: "g-quiz-habit", icon: "📝", name: "练题成习", desc: "累计完成测验套数达5套", group: "习惯", tier: "bronze", pts: 10, cond: { metric: "quizDone", target: 5 } },
+    { id: "g-quiz-master", icon: "🏅", name: "测验达人", desc: "累计完成测验套数达20套", group: "习惯", tier: "silver", pts: 30, cond: { metric: "quizDone", target: 20 } },
+    { id: "ad-first-step", icon: "🎨", name: "初窥设计", desc: "掌握第一个设计考点", group: "设计课", tier: "bronze", pts: 10, cond: { mastDisc: "design", target: 1 } },
+    { id: "ad-rising", icon: "🧩", name: "设计新秀", desc: "累计掌握任意3个设计考点", group: "设计课", tier: "bronze", pts: 10, cond: { mastDisc: "design", target: 3 } },
+    { id: "ad-usability-pair", icon: "🖱️", name: "可用性双典", desc: "同时掌握诺曼原则与尼尔森原则", group: "设计课", tier: "silver", pts: 30, cond: { refs: ["design-norman-principles", "design-nng-heuristics"] } },
+    { id: "ad-error-master", icon: "✅", name: "容错设计师", desc: "同时掌握错误预防与界面四态", group: "设计课", tier: "silver", pts: 30, cond: { refs: ["design-error-prevention", "design-four-states"] } },
+    { id: "ad-backend-trio", icon: "📋", name: "后台三件套", desc: "同时掌握表单、搜索筛选、界面四态", group: "设计课", tier: "silver", pts: 30, cond: { refs: ["design-form-design", "design-search-filter", "design-four-states"] } },
+    { id: "ad-midway", icon: "📐", name: "设计达人", desc: "累计掌握任意5个设计考点", group: "设计课", tier: "silver", pts: 30, cond: { mastDisc: "design", target: 5 } },
+    { id: "ad-ux-complete", icon: "🧭", name: "体验设计家", desc: "掌握UX/HCI基础全部四个考点", group: "设计课", tier: "silver", pts: 30, cond: { refs: ["design-ucd-cognitive-load", "design-norman-principles", "design-nng-heuristics", "design-error-prevention"] } },
+    { id: "ad-ia-complete", icon: "🔍", name: "信息架构师", desc: "掌握信息架构与流程全部四个考点", group: "设计课", tier: "silver", pts: 30, cond: { refs: ["design-form-design", "design-four-states", "design-search-filter", "design-nav-ia"] } },
+    { id: "ad-full-design", icon: "🪟", name: "设计大满贯", desc: "掌握设计课全部八个考点", group: "设计课", tier: "gold", pts: 60, cond: { refs: ["design-ucd-cognitive-load", "design-norman-principles", "design-nng-heuristics", "design-error-prevention", "design-form-design", "design-four-states", "design-search-filter", "design-nav-ia"] } },
+    { id: "ak-en-hello", icon: "🌱", name: "开口第一步", desc: "字母和问候都掌握,英语旅程正式开始", group: "英语课", tier: "bronze", pts: 10, cond: { refs: ["mh-en-alphabet", "mh-en-greetings"] } },
+    { id: "ak-en-disc-3", icon: "📘", name: "英语入门了", desc: "掌握3个英语考点,出发啦", group: "英语课", tier: "bronze", pts: 10, cond: { mastDisc: "english", target: 3 } },
+    { id: "ak-en-sentence-duo", icon: "💬", name: "说话超流利", desc: "主谓宾和疑问句全会,说话又稳又准", group: "英语课", tier: "bronze", pts: 10, cond: { refs: ["mh-en-sentence-svo", "mh-en-questions"] } },
+    { id: "ak-en-grammar-kit", icon: "📐", name: "语法小能手", desc: "四大基础语法全通关,说英语不慌了", group: "英语课", tier: "silver", pts: 30, cond: { refs: ["mh-en-be-verb", "mh-en-pronouns", "mh-en-this-that", "mh-en-nouns-plural"] } },
+    { id: "ak-en-tense-pro", icon: "⏰", name: "时态达人", desc: "现在过去将来全掌握,时态不再是难题", group: "英语课", tier: "silver", pts: 30, cond: { refs: ["mh-en-present-simple", "mh-en-present-continuous", "mh-en-past-tense", "mh-en-future-tense"] } },
+    { id: "ak-en-disc-6", icon: "📗", name: "英语进阶了", desc: "掌握6个考点,越来越厉害了", group: "英语课", tier: "silver", pts: 30, cond: { mastDisc: "english", target: 6 } },
+    { id: "ak-en-disc-10", icon: "🌟", name: "英语小达人", desc: "掌握10个考点,英语达人非你莫属", group: "英语课", tier: "gold", pts: 60, cond: { mastDisc: "english", target: 10 } },
+    { id: "ak-en-full", icon: "🏆", name: "新概念通关", desc: "13个考点全制霸,你是真正英语高手", group: "英语课", tier: "gold", pts: 60, cond: { refs: ["mh-en-alphabet", "mh-en-greetings", "mh-en-be-verb", "mh-en-pronouns", "mh-en-this-that", "mh-en-nouns-plural", "mh-en-present-simple", "mh-en-present-continuous", "mh-en-past-tense", "mh-en-future-tense", "mh-en-sentence-svo", "mh-en-questions", "mh-en-comparatives"] } },
+    { id: "ak-cn-first-read", icon: "📖", name: "读书入门了", desc: "精读一篇文章,文字世界向你敞开", group: "语文课", tier: "bronze", pts: 10, cond: { refs: ["mh-cn-close-reading"] } },
+    { id: "ak-cn-storyteller", icon: "🎭", name: "会讲故事了", desc: "观察细节又懂记叙,故事讲得有声有色", group: "语文课", tier: "silver", pts: 30, cond: { refs: ["mh-cn-observation", "mh-cn-narrative-event"] } },
+    { id: "ak-cn-full", icon: "✍️", name: "小小作家", desc: "读写观察全掌握,下一个作家就是你", group: "语文课", tier: "gold", pts: 60, cond: { refs: ["mh-cn-close-reading", "mh-cn-narrative-event", "mh-cn-observation"] } },
+    { id: "ak-bio-explorer", icon: "🌿", name: "小小探险家", desc: "走进自然观察植物,世界原来这么有趣", group: "生物课", tier: "bronze", pts: 10, cond: { refs: ["mh-bio-campus-observe"] } },
+    { id: "ak-bio-doc-fan", icon: "🎬", name: "科学小侦探", desc: "看纪录片探秘自然,科学原来超好玩", group: "生物课", tier: "bronze", pts: 10, cond: { refs: ["mh-bio-documentary"] } },
+    { id: "ak-bio-food-chain", icon: "🌊", name: "生态小卫士", desc: "弄懂食物链食物网,生态系统藏玄机", group: "生物课", tier: "silver", pts: 30, cond: { refs: ["mh-bio-food-chain"] } },
+    { id: "ak-bio-full", icon: "🔬", name: "自然观察员", desc: "三大生物考点全掌握,大自然是你的课堂", group: "生物课", tier: "gold", pts: 60, cond: { refs: ["mh-bio-campus-observe", "mh-bio-documentary", "mh-bio-food-chain"] } },
+    { id: "am-math-debut", icon: "📐", name: "数学初探", desc: "掌握你的第一个数学考点", group: "数学课", tier: "bronze", pts: 10, cond: { mastDisc: "math", target: 1 } },
+    { id: "am-math-pair", icon: "➗", name: "双题入门", desc: "累计掌握2个数学考点", group: "数学课", tier: "bronze", pts: 10, cond: { mastDisc: "math", target: 2 } },
+    { id: "am-math-trio", icon: "📈", name: "三科进阶", desc: "累计掌握3个数学考点", group: "数学课", tier: "silver", pts: 30, cond: { mastDisc: "math", target: 3 } },
+    { id: "am-math-full", icon: "🧮", name: "五科全掌", desc: "掌握全部5个数学考点", group: "数学课", tier: "gold", pts: 60, cond: { mastDisc: "math", target: 5 } },
+    { id: "am-function-family", icon: "🔢", name: "函数家族", desc: "同时掌握二次函数与一次函数", group: "数学课", tier: "silver", pts: 30, cond: { refs: ["math-quadratic-functions", "math-linear-functions"] } },
+    { id: "am-derivative-hunter", icon: "∫", name: "导数猎手", desc: "掌握导数:瞬时变化率与切线", group: "数学课", tier: "bronze", pts: 10, cond: { refs: ["math-derivatives"] } },
+    { id: "am-gaokao-core", icon: "📐", name: "高考数学通", desc: "掌握高考数学全部四大核心", group: "数学课", tier: "gold", pts: 60, cond: { refs: ["math-quadratic-functions", "math-derivatives", "math-trig-functions", "math-sequences"] } },
+    { id: "am-method-guide", icon: "🧭", name: "入门向导", desc: "完成「如何使用学习中心」指南", group: "学习方法", tier: "bronze", pts: 10, cond: { refs: ["methods-how-to-use"] } },
+    { id: "am-psych-primer", icon: "🧠", name: "心理学入门", desc: "掌握心理学分支地图考点", group: "学习方法", tier: "bronze", pts: 10, cond: { refs: ["mh-psych-intro"] } },
+    { id: "am-learn-smart", icon: "📖", name: "会学习的人", desc: "同时掌握方法论与心理学入门", group: "学习方法", tier: "silver", pts: 30, cond: { refs: ["methods-how-to-use", "mh-psych-intro"] } }
+  ];
+  (function () {
+    function condVal(cond) {
+      if (cond.refs) { var rs = cond.refs; return { target: rs.length, val: function (s) { var n = 0; for (var i = 0; i < rs.length; i++) if (s.mastRefs[rs[i]]) n++; return n; } }; }
+      if (cond.refsAny) { var ra = cond.refsAny; return { target: cond.n || 1, val: function (s) { var n = 0; for (var i = 0; i < ra.length; i++) if (s.mastRefs[ra[i]]) n++; return n; } }; }
+      if (cond.mastDisc) { var mk = cond.mastDisc; return { target: cond.target, val: function (s) { return (s.mastSubj && s.mastSubj[mk]) || 0; } }; }
+      var mt = cond.metric; return { target: cond.target, val: function (s) { return s[mt] || 0; } };
+    }
+    ACH_EXTRA.forEach(function (a) { var cv = condVal(a.cond); ACHIEVEMENTS.push({ id: a.id, icon: a.icon, name: a.name, desc: a.desc, group: a.group, tier: a.tier, pts: a.pts, target: cv.target, val: cv.val }); });
+  })();
   function evalAchievements() {
     var s = achStats(), map = store("achievements", {});
     return ACHIEVEMENTS.map(function (a) {

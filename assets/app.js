@@ -326,7 +326,11 @@
       // 动作后检测成就:刷新 + 若有新解锁则弹 toast
       checkAch: function () { var fresh = C.checkAchievements(); setSt(function (p) { return Object.assign({}, p, { tick: p.tick + 1, toast: (fresh && fresh.length) ? fresh : p.toast }); }); },
       // 讲解页在系统内打开(iframe 覆盖层),保留交互;可全屏 / 新标签分享
-      openLesson: function (path, title) { setSt(function (p) { return Object.assign({}, p, { lesson: { path: path, title: title || "讲解" } }); }); },
+      openLesson: function (path, title) {
+        C.logEvent({ kind: "lesson", path: path, label: title || "讲解" });
+        var fresh = C.checkAchievements();
+        setSt(function (p) { return Object.assign({}, p, { lesson: { path: path, title: title || "讲解" }, tick: p.tick + 1, toast: (fresh && fresh.length) ? fresh : p.toast }); });
+      },
       closeLesson: function () { setSt(function (p) { return Object.assign({}, p, { lesson: null }); }); }
     };
 
