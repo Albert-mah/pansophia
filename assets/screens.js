@@ -625,6 +625,7 @@
     var lb0 = useState({}); var libMap = lb0[0], setLibMap = lb0[1];   // 课本本地副本(按 url 索引)
     var rd0 = useState(null); var reader = rd0[0], setReader = rd0[1]; // 阅读器弹窗
     var bz0 = useState({}); var busy = bz0[0], setBusy = bz0[1];
+    var rt0 = useState("res"); var resTab = rt0[0], setResTab = rt0[1];   // 右栏:资料 / 笔记 两个 tab
     useEffect(function () { if (did) C.materialsFor(did).then(setMats); }, [did]);
     // 点选带讲解的考点 → 记一次「读讲解」事件(achStats 按 path 去重,支持「读讲解」类成就)
     useEffect(function () { if (selRef) { var k = C.catalogById(selRef); if (k && k.path) C.logEvent({ kind: "lesson", path: k.path, label: k.title }); } }, [selRef]);
@@ -714,7 +715,7 @@
         <div style="margin-top:24px;display:flex;gap:10px;flex-wrap:wrap;">${masterBtn()}<span class="pan-btn grad" onClick=${function () { app.go("wishlist"); }}>加入愿望清单 →</span></div></div>`;
     } else center = html`<div class="pan-empty">这门暂无考点。</div>`;
 
-    var noteList = C.notes().filter(function (n) { return n.subject && n.subject.indexOf(sc.name) >= 0; }).slice(0, 3);
+    var noteList = C.notes().filter(function (n) { return n.subject && n.subject.indexOf(sc.name) >= 0; }).slice(0, 12);
     function saveCourseNote(v) { v = (v || "").trim(); if (!v) return; var nt = C.notes(); nt.unshift({ title: v.slice(0, 24), body: v, subject: "随堂笔记", ts: Date.now() }); C.save("notes", nt); app.refresh(); }
 
     return html`<div class="pan-course">
@@ -762,10 +763,16 @@
         ${center}
       </div>
       <div class="pan-pane pan-scroll res">
-        ${html`<${CourseFilesPanel} disc=${did} scope=${entry.scope} materials=${mats} onPickTb=${function () { setPickTb(true); }} />`}
-        <div class="pan-eyebrow" style="margin:24px 0 12px;">我的笔记 · My Notes</div>
-        ${noteList.length ? noteList.map(function (n, i) { return html`<div key=${i} style="background:#fff;border:1px solid #F0E6D2;border-radius:12px;padding:14px;margin-bottom:10px;"><div style="font-size:13px;line-height:1.65;color:#3a3023;">${n.body || n.title}</div></div>`; }) : html`<div style="font-size:12.5px;color:#9a8a6f;">还没有笔记。</div>`}
-        <textarea class="pan-note-input" placeholder="在这里随手记…(回车保存)" style="margin-top:10px;" onKeyDown=${function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveCourseNote(e.target.value); e.target.value = ""; } }}></textarea>
+        <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid #EEE3CF;">
+          <span onClick=${function () { setResTab("res"); }} style=${"padding:8px 10px;margin-bottom:-1px;font-size:13.5px;cursor:pointer;border-bottom:2px solid " + (resTab === "res" ? "#B6532F;color:#B6532F;font-weight:700;" : "transparent;color:#9a8a6f;font-weight:600;")}>📚 资料</span>
+          <span onClick=${function () { setResTab("notes"); }} style=${"padding:8px 10px;margin-bottom:-1px;font-size:13.5px;cursor:pointer;border-bottom:2px solid " + (resTab === "notes" ? "#B6532F;color:#B6532F;font-weight:700;" : "transparent;color:#9a8a6f;font-weight:600;")}>📝 笔记${noteList.length ? html` <span style="font-size:11px;color:#bbab8c;font-weight:600;">${noteList.length}</span>` : ""}</span>
+        </div>
+        ${resTab === "res"
+          ? html`<${CourseFilesPanel} disc=${did} scope=${entry.scope} materials=${mats} onPickTb=${function () { setPickTb(true); }} />`
+          : html`<div>
+            <textarea class="pan-note-input" placeholder="在这里随手记…(回车保存)" style="margin-bottom:14px;" onKeyDown=${function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveCourseNote(e.target.value); e.target.value = ""; } }}></textarea>
+            ${noteList.length ? noteList.map(function (n, i) { return html`<div key=${i} style="background:#fff;border:1px solid #F0E6D2;border-radius:12px;padding:14px;margin-bottom:10px;"><div style="font-size:13px;line-height:1.65;color:#3a3023;">${n.body || n.title}</div></div>`; }) : html`<div style="font-size:12.5px;color:#9a8a6f;">还没有笔记。在上面随手记,回车保存。</div>`}
+          </div>`}
       </div>
       ${pickTb ? html`<div class="pan-modal-mask" onClick=${function (e) { if (e.target.classList.contains("pan-modal-mask")) setPickTb(false); }}>
         <div class="pan-modal">
