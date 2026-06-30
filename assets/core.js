@@ -808,9 +808,9 @@ window.Core = (function () {
       sk.forEach(function (e) { if ((e.scope || null) === scope) entry = e; });
       var pts = 0, mas = 0, les = 0;
       if (entry) (entry.topics || []).forEach(function (t) { (t.points || []).forEach(function (p) { pts++; if (isMastered(p.ref || p.title)) mas++; if (p.ref && catalogById(p.ref)) les++; }); });
-      // 二级方向(如 外国语言文学 → 英语):取大纲 subject 名,仅当它与一级学科名明显不同才标(否则只标一级)
+      // 二级方向(如 外国语言文学 → 英语 / 新概念英语):大纲显式 dir 优先,否则取 subject 名(仅当与一级学科名明显不同才标)
       var _dn = dd.name || "", _sj = (entry && entry.subject && SUBJECTS[entry.subject]) ? SUBJECTS[entry.subject].name : "";
-      var dir = (_sj && _sj !== _dn && _dn.indexOf(_sj) < 0 && _sj.indexOf(_dn) < 0) ? _sj : "";
+      var dir = (entry && entry.dir) ? entry.dir : ((_sj && _sj !== _dn && _dn.indexOf(_sj) < 0 && _sj.indexOf(_dn) < 0) ? _sj : "");
       return { discId: id, discName: dd.name, dir: dir, scope: scope, scopeName: (SCOPES[scope] || {}).name || scope || "", color: cat.color || "#C8852E", total: pts, mastered: mas, pct: pts ? Math.round(mas / pts * 100) : 0, lessons: les, textbook: courseTextbook(id, scope), verified: courseVerified(id, scope) };
     });
   }

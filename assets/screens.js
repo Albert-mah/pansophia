@@ -652,9 +652,9 @@
         <span class="pan-btn ghost" style="margin-top:12px;" onClick=${function () { app.go("discipline", { disc: did }); }}>← 学科详情</span> <span class="pan-btn ghost" style="margin-top:12px;" onClick=${function () { app.go("course"); }}>← 课程表</span></div></div>`;
     }
     var sc = SUBJECTS[entry.subject] || { name: entry.subject };
-    // 二级方向(如 外国语言文学 → 英语):仅当与一级学科名明显不同才标
+    // 二级方向(如 外国语言文学 → 英语 / 新概念英语):大纲显式 dir 优先
     var _hdn = (d && d.name) || sc.name, _hsj = sc.name || "";
-    var hdrDir = (_hsj && _hsj !== _hdn && _hdn.indexOf(_hsj) < 0 && _hsj.indexOf(_hdn) < 0) ? _hsj : "";
+    var hdrDir = entry.dir ? entry.dir : ((_hsj && _hsj !== _hdn && _hdn.indexOf(_hsj) < 0 && _hsj.indexOf(_hdn) < 0) ? _hsj : "");
     var hdrColor = (C.categoryOf(did) || {}).color || "#B6532F";
     var cv = C.coverage(entry);
     var allPts = [];

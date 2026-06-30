@@ -5,115 +5,28 @@
  *  18 份:初中9科 + 陕西新高考(3+1+2)9科。点 ref 与 catalog 标题匹配则自动回链。
  * ============================================================= */
 window.STUDY_SKELETON = (window.STUDY_SKELETON || []).concat([
-  { subject: "chinese", scope: "chuzhong", discipline: "chinese-lit", topics: [
-    { title: "识字与写字", points: [
-      {"title":"常用汉字的正确认读与书写(3500个常用字)","status":"todo"},
-      {"title":"易错字形辨析(形近字、同音字)","status":"todo"},
-      {"title":"多音字的辨析与读音","status":"todo"},
-      {"title":"汉字字音的准确认读(声母、韵母、声调)","status":"todo"},
-      {"title":"汉字的造字法与结构(象形、指事、会意、形声)","status":"todo"},
-      {"title":"规范、端正、整洁地书写正楷字与行楷","status":"todo"}
-    ] },
-    { title: "词语积累与运用", points: [
-      {"title":"实词与虚词的辨析运用","status":"todo"},
-      {"title":"近义词、反义词的辨析与选用","status":"todo"},
-      {"title":"成语的含义、用法与错误辨析","status":"todo"},
-      {"title":"词语的感情色彩与语体色彩","status":"todo"},
-      {"title":"词语在具体语境中的含义","status":"todo"},
-      {"title":"关联词语的搭配与运用","status":"todo"}
-    ] },
-    { title: "语法与句子", points: [
-      {"title":"词类的划分(名词、动词、形容词、副词等)","status":"todo"},
-      {"title":"短语的结构类型(主谓、动宾、偏正、并列、补充)","status":"todo"},
-      {"title":"句子成分(主、谓、宾、定、状、补)","status":"todo"},
-      {"title":"单句与复句的类型辨析","status":"todo"},
-      {"title":"病句的辨析与修改(语序、搭配、成分残缺等)","status":"todo"},
-      {"title":"句式的变换与仿写","status":"todo"},
-      {"title":"标点符号的正确使用","status":"todo"}
-    ] },
-    { title: "修辞与语言表达", points: [
-      {"title":"常见修辞手法(比喻、拟人、夸张、排比、设问、反问)","status":"todo"},
-      {"title":"对偶、反复、借代、引用等修辞的辨识","status":"todo"},
-      {"title":"修辞手法的表达效果分析","status":"todo"},
-      {"title":"语言的连贯、得体与简明","status":"todo"},
-      {"title":"句子的衔接与排序","status":"todo"},
-      {"title":"图文转换与信息提取(图表、漫画、徽标)","status":"todo"}
-    ] },
-    { title: "记叙文阅读", points: [
-      {"title":"记叙的要素、顺序与线索","status":"todo"},
-      {"title":"记叙文的人称及其作用","status":"todo"},
-      {"title":"记叙文的表达方式(记叙、描写、抒情、议论、说明)","status":"todo"},
-      {"title":"人物描写方法及其作用(外貌、语言、动作、心理、神态)","status":"todo"},
-      {"title":"环境描写的作用(自然环境、社会环境)","status":"todo"},
-      {"title":"记叙文的主旨概括与情感把握","status":"todo"},
-      {"title":"重点词句的含义与表达作用","status":"todo"},
-      {"title":"标题、开头、结尾及段落的作用","status":"todo"}
-    ] },
-    { title: "说明文阅读", points: [
-      {"title":"说明对象及其特征的把握","status":"todo"},
-      {"title":"说明顺序(时间、空间、逻辑)","status":"todo"},
-      {"title":"常见说明方法及其作用(举例子、列数字、作比较、打比方、分类别、下定义)","status":"todo"},
-      {"title":"说明文语言的准确性与严密性","status":"todo"},
-      {"title":"说明文结构与说明思路的梳理","status":"todo"},
-      {"title":"事物说明文与事理说明文的区分","status":"todo"}
-    ] },
-    { title: "议论文阅读", points: [
-      {"title":"论点的提取与归纳(中心论点与分论点)","status":"todo"},
-      {"title":"论据的类型(事实论据、道理论据)及作用","status":"todo"},
-      {"title":"论证方法及其作用(举例论证、道理论证、对比论证、比喻论证)","status":"todo"},
-      {"title":"议论文的论证结构(总分、并列、递进、对照)","status":"todo"},
-      {"title":"议论文的论证思路梳理","status":"todo"},
-      {"title":"议论文语言的严密性与逻辑性","status":"todo"}
-    ] },
-    { title: "古诗词阅读与鉴赏", points: [
-      {"title":"古诗词内容理解与意象把握","status":"todo"},
-      {"title":"诗词中的思想感情与主旨","status":"todo"},
-      {"title":"诗词的表现手法(借景抒情、托物言志、用典、虚实结合)","status":"todo"},
-      {"title":"炼字与名句的赏析","status":"todo"},
-      {"title":"诗词的意境与画面描述","status":"todo"},
-      {"title":"常见诗词题材(山水田园、边塞、送别、咏物、怀古)","status":"todo"}
-    ] },
-    { title: "文言文阅读", points: [
-      {"title":"常见文言实词的含义(一词多义、古今异义、词类活用)","status":"todo"},
-      {"title":"常见文言虚词的用法(之、其、而、以、于、为等)","status":"todo"},
-      {"title":"文言文断句","status":"todo"},
-      {"title":"文言句子的翻译(判断句、省略句、倒装句、被动句)","status":"todo"},
-      {"title":"文言文内容理解与概括","status":"todo"},
-      {"title":"作者观点态度与写作意图的把握","status":"todo"}
-    ] },
-    { title: "古诗文积累与默写", points: [
-      {"title":"课标推荐篇目的背诵与默写","status":"todo"},
-      {"title":"直接默写(上下句衔接)","status":"todo"},
-      {"title":"理解性默写(根据情境提示填写名句)","status":"todo"},
-      {"title":"名言警句与经典名篇的积累","status":"todo"},
-      {"title":"古代文化常识(称谓、纪年、节气、礼仪)","status":"todo"}
-    ] },
-    { title: "名著阅读", points: [
-      {"title":"课标推荐名著的主要内容与情节","status":"todo"},
-      {"title":"主要人物形象及其性格特征","status":"todo"},
-      {"title":"名著的主题思想与艺术特色","status":"todo"},
-      {"title":"重要章节、典型情节的识记与赏析","status":"todo"},
-      {"title":"名著阅读方法(精读、略读、跳读)","status":"todo"},
-      {"title":"对名著人物与情节的评价与感悟","status":"todo"}
-    ] },
-    { title: "写作", points: [
-      {"title":"审题立意与中心确立","status":"todo"},
-      {"title":"选材与详略安排","status":"todo"},
-      {"title":"记叙文写作(写人、记事、写景、状物)","status":"todo"},
-      {"title":"议论文写作(观点鲜明、论据充分、论证有力)","status":"todo"},
-      {"title":"说明文与应用文写作(书信、通知、启事等)","status":"todo"},
-      {"title":"谋篇布局与结构安排(开头、过渡、结尾)","status":"todo"},
-      {"title":"细节描写与表达方式的综合运用","status":"todo"},
-      {"title":"修改作文与语言锤炼","status":"todo"}
-    ] },
-    { title: "口语交际与综合性学习", points: [
-      {"title":"倾听、表达与得体交流","status":"todo"},
-      {"title":"情境对话与口语交际(劝说、采访、讨论、辩论)","status":"todo"},
-      {"title":"专题探究与活动设计","status":"todo"},
-      {"title":"材料的搜集、整理与信息筛选","status":"todo"},
-      {"title":"综合材料的分析与观点表达","status":"todo"},
-      {"title":"拟写标语、宣传语、活动方案","status":"todo"}
-    ] }
+  { subject: "chinese", scope: "chuzhong", discipline: "chinese-lit", dir: "阅读与写作", topics: [
+    { title: "阅读方法", points: [
+      { title: "怎样精读一篇文章", ref: "mh-cn-close-reading" },
+      { title: "抓中心与概括段意", status: "todo" },
+      { title: "联系上下文猜词义", status: "todo" },
+      { title: "边读边提问与批注", status: "todo" } ] },
+    { title: "整本书阅读", points: [
+      { title: "给自己排一个读书计划", status: "todo" },
+      { title: "读后感怎么写", status: "todo" },
+      { title: "画一张人物关系图", status: "todo" } ] },
+    { title: "写作基础", points: [
+      { title: "把一件事写清楚(六要素)", ref: "mh-cn-narrative-event" },
+      { title: "观察与细节描写", ref: "mh-cn-observation" },
+      { title: "开头和结尾的几种写法", status: "todo" } ] },
+    { title: "文体小练", points: [
+      { title: "记叙文:写一件难忘的事", status: "todo" },
+      { title: "说明文:介绍一样东西", status: "todo" },
+      { title: "想象作文:编一个小故事", status: "todo" } ] },
+    { title: "语言积累", points: [
+      { title: "好词好句摘抄与运用", status: "todo" },
+      { title: "标点与分段", status: "todo" },
+      { title: "修改自己的作文", status: "todo" } ] }
   ] },
   { subject: "math", scope: "chuzhong", discipline: "math", topics: [
     { title: "数与式", points: [
@@ -203,116 +116,29 @@ window.STUDY_SKELETON = (window.STUDY_SKELETON || []).concat([
       {"title":"用频率估计概率","status":"todo"}
     ] }
   ] },
-  { subject: "english", scope: "chuzhong", discipline: "foreign-lit", topics: [
-    { title: "语音与拼读", points: [
-      {"title":"26个字母及大小写书写","status":"todo"},
-      {"title":"元音字母在重读开/闭音节中的读音","status":"todo"},
-      {"title":"常见字母组合发音规则","status":"todo"},
-      {"title":"国际音标的认读","status":"todo"},
-      {"title":"单词重音与句子重音","status":"todo"},
-      {"title":"句子的语调(升调与降调)","status":"todo"},
-      {"title":"连读、失爆与意群停顿","status":"todo"}
-    ] },
-    { title: "名词与冠词", points: [
-      {"title":"可数名词与不可数名词的区分","status":"todo"},
-      {"title":"名词复数的规则与不规则变化","status":"todo"},
-      {"title":"名词所有格('s与of短语)","status":"todo"},
-      {"title":"不定冠词a/an的用法","status":"todo"},
-      {"title":"定冠词the的用法","status":"todo"},
-      {"title":"零冠词及固定搭配中的冠词","status":"todo"}
-    ] },
-    { title: "代词", points: [
-      {"title":"人称代词的主格与宾格","status":"todo"},
-      {"title":"物主代词(形容词性与名词性)","status":"todo"},
-      {"title":"反身代词","status":"todo"},
-      {"title":"指示代词this/that/these/those","status":"todo"},
-      {"title":"不定代词some/any/no/every及其合成词","status":"todo"},
-      {"title":"疑问代词与连接代词","status":"todo"}
-    ] },
-    { title: "数词、形容词与副词", points: [
-      {"title":"基数词与序数词","status":"todo"},
-      {"title":"形容词的基本用法与位置","status":"todo"},
-      {"title":"副词的种类与位置","status":"todo"},
-      {"title":"形容词与副词的比较级","status":"todo"},
-      {"title":"形容词与副词的最高级","status":"todo"},
-      {"title":"as...as等比较结构","status":"todo"},
-      {"title":"数量表达与倍数表达","status":"todo"}
-    ] },
-    { title: "介词与连词", points: [
-      {"title":"时间介词in/on/at等","status":"todo"},
-      {"title":"地点与方位介词","status":"todo"},
-      {"title":"常见介词短语及固定搭配","status":"todo"},
-      {"title":"并列连词and/but/or/so","status":"todo"},
-      {"title":"从属连词because/when/if/although等","status":"todo"},
-      {"title":"关联连词both...and/either...or/neither...nor","status":"todo"}
-    ] },
-    { title: "动词与动词时态", points: [
-      {"title":"实义动词、系动词与助动词","status":"todo"},
-      {"title":"情态动词can/may/must/should等","status":"todo"},
-      {"title":"一般现在时与一般过去时","status":"todo"},
-      {"title":"一般将来时(will与be going to)","status":"todo"},
-      {"title":"现在进行时与过去进行时","status":"todo"},
-      {"title":"现在完成时","status":"todo"},
-      {"title":"过去完成时","status":"todo"},
-      {"title":"动词时态的综合辨析","status":"todo"}
-    ] },
-    { title: "非谓语动词与语态", points: [
-      {"title":"动词不定式to do的用法","status":"todo"},
-      {"title":"动名词doing的用法","status":"todo"},
-      {"title":"现在分词与过去分词作定语/表语","status":"todo"},
-      {"title":"被动语态的构成与各时态被动","status":"todo"},
-      {"title":"主动语态与被动语态的转换","status":"todo"}
-    ] },
-    { title: "句子种类与成分", points: [
-      {"title":"陈述句、疑问句、祈使句、感叹句","status":"todo"},
-      {"title":"一般疑问句与特殊疑问句","status":"todo"},
-      {"title":"选择疑问句与反意疑问句","status":"todo"},
-      {"title":"句子基本成分与五种基本句型","status":"todo"},
-      {"title":"There be存在句型","status":"todo"},
-      {"title":"感叹句what与how结构","status":"todo"}
-    ] },
-    { title: "复合句", points: [
-      {"title":"宾语从句","status":"todo"},
-      {"title":"状语从句(时间、条件、原因等)","status":"todo"},
-      {"title":"定语从句(关系代词与关系副词)","status":"todo"},
-      {"title":"主语从句与表语从句","status":"todo"},
-      {"title":"直接引语与间接引语的转换","status":"todo"},
-      {"title":"并列句","status":"todo"}
-    ] },
-    { title: "词汇与构词法", points: [
-      {"title":"课程标准要求的核心词汇掌握","status":"todo"},
-      {"title":"常见前缀与后缀构词","status":"todo"},
-      {"title":"合成词与转化词","status":"todo"},
-      {"title":"近义词与反义词辨析","status":"todo"},
-      {"title":"一词多义与词性变化","status":"todo"},
-      {"title":"常用动词短语与短语搭配","status":"todo"}
-    ] },
-    { title: "话题与情景交际", points: [
-      {"title":"个人情况、家庭与朋友","status":"todo"},
-      {"title":"学校生活与日常作息","status":"todo"},
-      {"title":"兴趣爱好、运动与健康","status":"todo"},
-      {"title":"购物、饮食与天气","status":"todo"},
-      {"title":"旅游、交通与问路指路","status":"todo"},
-      {"title":"节日、风俗与文化差异","status":"todo"},
-      {"title":"环境保护与社会公益","status":"todo"},
-      {"title":"问候、道歉、邀请、建议等交际功能","status":"todo"}
-    ] },
-    { title: "阅读与听力理解策略", points: [
-      {"title":"把握主旨大意与中心思想","status":"todo"},
-      {"title":"查找细节信息","status":"todo"},
-      {"title":"根据上下文猜测词义","status":"todo"},
-      {"title":"推理判断与作者意图","status":"todo"},
-      {"title":"理解指代关系与篇章结构","status":"todo"},
-      {"title":"听力中获取关键信息与数字信息","status":"todo"}
-    ] },
-    { title: "写作与书面表达", points: [
-      {"title":"句子的正确书写与标点使用","status":"todo"},
-      {"title":"记叙文写作(人物与事件)","status":"todo"},
-      {"title":"应用文(书信、电子邮件、通知)","status":"todo"},
-      {"title":"看图作文与话题作文","status":"todo"},
-      {"title":"常用连接词与过渡句","status":"todo"},
-      {"title":"段落组织与谋篇布局","status":"todo"}
-    ] }
+  { subject: "english", scope: "chuzhong", discipline: "foreign-lit", dir: "新概念英语", topics: [
+    { title: "词汇 · 入门", points: [
+      { title: "26个字母与音标拼读", status: "todo" },
+      { title: "问候与课堂用语", status: "todo" },
+      { title: "生活高频词:家庭·学校·食物", status: "todo" } ] },
+    { title: "语法 · 基础句型", points: [
+      { title: "be 动词 am/is/are", ref: "mh-en-be-verb" },
+      { title: "this/that/these/those", ref: "mh-en-this-that" },
+      { title: "名词单复数", ref: "mh-en-nouns-plural" },
+      { title: "人称代词与物主代词", status: "todo" } ] },
+    { title: "语法 · 时态", points: [
+      { title: "一般现在时", ref: "mh-en-present-simple" },
+      { title: "现在进行时", ref: "mh-en-present-continuous" },
+      { title: "一般过去时", ref: "mh-en-past-tense" },
+      { title: "一般将来时 will", ref: "mh-en-future-tense" },
+      { title: "形容词比较级", ref: "mh-en-comparatives" } ] },
+    { title: "句子与文章", points: [
+      { title: "简单句结构(主谓宾)", status: "todo" },
+      { title: "一般疑问句与简答", ref: "mh-en-questions" },
+      { title: "短文阅读:看图理解", status: "todo" } ] },
+    { title: "习题与运用", points: [
+      { title: "看图说话 / 三句话小作文", status: "todo" },
+      { title: "配套练习与自测", status: "todo" } ] }
   ] },
   { subject: "physics", scope: "chuzhong", discipline: "physics", topics: [
     { title: "声现象", points: [
@@ -561,115 +387,27 @@ window.STUDY_SKELETON = (window.STUDY_SKELETON || []).concat([
       {"title":"绿色化学与可持续发展","status":"todo"}
     ] }
   ] },
-  { subject: "biology", scope: "chuzhong", discipline: "biology", topics: [
-    { title: "科学探究与生物学基本方法", points: [
-      {"title":"生物的基本特征","status":"todo"},
-      {"title":"科学探究的一般过程","status":"todo"},
-      {"title":"观察法、调查法与实验法","status":"todo"},
-      {"title":"显微镜的构造与使用","status":"todo"},
-      {"title":"临时装片的制作与观察","status":"todo"},
-      {"title":"对照实验与变量控制","status":"todo"}
-    ] },
-    { title: "生物体的结构层次", points: [
-      {"title":"细胞是生命活动的基本单位","status":"todo"},
-      {"title":"动物细胞与植物细胞的结构","status":"todo"},
-      {"title":"细胞膜、细胞质、细胞核的功能","status":"todo"},
-      {"title":"细胞的分裂、生长与分化","status":"todo"},
-      {"title":"组织、器官、系统的概念","status":"todo"},
-      {"title":"植物体的结构层次","status":"todo"},
-      {"title":"人体（动物体）的结构层次","status":"todo"},
-      {"title":"单细胞生物的结构与生活","status":"todo"}
-    ] },
-    { title: "生物与环境", points: [
-      {"title":"生态因素（非生物因素与生物因素）","status":"todo"},
-      {"title":"生物对环境的适应与影响","status":"todo"},
-      {"title":"生态系统的组成成分","status":"todo"},
-      {"title":"食物链与食物网","status":"todo"},
-      {"title":"物质循环与能量流动","status":"todo"},
-      {"title":"生态系统的自我调节能力","status":"todo"},
-      {"title":"生物圈是最大的生态系统","status":"todo"}
-    ] },
-    { title: "绿色植物的生活", points: [
-      {"title":"种子的结构与萌发条件","status":"todo"},
-      {"title":"根的吸收与水分运输","status":"todo"},
-      {"title":"植物的蒸腾作用","status":"todo"},
-      {"title":"光合作用的原料、产物与条件","status":"todo"},
-      {"title":"光合作用的实质与意义","status":"todo"},
-      {"title":"呼吸作用的过程与意义","status":"todo"},
-      {"title":"绿色植物对生物圈中碳—氧平衡的作用","status":"todo"},
-      {"title":"爱护植被与绿化","status":"todo"}
-    ] },
-    { title: "生物的多样性及其分类", points: [
-      {"title":"生物分类的依据与等级单位","status":"todo"},
-      {"title":"植物类群（藻类、苔藓、蕨类、种子植物）","status":"todo"},
-      {"title":"无脊椎动物的主要类群","status":"todo"},
-      {"title":"脊椎动物的主要类群","status":"todo"},
-      {"title":"细菌的形态结构与生殖","status":"todo"},
-      {"title":"真菌的形态结构与生殖","status":"todo"},
-      {"title":"病毒的结构与生活","status":"todo"},
-      {"title":"生物多样性的内涵与保护","status":"todo"}
-    ] },
-    { title: "人体的营养与消化", points: [
-      {"title":"食物中的六类营养物质","status":"todo"},
-      {"title":"消化系统的组成","status":"todo"},
-      {"title":"食物的消化过程","status":"todo"},
-      {"title":"营养物质的吸收","status":"todo"},
-      {"title":"合理营养与食品安全","status":"todo"}
-    ] },
-    { title: "人体的呼吸、循环与物质运输", points: [
-      {"title":"呼吸系统的组成","status":"todo"},
-      {"title":"肺与外界的气体交换","status":"todo"},
-      {"title":"肺泡内的气体交换","status":"todo"},
-      {"title":"血液的组成与功能","status":"todo"},
-      {"title":"血管的种类与特点","status":"todo"},
-      {"title":"心脏的结构与功能","status":"todo"},
-      {"title":"血液循环的途径（体循环与肺循环）","status":"todo"},
-      {"title":"输血与血型","status":"todo"}
-    ] },
-    { title: "人体的代谢、调节与稳态", points: [
-      {"title":"泌尿系统的组成与尿的形成","status":"todo"},
-      {"title":"神经系统的组成","status":"todo"},
-      {"title":"神经调节的基本方式——反射与反射弧","status":"todo"},
-      {"title":"眼与视觉、耳与听觉","status":"todo"},
-      {"title":"激素调节（胰岛素、生长激素、甲状腺激素）","status":"todo"},
-      {"title":"人体内废物的排出","status":"todo"},
-      {"title":"人体维持内环境稳态的意义","status":"todo"}
-    ] },
-    { title: "生物的生殖、发育与遗传", points: [
-      {"title":"植物的有性生殖（花、传粉与受精）","status":"todo"},
-      {"title":"植物的无性生殖（嫁接、扦插、组织培养）","status":"todo"},
-      {"title":"昆虫的变态发育","status":"todo"},
-      {"title":"两栖动物与鸟类的生殖发育","status":"todo"},
-      {"title":"人的生殖与发育","status":"todo"},
-      {"title":"基因控制生物的性状","status":"todo"},
-      {"title":"基因、DNA与染色体的关系","status":"todo"},
-      {"title":"基因的显性与隐性","status":"todo"},
-      {"title":"人的性别决定","status":"todo"},
-      {"title":"遗传变异在育种上的应用","status":"todo"}
-    ] },
-    { title: "生命起源与生物进化", points: [
-      {"title":"生命起源的探索","status":"todo"},
-      {"title":"研究生物进化的方法（化石证据）","status":"todo"},
-      {"title":"生物进化的总体趋势","status":"todo"},
-      {"title":"自然选择学说","status":"todo"},
-      {"title":"人类的起源与进化","status":"todo"}
-    ] },
-    { title: "健康地生活", points: [
-      {"title":"传染病的概念、特点与预防措施","status":"todo"},
-      {"title":"人体的三道防线与免疫","status":"todo"},
-      {"title":"特异性免疫与非特异性免疫","status":"todo"},
-      {"title":"计划免疫与疫苗","status":"todo"},
-      {"title":"安全用药与急救常识","status":"todo"},
-      {"title":"酗酒、吸烟与吸毒的危害","status":"todo"},
-      {"title":"健康的生活方式与情绪调节","status":"todo"}
-    ] },
-    { title: "生物技术", points: [
-      {"title":"发酵技术在食品制作中的应用","status":"todo"},
-      {"title":"食品的腐败原因与保存方法","status":"todo"},
-      {"title":"现代生物技术（转基因技术）","status":"todo"},
-      {"title":"克隆技术简介","status":"todo"},
-      {"title":"生物技术与社会伦理","status":"todo"}
-    ] }
+  { subject: "biology", scope: "chuzhong", discipline: "biology", dir: "素质探索", topics: [
+    { title: "身边的生命", points: [
+      { title: "逛植物园 · 海洋馆 · 博物馆:出门看自然", ref: "mh-bio-campus-observe" },
+      { title: "养一盆植物的观察记录", status: "todo" },
+      { title: "显微镜下的小世界", status: "todo" } ] },
+    { title: "看纪录片学科学", points: [
+      { title: "《地球脉动》看什么", ref: "mh-bio-documentary" },
+      { title: "动物的生存策略", status: "todo" },
+      { title: "海洋里的奇妙生物", status: "todo" } ] },
+    { title: "人体与健康", points: [
+      { title: "我们怎么呼吸和消化", status: "todo" },
+      { title: "睡眠与运动的科学", status: "todo" },
+      { title: "细菌、病毒与免疫", status: "todo" } ] },
+    { title: "自然与生态", points: [
+      { title: "食物链与食物网", ref: "mh-bio-food-chain" },
+      { title: "四季与候鸟迁徙", status: "todo" },
+      { title: "保护环境我能做什么", status: "todo" } ] },
+    { title: "动手探索", points: [
+      { title: "做一次简单的小实验", status: "todo" },
+      { title: "写一份自然观察笔记", status: "todo" },
+      { title: "提一个好问题并查资料", status: "todo" } ] }
   ] },
   { subject: "politics", scope: "chuzhong", discipline: "politics-sci", topics: [
     { title: "成长中的我:自我认识与青春期", points: [
