@@ -149,11 +149,14 @@
 
     var fav = inWordbook(w);
     function favBtn() { return html`<span class="pan-btn ghost sm pill" onClick=${function () { toggleWordbook(w); setSess(Object.assign({}, sess)); }}>${fav ? "★ 已在单词本" : "♡ 收藏到单词本"}</span>`; }
+    function canSay(word) { return word && (word.lang === "en" || word.lang === "ja"); }
+    function sayBtn(word, label) { if (!canSay(word)) return null; return html`<span class="pan-btn ghost sm pill" title="朗读发音" onClick=${function () { C.speak(word.term, word.lang); }}>🔊${label ? " " + label : ""}</span>`; }
 
     var body;
     if (sess.step === "card") {
       body = html`<div class="pan-panel" style="padding:40px 36px;text-align:center;">
-        <div style="font-family:var(--serif);font-size:${w.term.length > 6 ? "30" : "44"}px;font-weight:700;margin-bottom:10px;">${w.term}</div>
+        <div style="font-family:var(--serif);font-size:${w.term.length > 6 ? "30" : "44"}px;font-weight:700;margin-bottom:${canSay(w) ? "8" : "10"}px;">${w.term}</div>
+        ${canSay(w) ? html`<div style="margin-bottom:12px;">${sayBtn(w, "朗读")}</div>` : null}
         ${sess.revealed ? html`<div><div style="font-size:16px;color:#B6532F;margin-bottom:4px;">${w.reading || ""}</div><div style="font-size:16px;color:#3a3023;">${w.gloss}</div></div>` : html`<div style="font-size:13px;color:#9a8a6f;">先想一想,再选下面 ——</div>`}
         <div style="display:flex;gap:10px;justify-content:center;margin-top:26px;flex-wrap:wrap;">
           ${sess.revealed
@@ -163,7 +166,7 @@
         <div style="margin-top:18px;">${favBtn()}</div></div>`;
     } else { // ex
       var ex = sess.exes[sess.round], ans = sess.answered;
-      var head = html`<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;"><span class="pan-pill" style="color:#B6532F;background:#FAE9E2;">第 ${sess.round + 1}/3 关 · ${ex.type}</span><span style="font-size:12px;color:#9a8a6f;">${sess.wordCorrect} 关已过</span><span style="margin-left:auto;">${favBtn()}</span></div>`;
+      var head = html`<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;"><span class="pan-pill" style="color:#B6532F;background:#FAE9E2;">第 ${sess.round + 1}/3 关 · ${ex.type}</span><span style="font-size:12px;color:#9a8a6f;">${sess.wordCorrect} 关已过</span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;">${ex.spell && canSay(w) ? html`<span class="pan-btn ghost sm pill" title="听写:点这里听单词" onClick=${function () { C.speak(w.term, w.lang); }}>🔊 听写</span>` : sayBtn(w)}${favBtn()}</span></div>`;
       var prompt = html`<div style="font-size:12.5px;color:#9a8a6f;margin-bottom:6px;">${ex.q}</div><h1 style="font-family:var(--serif);font-size:${ex.prompt.length > 14 ? "20" : "30"}px;font-weight:600;line-height:1.4;margin:0 0 22px;">${ex.prompt}</h1>`;
       var input;
       if (ex.spell) {

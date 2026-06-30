@@ -99,7 +99,41 @@
     document.head.appendChild(s);
   }
 
-  function start() { build(); loadMathJax(); }
+  // 朗读:英文优先有道真人发音端点(URL,不托管音频),失败/离线回退浏览器 TTS。必须用户点击触发。
+  function say(text, lang) {
+    text = (text || "").toString().trim(); if (!text) return;
+    lang = lang || "en";
+    function tts() { try { var sy = window.speechSynthesis; if (!sy) return; sy.cancel(); var u = new SpeechSynthesisUtterance(text); u.lang = lang === "ja" ? "ja-JP" : "en-US"; u.rate = 0.9; sy.speak(u); } catch (e) {} }
+    try { var src = "https://dict.youdao.com/dictvoice?audio=" + encodeURIComponent(text) + (lang === "ja" ? "&le=jap" : "&type=2"); var a = new Audio(src); a.onerror = tts; var p = a.play(); if (p && p.catch) p.catch(tts); } catch (e) { tts(); }
+  }
+  // 选中英文文字 → 冒出「🔊 朗读」浮动按钮(所有讲解页通用,无需逐页改)
+  function initSelectSpeak() {
+    window.Say = say;
+    var btn = null;
+    function hide() { if (btn) { btn.remove(); btn = null; } }
+    function place() {
+      var sel = window.getSelection && window.getSelection();
+      var text = sel ? String(sel).trim() : "";
+      if (!text || text.length > 240 || !/[a-zA-Z]/.test(text)) { hide(); return; }
+      var rect; try { rect = sel.getRangeAt(0).getBoundingClientRect(); } catch (e) { return; }
+      if (!rect || (!rect.width && !rect.height)) { hide(); return; }
+      if (!btn) {
+        btn = document.createElement("button");
+        btn.type = "button"; btn.textContent = "🔊 朗读";
+        btn.style.cssText = "position:fixed;z-index:99999;border:0;border-radius:999px;background:#B6532F;color:#fff;font-size:13px;font-weight:700;padding:7px 14px;box-shadow:0 4px 14px rgba(60,40,20,.35);cursor:pointer;";
+        btn.addEventListener("mousedown", function (e) { e.preventDefault(); });
+        btn.addEventListener("click", function (e) { e.stopPropagation(); var s = window.getSelection && String(window.getSelection()).trim(); if (s) say(s, "en"); });
+        document.body.appendChild(btn);
+      }
+      btn.style.top = Math.max(6, rect.top - 42) + "px";
+      btn.style.left = Math.max(6, rect.left + rect.width / 2 - 38) + "px";
+    }
+    document.addEventListener("mouseup", function () { setTimeout(place, 10); });
+    document.addEventListener("touchend", function () { setTimeout(place, 10); });
+    document.addEventListener("selectionchange", function () { var s = window.getSelection && String(window.getSelection()).trim(); if (!s) hide(); });
+    document.addEventListener("scroll", hide, true);
+  }
+  function start() { build(); loadMathJax(); initSelectSpeak(); }
   if (document.readyState === "loading")
     document.addEventListener("DOMContentLoaded", start);
   else start();

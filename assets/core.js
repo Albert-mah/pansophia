@@ -921,8 +921,26 @@ window.Core = (function () {
     return "learning";
   }
 
+  // 朗读:英文优先用有道真人发音端点(URL 即可,不托管音频),失败/离线回退浏览器内置 TTS;其它语言走 TTS。
+  // 必须由用户点击触发(浏览器自动播放策略)。
+  function speak(text, lang) {
+    text = (text || "").toString().trim(); if (!text) return;
+    lang = lang || "en";
+    function tts() {
+      try { var sy = window.speechSynthesis; if (!sy) return; sy.cancel();
+        var u = new SpeechSynthesisUtterance(text); u.lang = lang === "ja" ? "ja-JP" : "en-US"; u.rate = 0.9; sy.speak(u);
+      } catch (e) {}
+    }
+    if (lang === "en" || lang === "ja") {
+      try {
+        var src = "https://dict.youdao.com/dictvoice?audio=" + encodeURIComponent(text) + (lang === "ja" ? "&le=jap" : "&type=2");
+        var a = new Audio(src); a.onerror = tts;
+        var p = a.play(); if (p && p.catch) p.catch(tts);
+      } catch (e) { tts(); }
+    } else { tts(); }
+  }
   return {
-    esc: esc, uniqBy: uniqBy, SLOTS: SLOTS, HEAT_COLORS: HEAT_COLORS, CATS: CATS, SUBJECTS: SUBJECTS, SCOPES: SCOPES,
+    esc: esc, uniqBy: uniqBy, SLOTS: SLOTS, HEAT_COLORS: HEAT_COLORS, CATS: CATS, SUBJECTS: SUBJECTS, SCOPES: SCOPES, speak: speak,
     coursesForUser: coursesForUser, courseScopeOK: courseScopeOK, userPrefScopes: userPrefScopes, coursePhase: coursePhase,
     courseVerified: courseVerified, setCourseVerified: setCourseVerified,
     hydrate: hydrate, users: users, user: user, userKey: userKey, switchUser: switchUser, addUser: addUser,
