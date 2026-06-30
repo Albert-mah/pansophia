@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>向导 · 弹窗 · 抽屉:容器选择指南 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-wizard-modal-drawer"></script>
+  <style>
+    /* 本页自用:切换台按钮与演示舞台 */
+    .ct-mode-btn {
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--text-soft);
+      padding: 9px 20px;
+      border-radius: 999px;
+      font-size: .95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .12s;
+    }
+    .ct-stage {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 14px;
+      min-height: 270px;
+    }
+    .ct-hint {
+      background: #f3f7ff;
+      border: 1px solid #d0def8;
+      border-left: 4px solid #3b6fe0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 12px;
+      font-size: .9rem;
+      color: var(--text-soft);
+      line-height: 1.7;
+    }
+    @media (max-width: 600px) {
+      .ct-mode-btn { padding: 8px 13px; font-size: .86rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">向导 · 弹窗 · 抽屉</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>向导 · 弹窗 · 抽屉</h1>
+      <div class="meta-row" data-meta><span>🖼️ 容器选择</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>后台系统里有三种最常用的"承载容器":向导、弹窗、抽屉。它们解决的问题不一样,却经常被混用——把一个简单确认框做成三步向导,把十几个字段的表单塞进一个小弹窗,或者用全页跳转来做本该是抽屉的事。选错了,用户操作的每一步都多摩擦:填到一半的表单不知道还有多少,关掉弹窗才发现背后列表的位置全丢了。这一页把三种容器说清楚:各自适合什么任务、为什么适合、选错的代价是什么。</p>
+
+    <h2>1. Wizard 向导:带着用户走完复杂流程</h2>
+    <p>向导把一个多步骤、线性的任务拆成一系列"页",每次只让用户面对一小块决策,配合顶部或侧边的<b>进度指示器</b>告诉他"现在在第几步,还有几步"。适合用向导的场景有几个共同特征:</p>
+    <ul>
+      <li><b>步骤之间有依赖关系</b>:第一步不填完就没法进第二步,后面的选项依赖前面的输入。</li>
+      <li><b>任务对用户比较陌生</b>:一次性全展示会让人不知道从哪开始,逐步引导能降低认知负担。</li>
+      <li><b>出错代价较高</b>:初始化生产环境、提交正式申请这类操作,在最后一步加确认环节是必要的。</li>
+    </ul>
+    <div class="box tip">
+      <div class="box-title">✅ 后台场景:适合用向导</div>
+      <p style="margin:6px 0">• <b>新建员工档案</b>:基本信息 → 合同与薪资 → 分配角色权限 → 确认提交。步骤之间有逻辑依赖,单独给一张大表单会让人不知道先填哪里。</p>
+      <p style="margin:6px 0">• <b>初始化新项目</b>:选部署环境 → 填写域名配置 → 绑定数据库 → 预览并启动。每步的输入决定下一步的选项。</p>
+      <p style="margin:6px 0">• <b>首次系统配置</b>:安装后引导管理员设置组织信息、创建第一个账号、选择初始模块——用户只操作一次,陌生感最强,向导最合适。</p>
+    </div>
+    <div class="box warn">
+      <div class="box-title">❌ 什么时候不要用向导</div>
+      <p style="margin:6px 0">任务不复杂、用户已经很熟悉、或只需填 2-3 个字段——这些情况用向导是过度包装。用户明明只是点"确认删除",却被迫走"选择原因 → 确认身份 → 点击完成" 3 步,每次都是折磨。<b>向导是给陌生复杂任务准备的,不是给所有操作加仪式感用的。</b></p>
+    </div>
+
+    <h2>2. Modal 弹窗:聚焦、短、必须打断</h2>
+    <p>弹窗在页面中央弹出,用半透明遮罩把背景压暗,强制用户先处理这件事。这是它的优点,也是它的边界:<b>既然要打断,就要值得打断。</b>弹窗适合的任务有三个特征:操作<b>短</b>(几秒内完成)、需要用户<b>聚焦</b>(不需要参考背景内容)、<b>必须先于其他操作完成</b>。</p>
+    <div class="box tip">
+      <div class="box-title">✅ 后台场景:适合用弹窗</div>
+      <p style="margin:6px 0">• <b>删除确认</b>:"确认删除这条客户记录?删除后不可恢复。"这是弹窗的主场:操作不可逆、只有两个按钮、用不着看背景。</p>
+      <p style="margin:6px 0">• <b>快速填写单字段</b>:在列表里直接修改某条记录的备注或标签——弹窗一个输入框加确认就够了,不需要跳整页。</p>
+      <p style="margin:6px 0">• <b>强制提示 / 授权</b>:许可证即将过期,需要用户确认知晓后才能继续——强制打断是合理的,这正是遮罩的意义。</p>
+    </div>
+    <div class="box warn">
+      <div class="box-title">❌ 弹窗的两大死亡陷阱</div>
+      <p style="margin:6px 0"><b>把复杂表单塞进弹窗:</b>字段一多就出现内部滚动条,用户填到一半不知道还有多少。移动端键盘弹出来还会遮住弹窗下半部分。字段超过 5-6 个就该考虑抽屉或全页了。</p>
+      <p style="margin:6px 0"><b>弹窗套弹窗:</b>弹窗里有个"选择客户"按钮,点开又弹一个选择器。用户点到第三层已经不知道自己在哪。<b>弹窗最多一层</b>,有嵌套选择需求就用页内选择器或抽屉里的内嵌组件。</p>
+    </div>
+
+    <h2>3. Drawer 抽屉:保留上下文、中等体量</h2>
+    <p>抽屉从页面右侧滑入,背后的页面依然可见但被轻度压暗。这个设计有明确含义:<b>用户处理眼前这件事时,背景的上下文还在</b>。这是弹窗做不到的——弹窗的遮罩设计意味着"先把背景全忘了"。</p>
+    <p>抽屉的优势就在"边看边做"这个场景:用户在列表里看到一条记录,想编辑它,但又需要随时瞥一眼其他行来对照——这正是抽屉的主场。体量上,抽屉比弹窗能放更多字段(7-15 个都还舒服),比全页跳转代价低(不打断列表的位置和筛选状态)。</p>
+    <div class="box tip">
+      <div class="box-title">✅ 后台场景:适合用抽屉</div>
+      <p style="margin:6px 0">• <b>记录详情 / 编辑</b>:客户列表里点某行,右侧抽屉展开该客户的完整信息,直接在抽屉里编辑并保存,列表不刷新,用户保留了在哪一行的感知。</p>
+      <p style="margin:6px 0">• <b>筛选 / 过滤面板</b>:点击"筛选"按钮,从右侧滑入一个包含多个过滤条件的面板,调整条件后点"应用",背后列表实时刷新——用户全程能看到列表在变化。</p>
+      <p style="margin:6px 0">• <b>新建(中等复杂度)</b>:需要填 8-12 个字段的"新建客户",不够复杂到要拆多步向导,但塞进弹窗又太挤——右侧抽屉正合适。</p>
+    </div>
+    <div class="box warn">
+      <div class="box-title">❌ 什么时候不要用抽屉</div>
+      <p style="margin:6px 0">任务完全不需要看背景内容,或者步骤特别多——抽屉没有进度指示器,用户会迷失。移动端屏幕窄,右侧抽屉可能几乎占满全屏,这时候还不如直接跳全页或用底部弹出层。</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 三选一决策表</div>
+      <table style="margin:10px 0 4px">
+        <thead>
+          <tr>
+            <th>判断项</th>
+            <th>向导</th>
+            <th>弹窗</th>
+            <th>抽屉</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>任务有几步?</td>
+            <td>3步以上,有依赖</td>
+            <td>1步,即问即答</td>
+            <td>1步,字段较多</td>
+          </tr>
+          <tr>
+            <td>用户熟悉这个操作吗?</td>
+            <td>陌生,需要引导</td>
+            <td>熟悉,不需要引导</td>
+            <td>熟悉,直接上手</td>
+          </tr>
+          <tr>
+            <td>需要看背后的上下文吗?</td>
+            <td>不需要(专注完成)</td>
+            <td>不需要(快速确认)</td>
+            <td>需要(边看边填)</td>
+          </tr>
+          <tr>
+            <td>字段体量?</td>
+            <td>多,但分步呈现</td>
+            <td>少(≤5 个字段)</td>
+            <td>中等(5-15 个字段)</td>
+          </tr>
+          <tr>
+            <td>出错代价?</td>
+            <td>高(需要确认步骤)</td>
+            <td>高(二次确认)</td>
+            <td>低(随时可以改)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>4. 选错容器的代价</h2>
+    <p>容器选错不是"设计风格偏差",它直接影响用户完成任务的速度和出错率:</p>
+    <ul>
+      <li><b>简单确认做成向导:</b>用户想删一条记录,结果要走"选择操作类型 → 填写删除原因 → 二次确认 → 提交" 4 步。每次删除都是一次小手术,用户慢慢学会根本不删,让垃圾数据堆积。</li>
+      <li><b>十个字段塞进弹窗:</b>弹窗出现内部滚动,第 7 个字段要手动滚才能看见,按钮可能被键盘顶出视口。填完表单有相当比例的用户会误触关闭按钮,数据全没。</li>
+      <li><b>边看边填的场景用全页跳转:</b>用户在"采购列表"里找到一行要编辑,点开全页,填完回来已经丢失了列表的滚动位置和筛选状态,又得重新找。</li>
+      <li><b>多步骤操作用抽屉:</b>抽屉没有步骤感,用户在"第几步"完全靠自己记忆,容易跳步或遗漏必填项,出错了也不知道该改哪里。</li>
+    </ul>
+
+    <div class="lab">
+      <div class="lab-title">🎛️ 容器切换台</div>
+      <p style="margin:0 0 4px;color:var(--text-soft);font-size:.92rem">同一个「新建客户」任务,三种容器的实际样子。点顶部按钮立刻切换,<b>可以真的操作</b>——走向导步骤、打开关闭弹窗和抽屉都行。下方蓝色提示说明这种容器<b>什么时候该选</b>。</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 0">
+        <button type="button" id="ct-wizard-btn" class="ct-mode-btn">📋 向导(Wizard)</button>
+        <button type="button" id="ct-modal-btn"  class="ct-mode-btn">⬛ 弹窗(Modal)</button>
+        <button type="button" id="ct-drawer-btn" class="ct-mode-btn">▷ 抽屉(Drawer)</button>
+      </div>
+      <div class="ct-stage" id="ct-stage"></div>
+      <div class="ct-hint"  id="ct-hint"></div>
+    </div>
+
+    <h2>5. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 给你后台的三个操作各选一种容器</div>
+      <p style="margin:6px 0">挑你正在做或熟悉的一个后台系统(NocoBase 的某个模块也行),找三个操作,分别决定用<b>向导、弹窗还是抽屉</b>。不用每种各选一次,允许重复——关键是能说出理由。</p>
+      <div style="background:var(--bg);border-radius:8px;padding:12px 16px;line-height:2.4;font-size:.9rem;margin:12px 0">
+        <b>操作 1</b>：____________ → 用 <b>___</b>&emsp;理由：____________<br>
+        <b>操作 2</b>：____________ → 用 <b>___</b>&emsp;理由：____________<br>
+        <b>操作 3</b>：____________ → 用 <b>___</b>&emsp;理由：____________
+      </div>
+      <p style="margin:10px 0 4px"><b>判断时问自己三个问题:</b></p>
+      <ol style="margin:4px 0;padding-left:1.4em;line-height:2.2">
+        <li>这个操作有几步?步骤之间有依赖吗?（多步有依赖 → <b>向导</b>）</li>
+        <li>用户需要看着背景内容来填吗?（需要上下文 → <b>抽屉</b>）</li>
+        <li>任务短、需要打断、或者是确认类?（短且打断 → <b>弹窗</b>）</li>
+      </ol>
+      <p style="margin:8px 0 0;color:var(--text-soft);font-size:.88rem">没有唯一答案——同一个操作在不同系统里可以有不同的合理选择。写出理由比选对答案更重要。</p>
+    </div>
+
+    <p style="margin-top:14px">三种容器不是风格偏好,是针对不同任务复杂度和上下文需求的工具。用对了,用户顺手到感觉不到容器的存在;用错了,每一步都是额外的摩擦。下次设计一个新功能入口时,先问自己:它有几步?用户需要参考背景吗?操作本身复杂还是简单?——这三个问题基本就能锁定正确的容器。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+        <a href="interaction-design.html" style="--rc:#3b6fe0">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function(){
+    var ACCENT = '#B6532F';
+    var GREEN  = '#27ae60';
+
+    var btnWizard = document.getElementById('ct-wizard-btn');
+    var btnModal  = document.getElementById('ct-modal-btn');
+    var btnDrawer = document.getElementById('ct-drawer-btn');
+    var stage     = document.getElementById('ct-stage');
+    var hint      = document.getElementById('ct-hint');
+    if(!btnWizard || !stage) return;
+
+    var HINTS = {
+      wizard: '向导适合陌生或复杂的多步操作——步骤之间有依赖、一次全展示会让人迷失、提交前需要确认。进度条给用户明确的"还有几步"感知,降低焦虑和遗漏率。',
+      modal:  '弹窗适合短、需要聚焦、必须打断的操作——删除确认、快速填一个字段、强制提示。内容要简短(≤5 字段),绝不嵌套另一个弹窗,不需要参考背景。',
+      drawer: '抽屉适合中等体量的表单或详情——用户需要看着背景列表来编辑,操作完成后仍留在当前页。比弹窗空间大,比全页跳转代价低,最适合"边看列表边填"场景。'
+    };
+
+    /* ---------- 工具函数 ---------- */
+    function esc(s){
+      return String(s)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    /* ========== WIZARD ========== */
+    var wizStep = 1;
+    var wizName = '', wizPhone = '';
+
+    function renderWizard(){
+      var steps = ['基本信息','联系方式','审核提交'];
+      var h = '';
+
+      /* 步骤条 */
+      h += '<div style="display:flex;align-items:center;margin-bottom:18px">';
+      for(var i=0; i<steps.length; i++){
+        var done   = (i+1) < wizStep;
+        var active = (i+1) === wizStep;
+        var circBg = done ? GREEN : (active ? ACCENT : 'var(--border)');
+        var circTc = (done||active) ? '#fff' : 'var(--text-faint)';
+        var lTc    = active ? 'var(--text)' : 'var(--text-faint)';
+        var lFw    = active ? '700' : '400';
+        h += '<div style="display:flex;flex-direction:column;align-items:center;flex:1">';
+        h +=   '<div style="width:28px;height:28px;border-radius:50%;background:'+circBg+';color:'+circTc
+               +';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.82rem">'
+               +(done?'✓':(i+1))+'</div>';
+        h +=   '<div style="font-size:.7rem;margin-top:4px;font-weight:'+lFw+';color:'+lTc+'">'+steps[i]+'</div>';
+        h += '</div>';
+        if(i < steps.length-1){
+          var lineBg = done ? GREEN : 'var(--border)';
+          h += '<div style="flex:2;height:2px;background:'+lineBg+';margin-bottom:18px;min-width:8px"></div>';
+        }
+      }
+      h += '</div>';
+
+      /* 步骤内容 */
+      h += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px">';
+      if(wizStep === 1){
+        h += '<div style="margin-bottom:10px">'
+           + '<label style="font-size:.82rem;font-weight:700;display:block;margin-bottom:4px">客户名称 <span style="color:#e2524a">*</span></label>'
+           + '<input id="wiz-name" type="text" placeholder="公司或姓名" value="'+esc(wizName)+'"'
+           + ' style="width:100%;border:1px solid var(--border);border-radius:7px;padding:9px 11px;font-size:.9rem;outline:none;background:var(--bg);box-sizing:border-box">'
+           + '</div>';
+        h += '<div>'
+           + '<label style="font-size:.82rem;font-weight:700;display:block;margin-bottom:4px">客户类型</label>'
+           + '<select style="width:100%;border:1px solid var(--border);border-radius:7px;padding:9px 11px;font-size:.9rem;background:var(--bg)">'
+           + '<option>企业客户</option><option>个人客户</option><option>代理商</option></select>'
+           + '</div>';
+      } else if(wizStep === 2){
+        h += '<div style="margin-bottom:10px">'
+           + '<label style="font-size:.82rem;font-weight:700;display:block;margin-bottom:4px">联系电话</label>'
+           + '<input id="wiz-phone" type="text" placeholder="13x xxxx xxxx" value="'+esc(wizPhone)+'"'
+           + ' style="width:100%;border:1px solid var(--border);border-radius:7px;padding:9px 11px;font-size:.9rem;outline:none;background:var(--bg);box-sizing:border-box">'
+           + '</div>';
+        h += '<div>'
+           + '<label style="font-size:.82rem;font-weight:700;display:block;margin-bottom:4px">所在城市</label>'
+           + '<input type="text" placeholder="如:北京市朝阳区"'
+           + ' style="width:100%;border:1px solid var(--border);border-radius:7px;padding:9px 11px;font-size:.9rem;outline:none;background:var(--bg);box-sizing:border-box">'
+           + '</div>';
+      } else {
+        h += '<p style="margin:0 0 10px;font-size:.85rem;color:var(--text-soft)">请核对以下信息,提交后将创建客户记录:</p>';
+        h += '<div style="line-height:2.2;font-size:.9rem">';
+        h += '客户名称：<b>'+(wizName||'<span style="color:#e2524a">(未填)</span>')+'</b><br>';
+        h += '联系电话：<b>'+(wizPhone||'<span style="color:var(--text-faint)">(未填)</span>')+'</b>';
+        h += '</div>';
+        h += '<p style="margin:10px 0 0;font-size:.78rem;color:var(--text-faint)">提交后将记录到客户库,可在列表中随时编辑。</p>';
+      }
+      h += '</div>';
+
+      /* 导航按钮 */
+      h += '<div style="display:flex;gap:8px;justify-content:flex-end">';
+      if(wizStep > 1){
+        h += '<button id="wiz-prev" type="button" style="border:1px solid var(--border);background:var(--surface);border-radius:8px;'
+           + 'padding:9px 18px;font-size:.88rem;font-weight:700;cursor:pointer;color:var(--text-soft)">← 上一步</button>';
+      }
+      if(wizStep < 3){
+        h += '<button id="wiz-next" type="button" style="border:none;background:'+ACCENT+';color:#fff;border-radius:8px;'
+           + 'padding:9px 18px;font-size:.88rem;font-weight:700;cursor:pointer">下一步 →</button>';
+      } else {
+        h += '<button id="wiz-submit" type="button" style="border:none;background:'+GREEN+';color:#fff;border-radius:8px;'
+           + 'padding:9px 18px;font-size:.88rem;font-weight:700;cursor:pointer">✓ 提交</button>';
+      }
+      h += '</div>';
+
+      stage.innerHTML = h;
+
+      var ni = document.getElementById('wiz-name');
+      var pi = document.getElementById('wiz-phone');
+      var pv = document.getElementById('wiz-prev');
+      var nx = document.getElementById('wiz-next');
+      var sb = document.getElementById('wiz-submit');
+
+      if(ni) ni.oninput = function(){ wizName  = this.value; };
+      if(pi) pi.oninput = function(){ wizPhone = this.value; };
+      if(pv) pv.onclick = function(){ wizStep--; renderWizard(); };
+      if(nx) nx.onclick = function(){ wizStep++; renderWizard(); };
+      if(sb) sb.onclick = function(){
+        stage.innerHTML =
+          '<div style="text-align:center;padding:30px 0">'
+          + '<div style="font-size:2.5rem;margin-bottom:10px">✅</div>'
+          + '<div style="font-weight:800;font-size:1.05rem;color:'+GREEN+'">客户已成功创建!</div>'
+          + '<div style="color:var(--text-soft);font-size:.85rem;margin:8px 0 16px">向导分 3 步引导你完成,每步只看一块,减少遗漏和错误。</div>'
+          + '<button id="wiz-reset" type="button" style="border:1px solid var(--border);background:var(--surface);border-radius:8px;'
+          + 'padding:8px 18px;font-size:.85rem;cursor:pointer;color:var(--text-soft)">重新演示</button>'
+          + '</div>';
+        document.getElementById('wiz-reset').onclick = function(){
+          wizStep=1; wizName=''; wizPhone=''; renderWizard();
+        };
+      };
+    }
+
+    /* ========== MODAL ========== */
+    var modalOpen = false;
+
+    function renderModal(){
+      var names = ['浙江茂业科技','上海联创传媒','北京荣昌网络'];
+      var h = '<div style="position:relative;min-height:270px;border-radius:8px;overflow:hidden">';
+
+      /* 背景列表 */
+      h += '<div style="padding:10px">';
+      h += '<div style="font-size:.74rem;font-weight:700;color:var(--text-faint);margin-bottom:8px">— 客户列表 —</div>';
+      for(var i=0; i<names.length; i++){
+        h += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;'
+           + 'margin-bottom:6px;font-size:.82rem;display:flex;justify-content:space-between;align-items:center">'
+           + '<span>'+names[i]+'</span><span style="color:var(--text-faint);font-size:.76rem">企业</span></div>';
+      }
+      h += '<div style="text-align:center;margin-top:14px">'
+         + '<button id="ct-open-modal" type="button" style="border:none;background:'+ACCENT+';color:#fff;border-radius:8px;'
+         + 'padding:10px 24px;font-size:.9rem;font-weight:800;cursor:pointer">+ 新建客户</button>'
+         + '</div></div>';
+
+      /* 弹窗层 */
+      if(modalOpen){
+        h += '<div style="position:absolute;inset:0;background:rgba(50,40,30,.5);display:flex;'
+           + 'align-items:center;justify-content:center;border-radius:8px">';
+        h += '<div style="background:var(--surface);border-radius:12px;width:88%;max-width:340px;'
+           + 'box-shadow:0 8px 32px rgba(0,0,0,.22);overflow:hidden">';
+        h += '<div style="padding:14px 16px;border-bottom:1px solid var(--border);'
+           + 'display:flex;justify-content:space-between;align-items:center">'
+           + '<b style="font-size:.98rem">新建客户</b>'
+           + '<button id="ct-close-modal" type="button" style="border:none;background:none;font-size:1.3rem;'
+           + 'line-height:1;cursor:pointer;color:var(--text-faint)">×</button></div>';
+        h += '<div style="padding:14px 16px">';
+        h += '<div style="margin-bottom:10px">'
+           + '<label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:4px">客户名称 <span style="color:#e2524a">*</span></label>'
+           + '<input type="text" placeholder="公司或姓名" style="width:100%;border:1px solid var(--border);'
+           + 'border-radius:6px;padding:8px 10px;font-size:.88rem;outline:none;background:var(--bg);box-sizing:border-box"></div>';
+        h += '<div>'
+           + '<label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:4px">联系电话</label>'
+           + '<input type="text" placeholder="13x xxxx xxxx" style="width:100%;border:1px solid var(--border);'
+           + 'border-radius:6px;padding:8px 10px;font-size:.88rem;outline:none;background:var(--bg);box-sizing:border-box"></div>';
+        h += '</div>';
+        h += '<div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">'
+           + '<button id="ct-cancel-modal" type="button" style="border:1px solid var(--border);background:var(--surface);'
+           + 'border-radius:6px;padding:8px 16px;font-size:.84rem;font-weight:700;cursor:pointer;color:var(--text-soft)">取消</button>'
+           + '<button id="ct-confirm-modal" type="button" style="border:none;background:'+ACCENT+';color:#fff;'
+           + 'border-radius:6px;padding:8px 16px;font-size:.84rem;font-weight:700;cursor:pointer">确认新建</button>'
+           + '</div>';
+        h += '</div></div>';
+      }
+
+      h += '</div>';
+      stage.innerHTML = h;
+
+      document.getElementById('ct-open-modal').onclick = function(){ modalOpen=true; renderModal(); };
+      var closeEl   = document.getElementById('ct-close-modal');
+      var cancelEl  = document.getElementById('ct-cancel-modal');
+      var confirmEl = document.getElementById('ct-confirm-modal');
+      if(closeEl)   closeEl.onclick   = function(){ modalOpen=false; renderModal(); };
+      if(cancelEl)  cancelEl.onclick  = function(){ modalOpen=false; renderModal(); };
+      if(confirmEl) confirmEl.onclick = function(){
+        modalOpen=false;
+        stage.innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:center;min-height:270px">'
+          + '<div style="text-align:center">'
+          + '<div style="font-size:2.3rem;margin-bottom:8px">✅</div>'
+          + '<div style="font-weight:800;color:'+GREEN+'">已创建!</div>'
+          + '<div style="color:var(--text-soft);font-size:.85rem;margin:8px 0 16px">弹窗里完成了短表单,背后的列表不受影响。</div>'
+          + '<button id="modal-reset" type="button" style="border:1px solid var(--border);background:var(--surface);'
+          + 'border-radius:8px;padding:8px 16px;font-size:.84rem;cursor:pointer;color:var(--text-soft)">重新演示</button>'
+          + '</div></div>';
+        document.getElementById('modal-reset').onclick = function(){ modalOpen=false; renderModal(); };
+      };
+    }
+
+    /* ========== DRAWER ========== */
+    var drawerOpen = false;
+
+    function renderDrawer(){
+      var names = ['浙江茂业科技','上海联创传媒','北京荣昌网络'];
+      var h = '<div style="position:relative;min-height:270px;border-radius:8px;overflow:hidden">';
+
+      /* 背景列表 */
+      h += '<div style="padding:10px">';
+      h += '<div style="font-size:.74rem;font-weight:700;color:var(--text-faint);margin-bottom:8px">— 客户列表(背景依然可见)—</div>';
+      for(var i=0; i<names.length; i++){
+        h += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;'
+           + 'margin-bottom:6px;font-size:.82rem;display:flex;justify-content:space-between;align-items:center">'
+           + '<span>'+names[i]+'</span>'
+           + '<button class="ct-edit-row" type="button" style="border:1px solid var(--border);background:var(--bg);'
+           + 'border-radius:5px;padding:3px 10px;font-size:.75rem;cursor:pointer;color:var(--text-soft)">编辑</button>'
+           + '</div>';
+      }
+      h += '<div style="text-align:center;margin-top:10px">'
+         + '<button id="ct-open-drawer" type="button" style="border:none;background:'+ACCENT+';color:#fff;border-radius:8px;'
+         + 'padding:10px 24px;font-size:.9rem;font-weight:800;cursor:pointer">+ 新建客户</button>'
+         + '</div></div>';
+
+      /* 抽屉层 */
+      if(drawerOpen){
+        h += '<div id="ct-drawer-overlay" style="position:absolute;inset:0;background:rgba(50,40,30,.22);border-radius:8px"></div>';
+        h += '<div style="position:absolute;top:0;right:0;width:72%;min-width:190px;height:100%;background:var(--surface);'
+           + 'border-left:1px solid var(--border);border-radius:0 8px 8px 0;'
+           + 'box-shadow:-4px 0 20px rgba(0,0,0,.13);display:flex;flex-direction:column">';
+
+        /* 抽屉头 */
+        h += '<div style="padding:12px 14px;border-bottom:1px solid var(--border);'
+           + 'display:flex;justify-content:space-between;align-items:center;flex:none">'
+           + '<b style="font-size:.9rem">新建客户</b>'
+           + '<button id="ct-close-drawer" type="button" style="border:none;background:none;font-size:1.25rem;'
+           + 'line-height:1;cursor:pointer;color:var(--text-faint)">×</button></div>';
+
+        /* 抽屉表单 */
+        h += '<div style="padding:12px 14px;flex:1;overflow-y:auto">';
+        var flds = [
+          ['客户名称','text','公司或姓名',true],
+          ['联系电话','text','13x xxxx xxxx',false],
+          ['所在城市','text','如:北京市朝阳区',false],
+          ['客户等级','select','',false]
+        ];
+        for(var j=0; j<flds.length; j++){
+          var f = flds[j];
+          h += '<div style="margin-bottom:9px"><label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:3px">'
+             + f[0]+(f[3]?' <span style="color:#e2524a">*</span>':'')+'</label>';
+          if(f[1]==='select'){
+            h += '<select style="width:100%;border:1px solid var(--border);border-radius:6px;padding:7px 9px;font-size:.84rem;background:var(--bg)">'
+               + '<option>普通</option><option>重点</option><option>VIP</option></select>';
+          } else {
+            h += '<input type="'+f[1]+'" placeholder="'+f[2]+'" style="width:100%;border:1px solid var(--border);'
+               + 'border-radius:6px;padding:7px 9px;font-size:.84rem;outline:none;background:var(--bg);box-sizing:border-box">';
+          }
+          h += '</div>';
+        }
+        h += '</div>';
+
+        /* 抽屉底部按钮 */
+        h += '<div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;flex:none">'
+           + '<button id="ct-cancel-drawer" type="button" style="flex:1;border:1px solid var(--border);background:var(--bg);'
+           + 'border-radius:6px;padding:8px;font-size:.82rem;font-weight:700;cursor:pointer;color:var(--text-soft)">取消</button>'
+           + '<button id="ct-save-drawer" type="button" style="flex:2;border:none;background:'+ACCENT+';color:#fff;'
+           + 'border-radius:6px;padding:8px;font-size:.82rem;font-weight:700;cursor:pointer">保存客户</button>'
+           + '</div>';
+
+        h += '</div>'; /* end drawer panel */
+      }
+
+      h += '</div>';
+      stage.innerHTML = h;
+
+      document.getElementById('ct-open-drawer').onclick = function(){ drawerOpen=true; renderDrawer(); };
+      var editBtns = document.querySelectorAll('.ct-edit-row');
+      for(var k=0; k<editBtns.length; k++){
+        editBtns[k].onclick = function(){ drawerOpen=true; renderDrawer(); };
+      }
+
+      var overlayEl  = document.getElementById('ct-drawer-overlay');
+      var closeEl    = document.getElementById('ct-close-drawer');
+      var cancelEl   = document.getElementById('ct-cancel-drawer');
+      var saveEl     = document.getElementById('ct-save-drawer');
+
+      function closeDrawer(){ drawerOpen=false; renderDrawer(); }
+      if(overlayEl) overlayEl.onclick = closeDrawer;
+      if(closeEl)   closeEl.onclick   = closeDrawer;
+      if(cancelEl)  cancelEl.onclick  = closeDrawer;
+      if(saveEl)    saveEl.onclick    = function(){
+        drawerOpen=false;
+        stage.innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:center;min-height:270px">'
+          + '<div style="text-align:center">'
+          + '<div style="font-size:2.3rem;margin-bottom:8px">✅</div>'
+          + '<div style="font-weight:800;color:'+GREEN+'">保存成功!</div>'
+          + '<div style="color:var(--text-soft);font-size:.85rem;margin:8px 0 16px">抽屉关闭后,背后列表依然在,位置没变。</div>'
+          + '<button id="drawer-reset" type="button" style="border:1px solid var(--border);background:var(--surface);'
+          + 'border-radius:8px;padding:8px 16px;font-size:.84rem;cursor:pointer;color:var(--text-soft)">重新演示</button>'
+          + '</div></div>';
+        document.getElementById('drawer-reset').onclick = function(){ drawerOpen=false; renderDrawer(); };
+      };
+    }
+
+    /* ========== 切换模式 ========== */
+    function setMode(m){
+      modalOpen=false; drawerOpen=false; wizStep=1; wizName=''; wizPhone='';
+
+      var modes = [['wizard',btnWizard],['modal',btnModal],['drawer',btnDrawer]];
+      for(var i=0; i<modes.length; i++){
+        var active = modes[i][0]===m;
+        var btn    = modes[i][1];
+        btn.style.background  = active ? ACCENT : 'var(--surface)';
+        btn.style.borderColor = active ? ACCENT : 'var(--border)';
+        btn.style.color       = active ? '#fff'  : 'var(--text-soft)';
+      }
+
+      if(m==='wizard')     renderWizard();
+      else if(m==='modal') renderModal();
+      else                 renderDrawer();
+
+      hint.textContent = HINTS[m];
+    }
+
+    btnWizard.onclick = function(){ setMode('wizard'); };
+    btnModal.onclick  = function(){ setMode('modal'); };
+    btnDrawer.onclick = function(){ setMode('drawer'); };
+
+    setMode('wizard');
+  })();
+  </script>
+
+</body>
+</html>

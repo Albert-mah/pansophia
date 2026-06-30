@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户访谈与观察 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-interview-observe"></script>
+  <style>
+    /* 本页自用：问题改造器 + 判断游戏所需控件样式 */
+    .iq-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    @media (max-width: 580px) { .iq-btn-grid { grid-template-columns: 1fr; } }
+
+    .iq-q-btn {
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: .88rem;
+      cursor: pointer;
+      line-height: 1.55;
+      transition: border-color .12s, background .12s;
+    }
+    .iq-q-btn:hover { border-color: var(--accent); background: var(--bg); }
+    .iq-q-btn.active {
+      border-color: #e2524a;
+      background: #fdf2f1;
+      font-weight: 700;
+    }
+
+    .iq-panel {
+      margin-top: 16px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      display: none;
+    }
+    .iq-panel.visible { display: block; }
+
+    .iq-diag {
+      padding: 14px 16px;
+      background: #fdf2f1;
+      border-bottom: 1px solid #f6d6d2;
+    }
+    .iq-diag-label {
+      font-size: .72rem;
+      font-weight: 800;
+      color: #e2524a;
+      letter-spacing: .6px;
+      margin-bottom: 5px;
+    }
+    .iq-good { padding: 14px 16px; background: #f1faf3; }
+    .iq-good-label {
+      font-size: .72rem;
+      font-weight: 800;
+      color: #27ae60;
+      letter-spacing: .6px;
+      margin-bottom: 5px;
+    }
+
+    /* 判断游戏 */
+    .iq-quiz-q {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.6;
+      padding: 16px 18px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-top: 16px;
+      min-height: 72px;
+    }
+    .iq-vote-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .iq-vote-btn {
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 24px;
+      font-size: .95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .12s;
+    }
+    .iq-vote-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,.09);
+    }
+    .iq-vote-btn.good-btn { border-color: #27ae60; color: #27ae60; }
+    .iq-vote-btn.bad-btn  { border-color: #e2524a; color: #e2524a; }
+    .iq-vote-btn:disabled { opacity: .4; cursor: default; transform: none !important; }
+
+    .iq-quiz-fb {
+      display: none;
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+    .iq-quiz-fb.show { display: block; }
+    .iq-quiz-fb.right { background: #f1faf3; border: 1px solid #cdeed7; color: #1f7a44; }
+    .iq-quiz-fb.wrong { background: #fdf2f1; border: 1px solid #f6d6d2; color: #c0392b; }
+
+    .iq-next-btn {
+      display: none;
+      margin-top: 10px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 999px;
+      padding: 9px 22px;
+      font-size: .9rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity .12s;
+    }
+    .iq-next-btn:hover { opacity: .88; }
+    .iq-next-btn.show { display: inline-block; }
+
+    .iq-score-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      color: var(--text-soft);
+      flex-wrap: wrap;
+    }
+    .iq-score-num {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">用户访谈与观察</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>用户访谈与观察</h1>
+      <div class="meta-row" data-meta><span>🎤 研究方法</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>做后台系统最容易踩的坑：用户说要加一个按钮，你加了，他还是不用。或者用户说"这个流程挺好用的"，结果你坐到他旁边看他操作，发现他每次都要绕一大圈才能完成。<b>用户嘴上说的和他实际做的，常常是两件事。</b>用户访谈与观察，就是用一套方法让你看清楚那个"实际做的"——而不是停在"嘴上说的"里自以为抓到了需求。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 一个真实场景</div>
+      <p style="margin:6px 0">产品经理问仓库管理员："你们希望出入库记录支持批量删除吗？"答："要！当然要！"于是这个功能做了三周。上线后，没人用过。</p>
+      <p style="margin:6px 0">真正的问题是什么？后来有人去仓库旁边坐了两个小时，<b>看着管理员实际操作</b>，才发现：他们根本不需要删除——他们需要的是一个"冲销"操作：入库单录错了，应该有对应的红冲记录，而不是硬删一行。用户说错了，不是因为他撒谎，而是<b>他没意识到自己真正想要什么，只会用他能想到的词来描述问题。</b></p>
+    </div>
+
+    <h2>1. 为什么不能照做用户嘴上说的</h2>
+    <p>用户描述需求时，受到三个天然限制。第一，他们只知道<b>自己的问题</b>，不知道什么是解法；第二，他们会<b>合理化</b>自己的行为——说出来的是"应该怎样"，不是"我实际怎样"；第三，他们会<b>迎合提问者</b>——如果你问"要不要加这个功能"，他们几乎总会说"要"。</p>
+    <p>这不是用户的错，这是人类认知的正常局限。你的工作是绕过这三层滤镜，去看到底层的行为和痛点。用户嘴上说"我想要 X"，背后真正的信号是"我在完成 Y 这件事时遇到了障碍 Z"——你要挖到的是 Y 和 Z，而不是 X。</p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 只听用户说的</div>
+      <p style="margin:6px 0">"用户说要批量导出，就做批量导出。"——结果做完发现他们只是想每月给领导发一张汇总表，真正需要的是定时报表发送，和"导出"压根没关系。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 追到底层行为</div>
+      <p style="margin:6px 0">"你上次把数据发给领导，是怎么操作的？"——他描述了一遍：手动筛、截图、发邮件。真需求就出来了：定时自动发送汇总报表。</p>
+    </div>
+
+    <h2>2. 开放式问题 vs 封闭式 / 诱导式问题</h2>
+    <p>访谈里最重要的一条操作规程：<b>少问"你想不想""你要不要"，多问"上次你是怎么做的"。</b>前者是封闭式，答案只有是/否；后者是开放式，触发用户描述真实行为。诱导式问题更危险——它已经暗示了你想要的答案，用户会顺着你说。</p>
+    <p>开放式问题有一个特征：它要求用户<b>从记忆里调出一个具体事件</b>，而不是发表意见。"上次"两个字非常关键——它强迫用户说真实发生过的事，而不是虚拟的假设场景。</p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 这些问题别问</div>
+      <p style="margin:6px 0"><b>封闭式：</b>"你经常用这个筛选功能吗？"——答案只有是/否，毫无信息量，连"多经常"都答不出来。</p>
+      <p style="margin:6px 0"><b>诱导式：</b>"你觉得这个审批流程是不是太繁琐了？"——你已经给出了"繁琐"的结论，用户会说"对啊确实有点繁琐"，即使他之前从没这样想过。</p>
+      <p style="margin:6px 0"><b>假设性：</b>"如果我们加个键盘快捷键，你会用吗？"——用户无法预判自己的真实行为，这类答案和他实际会不会用毫无关联。</p>
+      <p style="margin:6px 0"><b>直接问需求：</b>"你希望系统加什么新功能？"——用户不是产品设计师，他们会随口说一个，但那不一定是真正的问题所在。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 换成这样问</div>
+      <p style="margin:6px 0"><b>问真实行为：</b>"上次你在这个列表里找一条特定的客户记录，你是怎么找到的？"</p>
+      <p style="margin:6px 0"><b>问上一次：</b>"你最近一次发起审批是什么时候？能带我走一遍当时的操作过程吗？"</p>
+      <p style="margin:6px 0"><b>问卡顿：</b>"有没有哪个步骤让你停下来想了一下，或者不确定该点哪里？"</p>
+      <p style="margin:6px 0"><b>问绕路：</b>"有没有你觉得'这步好麻烦、但我只能这样做'的地方？"</p>
+    </div>
+
+    <h2>3. 现场观察 &gt; 听用户描述</h2>
+    <p>即使你问到了开放式问题，用户的<b>口头描述</b>仍然是不完整的。他会漏掉他认为"理所当然"的步骤，会无意识地美化流程，会忘记他刚才其实切换了三个标签页。<b>能看到他操作就看，不要只听他说。</b></p>
+    <p>现场观察的核心价值在于：你会看到用户自己都没意识到的行为模式。比如他每次填完表单都要往上滚一遍确认字段——这说明他对表单的信任度很低，担心自己填错了。这个洞察，他不会主动告诉你，因为他觉得"滚一遍确认"是完全正常的操作。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 观察时特别留意的三个信号</div>
+      <p style="margin:6px 0">1. <b>绕路(Workaround)</b> — 用户没有走系统设计的路径，而是用了一个奇怪的方法。这意味着"正规路径"出了问题。</p>
+      <p style="margin:6px 0">2. <b>卡顿(Hesitation)</b> — 用户的手停下来，眼睛扫屏幕，或者问你"这里是点这个吗？"——这是迷失的时刻，是设计最需要改的地方。</p>
+      <p style="margin:6px 0">3. <b>出声思考(Think Aloud)</b> — 用户自言自语"哦这个、等一下、奇怪……"立刻追问："你刚才想到了什么？"</p>
+    </div>
+
+    <p>现场观察不一定要正式"安排用户演示"。很多时候，<b>坐在用户旁边看他做自己的日常工作，就是最真实的观察</b>。他不会为你表演，他就是那样用系统的。这种情况下你要做的是少说话，不要插嘴纠正，不要给他"更好的做法"——你来看的，不是来教的。</p>
+
+    <h2>4. 记录方法：记什么，不记什么</h2>
+    <p>访谈结束后最常见的错误：记录了大量结论，却忘了原始素材。"用户说系统太慢"是结论，不是素材。"用户说'这个页面打开要等，我趁这段时间去倒杯水'"才是素材。两者的差别是：结论是你（或用户）解读过的，素材是未经过滤的原话和动作。</p>
+
+    <div class="box tip">
+      <div class="box-title">✅ 记录清单：这些要记</div>
+      <p style="margin:6px 0">· <b>原话</b> — 用引号记下用户说的原句，不要用自己的话改写</p>
+      <p style="margin:6px 0">· <b>绕路操作</b> — 他没按系统路径走，具体是怎么绕的</p>
+      <p style="margin:6px 0">· <b>卡顿时刻</b> — 他在哪里停下来，停了多久，问了什么问题</p>
+      <p style="margin:6px 0">· <b>情绪词</b> — "麻烦""总是""从来不""每次都要" 这类词值得立刻追问</p>
+      <p style="margin:6px 0">· <b>Workaround</b> — 他为了完成目标额外做了哪些系统外的步骤</p>
+    </div>
+    <div class="box warn">
+      <div class="box-title">❌ 这些不要记（现场）</div>
+      <p style="margin:6px 0">· 你自己的解读和结论（"用户不喜欢这个功能"——等分析阶段再写）</p>
+      <p style="margin:6px 0">· 用户建议直接变待办（"用户说要加 XX"——先理解背后的问题）</p>
+      <p style="margin:6px 0">· 不确定的推断（"他可能是因为……"——标记存疑，事后追问或核实）</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 访谈五不要</div>
+      <p style="margin:6px 0">1. <b>不要打断</b> — 用户正在叙述，让他说完。沉默也不要着急填。停顿往往后面藏着更重要的东西。</p>
+      <p style="margin:6px 0">2. <b>不要教育</b> — "其实你可以这样做……"——你一说这句，访谈就变成了培训，他接下来只会演给你看"正确用法"，不是真实用法。</p>
+      <p style="margin:6px 0">3. <b>不要引导答案</b> — "你觉得按钮放在右上角会不会好一些？"——不要给选项，让他自己说。</p>
+      <p style="margin:6px 0">4. <b>不要辩解</b> — 用户说"这个操作设计得很蠢"，不要解释为什么这样设计。记下来，谢谢他。</p>
+      <p style="margin:6px 0">5. <b>不要只问一个</b> — 单个用户是个案。至少访谈三到五个使用习惯不同的用户，才能看出规律。</p>
+    </div>
+
+    <!-- 交互组件：问题改造器 -->
+    <div class="lab">
+      <div class="lab-title">🎛️ 问题改造器</div>
+      <p style="margin:0 0 6px; color:var(--text-soft); font-size:.92rem">下面是 8 个后台访谈中常见的<b>坏问题</b>。点任意一个，立刻看到：它<b>坏在哪里</b>（一句诊断）以及改成开放式后的<b>好版本</b>。看完试试下方的小判断：随机给你一个问题，你来辨别好还是坏，实时计分。</p>
+
+      <div style="font-size:.8rem; font-weight:700; color:var(--text-faint); margin:14px 0 2px">👇 点一个坏问题，看诊断与改法</div>
+      <div class="iq-btn-grid" id="iq-btn-grid"></div>
+
+      <div class="iq-panel" id="iq-panel">
+        <div class="iq-diag">
+          <div class="iq-diag-label">❌ 坏在哪里</div>
+          <div id="iq-diag-text" style="font-size:.92rem; line-height:1.65; color:var(--text)"></div>
+        </div>
+        <div class="iq-good">
+          <div class="iq-good-label">✅ 改成这样问</div>
+          <div id="iq-good-text" style="font-size:.92rem; line-height:1.65; color:var(--text)"></div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--border); margin:26px 0 0; padding-top:20px">
+        <div style="font-weight:800; font-size:.98rem; margin-bottom:4px">🎯 小判断：好问题还是坏问题？</div>
+        <p style="margin:0; color:var(--text-soft); font-size:.88rem">随机给你一个问题，点"好问题"或"坏问题"立刻判定，点"下一题"继续。</p>
+
+        <div class="iq-quiz-q" id="iq-quiz-q">正在加载…</div>
+
+        <div class="iq-vote-row">
+          <button type="button" class="iq-vote-btn good-btn" id="iq-vote-good">👍 好问题</button>
+          <button type="button" class="iq-vote-btn bad-btn"  id="iq-vote-bad">👎 坏问题</button>
+        </div>
+
+        <div class="iq-quiz-fb" id="iq-quiz-fb"></div>
+        <button type="button" class="iq-next-btn" id="iq-next-btn">下一题 →</button>
+
+        <div class="iq-score-bar">
+          已答
+          <span class="iq-score-num" id="iq-total">0</span>
+          题 &nbsp;·&nbsp; 答对
+          <span class="iq-score-num" id="iq-correct" style="color:#27ae60">0</span>
+          题
+        </div>
+      </div>
+    </div>
+
+    <h2>5. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 给你的后台功能写三个开放式访谈问题</div>
+      <p style="margin:6px 0">从你天天用的 NocoBase 后台里，挑一个你觉得用户可能不太顺手的功能（比如"审批发起""客户信息录入""库存盘点"）。</p>
+      <p style="margin:10px 0">针对这个功能，用"上次你……"或"你最近一次……"开头，写三个开放式访谈问题。写完对照两条标准自检：</p>
+      <p style="margin:4px 0 4px 18px">① 这个问题能用"是/否"回答吗？→ 如果能，它是封闭式，改掉。</p>
+      <p style="margin:4px 0 14px 18px">② 这个问题里有没有预设结论？→ 如果有，它是诱导式，改掉。</p>
+      <p style="margin:6px 0"><b>我选的功能：</b><span style="color:var(--text-faint)">________________________</span></p>
+      <p style="margin:8px 0">问题一：<span style="color:var(--text-faint)">________________________________________________</span></p>
+      <p style="margin:8px 0">问题二：<span style="color:var(--text-faint)">________________________________________________</span></p>
+      <p style="margin:8px 0">问题三：<span style="color:var(--text-faint)">________________________________________________</span></p>
+    </div>
+
+    <p style="margin-top:16px">用户访谈不是玄学，它就是一套<b>减少自以为是、增加真实信号</b>的方法。后台系统的设计者天然容易陷入"我知道用户要什么"的错觉——因为你整天对着这套系统，你的使用方式和真实用户早就不一样了。定期坐到用户旁边看他们实际操作，哪怕每季度一次，会让你的改进方向准确得多。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    /* ============================================================
+       数据：坏问题库（改造器）
+    ============================================================ */
+    var BAD_QS = [
+      {
+        text: '你想不想要一个批量导出功能？',
+        diag: '诱导式问题——你已经给出了"想要"的答案方向，用户几乎都会说"要"，即使他们根本用不到。',
+        good: '上次你要把这批数据分享给同事或领导，你是怎么操作的？'
+      },
+      {
+        text: '这个审批流程是不是太繁琐了？',
+        diag: '诱导式——"太繁琐"是你的判断，你把结论塞给了用户，他会顺着说"对，挺繁琐的"，即使他之前从没这样想过。',
+        good: '你最近一次发起审批是什么时候？能带我走一遍当时的操作过程吗？'
+      },
+      {
+        text: '如果加个键盘快捷键，你会用吗？',
+        diag: '假设性问题——用户无法预判自己未来的真实行为，这类答案和他实际会不会用毫无关联。',
+        good: '你平时在这个系统里最频繁做的一个操作是什么？能演示给我看吗？'
+      },
+      {
+        text: '为什么你不用筛选功能？',
+        diag: '预设假设——你假定他没用过筛选，可能他只是用得少。带有假设的问法容易引发用户防御，偏离真实答案。',
+        good: '上次你在这个列表里找一条特定记录，你是怎么找的？'
+      },
+      {
+        text: '你想要系统加什么新功能？',
+        diag: '直接问需求——用户不是产品设计师，他们会随口说一个，但那不一定反映真正的问题，答案参考价值有限。',
+        good: '最近工作上有没有哪件事，你觉得本来应该更快，但每次都很费时间？'
+      },
+      {
+        text: '你觉得这个系统好不好用？',
+        diag: '封闭/主观题——答案只有"好"和"不好"，得不到任何可以落地改进的具体信息，用户往往敷衍回答"还好"。',
+        good: '最近你用这套系统完成过的最让你头疼的一件事是什么？'
+      },
+      {
+        text: '这个按钮位置你觉得合理吗？',
+        diag: '封闭式+诱导式——你让他审视这个按钮，已经暗示它"可能有问题"，而且合理/不合理答案没有任何上下文。',
+        good: '你上次用到这个操作，是怎么找到它的？当时找了多久？'
+      },
+      {
+        text: '这个功能你们平时用吗？',
+        diag: '封闭式——是/否没有上下文：你不知道"用"是一天三次还是三个月一次，也不知道用的时候卡在哪里。',
+        good: '你最近一次用这个功能是什么时候？当时是为了完成什么任务？'
+      }
+    ];
+
+    /* ============================================================
+       数据：判断题库（好题 + 坏题混合）
+    ============================================================ */
+    var QUIZ_QS = [
+      {
+        text: '你想不想要一个批量导出功能？',
+        type: 'bad',
+        reason: '诱导式——已暗示答案是"要"，得不到真实信息。'
+      },
+      {
+        text: '上次你需要把数据发给领导，你是怎么操作的？',
+        type: 'good',
+        reason: '开放式，问真实行为，能暴露用户实际的操作路径。'
+      },
+      {
+        text: '这个审批流程是不是太繁琐了？',
+        type: 'bad',
+        reason: '诱导式——预设了"繁琐"的结论，用户会顺着点头。'
+      },
+      {
+        text: '你最近一次发起审批，能带我走一遍整个过程吗？',
+        type: 'good',
+        reason: '开放式，请用户重现真实操作，能发现真实卡点。'
+      },
+      {
+        text: '如果加个快捷键你会用吗？',
+        type: 'bad',
+        reason: '假设性——用户无法预判自己未来的真实行为。'
+      },
+      {
+        text: '你最频繁在系统里做的一件事是什么？能演示给我看吗？',
+        type: 'good',
+        reason: '开放式，请用户演示，最接近现场观察的效果。'
+      },
+      {
+        text: '你觉得这个系统好不好用？',
+        type: 'bad',
+        reason: '封闭/主观——好/不好无法落地改进，答案没有参考价值。'
+      },
+      {
+        text: '最近有没有哪件工作上的事让你觉得比想象中费时间？',
+        type: 'good',
+        reason: '开放式，关注真实痛点，让用户从自己的工作场景出发。'
+      },
+      {
+        text: '这个按钮位置你觉得合理吗？',
+        type: 'bad',
+        reason: '封闭+诱导——已暗示它可能有问题，答案也无法提供上下文。'
+      },
+      {
+        text: '上次你在列表里找一条特定记录，你是怎么找到的？',
+        type: 'good',
+        reason: '开放式，问具体事件，能发现用户真实的搜索和筛选路径。'
+      }
+    ];
+
+    /* ============================================================
+       改造器：渲染按钮 + 点击展示诊断
+    ============================================================ */
+    var grid    = document.getElementById('iq-btn-grid');
+    var panel   = document.getElementById('iq-panel');
+    var diagEl  = document.getElementById('iq-diag-text');
+    var goodEl  = document.getElementById('iq-good-text');
+
+    if (grid && panel && diagEl && goodEl) {
+      BAD_QS.forEach(function (q, i) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'iq-q-btn';
+        btn.textContent = '❌ ' + q.text;
+        btn.addEventListener('click', function () {
+          var all = grid.querySelectorAll('.iq-q-btn');
+          for (var k = 0; k < all.length; k++) all[k].classList.remove('active');
+          btn.classList.add('active');
+          diagEl.textContent = q.diag;
+          goodEl.textContent = q.good;
+          panel.classList.add('visible');
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+        grid.appendChild(btn);
+      });
+    }
+
+    /* ============================================================
+       判断游戏：随机抽题 + 计分
+    ============================================================ */
+    var quizQ   = document.getElementById('iq-quiz-q');
+    var votGood = document.getElementById('iq-vote-good');
+    var votBad  = document.getElementById('iq-vote-bad');
+    var quizFb  = document.getElementById('iq-quiz-fb');
+    var nextBtn = document.getElementById('iq-next-btn');
+    var totalEl = document.getElementById('iq-total');
+    var corrEl  = document.getElementById('iq-correct');
+
+    if (!quizQ || !votGood || !votBad || !quizFb || !nextBtn) return;
+
+    var quizTotal   = 0;
+    var quizCorrect = 0;
+    var pool        = QUIZ_QS.slice();
+    var poolIdx     = 0;
+    var currentQ    = null;
+
+    function shuffle(arr) {
+      for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+      }
+    }
+    shuffle(pool);
+
+    function loadNext() {
+      if (poolIdx >= pool.length) {
+        shuffle(pool);
+        poolIdx = 0;
+      }
+      currentQ = pool[poolIdx++];
+      quizQ.textContent = '「' + currentQ.text + '」';
+      quizFb.textContent = '';
+      quizFb.className = 'iq-quiz-fb';
+      nextBtn.className = 'iq-next-btn';
+      votGood.disabled = false;
+      votBad.disabled  = false;
+    }
+
+    function vote(answer) {
+      if (votGood.disabled) return;
+      var isCorrect = (answer === currentQ.type);
+      quizTotal++;
+      if (isCorrect) quizCorrect++;
+
+      var label = currentQ.type === 'good' ? '好问题' : '坏问题';
+      if (isCorrect) {
+        quizFb.textContent = '✓ 答对了！' + currentQ.reason;
+        quizFb.className = 'iq-quiz-fb show right';
+      } else {
+        quizFb.textContent = '✗ 不对哦。这其实是' + label + '。' + currentQ.reason;
+        quizFb.className = 'iq-quiz-fb show wrong';
+      }
+      nextBtn.className = 'iq-next-btn show';
+      votGood.disabled = true;
+      votBad.disabled  = true;
+
+      if (totalEl) totalEl.textContent = quizTotal;
+      if (corrEl)  corrEl.textContent  = quizCorrect;
+    }
+
+    votGood.addEventListener('click', function () { vote('good'); });
+    votBad.addEventListener('click',  function () { vote('bad'); });
+    nextBtn.addEventListener('click', function () { loadNext(); });
+
+    loadNext();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>仪表盘与设置页 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-dashboard-settings"></script>
+  <style>
+    /* 本页自用:仪表盘优先级演示 */
+    @keyframes ds-pop {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .ds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .ds-metric {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 14px 10px;
+      position: relative;
+      animation: ds-pop .22s ease;
+    }
+    .ds-metric.rank-1 {
+      border-color: var(--accent);
+      box-shadow: 0 2px 12px rgba(182,83,47,.16);
+      grid-column: span 2;
+    }
+    .ds-metric.rank-3 {
+      opacity: .55;
+      transform: scale(.94);
+    }
+    .ds-icon {
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+    .ds-metric.rank-1 .ds-icon { font-size: 2rem; }
+    .ds-metric.rank-3 .ds-icon { font-size: 1.15rem; }
+    .ds-name {
+      font-size: .84rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      margin: 5px 0 2px;
+    }
+    .ds-metric.rank-1 .ds-name { font-size: 1rem; color: var(--text-soft); }
+    .ds-metric.rank-3 .ds-name { font-size: .76rem; }
+    .ds-val {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.15;
+    }
+    .ds-metric.rank-1 .ds-val { font-size: 1.9rem; }
+    .ds-metric.rank-3 .ds-val { font-size: 1.05rem; color: var(--text-soft); }
+    .ds-sub {
+      font-size: .73rem;
+      color: var(--text-faint);
+      margin-top: 2px;
+    }
+    .ds-badge {
+      position: absolute;
+      top: 8px; right: 8px;
+      font-size: .67rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .ds-metric.rank-1 .ds-badge { background: var(--accent); color: #fff; }
+    .ds-metric.rank-2 .ds-badge { background: var(--bg); color: var(--text-faint); border: 1px solid var(--border); }
+    .ds-metric.rank-3 .ds-badge { background: #ece8e2; color: #b0a898; }
+    .ds-btns {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .ds-btn {
+      flex: 1;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-faint);
+      border-radius: 6px;
+      font-size: .69rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 0;
+      transition: border-color .1s, background .1s, color .1s;
+      white-space: nowrap;
+    }
+    .ds-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .ds-btn.sel-1 { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .ds-btn.sel-2 { background: #e8e3da; color: #6e6254; border-color: #d9d0c3; }
+    .ds-btn.sel-3 { background: #ede9e3; color: #a89d8e; border-color: #ddd7cd; }
+    .ds-legend {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      font-size: .82rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+    .ds-legend span { display: flex; align-items: center; gap: 6px; }
+    .ds-pill {
+      font-size: .7rem; font-weight: 800; padding: 1px 9px;
+      border-radius: 999px; white-space: nowrap;
+    }
+    @media (max-width: 520px) {
+      .ds-metric.rank-1 { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">仪表盘与设置页</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>仪表盘与设置页</h1>
+      <div class="meta-row" data-meta><span>🎮 交互</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>仪表盘和设置页是后台系统里最容易被过度设计的两类页面。仪表盘堆满图表却没人看,设置页把几十个选项平铺成一张长列表让人找不着北——这两种毛病在 NocoBase 后台里随处可见。这一页只讲一件事:<b>从用户要做什么决定出发,反向决定这个页面该放什么、该怎么排</b>。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 先建立一个直觉</div>
+      <p style="margin:6px 0">用户打开后台仪表盘,脑子里只有几个问题:"今天有没有要我处理的事?""数字正不正常?""哪里冒了问题?"他<b>不是来欣赏图表的</b>——他是来做判断、再去行动的。能帮他快速做出这几个判断的数据,放最前面、放最大;帮不上忙的,收起来或者直接砍。</p>
+      <p style="margin:6px 0">设置页也一样。用户打开设置,几乎都是因为"有个东西我想改一下"。<b>最快帮他找到那个选项,改完就走</b>,才是好设置页。</p>
+    </div>
+
+    <h2>一、仪表盘:先问"看了要做什么决定"</h2>
+
+    <p>设计仪表盘之前,最值得花时间的一件事是问清楚——<b>这个页面的用户,看完数据之后要做什么决定?</b>如果这个问题没答案,你堆多少图表都是摆设。</p>
+
+    <p>举个具体例子:NocoBase 里做了一个销售后台首页,放了销售额折线、区域饼图、产品线柱状图、客户满意度趋势、员工绩效、库存水位、待审批单数……满满八张图。但销售经理每天打开这里,只需要做两个判断:"今天销售额有没有异常?"和"有没有卡着我审批的单子?"——其他六张图他压根不看。</p>
+
+    <h3>关键指标顶部优先</h3>
+
+    <p>用户第一眼扫到的位置,要放那几个"看一眼就能判断今天正不正常"的数字。通常是 3~5 个大卡片,每张一个数字,配上和上期的涨跌对比。别把这个位置浪费在需要解读的复杂图表上——折线图、饼图往下放。</p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 坏例</div>
+      <p style="margin:6px 0">首页第一屏是一张"按省份着色的地图",下面才是"今日待审批:23 条"。用户每天进来第一件事是审批,却要往下滑才看到那个 23。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例</div>
+      <p style="margin:6px 0">"待审批 23 条"放在第一屏最醒目的位置,配一个"去处理"按钮直接跳过去。地图放在下面的"区域分析"折叠区——需要时展开,不需要时不占视线。</p>
+    </div>
+
+    <h3>按主题分组,不按数据来源分组</h3>
+
+    <p>后台里很常见的错误是按数据表或模块分组——"订单模块"一块、"用户模块"一块、"库存模块"一块——结果和某个业务决策相关的数字散落在三个区块里,用户要来回拼凑。更好的做法是按用户的思维线索分组:和"今天要不要紧急补货"这个判断有关的数字,统统放在一个"库存预警"卡片组里。</p>
+
+    <h3>支持下钻,但不强迫</h3>
+
+    <p>仪表盘上的数字应该是摘要,点进去才看明细。"待审批 23 条"点一下,跳到审批列表并过滤好只看待审批——而不是把 23 条记录直接铺在仪表盘上。强迫用户在仪表盘上读明细,是最常见的"信息过载"来源。</p>
+
+    <h3>空态和加载态不能空着</h3>
+
+    <p>数据加载中时给 skeleton 占位;某个指标当天没有数据时显示"暂无数据"而不是空白或 0——让用户知道"这是正常的还是系统出问题了"。一片白、一个 0,和"还没有数据"给用户的感受完全不同。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 仪表盘自查点</div>
+      <p style="margin:6px 0">1. 能列出"用户打开这个页面要做的 3 个决定"吗?列不出来,这个页面的设计从起点就偏了。</p>
+      <p style="margin:6px 0">2. 第一屏(不滚动)能直接给出这 3 个决定所需的全部信息吗?</p>
+      <p style="margin:6px 0">3. 每个图表/数字背后,用户看了能做什么?做不了任何事的数字,砍掉。</p>
+      <p style="margin:6px 0">4. 数据加载中和暂无数据有专门的处理方案吗?不能让用户面对空白猜测系统是否挂了。</p>
+      <p style="margin:6px 0">5. 关键数字能点进去看明细吗?仪表盘是摘要,不是明细本身。</p>
+    </div>
+
+    <h2>二、设置页:按频率和类别组织,而不是按功能堆叠</h2>
+
+    <p>设置页的核心任务只有一个:<b>让用户以最快速度找到他想改的那一项,改完,走人</b>。凡是阻碍这件事的设计,都是设置页的反模式。</p>
+
+    <h3>按频率和类别分组</h3>
+
+    <p>设置不是功能清单,不需要"全面展示系统能力"。用户最常改的放最前面,偶尔需要的放后面,几乎没人动的(高级设置、危险操作)放末尾或藏进折叠区。分类的维度要贴着用户的思维走——不要按内部技术模块分。"认证配置""缓存配置""存储配置"对普通用户没有意义;改成"账号与安全""通知偏好""数据与导出",用户一眼就知道该去哪儿找。</p>
+
+    <h3>加搜索</h3>
+
+    <p>当设置项超过 20 条时,搜索框是必须的。用户记得"我想改密码",但可能记不得"密码"在"账号与安全"还是"登录方式"里——搜索能绕过所有分类的认知负担,直达目标。NocoBase 系统设置里有一个常见抱怨:找不到某个字段的格式设置到底在"字段配置"还是"显示设置"里,一个搜索框就能解决这个问题。</p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 坏例</div>
+      <p style="margin:6px 0">设置页 40 条选项从上到下平铺成一张长列表,没有分类,没有搜索。用户想改通知频率,只能从第一条开始逐行扫,找到时已经不耐烦了。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例</div>
+      <p style="margin:6px 0">左边是分类导航(账号 / 通知 / 权限 / 高级),右边是对应内容;顶部有搜索框;输入"通知"立刻过滤出所有通知相关选项并高亮匹配词。</p>
+    </div>
+
+    <h3>危险操作必须隔离和二次确认</h3>
+
+    <p>"删除账号""清空所有数据""重置到出厂设置"——这类操作的破坏性是不可逆的。它们必须满足三个条件:第一,<b>视觉上和普通设置明显区分</b>——用红色、放在最底部的"危险区"框里;第二,<b>不能一键触发</b>——必须有二次确认弹窗,最好要求用户手动输入关键词(如"DELETE"或账号名)才能激活最终确认按钮;第三,<b>说清楚后果</b>——"删除后数据无法恢复"必须在弹窗里明确写出来,不能藏着掖着。</p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 坏例</div>
+      <p style="margin:6px 0">"删除账号"按钮和"修改头像"放在同一排,颜色一样,点击后直接弹"确认?是/否"——用户手滑点"是"就完了,没有任何补救机会。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例</div>
+      <p style="margin:6px 0">页面最底部有红色边框的"危险区"卡片,里面的"删除账号"是红色描边按钮。点击后弹出确认弹窗,写明"此操作不可撤销,你的所有数据将被永久删除",并要求手动输入"DELETE"才能激活最终确认。</p>
+    </div>
+
+    <h3>即时保存 vs 显式保存按钮的取舍</h3>
+
+    <p>这是设置页一个经常被忽视的设计决策。<b>即时保存</b>(toggle 一拨就存、下拉框一选就存):适合每项独立、修改成本低的设置——"开启邮件通知"这个开关,拨一下立刻生效,用户能即时看到结果。<b>显式保存按钮</b>:适合一批关联设置需要一起确认的情况——改了 API 地址、改了端口、改了超时时间,这三个要一起生效,就不能一改就存。</p>
+
+    <p>两种模式最怕的是<b>混用且不标注</b>——有些设置拨一下就存了,有些要点"保存";用户不知道哪些是哪种,要么漏保存、要么反复操作。如果必须混用,要在界面上明确标出"自动保存"和"需要手动保存"的区别。</p>
+
+    <h3>给默认值和说明</h3>
+
+    <p>每个设置项都应该有两样东西:一个合理的默认值(让 80% 的用户不用改),和一句说明"这个设置控制什么效果"。尤其是技术参数——"最大并发连接数"输入框旁边至少写一句"推荐值 10,超过 50 可能影响系统性能",用户才知道该填什么。没有默认值、没有说明的设置项,对大多数用户来说就是一道不知道答案的填空题。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 设置页自查点</div>
+      <p style="margin:6px 0">1. 按用户视角分类了吗?类别名字用的是用户能理解的词,还是内部技术术语?</p>
+      <p style="margin:6px 0">2. 超过 20 条设置有搜索框吗?</p>
+      <p style="margin:6px 0">3. 危险操作和普通设置视觉上隔离了吗?触发前有二次确认并说明了后果吗?</p>
+      <p style="margin:6px 0">4. 即时保存和显式保存的边界清晰吗?用户能分辨"改了就存"和"需要点保存"吗?</p>
+      <p style="margin:6px 0">5. 每个设置项有默认值和一句用途说明吗?用户知道不改会怎样、改成什么合适吗?</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎛️ 仪表盘信息优先级 · 实时排版演示</div>
+      <p style="margin:0 0 10px;color:var(--text-soft);font-size:.92rem">下面是一个后台仪表盘的 <b>8 个指标卡</b>。给每张卡选 <b>重要 / 一般 / 次要</b>,仪表盘会<b>立刻重排</b>:重要的升到顶部、卡片变大更醒目;次要的缩小靠下、降低存在感。感受"先决策再排版"的直觉——把你第一眼真正需要看的放上去,其他往下压。</p>
+
+      <div class="ds-legend">
+        <span><span class="ds-pill" style="background:var(--accent);color:#fff">重要</span> 顶部,卡片最大</span>
+        <span><span class="ds-pill" style="background:#e8e3da;color:#6e6254">一般</span> 中间,正常尺寸</span>
+        <span><span class="ds-pill" style="background:#ede9e3;color:#a89d8e">次要</span> 底部,缩小淡化</span>
+      </div>
+
+      <div class="ds-grid" id="ds-board"></div>
+
+      <p id="ds-hint" style="margin-top:14px;font-size:.85rem;color:var(--text-faint);text-align:center;min-height:1.4em"></p>
+    </div>
+
+    <h2>三、试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 给你自己的后台首页做"决定清单"</div>
+      <p style="margin:6px 0">打开你天天用的那个后台首页(或者你在 NocoBase 里负责的某个仪表盘),完成这三步:</p>
+      <p style="margin:14px 0 6px"><b>第一步</b>:写出"用户来这个页面要做的 3 个决定"。注意是<b>决定</b>,不是"看一下数据"——比如"判断今天有没有需要紧急处理的审批"、"判断销售额有没有异常需要我介入"。</p>
+      <p style="margin:8px 0 8px 20px;line-height:2.3">
+        决定 1:___________________<br>
+        决定 2:___________________<br>
+        决定 3:___________________
+      </p>
+      <p style="margin:14px 0 6px"><b>第二步</b>:看看现有仪表盘里的每张图表、每个数字,逐一问:"这个帮助用户做这 3 个决定中的哪一个?"如果答不上来,它大概率可以砍掉或者缩小。</p>
+      <p style="margin:10px 0 6px"><b>第三步</b>:把能直接支撑这 3 个决定的数字想象成放在第一屏顶部——其他所有东西往下推。在脑子里过一遍:是不是比现在清爽多了?</p>
+      <p style="margin:14px 0 4px;color:var(--text-soft);font-size:.9rem">这个练习做一遍,你会发现大多数仪表盘能删掉 30%~50% 的内容,而且用户反而觉得"好用多了"。<b>少而准,始终胜过多而杂。</b></p>
+    </div>
+
+    <p style="margin-top:14px">仪表盘和设置页看起来是两类完全不同的页面,但底层逻辑是同一件事:<b>用户来这里有一个具体的目标,你的工作是以最少的摩擦帮他达成它</b>。仪表盘是"帮我做判断",设置页是"帮我找到那个选项改一下"。把这两句话贴在设计文档的第一行,你会发现很多决策都自动清晰了。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    var board = document.getElementById('ds-board');
+    var hint  = document.getElementById('ds-hint');
+    if (!board) return;
+
+    var METRICS = [
+      { id: 'approve', icon: '📋', name: '待审批',     val: '23 条',     sub: '最老一条等了 2 天' },
+      { id: 'sales',   icon: '💰', name: '今日销售额', val: '¥128,450',  sub: '同比上周 ↑12%' },
+      { id: 'stock',   icon: '⚠️', name: '库存预警',   val: '5 个 SKU',  sub: '低于安全库存线' },
+      { id: 'newuser', icon: '👤', name: '今日新增用户',val: '34 人',     sub: '本周日均 28 人' },
+      { id: 'error',   icon: '🔴', name: '系统错误',   val: '2 次',      sub: '过去 1 小时' },
+      { id: 'refund',  icon: '↩️', name: '退款申请',   val: '7 条',      sub: '待处理' },
+      { id: 'active',  icon: '📊', name: '活跃用户',   val: '1,204 人',  sub: '过去 7 天' },
+      { id: 'order',   icon: '✅', name: '订单完成率', val: '94.3%',     sub: '本月滚动平均' }
+    ];
+
+    // rank: 1=重要, 2=一般, 3=次要
+    var ranks = {};
+    METRICS.forEach(function (m) { ranks[m.id] = 2; });
+
+    function countRank(r) {
+      var n = 0;
+      for (var k in ranks) { if (ranks[k] === r) n++; }
+      return n;
+    }
+
+    function updateHint() {
+      var imp = countRank(1);
+      var msg;
+      if (imp === 0) {
+        msg = '还没有设为「重要」的指标——试着把 1~2 个最关键的指标设为重要';
+      } else if (imp <= 2) {
+        msg = '很好！' + imp + ' 个重要指标占据视觉重心,仪表盘焦点清晰';
+      } else if (imp <= 4) {
+        msg = imp + ' 个重要指标有点多——全都重要等于没有重要,试着再砍一些';
+      } else {
+        msg = '警告:' + imp + ' 个都设为重要,仪表盘又回到信息轰炸模式了';
+      }
+      if (hint) hint.textContent = msg;
+    }
+
+    function render() {
+      var sorted = METRICS.slice().sort(function (a, b) {
+        return ranks[a.id] - ranks[b.id];
+      });
+
+      board.innerHTML = '';
+
+      sorted.forEach(function (m) {
+        var r = ranks[m.id];
+        var label = r === 1 ? '重要' : (r === 2 ? '一般' : '次要');
+
+        var card = document.createElement('div');
+        card.className = 'ds-metric rank-' + r;
+
+        card.innerHTML =
+          '<div class="ds-badge">' + label + '</div>' +
+          '<div class="ds-icon">' + m.icon + '</div>' +
+          '<div class="ds-name">' + m.name + '</div>' +
+          '<div class="ds-val">' + m.val + '</div>' +
+          '<div class="ds-sub">' + m.sub + '</div>' +
+          '<div class="ds-btns">' +
+            '<button class="ds-btn' + (r === 1 ? ' sel-1' : '') + '" data-id="' + m.id + '" data-r="1">重要</button>' +
+            '<button class="ds-btn' + (r === 2 ? ' sel-2' : '') + '" data-id="' + m.id + '" data-r="2">一般</button>' +
+            '<button class="ds-btn' + (r === 3 ? ' sel-3' : '') + '" data-id="' + m.id + '" data-r="3">次要</button>' +
+          '</div>';
+
+        board.appendChild(card);
+      });
+
+      updateHint();
+    }
+
+    board.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('.ds-btn') : null;
+      if (!btn) {
+        // Fallback for browsers without closest
+        var el = e.target;
+        while (el && el !== board) {
+          if (el.classList && el.classList.contains('ds-btn')) { btn = el; break; }
+          el = el.parentNode;
+        }
+      }
+      if (!btn) return;
+      var id = btn.getAttribute('data-id');
+      var r  = parseInt(btn.getAttribute('data-r'), 10);
+      if (id && r) {
+        ranks[id] = r;
+        render();
+      }
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>

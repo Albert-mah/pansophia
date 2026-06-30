@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>列表 · 详情 · 工作流:后台三件套 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-list-detail-flow"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">列表 · 详情 · 工作流</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>列表 · 详情 · 工作流</h1>
+      <div class="meta-row" data-meta><span>🗂️ 后台管理</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>打开十个后台系统,里面的页面骨架都长得差不多:<b>一张列表、一个详情、一套状态流转</b>。这三样东西合在一起,几乎能搞定后台 80% 的场景——采购审批、工单处理、客户管理、库存出入库,本质上都是同一张骨架,只换了字段和业务规则。把这套骨架设计好,用户就算第一次见也能大致猜到怎么操作;设计坏了,再好的功能也会让人找不着北。</p>
+
+    <div class="box example">
+      <div class="box-title">🧩 先有个具体画面</div>
+      <p style="margin:6px 0">想象一个<b>采购申请系统</b>:财务小张需要采购一批服务器。她打开系统,先看到一张<b>列表</b>——里面列着所有采购单的名称、金额和当前状态。她点进自己那条,进入<b>详情页</b>——看到填写的内容、历史操作记录,然后点"提交审核"。单子流转到部门主管那里——主管在待办列表里找到它,点进去,看完之后点"通过"。状态从"待审核"变为"已通过",整个<b>工作流</b>走完。这个流程里的每一步,都依赖列表、详情、工作流三者协作。这一页就讲这套骨架怎么设计好。</p>
+    </div>
+
+    <h2>一、列表 — 找得到、筛得快、批量省力</h2>
+    <p>列表页的职责是帮用户<b>快速定位目标记录</b>。表格是最常见的呈现方式,但屏幕宽度有限,塞太多列用户要横向拖动才能看完,效率极低。<b>挑列</b>是列表设计里最常被忽视、却最影响体验的一步。</p>
+
+    <h3>该露哪几列</h3>
+    <p>好列表通常只露 5~7 列。选列原则是:</p>
+    <ul>
+      <li><b>标识符列</b>(单据号 / 名称):让用户能定位"是哪一条"。</li>
+      <li><b>核心业务值</b>(金额 / 数量 / 联系人):用户扫一眼就能判断这条值不值得点开,通常 1~2 列够了。</li>
+      <li><b>状态列</b>:用颜色标签呈现,用户第一眼就想知道"这条现在到哪步了"。</li>
+      <li><b>时间列</b>(创建/更新时间):支持排序,让最新或最旧的记录能浮到顶部。</li>
+      <li><b>操作列</b>:把高频操作直接露出来(查看 / 编辑 / 删除),而不是藏进菜单。</li>
+    </ul>
+    <p>不该出现在列表里的:<b>描述/备注(太长,列里显示不完)、低频字段(内部编号、备用联系方式)、与列表主题无关的关联字段</b>。这些进详情再看。</p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 坏例:塞了 20 列</div>
+      <p style="margin:6px 0">一张工单表有 28 个字段,列表页全部展示。用户要横向拖滚动条才能找到"状态"列,找到"操作"按钮又得再拖一次。重要信息淹没在不重要信息里——<b>信息太全等于没有重点。</b></p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例:精选 6 列</div>
+      <p style="margin:6px 0">列表只露:工单号 / 标题 / 客户 / 状态 / 更新时间 / 操作。金额和描述进详情看。用户 3 秒内扫完一屏找到目标行,点"查看"直接进去。<b>少即是多,用户不用思考就能用。</b></p>
+    </div>
+
+    <h3>筛选条件的层次</h3>
+    <p>列表通常需要筛选。筛选条件也有轻重之分:<b>高频条件</b>(如"状态""时间范围")直接摆在表格上方,用 tab 切换或下拉选择,点一下立刻生效;<b>低频条件</b>(如"申请部门""经手人")折叠进"高级筛选"面板里。两级设计让界面不拥挤,同时保留完整功能。</p>
+
+    <h3>批量操作要按需浮出</h3>
+    <p>用户勾选多行后,才会需要批量删除、批量导出、批量改状态。批量操作按钮不该一直挂在页面上——没有勾选时它没有意义,还占地方。正确做法:<b>用户勾选行后,顶部实时浮出一条工具条</b>,显示"已选 N 项"和可用操作。</p>
+    <div class="box tip">
+      <div class="box-title">✅ 好例:按需浮出批量工具条</div>
+      <p style="margin:6px 0">表格默认状态:顶部只有搜索框和"新建"按钮。用户勾了 5 行后,顶部立刻浮出:<b>"已选 5 项 · 批量导出 · 批量删除 · 取消选择"</b>。需要时在那儿,不需要时消失——符合诺曼的"可见性"原则。</p>
+    </div>
+
+    <h2>二、主从布局 vs 跳转详情页</h2>
+    <p>详情页有两种打开方式:<b>跳转</b>(点一行导航到新页面)和<b>主从布局</b>(左边列表、右边实时显示详情,不离开这一页)。两者各有适用场景:</p>
+
+    <table>
+      <thead>
+        <tr><th>对比维度</th><th>跳转详情页</th><th>主从布局(左右分栏)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>详情内容复杂程度</td><td>详情内容多,需要全屏空间</td><td>详情较精简,右侧够放</td></tr>
+        <tr><td>需要对比多条记录</td><td>不方便(要来回跳转)</td><td>方便(左边点,右边立刻换)</td></tr>
+        <tr><td>URL 可分享</td><td>每条有独立 URL,可分享</td><td>通常没有独立 URL</td></tr>
+        <tr><td>典型场景</td><td>审批单、工单详情、合同</td><td>邮件客户端、CRM 联系人列表</td></tr>
+      </tbody>
+    </table>
+
+    <p>大多数管理后台用<b>跳转</b>更安全——详情内容往往比预期复杂得多;主从布局在移动端体验也会自动折叠成跳转。如果你的场景需要频繁在记录间切换对比,主从布局能显著提升效率。</p>
+
+    <h2>三、详情 — 看清楚、能操作、留记录</h2>
+    <p>详情页是用户决策的地方。打开一条采购申请,用户需要<b>看清楚信息</b>(申请了什么、多少钱、谁申请的),然后<b>做出操作</b>(通过、驳回、编辑),最后能<b>追溯记录</b>(谁在什么时间做了什么)。这三件事对应详情页的三个分区。</p>
+
+    <h3>基本信息区 — 核心字段一屏看完</h3>
+    <p>基本信息区放<b>这条记录最核心的字段</b>,通常以只读方式展示(或少量可编辑)。布局常用双列或三列网格——同类字段放一起(名称/金额/时间一组;申请人/部门/联系方式一组),视觉上容易扫读。字段太多时,可以把次要字段折叠进"展开更多"里。</p>
+
+    <h3>关联数据区 — 附带展示相关子集</h3>
+    <p>一条采购单可能关联多条附件、多行商品明细、多条历史版本。这些<b>关联数据不应全塞进基本信息区</b>——用 Tab 分页或折叠卡片分开放,用户按需展开。没有内容的 Tab 不显示,避免用户点进去看到空白。</p>
+
+    <h3>操作日志区 — 所有操作有迹可查</h3>
+    <p>这是最容易被遗漏的一块。谁创建了这条记录?谁提交了审核?谁在什么时间驳回的、驳回理由是什么?没有操作日志,事后追责无从查起,客服处理投诉也没有依据。<b>所有关键操作(状态变更、编辑、附件上传)都应自动记录到日志里,带时间戳和操作人。</b></p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 坏例:没有操作日志</div>
+      <p style="margin:6px 0">采购单显示"已驳回",但详情里没有任何说明。财务问主管:你为什么驳回?主管说记得加了备注,但备注不知道去哪了。<b>没有日志 = 没有记忆,所有争议只能靠人肉对账。</b></p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例:完整的时间线</div>
+      <p style="margin:6px 0">详情页底部有"操作记录"时间线:01-10 16:00 陈磊 · 创建申请 → 01-10 16:05 陈磊 · 提交审核 → 01-11 10:20 王总监 · 驳回(备注:请补充报价单)。<b>任何时候回来都能还原当时的完整状态。</b></p>
+    </div>
+
+    <h2>四、工作流 — 随时知道"在哪步、该谁做"</h2>
+    <p>工作流让事情在人和人之间按规则流转——不靠口头传话、不靠微信催单。工作流设计最核心的一条原则:<b>用户打开任意一条记录,一眼就能看出"现在在哪一步、当前该谁操作、他能做什么"。</b>违反这条原则,工作流再完备也是一个黑盒。</p>
+
+    <h3>步骤条:让进度一目了然</h3>
+    <p>步骤条(Step Indicator)是工作流最直观的可视化方式:从左到右排列所有步骤,已完成的步骤打勾变色,当前步骤高亮,未来步骤灰显。用户看一眼就知道走到哪了、还剩多少步。<b>步骤数不要超过 5 步</b>——步骤太多会变成一行难以辨认的小点。如果流程确实复杂,考虑把多个小步骤归并成几个阶段展示。</p>
+
+    <h3>状态标签的颜色约定</h3>
+    <p>在列表和详情里,状态标签是用户第一眼聚焦的地方。颜色要有语义:<b>灰色=草稿/中性;橙色=需要处理/等待;蓝色=进行中;绿色=正向完成;红色=负向结果/需注意。</b>这套约定没有绝对标准,但在系统内选定后要全局统一——颜色混乱等于每次都要重新理解状态含义。</p>
+
+    <h3>每步要明确写出:下一步该谁做</h3>
+    <p>光知道"现在是待审核"还不够——是主管审核还是财务审核?他要去哪里操作?好的工作流设计会在状态旁边明确写出:<b>"等待 王总监 审批"</b>,并且对应的人在他的待办列表里能直接看到这条任务。审批人不需要别人催,系统替你催。</p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 坏例:状态是黑盒</div>
+      <p style="margin:6px 0">状态显示"待审核"。提交人不知道谁在审、审到哪了,只能去问主管。主管说没收到通知,在系统里找了半天才找到这条。整个流程靠人工催单推动,系统形同虚设。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例:状态透明,下步可见</div>
+      <p style="margin:6px 0">详情页步骤条下方写清楚:<b>"等待 技术部主管 王总监 审批"</b>,并显示提交时间。王总监登录后首页的"我的待办"里直接看到"1 条待你审批的采购申请"。提交人能看实时进度,不需要催人。</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 三件套自查清单</div>
+      <p style="margin:6px 0">搭一个后台模块时,逐条问下面这些问题。任何一条答"不确定",就是需要补的设计:</p>
+      <p style="margin:10px 0 4px"><b>列表</b></p>
+      <p style="margin:3px 0">1. 列表只露了最关键的 5~7 列,没有塞全部字段吗?</p>
+      <p style="margin:3px 0">2. 状态列清晰可见,用了颜色标签吗?</p>
+      <p style="margin:3px 0">3. 高频筛选条件直接可见,低频的折叠了吗?</p>
+      <p style="margin:3px 0">4. 批量操作只在勾选后才浮出,不占常驻空间吗?</p>
+      <p style="margin:10px 0 4px"><b>详情</b></p>
+      <p style="margin:3px 0">5. 详情页有"基本信息 / 关联数据 / 操作日志"三个分区吗?</p>
+      <p style="margin:3px 0">6. 操作日志自动记录了所有关键操作(状态变更、编辑、提交)?</p>
+      <p style="margin:3px 0">7. 当前可执行的操作按钮明确可见,不可操作的已禁用吗?</p>
+      <p style="margin:10px 0 4px"><b>工作流</b></p>
+      <p style="margin:3px 0">8. 步骤条一眼看出当前在第几步?步骤数不超过 5 个?</p>
+      <p style="margin:3px 0">9. 当前状态旁边写明了"下一步该谁操作"吗?</p>
+      <p style="margin:3px 0">10. 待办人在他的首页能看到"有 N 条待我处理"的提醒吗?</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎛️ 列表 → 详情 → 工作流,走一遍</div>
+      <p style="margin:0 0 4px;color:var(--text-soft);font-size:.92rem">下面是一个采购申请系统的缩略演示。<b>点击任意一行</b>进入详情;在详情里<b>点操作按钮</b>推进状态机(草稿 → 待审核 → 通过 / 驳回);顶部步骤条<b>实时变色</b>。点"返回列表"后,列表里的状态也已更新。亲手走一圈。</p>
+      <div id="ldf-root" style="margin-top:16px"></div>
+    </div>
+
+    <h2>五、试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 给自己系统里的一个对象套三件套框架</div>
+      <p style="margin:6px 0">挑你正在做(或正在用)的后台里的一个对象(订单 / 工单 / 合同 / 库存物品),按三件套框架填空:</p>
+      <p style="margin:12px 0 4px"><b>列表该展示哪几列?(尝试只选 5 列)</b></p>
+      <p style="margin:4px 0 12px;color:var(--text-soft)">标识符列: ___ &nbsp;·&nbsp; 核心值列: ___ &nbsp;·&nbsp; 状态列: ___ &nbsp;·&nbsp; 时间列: ___ &nbsp;·&nbsp; 操作列: ___</p>
+      <p style="margin:0 0 4px"><b>详情页三个区各放什么?</b></p>
+      <p style="margin:4px 0 12px;color:var(--text-soft)">基本信息: ___(3~5 个字段) &nbsp;·&nbsp; 关联数据: ___(1~2 个子集) &nbsp;·&nbsp; 操作日志: 自动记录哪些动作?</p>
+      <p style="margin:0 0 4px"><b>状态有哪几个?流转路径是?</b></p>
+      <p style="margin:4px 0 12px;color:var(--text-soft)">草稿 → ___ → ___ → 完成 / 关闭。每次状态变更,该通知谁?</p>
+      <p style="margin:4px 0">把上面三段填完,你的模块设计已经有 70% 了——剩下的 30% 是细节交互,但骨架已经立起来了。</p>
+    </div>
+
+    <p style="margin-top:14px">列表、详情、工作流这套骨架的价值在于:<b>它不是某个特定系统的做法,而是经过无数后台验证的通用模式</b>。下次接手新模块、遇到"这个页面该怎么组织"的问题,先套这个骨架,再按业务细化——90% 的场景都够用。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+        <a href="interaction-design.html" style="--rc:#3b6fe0">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function(){
+    var root = document.getElementById('ldf-root');
+    if (!root) return;
+
+    var ACCENT = '#B6532F';
+    var GREEN  = '#27ae60';
+    var RED    = '#e2524a';
+    var ORANGE = '#e67e22';
+
+    var STATES = {
+      draft:    { label: '草稿',   color: '#9a8a6f', bg: 'var(--bg)',  step: 0 },
+      pending:  { label: '待审核', color: ORANGE,    bg: '#fff7ef',    step: 1 },
+      approved: { label: '已通过', color: GREEN,     bg: '#f1faf3',    step: 2 },
+      rejected: { label: '已驳回', color: RED,       bg: '#fdf2f1',    step: 2 }
+    };
+
+    var orders = [
+      {
+        id: 'PO-2401',
+        name: '服务器采购申请',
+        amount: '¥48,500',
+        dept: '技术部',
+        applicant: '张伟',
+        date: '2024-01-15',
+        desc: '采购 2 台生产服务器,用于新系统上线扩容。',
+        state: 'draft',
+        log: [{ time: '01-15 10:22', who: '张伟', msg: '创建申请单' }]
+      },
+      {
+        id: 'PO-2402',
+        name: '办公椅批量采购',
+        amount: '¥12,800',
+        dept: '行政部',
+        applicant: '李婷',
+        date: '2024-01-12',
+        desc: '为新入职员工采购 16 把人体工学椅。',
+        state: 'approved',
+        log: [
+          { time: '01-12 09:10', who: '李婷',  msg: '创建申请单' },
+          { time: '01-12 09:15', who: '李婷',  msg: '提交审核' },
+          { time: '01-13 14:30', who: '王总监', msg: '审批通过' }
+        ]
+      },
+      {
+        id: 'PO-2403',
+        name: '软件许可证续费',
+        amount: '¥6,200',
+        dept: '技术部',
+        applicant: '陈磊',
+        date: '2024-01-10',
+        desc: '设计工具套件年费续费,即将到期。',
+        state: 'rejected',
+        log: [
+          { time: '01-10 16:00', who: '陈磊',  msg: '创建申请单' },
+          { time: '01-10 16:05', who: '陈磊',  msg: '提交审核' },
+          { time: '01-11 10:20', who: '王总监', msg: '驳回:请重新报价后提交' }
+        ]
+      },
+      {
+        id: 'PO-2404',
+        name: '市场活动物料',
+        amount: '¥9,600',
+        dept: '市场部',
+        applicant: '赵云',
+        date: '2024-01-14',
+        desc: '春节展会所需宣传物料,含展架、海报、礼品。',
+        state: 'pending',
+        log: [
+          { time: '01-14 11:30', who: '赵云', msg: '创建申请单' },
+          { time: '01-14 11:45', who: '赵云', msg: '提交审核' }
+        ]
+      }
+    ];
+
+    function getOrder(id) {
+      for (var i = 0; i < orders.length; i++) {
+        if (orders[i].id === id) return orders[i];
+      }
+      return null;
+    }
+
+    function getNow() {
+      var d  = new Date();
+      var mo = String(d.getMonth() + 1); if (mo.length < 2) mo = '0' + mo;
+      var da = String(d.getDate());      if (da.length < 2) da = '0' + da;
+      var h  = String(d.getHours());     if (h.length  < 2) h  = '0' + h;
+      var mi = String(d.getMinutes());   if (mi.length < 2) mi = '0' + mi;
+      return mo + '-' + da + ' ' + h + ':' + mi;
+    }
+
+    function badge(state) {
+      var s = STATES[state];
+      return '<span style="display:inline-block;padding:2px 10px;border-radius:999px;'
+        + 'font-size:.78rem;font-weight:800;color:#fff;background:' + s.color + '">' + s.label + '</span>';
+    }
+
+    function stepBar(state) {
+      var cur = STATES[state].step;
+      var lbl2 = (state === 'approved') ? '已通过' : (state === 'rejected') ? '已驳回' : '审批中';
+      var labels = ['草稿', '待审核', lbl2];
+      var html = '<div style="display:flex;align-items:flex-start;margin:0 0 18px;gap:0">';
+
+      for (var i = 0; i < 3; i++) {
+        var done    = i < cur;
+        var current = i === cur;
+
+        var dotBg;
+        if (done) {
+          dotBg = ACCENT;
+        } else if (current) {
+          if (state === 'approved')      dotBg = GREEN;
+          else if (state === 'rejected') dotBg = RED;
+          else if (state === 'pending')  dotBg = ORANGE;
+          else                           dotBg = ACCENT;
+        } else {
+          dotBg = '#d0c8bc';
+        }
+
+        var dotTxt = (done || (current && state === 'approved')) ? '✓'
+          : (current && state === 'rejected') ? '✗'
+          : String(i + 1);
+
+        var txtColor  = (done || current) ? 'var(--text)' : 'var(--text-faint)';
+        var txtWeight = current ? '800' : '600';
+
+        html += '<div style="display:flex;flex-direction:column;align-items:center;flex:0 0 auto;min-width:66px">';
+        html += '<div style="width:32px;height:32px;border-radius:50%;background:' + dotBg + ';'
+          + 'display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem">'
+          + dotTxt + '</div>';
+        html += '<div style="font-size:.72rem;margin-top:5px;font-weight:' + txtWeight + ';'
+          + 'color:' + txtColor + ';text-align:center;line-height:1.3">' + labels[i] + '</div>';
+        html += '</div>';
+
+        if (i < 2) {
+          var lineClr = (i < cur) ? ACCENT : '#d0c8bc';
+          html += '<div style="flex:1;height:2px;background:' + lineClr + ';margin-top:15px;min-width:12px"></div>';
+        }
+      }
+
+      html += '</div>';
+      return html;
+    }
+
+    function renderList() {
+      var html = '';
+
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">';
+      html += '<span style="font-size:.85rem;color:var(--text-soft)">共 <b>' + orders.length + '</b> 条记录 &nbsp;·&nbsp; 点击行查看详情</span>';
+      html += '<div style="display:flex;gap:5px">';
+      var tabs = ['全部', '草稿', '待审核', '已完成'];
+      for (var ti = 0; ti < tabs.length; ti++) {
+        var isA = (ti === 0);
+        html += '<span style="padding:3px 11px;border-radius:999px;font-size:.76rem;font-weight:700;cursor:default;'
+          + 'border:1px solid ' + (isA ? ACCENT : 'var(--border)') + ';'
+          + 'background:' + (isA ? ACCENT : 'var(--surface)') + ';'
+          + 'color:' + (isA ? '#fff' : 'var(--text-soft)') + '">' + tabs[ti] + '</span>';
+      }
+      html += '</div></div>';
+
+      html += '<div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px">';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:.9rem;margin:0">';
+      html += '<thead><tr style="background:var(--bg)">';
+      var cols = ['单据号', '申请名称', '金额', '部门', '申请人', '状态'];
+      for (var ci = 0; ci < cols.length; ci++) {
+        var extra = (ci === 2) ? ' <span style="color:var(--text-faint);font-size:.72rem">↕</span>' : '';
+        html += '<th style="padding:10px 14px;text-align:left;border:none;border-bottom:1px solid var(--border);'
+          + 'font-weight:700;white-space:nowrap;color:var(--text-soft);font-size:.78rem">'
+          + cols[ci] + extra + '</th>';
+      }
+      html += '</tr></thead><tbody>';
+
+      for (var oi = 0; oi < orders.length; oi++) {
+        var o   = orders[oi];
+        var isL = (oi === orders.length - 1);
+        html += '<tr data-id="' + o.id + '" class="ldf-row" style="cursor:pointer;'
+          + (isL ? '' : 'border-bottom:1px solid var(--border);') + '">';
+        html += '<td style="padding:12px 14px;border:none;font-size:.82rem;color:var(--text-faint);font-family:monospace">' + o.id + '</td>';
+        html += '<td style="padding:12px 14px;border:none;font-weight:600">' + o.name + '</td>';
+        html += '<td style="padding:12px 14px;border:none;font-variant-numeric:tabular-nums;font-weight:700;color:' + ACCENT + '">' + o.amount + '</td>';
+        html += '<td style="padding:12px 14px;border:none;color:var(--text-soft)">' + o.dept + '</td>';
+        html += '<td style="padding:12px 14px;border:none;color:var(--text-soft)">' + o.applicant + '</td>';
+        html += '<td style="padding:12px 14px;border:none">' + badge(o.state) + '</td>';
+        html += '</tr>';
+      }
+
+      html += '</tbody></table></div>';
+      root.innerHTML = html;
+
+      var rows = root.querySelectorAll('.ldf-row');
+      for (var ri = 0; ri < rows.length; ri++) {
+        (function(row) {
+          row.addEventListener('mouseover', function() { this.style.background = '#f9f4ec'; });
+          row.addEventListener('mouseout',  function() { this.style.background = ''; });
+          row.addEventListener('click',     function() { renderDetail(this.getAttribute('data-id')); });
+        })(rows[ri]);
+      }
+    }
+
+    function renderDetail(id) {
+      var order = getOrder(id);
+      if (!order) { renderList(); return; }
+      var s = STATES[order.state];
+
+      var html = '';
+
+      /* back row */
+      html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">';
+      html += '<button id="ldf-back" style="border:1px solid var(--border);background:var(--surface);'
+        + 'color:var(--text-soft);padding:6px 14px;border-radius:999px;font-size:.85rem;font-weight:700;cursor:pointer">'
+        + '← 返回列表</button>';
+      html += '<span style="font-family:monospace;font-size:.82rem;color:var(--text-faint)">' + order.id + '</span>';
+      html += badge(order.state);
+      html += '</div>';
+
+      /* step bar */
+      html += stepBar(order.state);
+
+      /* basic info */
+      html += '<div style="background:var(--bg);border-radius:10px;padding:16px 18px;margin-bottom:12px">';
+      html += '<div style="font-size:.7rem;font-weight:800;color:var(--text-faint);margin-bottom:12px;letter-spacing:.6px">基本信息</div>';
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 22px">';
+      var fields = [
+        ['申请名称', order.name],
+        ['申请金额', order.amount],
+        ['申请部门', order.dept],
+        ['申请人',   order.applicant],
+        ['申请日期', order.date],
+        ['说明',     order.desc]
+      ];
+      for (var fi = 0; fi < fields.length; fi++) {
+        html += '<div><div style="font-size:.7rem;color:var(--text-faint);margin-bottom:2px">' + fields[fi][0] + '</div>'
+          + '<div style="font-weight:600;font-size:.88rem">' + fields[fi][1] + '</div></div>';
+      }
+      html += '</div></div>';
+
+      /* action zone */
+      html += '<div style="background:' + s.bg + ';border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:12px">';
+      html += '<div style="font-size:.7rem;font-weight:800;color:var(--text-faint);margin-bottom:10px;letter-spacing:.6px">当前操作</div>';
+
+      if (order.state === 'draft') {
+        html += '<p style="margin:0 0 12px;font-size:.88rem;color:var(--text-soft)">当前状态:<b>草稿</b>。信息确认无误后可提交审核。</p>';
+        html += '<button id="ldf-submit" style="border:none;background:' + ACCENT
+          + ';color:#fff;padding:10px 22px;border-radius:8px;font-size:.93rem;font-weight:800;cursor:pointer">提交审核</button>';
+      } else if (order.state === 'pending') {
+        html += '<p style="margin:0 0 12px;font-size:.88rem;color:var(--text-soft)">正在等待 <b>技术部主管 王总监</b> 审批。<span style="color:var(--text-faint)">(演示:你现在扮演审批人)</span></p>';
+        html += '<div style="display:flex;gap:10px;flex-wrap:wrap">';
+        html += '<button id="ldf-approve" style="border:none;background:' + GREEN
+          + ';color:#fff;padding:10px 22px;border-radius:8px;font-size:.93rem;font-weight:800;cursor:pointer">通过</button>';
+        html += '<button id="ldf-reject"  style="border:none;background:' + RED
+          + ';color:#fff;padding:10px 22px;border-radius:8px;font-size:.93rem;font-weight:800;cursor:pointer">驳回</button>';
+        html += '</div>';
+      } else if (order.state === 'approved') {
+        html += '<p style="margin:0;font-weight:700;color:' + GREEN + ';font-size:.95rem">✓ 审批已通过,流程结束。</p>';
+      } else if (order.state === 'rejected') {
+        html += '<p style="margin:0 0 8px;font-weight:700;color:' + RED + ';font-size:.95rem">✗ 申请已驳回</p>';
+        html += '<p style="margin:0 0 12px;font-size:.85rem;color:var(--text-soft)">修改后可撤回重新编辑并提交。</p>';
+        html += '<button id="ldf-redraft" style="border:1px solid var(--border);background:var(--surface);'
+          + 'color:var(--text-soft);padding:8px 18px;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer">'
+          + '撤回重新编辑</button>';
+      }
+      html += '</div>';
+
+      /* operation log */
+      html += '<div style="border:1px solid var(--border);border-radius:10px;padding:16px 18px">';
+      html += '<div style="font-size:.7rem;font-weight:800;color:var(--text-faint);margin-bottom:12px;letter-spacing:.6px">操作日志</div>';
+      for (var li = 0; li < order.log.length; li++) {
+        var entry = order.log[li];
+        var notLast = (li < order.log.length - 1);
+        html += '<div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;'
+          + (notLast ? 'border-bottom:1px solid var(--border)' : '') + '">';
+        html += '<div style="width:8px;height:8px;border-radius:50%;background:' + ACCENT + ';margin-top:6px;flex:none"></div>';
+        html += '<div style="flex:1;font-size:.85rem">'
+          + '<span style="color:var(--text-faint)">' + entry.time + '</span>'
+          + ' &nbsp;<b>' + entry.who + '</b>&nbsp; '
+          + '<span style="color:var(--text-soft)">' + entry.msg + '</span></div>';
+        html += '</div>';
+      }
+      html += '</div>';
+
+      root.innerHTML = html;
+
+      /* back button */
+      var backBtn = document.getElementById('ldf-back');
+      if (backBtn) {
+        backBtn.addEventListener('click',     function() { renderList(); });
+        backBtn.addEventListener('mouseover', function() { this.style.borderColor = ACCENT; this.style.color = ACCENT; });
+        backBtn.addEventListener('mouseout',  function() { this.style.borderColor = 'var(--border)'; this.style.color = 'var(--text-soft)'; });
+      }
+
+      var submitBtn = document.getElementById('ldf-submit');
+      if (submitBtn) {
+        submitBtn.addEventListener('mouseover', function() { this.style.opacity = '.82'; });
+        submitBtn.addEventListener('mouseout',  function() { this.style.opacity = '1'; });
+        submitBtn.addEventListener('click', function() {
+          order.state = 'pending';
+          order.log.push({ time: getNow(), who: order.applicant, msg: '提交审核' });
+          renderDetail(id);
+        });
+      }
+
+      var approveBtn = document.getElementById('ldf-approve');
+      if (approveBtn) {
+        approveBtn.addEventListener('mouseover', function() { this.style.opacity = '.82'; });
+        approveBtn.addEventListener('mouseout',  function() { this.style.opacity = '1'; });
+        approveBtn.addEventListener('click', function() {
+          order.state = 'approved';
+          order.log.push({ time: getNow(), who: '王总监', msg: '审批通过' });
+          renderDetail(id);
+        });
+      }
+
+      var rejectBtn = document.getElementById('ldf-reject');
+      if (rejectBtn) {
+        rejectBtn.addEventListener('mouseover', function() { this.style.opacity = '.82'; });
+        rejectBtn.addEventListener('mouseout',  function() { this.style.opacity = '1'; });
+        rejectBtn.addEventListener('click', function() {
+          order.state = 'rejected';
+          order.log.push({ time: getNow(), who: '王总监', msg: '驳回:请补充报价单后重新提交' });
+          renderDetail(id);
+        });
+      }
+
+      var redraftBtn = document.getElementById('ldf-redraft');
+      if (redraftBtn) {
+        redraftBtn.addEventListener('mouseover', function() { this.style.borderColor = ACCENT; this.style.color = ACCENT; });
+        redraftBtn.addEventListener('mouseout',  function() { this.style.borderColor = 'var(--border)'; this.style.color = 'var(--text-soft)'; });
+        redraftBtn.addEventListener('click', function() {
+          order.state = 'draft';
+          order.log.push({ time: getNow(), who: order.applicant, msg: '撤回重新编辑' });
+          renderDetail(id);
+        });
+      }
+    }
+
+    renderList();
+  })();
+  </script>
+</body>
+</html>

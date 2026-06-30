@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>后台界面自查清单(每周拆解练习) · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-backend-checklist"></script>
+  <style>
+    /* 本页自用:自查清单条目及打分区样式 */
+    .bc-list { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 0; }
+    .bc-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px; border-radius: 8px;
+      border: 1.5px solid var(--border); background: var(--bg);
+      transition: background .15s, border-color .15s;
+      cursor: pointer;
+    }
+    .bc-item.bc-done    { background: #f1faf3; border-color: #cdeed7; }
+    .bc-item.bc-pending { background: #fff7ef; border-color: #f5d9bb; }
+    .bc-item input[type="checkbox"] {
+      margin-top: 3px; flex: none;
+      width: 17px; height: 17px; cursor: pointer;
+      accent-color: #27ae60;
+    }
+    .bc-item label {
+      flex: 1; font-size: .93rem; line-height: 1.58; cursor: pointer;
+    }
+    .bc-cat {
+      display: inline-block;
+      font-size: .7rem; font-weight: 800; padding: 1px 8px; border-radius: 999px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text-soft); margin-right: 7px; white-space: nowrap;
+      vertical-align: middle;
+    }
+    .bc-warn {
+      flex: none; align-self: center;
+      font-size: .7rem; font-weight: 800; color: #c0660f;
+      background: #fff7ef; border: 1px solid #f5d9bb;
+      border-radius: 999px; padding: 1px 9px; white-space: nowrap;
+    }
+    .bc-score-area {
+      display: flex; align-items: center; gap: 16px; margin: 16px 0 8px;
+      flex-wrap: wrap;
+    }
+    .bc-score-num  { font-size: 1.75rem; font-weight: 800; min-width: 84px; transition: color .25s; }
+    .bc-bar-wrap   { flex: 1; min-width: 120px; height: 12px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .bc-bar        { height: 100%; border-radius: 999px; transition: width .25s, background .25s; }
+    .bc-score-lbl  { font-size: .88rem; font-weight: 700; white-space: nowrap; transition: color .25s; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">后台界面自查清单</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>后台界面自查清单</h1>
+      <div class="meta-row" data-meta><span>🎮 交互</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>这是交互设计课的收尾页。前面几讲分别聊了诺曼五要素、四态设计、表单体验、操作反馈、一致性与认知负荷。学完之后有一个很现实的问题:<b>怎么把这些原则真正用起来,不让它们停留在脑子里变成模糊的"感觉"?</b></p>
+    <p>答案是做一件很简单的事:把所有要点浓缩成一份<b>可以逐条打勾的清单</b>,然后定期拿一个真实的后台页面过一遍。不需要一次全改完,只需要找到最明显的漏洞,集中改那一两处。时间久了,这个动作会变成职业习惯——你会在设计阶段就自动对照检查,而不是等到用户反馈"这里很难用"。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 怎么用这份清单</div>
+      <p style="margin:6px 0"><b>每周一次,选一个真实的后台页面</b>(你正在搭的 NocoBase 表单、审批流入口、报表页、设置界面都行)。把清单从头到尾过一遍,逐条问自己"这条做到了吗"。不确定就当没做到。</p>
+      <p style="margin:10px 0 4px">过完之后只做三件事:</p>
+      <p style="margin:4px 0"><b>① 记下今天的得分</b>(X/12)——用来追踪进步。</p>
+      <p style="margin:4px 0"><b>② 找出得分最低的 2 条</b>,写下具体的改法(不用很详细,一句话够了)。</p>
+      <p style="margin:4px 0"><b>③ 下周再来一次</b>,看分数有没有涨。</p>
+      <p style="margin:10px 0 0">不需要每次都改完所有问题。<b>每周稳定进步比偶尔大翻新更有效。</b>这份清单的目标不是让你一次拿满分,而是让你每次都能说出"这里比上周好了一点"。</p>
+    </div>
+
+    <h2>清单背后:每条为什么重要</h2>
+    <p>清单只有 12 条,但每条都有具体的出处。下面按主题分组说明每条的理由——知道"为什么"之后,打勾的时候才不是走过场。</p>
+
+    <h3>四态:空 / 加载 / 错误 / 成功</h3>
+    <p>任何一个界面区域都处于四种状态之一:还没有数据(空态)、数据还在路上(加载态)、出了问题(错误态)、一切正常(成功态)。大多数后台只仔细设计了"成功态",剩下三种遇到时用户不知所措。<b>四态不是锦上添花,而是保底。</b>尤其是错误态——接口挂了页面空白,用户以为没数据,其实是系统出错了。</p>
+    <div class="box warn">
+      <div class="box-title">❌ 最常见的漏洞</div>
+      <p style="margin:6px 0">点"保存"按钮之后什么都没有——页面纹丝不动。用户以为没点到,又点了一次,接着再点,后台收到三条重复请求。其实第一次就成功了,只是界面什么都没说。<b>成功态没有反馈,是后台里最常见、危害最大的设计缺失之一。</b></p>
+    </div>
+
+    <h3>表单:顺序、默认值、即时校验</h3>
+    <p>表单是后台使用频率最高的交互模式。字段顺序乱、要填的内容太多、填完才知道格式不对——这三个问题叠在一起,就是"填表是折磨"的根源。<b>好表单让用户像流水一样从上往下填,不需要回头改。</b></p>
+    <p>即时校验尤其关键:用户填完一个字段就立刻知道对不对,而不是点"提交"才看到一屏红字报错。后者会让人不知道先改哪条,情绪也很差。一个好的经验值是:<b>校验在字段失焦后触发</b>,不要等提交,也不要每按一个键就报错。</p>
+
+    <h3>操作反馈:每个按钮点击都要有回音</h3>
+    <p>人按下任何东西,都本能地期待一个即时回应。界面里的每个操作也一样。<b>没有反馈等于用户不知道系统有没有收到,于是反复点击。</b>有时候点了没反应比弹出报错更让人焦虑——至少报错说明系统还活着。反馈要快(几十毫秒内先有动静)、要准(说清楚是成功、处理中还是失败)。按钮变成"处理中…"并禁用掉重复点击,是最简单也最有效的反馈模式。</p>
+
+    <h3>一致性:命名、位置、交互模式</h3>
+    <p>同一个系统里,"新增"和"添加"、"删除"和"移除"混用;弹窗的确认按钮有时在左有时在右;有的页面表格行末有"编辑",有的要双击行才能编辑——每一处不一致,用户都要多想一下。<b>一致性是系统积累的信任,每处不一致都在消耗这份信任。</b>后台里这个问题格外容易被忽视,因为页面是不同人在不同时期搭出来的,积少成多就乱了。</p>
+
+    <h3>批量与危险操作:确认和可撤销</h3>
+    <p>删除 100 条记录、清空一个字段、批量改状态——这些操作代价高,误触了很难恢复。<b>危险操作必须有摩擦感:二次确认弹窗,或者操作后一定时间内可以撤销。</b>这不是要拖慢效率,而是给用户一个"我真的要这么做吗"的机会。没有这层保护,早晚有人在生产环境手滑出事。弹窗里的措辞也很关键:按钮写"确认删除"比写"确认"要安全得多。</p>
+
+    <h3>导航与定位:随时知道自己在哪</h3>
+    <p>后台功能多、层级深。用户点着点着不知道自己在哪个模块,想回上一页也找不到入口——这种"迷失感"是用户放弃一个系统的常见原因之一。<b>面包屑、侧边栏高亮、页面标题——三样里有两样,用户基本就不会迷路。</b>面包屑还有额外好处:它同时暗示了可以往哪里回退。</p>
+
+    <h3>认知负荷:屏幕上不要同时塞太多东西</h3>
+    <p>人的工作记忆同时只能处理 5 到 9 个项目。一个页面里如果有 15 个按钮、8 个筛选项、3 个操作区域,用户的眼睛就会在屏幕上漫无目的地扫——找目标、找入口、找按钮。<b>把主要操作控制在 7 个以内,把最常用的操作放在最显眼的地方,其余收进下拉或"更多"菜单。</b>这不是删功能,是信息架构的整理。</p>
+
+    <h3>错误预防:拦截比报错更好</h3>
+    <p>最好的错误处理,是让错误做不出来。必填字段没填完,"提交"按钮就是灰的;数量不能为负数,减号到 0 就禁用;不允许重复的字段,输入框失焦时立刻查重。<b>界面设计在源头把错误挡住,比等用户犯错再弹报错要友好得多。</b>这不是多余的约束,是对用户的尊重,也是对系统数据完整性的保护。</p>
+
+    <div class="lab">
+      <div class="lab-title">✅ 交互式自查清单 · 界面健康打分</div>
+      <p style="margin:0 0 2px; color:var(--text-soft); font-size:.92rem">把你正在用或正在搭的某个后台页面摆在眼前,对照下面 12 条逐条勾选。<b>每勾一条,分数实时更新。</b>没勾的条目高亮显示"⚠ 待改"——那就是今天的改进清单。</p>
+
+      <div class="bc-score-area">
+        <div class="bc-score-num" id="bc-score" style="color:#e2524a">0 / 12</div>
+        <div class="bc-bar-wrap">
+          <div class="bc-bar" id="bc-bar" style="width:0%;background:#e2524a"></div>
+        </div>
+        <div class="bc-score-lbl" id="bc-lbl" style="color:#e2524a">需要重点关注</div>
+      </div>
+
+      <div class="bc-list" id="bc-list">
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc0">
+          <label for="bc0"><span class="bc-cat">空态</span>列表或表格为空时,有友好提示文案(如"暂无记录,点击新增"),不是空白一片</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc1">
+          <label for="bc1"><span class="bc-cat">加载态</span>数据请求期间有骨架屏、进度条或转圈动画,用户不会以为系统卡死</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc2">
+          <label for="bc2"><span class="bc-cat">错误态</span>请求失败或操作出错时,给出具体原因和建议,不只是"出错了"或直接空白</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc3">
+          <label for="bc3"><span class="bc-cat">成功态</span>保存、提交、删除成功后,有即时确认反馈(toast 提示、消息条或状态变化)</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc4">
+          <label for="bc4"><span class="bc-cat">表单顺序</span>表单字段按用户填写的自然顺序排列(基本信息→详细信息),不来回跳</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc5">
+          <label for="bc5"><span class="bc-cat">默认值</span>常用字段有合理默认值预填(如当前日期、当前登录用户),减少重复手动输入</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc6">
+          <label for="bc6"><span class="bc-cat">即时校验</span>字段输入完成后立即校验格式或规则,不等点"提交"才集中报一屏错误</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc7">
+          <label for="bc7"><span class="bc-cat">操作反馈</span>每个按钮点击后都有即时视觉回应(变色、加载中或禁用),不让用户猜是否点到</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc8">
+          <label for="bc8"><span class="bc-cat">一致性</span>同功能在系统各处用词一致、位置固定(如"新增"始终在右上,弹窗"确认"始终在右)</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc9">
+          <label for="bc9"><span class="bc-cat">危险操作</span>删除、清空、批量修改等高风险操作有二次确认弹窗,或提供操作后可撤销的机会</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc10">
+          <label for="bc10"><span class="bc-cat">定位</span>面包屑或侧边菜单高亮清楚标出当前位置,用户随时知道自己在哪个模块</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+        <div class="bc-item bc-pending">
+          <input type="checkbox" id="bc11">
+          <label for="bc11"><span class="bc-cat">认知负荷</span>单屏主要操作不超过 7 个,高危按钮不与常用按钮紧挨放置,防止误触</label>
+          <span class="bc-warn">⚠ 待改</span>
+        </div>
+
+      </div>
+
+      <div style="margin-top:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px">
+        <span style="font-size:.85rem; color:var(--text-faint)">勾完后,把未勾的条目当作本周改进清单</span>
+        <button type="button" id="bc-reset"
+          style="border:1px solid var(--border);background:var(--bg);color:var(--text-soft);
+                 padding:8px 18px;border-radius:999px;font-size:.88rem;font-weight:700;
+                 cursor:pointer;transition:border-color .12s,color .12s">
+          重置清单
+        </button>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="box-title">✏️ 试一试:现在就拿一个真实页面跑一遍</div>
+      <p style="margin:6px 0">打开你手头正在搭或最近在用的某个后台页面——NocoBase 里的一张表单、一个审批流入口、一份报表、一个设置页面都行。用上面的清单逐条过一遍,然后把这两件事写下来(记在笔记里也好,随手拍照也好):</p>
+      <p style="margin:12px 0; padding:14px 16px; background:var(--bg); border-radius:8px; border:1px dashed var(--border); line-height:2.4; font-size:.93rem">
+        今天检查的页面:&nbsp;<span style="display:inline-block;width:160px;border-bottom:1px solid var(--border)"></span><br>
+        界面健康分:&nbsp;<span style="display:inline-block;width:50px;border-bottom:1px solid var(--border)"></span>&nbsp;/ 12<br>
+        最该改的第 1 条:&nbsp;<span style="display:inline-block;width:200px;border-bottom:1px solid var(--border)"></span><br>
+        最该改的第 2 条:&nbsp;<span style="display:inline-block;width:200px;border-bottom:1px solid var(--border)"></span>
+      </p>
+      <p style="margin:8px 0 4px"><b>找"最该改"条目的小窍门:</b><span style="color:var(--text-soft)">想想最近哪一步让你或同事在这个页面上卡了一下、点错了、找不到按钮——那一步对应的条目多半就是得分最低的。从那里改起,效果最直接。</span></p>
+      <p style="margin:8px 0 0"><b>下周来的时候重新打一次分</b>,看看改动有没有让健康分涨上去。这个追踪动作本身,就是把课程内容真正内化的过程。</p>
+    </div>
+
+    <p style="margin-top:20px">设计能力的提升不是靠一次读懂了多少理论,而是靠反复对照真实界面做判断。每周一次、每次 5 分钟,时间久了你会发现自己的眼睛变了——打开一个陌生的后台,不到一分钟就能说出它哪里好、哪里有问题、该怎么改。这才是这门课想帮你练出来的东西。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function(){
+    var TOTAL = 12;
+    var list     = document.getElementById('bc-list');
+    var scoreEl  = document.getElementById('bc-score');
+    var barEl    = document.getElementById('bc-bar');
+    var lblEl    = document.getElementById('bc-lbl');
+    var resetBtn = document.getElementById('bc-reset');
+    if (!list || !scoreEl || !barEl || !lblEl || !resetBtn) return;
+
+    var RED    = '#e2524a';
+    var ORANGE = '#e67e22';
+    var GREEN  = '#27ae60';
+
+    function color(n) {
+      if (n <= 4)       return RED;
+      if (n <= 8)       return ORANGE;
+      return GREEN;
+    }
+    function label(n) {
+      if (n === 0)      return '需要重点关注';
+      if (n <= 4)       return '需要重点关注';
+      if (n <= 8)       return '还有提升空间';
+      if (n < TOTAL)    return '已经不错!';
+      return '界面非常健康 ✓';
+    }
+
+    function update() {
+      var items   = list.querySelectorAll('.bc-item');
+      var checked = 0;
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var cb   = item.querySelector('input[type="checkbox"]');
+        var warn = item.querySelector('.bc-warn');
+        if (cb && cb.checked) {
+          checked++;
+          item.classList.add('bc-done');
+          item.classList.remove('bc-pending');
+          if (warn) warn.style.display = 'none';
+        } else {
+          item.classList.remove('bc-done');
+          item.classList.add('bc-pending');
+          if (warn) warn.style.display = '';
+        }
+      }
+      var c   = color(checked);
+      var pct = (checked / TOTAL * 100).toFixed(1);
+      scoreEl.textContent  = checked + ' / ' + TOTAL;
+      scoreEl.style.color  = c;
+      barEl.style.width      = pct + '%';
+      barEl.style.background = c;
+      lblEl.textContent    = label(checked);
+      lblEl.style.color    = c;
+    }
+
+    list.addEventListener('change', update);
+
+    resetBtn.addEventListener('click', function() {
+      var cbs = list.querySelectorAll('input[type="checkbox"]');
+      for (var i = 0; i < cbs.length; i++) {
+        cbs[i].checked = false;
+      }
+      update();
+    });
+
+    resetBtn.addEventListener('mouseover', function() {
+      resetBtn.style.borderColor = 'var(--accent)';
+      resetBtn.style.color       = 'var(--accent)';
+    });
+    resetBtn.addEventListener('mouseout', function() {
+      resetBtn.style.borderColor = 'var(--border)';
+      resetBtn.style.color       = 'var(--text-soft)';
+    });
+
+    update();
+  })();
+  </script>
+</body>
+</html>

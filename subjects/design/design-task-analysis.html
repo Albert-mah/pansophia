@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>任务分析:用户到底要完成什么 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-task-analysis"></script>
+  <style>
+    /* 本页自用:任务拆解树交互组件 */
+    .ta-tree { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+
+    .ta-step {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 13px 16px 13px 16px; background: var(--bg);
+      border: 1.5px solid var(--border); border-radius: 10px;
+      position: relative; transition: border-color .14s, background .14s, box-shadow .14s;
+    }
+    .ta-step.ok  { border-color: #cdeed7; background: var(--bg); }
+    .ta-step.stuck { border-color: #f6d6d2; background: #fdf2f1; }
+    .ta-step.priority { border-color: #e67e22; background: #fff7ef; box-shadow: 0 0 0 3px rgba(230,126,34,.16); }
+
+    .ta-num {
+      width: 28px; height: 28px; border-radius: 50%; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .82rem; font-weight: 800; color: #fff;
+      background: var(--text-faint); transition: background .14s;
+    }
+    .ta-step.ok     .ta-num { background: #27ae60; }
+    .ta-step.stuck  .ta-num { background: #e2524a; }
+    .ta-step.priority .ta-num { background: #e67e22; }
+
+    .ta-body { flex: 1; min-width: 0; }
+    .ta-name { font-weight: 700; font-size: .97rem; line-height: 1.4; }
+    .ta-desc {
+      font-size: .83rem; color: var(--text-soft); margin-top: 4px; line-height: 1.6;
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height .22s ease, opacity .18s ease, margin-top .18s;
+    }
+    .ta-step.stuck .ta-desc, .ta-step.priority .ta-desc {
+      max-height: 120px; opacity: 1; margin-top: 5px;
+    }
+
+    .ta-tag {
+      display: inline-block; margin-right: 6px;
+      font-size: .72rem; font-weight: 800; padding: 1px 8px;
+      border-radius: 999px; color: #fff; vertical-align: 1px;
+      opacity: 0; width: 0; overflow: hidden; white-space: nowrap;
+      transition: opacity .14s, width .14s;
+    }
+    .ta-step.priority .ta-tag { opacity: 1; width: auto; background: #e67e22; }
+
+    .ta-btn {
+      border-radius: 999px; padding: 5px 15px; font-size: .85rem; font-weight: 800;
+      cursor: pointer; white-space: nowrap; flex: none; align-self: flex-start;
+      margin-top: 1px; border: 1.5px solid; transition: all .12s;
+    }
+    .ta-btn.ok-btn   { background: #f1faf3; color: #27ae60; border-color: #cdeed7; }
+    .ta-btn.ok-btn:hover   { background: #e0f5e8; }
+    .ta-btn.stuck-btn { background: #fdf2f1; color: #e2524a; border-color: #f6d6d2; }
+    .ta-btn.stuck-btn:hover { background: #fce7e5; }
+
+    .ta-summary {
+      margin-top: 16px; padding: 15px 20px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    }
+    .ta-big-num { font-size: 2.4rem; font-weight: 800; line-height: 1; flex: none; min-width: 44px; text-align: center; }
+    .ta-big-num.c0 { color: #27ae60; }
+    .ta-big-num.c1 { color: #e67e22; }
+    .ta-big-num.c2 { color: #e2524a; }
+    .ta-verdict { flex: 1; font-size: .9rem; color: var(--text-soft); line-height: 1.7; }
+    .ta-verdict b { display: block; color: var(--text); font-size: .98rem; margin-bottom: 2px; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">任务分析</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>任务分析:用户到底要完成什么</h1>
+      <div class="meta-row" data-meta><span>🎯 分析方法</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>有个经典的段子:一家打孔机厂商做市场调研,问用户"你想要一台更好的打孔机吗"——用户说想要。但用户真正想要的从来不是"打孔机"。<b>他想要的是墙上的洞。</b>洞是目的,打孔机只是工具。</p>
+
+    <p>交互设计最容易犯的错,就是把"用户提出了功能需求 X"当成终点,却忘了追问:他为什么需要 X?X 是哪个更大任务里的哪一步?前面还要做什么?后面还要干什么?这一页要讲的,就是在动手设计界面之前先要做的一件事——<b>任务分析</b>:彻底搞清楚用户的真实任务是什么、怎么走完它、哪些地方会卡住。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 为什么"功能视角"会出问题</div>
+      <p style="margin:6px 0">产品经理说:"我们需要一个'附件上传'功能。"开发做了,测试通过了,上线了。但采购员小刘还是花了二十分钟才把报销单提交出去——因为系统一次只能上传一个文件,而他有八张发票。</p>
+      <p style="margin:6px 0">没有人问过:一次报销流程,用户通常要上传几张附件?他们的文件在手机里还是电脑里?上传完之后下一步要做什么?<b>功能做了,任务没通。这种失败比"功能没做"更隐蔽、也更让人沮丧。</b></p>
+    </div>
+
+    <h2>1. 任务分析的基本逻辑:三层拆解</h2>
+    <p>任务分析有很多流派,最实用的一种叫<b>层级任务分析(Hierarchical Task Analysis,HTA)</b>。核心思路很简单:把一个大任务不断往下拆,直到拆到"具体操作"为止。一共三层:</p>
+    <ul>
+      <li><b>目标(Goal)</b>:用户最终想达到什么状态?——"报销成功,收到打款"。</li>
+      <li><b>子任务(Sub-task)</b>:完成目标要经历哪几个阶段?——"整理票据""填写报销单""提交审批""等待打款"。</li>
+      <li><b>具体操作(Action)</b>:每个阶段里,用户要对界面做什么?——"点击新建""选择报销类型""逐行录入金额""点击上传"……</li>
+    </ul>
+    <p>拆到"具体操作"这一层,你就能看清每步的前置条件(用户手边要有什么)、执行难度(容易出错吗)、以及等待时间(操作完后要等多久才能继续)。<b>这些信息才是界面设计的真正输入。</b></p>
+
+    <div class="box key">
+      <div class="box-title">🔑 任务分析四步</div>
+      <p style="margin:6px 0"><b>第一步:定目标。</b>用一句话说出用户来到这个页面,最终要完成的是什么事情。不是"填表单",而是"让这笔采购申请进入审批流"。</p>
+      <p style="margin:6px 0"><b>第二步:列子步骤。</b>从用户视角把完整流程分成 4~8 个子步骤,按实际发生顺序排列。每一步的命名用"动词+宾语"——"查库存"而不是"库存查询"。</p>
+      <p style="margin:6px 0"><b>第三步:找卡点。</b>对每个子步骤问三个问题:用户在这里会碰到什么困难?需要在哪里等待?容易在哪里出错或重复操作?——打"卡"标记。</p>
+      <p style="margin:6px 0"><b>第四步:排优先级。</b>不是所有卡点都值得立刻改。选出频率最高、等待最长、最容易出错的那一两个,优先下手。</p>
+    </div>
+
+    <h2>2. 后台实例:把"提交采购申请单"拆开看</h2>
+    <p>任务:<b>提交一张采购申请单</b>。目标:让物资采购进入审批流,最终完成采购。把它拆成子步骤,并标出卡点:</p>
+
+    <div class="box example">
+      <div class="box-title">📋 完整拆解:提交一张采购申请单</div>
+      <p style="margin:8px 0"><b>子步骤 1:查库存</b>——打开库存列表,搜索需要采购的物品,确认当前库存和安全库存值。<br><span style="color:#e2524a">卡点:</span>库存页面和采购单是两个独立模块,用户要来回切换页面,每次都得重新搜索。</p>
+      <p style="margin:8px 0"><b>子步骤 2:填写明细</b>——新建采购单,逐行填写物品名称、数量、预估单价、备注。<br><span style="color:#e2524a">卡点:</span>物品名称要手动输,拼错或格式不一致会导致后续对账出错;每行要填 6 个字段,20 条明细就是 120 次输入。</p>
+      <p style="margin:8px 0"><b>子步骤 3:选审批人</b>——在下拉列表里选直属上级和采购部负责人。<br><span style="color:#e2524a">卡点:</span>新员工不知道该选谁;审批人列表几十人,没有搜索,只能滚动翻找。</p>
+      <p style="margin:8px 0"><b>子步骤 4:上传附件</b>——把询价单、参考价等文件上传到表单。<br><span style="color:#e2524a">卡点:</span>文件格式和大小限制不明确,上传到一半报错,只能重传;不支持批量上传。</p>
+      <p style="margin:8px 0"><b>子步骤 5:提交</b>——检查无误后点击提交按钮。顺畅——麻烦都在前面几步。</p>
+      <p style="margin:10px 0 4px"><b>结论:</b>最大卡点在"填写明细"——频率最高、重复操作最多、出错代价最大。<b>优先给物品名称加自动补全,允许从库存直接导入行——是投入产出比最高的改法。</b></p>
+    </div>
+
+    <h2>3. 找卡点:具体看什么</h2>
+    <p>任务拆解完之后,分析卡点是最关键的一步。后台场景里,卡点通常出现在这几类地方:</p>
+    <ul>
+      <li><b>信息断层</b>:完成这一步需要的信息,不在同一个页面上。用户要来回切标签页、截图、手动抄写。</li>
+      <li><b>高重复操作</b>:同样的动作要做很多遍——逐行录入、逐个上传、逐一填写固定格式的字段。</li>
+      <li><b>不确定时刻</b>:用户不知道"我做对了吗""这一步完成后系统会干什么""审批到哪了"。</li>
+      <li><b>等待死区</b>:某一步操作完之后,用户必须等待很长时间才能继续,且得不到任何进度信息。</li>
+      <li><b>错误代价高</b>:某一步一旦填错,整张表要重填、已通过的审批要撤回、或影响下游数据。</li>
+    </ul>
+    <p>找卡点最直接的方法是<b>跟着真实用户走一遍</b>,或者找最熟悉这个流程的人坐下来讲"你平时是怎么做的"。他们停顿最久、皱眉最多、说"这里每次都要……"的地方,多半就是卡点。</p>
+
+    <div class="box warn">
+      <div class="box-title">⚠️ 一个常见陷阱</div>
+      <p style="margin:6px 0">做任务分析时很容易把"你觉得用户会怎么做"和"用户实际怎么做"混淆。设计者通常比用户熟悉系统,会自动走捷径、跳过他们觉得"显然"的步骤。<b>必须站在一个不熟悉系统的人的视角去走一遍</b>——让实习生或新来的同事帮你操作一次,观察他在哪里卡住、走错了往哪里走。</p>
+    </div>
+
+    <h2>4. 先理解任务,再谈界面</h2>
+    <p>把任务分析放在界面设计之前,意味着一件事:<b>你在动第一个像素之前,就已经知道哪里是痛点、哪里值得花力气。</b>设计出来的界面不只是"功能完整"——最频繁的操作放在最显眼的位置,最容易出错的步骤有防错提示,最无聊的重复操作被批量处理或自动填充替掉了。</p>
+    <p>反过来,没有做过任务分析就直接画页面,很可能会做出一个"功能全、但流程断"的系统——每个功能单独看都对,但用户想从 A 走到 Z,要自己跨过五个沟七个坎。这种系统上线后培训成本极高,投诉不断,但查起来"哪个功能有问题"又找不出来——问题就出在任务从来没被分析过。</p>
+
+    <div class="lab">
+      <div class="lab-title">🌳 任务拆解树:报销一笔费用</div>
+      <p style="margin:0 0 14px; color:var(--text-soft); font-size:.92rem">下面是"报销一笔费用"的完整任务拆解,共 8 个子步骤。<b>点击每步右侧的按钮</b>切换「顺畅」或「遇卡」——遇卡的步骤会展开显示痛点描述。组件会<b>实时统计卡点数量</b>,并用橙色高亮标出<b>最该优先优化的一步</b>(影响最大且已标卡的步骤)。</p>
+      <div class="ta-tree" id="ta-tree"></div>
+      <div class="ta-summary">
+        <div class="ta-big-num c0" id="ta-count">0</div>
+        <div class="ta-verdict" id="ta-verdict">
+          <b>暂无卡点</b>点击右侧按钮标记你遇到的卡点。
+        </div>
+      </div>
+    </div>
+
+    <h2>5. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 拆解你自己后台里最长的一个任务</div>
+      <p style="margin:6px 0">找你工作中用得最多的一个后台流程(提交审批、录入数据、生成报表……都行),按下面格式拆一遍。不需要很完整,能找出卡点就够了。</p>
+      <p style="margin:12px 0; line-height:2.5">
+        <b>任务目标(一句话):</b>&nbsp; 用户完成后,系统里发生了什么变化?<br>
+        <b>子步骤 1:</b>&nbsp; _______________（顺 / 卡?为什么?）<br>
+        <b>子步骤 2:</b>&nbsp; _______________（顺 / 卡?为什么?）<br>
+        <b>子步骤 3:</b>&nbsp; _______________（顺 / 卡?为什么?）<br>
+        <b>子步骤 4:</b>&nbsp; _______________（……继续往下加）<br>
+        <b>最大卡点:</b>&nbsp; _______________
+      </p>
+      <p style="margin:10px 0 4px"><b>找完卡点之后,只做一件事:</b><span style="color:#888">问"这个卡点能不能用界面解决"——自动带入数据、减少必填字段、批量操作、状态可见……往往一个小改动就能把"每次想骂人"变成"一秒过"。</span></p>
+      <p style="margin:6px 0">任务分析的价值不在于写出完整文档,而在于<b>让你有理由把设计资源押在刀刃上</b>。卡点在哪,改哪里。</p>
+    </div>
+
+    <p style="margin-top:14px">用户进后台,是为了完成工作,不是为了欣赏界面。把他们的任务拆开、找出卡点、按优先级改掉——这才是交互设计在后台场景里最务实的起点。下次有人说"我们需要一个 XX 功能",你的第一个问题应该是:"用户在做什么任务的时候需要它?那个任务里,这是哪一步?前后还有什么?"</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function(){
+    var treeEl   = document.getElementById('ta-tree');
+    var countEl  = document.getElementById('ta-count');
+    var verdictEl= document.getElementById('ta-verdict');
+    if(!treeEl) return;
+
+    /* 步骤定义
+       impact: 1=低 / 2=中 / 3=高 — 用于确定"最该优先改"的卡点
+       desc: 该步骤"遇卡"时展开显示的痛点说明 */
+    var STEPS = [
+      { id:1, name:'找到票据和单据',
+        desc:'纸质发票、转账截图、出租车票散落在不同地方,要先花时间整理归拢,才能开始录入——任务还没开始就已经烦了。',
+        impact:2 },
+      { id:2, name:'登录报销系统',
+        desc:'密码忘了、会话超时要重新登录;有时遇上系统维护,整个流程直接被打断,只能改天再来。',
+        impact:1 },
+      { id:3, name:'新建报销单,填写基本信息',
+        desc:'报销类型、费用归属部门、所属月份……字段多,部分选项不知道选哪个;填错了后面整张单要作废重填。',
+        impact:2 },
+      { id:4, name:'逐条录入费用明细',
+        desc:'每一笔都要填日期、类型、金额、说明——10 笔就是 40 次输入,机械重复最容易手误;金额填错一位,整张单的合计都对不上。',
+        impact:3 },
+      { id:5, name:'上传发票附件',
+        desc:'系统限制单文件 2 MB、只支持 JPG/PNG,而发票往往是 PDF 或手机拍的大图;上传失败还不报具体原因,只能逐个试。',
+        impact:2 },
+      { id:6, name:'选择审批人',
+        desc:'下拉列表没有搜索框,要在几十个名字里滚动翻找;新员工根本不确定该选谁,常常问一圈才能提交。',
+        impact:2 },
+      { id:7, name:'提交并等待审批',
+        desc:'提交后不知道审批进度在哪一步,只能等邮件通知;审批人很久没操作也没有催办功能,干等是最大的焦虑来源。',
+        impact:3 },
+      { id:8, name:'确认收款',
+        desc:'打款后系统不主动推送通知,需要自己去查工资条或银行流水才能确认到账;有时账期不一致还会让人以为没报上。',
+        impact:1 }
+    ];
+
+    /* 初始状态:预设 1/4/5/7 为"遇卡",让学习者一眼看到组件效果 */
+    var states = { 1:true, 2:false, 3:false, 4:true, 5:true, 6:false, 7:true, 8:false };
+
+    function stuckCount(){
+      var n = 0;
+      STEPS.forEach(function(s){ if(states[s.id]) n++; });
+      return n;
+    }
+
+    function priorityStep(){
+      /* 找 impact 最高且处于"遇卡"的步骤;并列时取 id 最小的 */
+      var best = null;
+      STEPS.forEach(function(s){
+        if(!states[s.id]) return;
+        if(!best || s.impact > best.impact || (s.impact === best.impact && s.id < best.id)){
+          best = s;
+        }
+      });
+      return best;
+    }
+
+    function render(){
+      treeEl.innerHTML = '';
+      var pri = priorityStep();
+
+      STEPS.forEach(function(s){
+        var stuck  = !!states[s.id];
+        var isPri  = stuck && pri && pri.id === s.id;
+        var cls    = stuck ? (isPri ? 'priority' : 'stuck') : 'ok';
+
+        var div = document.createElement('div');
+        div.className = 'ta-step ' + cls;
+
+        div.innerHTML =
+          '<div class="ta-num">' + s.id + '</div>'
+        + '<div class="ta-body">'
+        +   '<div class="ta-name">'
+        +     '<span class="ta-tag">最该优先改</span>'
+        +     s.name
+        +   '</div>'
+        +   '<div class="ta-desc">' + s.desc + '</div>'
+        + '</div>'
+        + '<button type="button" class="ta-btn ' + (stuck ? 'stuck-btn' : 'ok-btn') + '" data-id="' + s.id + '">'
+        +   (stuck ? '遇卡 ✗' : '顺畅 ✓')
+        + '</button>';
+
+        treeEl.appendChild(div);
+      });
+
+      /* 绑定点击事件 */
+      treeEl.querySelectorAll('.ta-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var id = parseInt(this.getAttribute('data-id'), 10);
+          states[id] = !states[id];
+          render();
+        });
+      });
+
+      /* 更新摘要 */
+      var n = stuckCount();
+      countEl.textContent = n;
+      countEl.className   = 'ta-big-num ' + (n === 0 ? 'c0' : n <= 3 ? 'c1' : 'c2');
+
+      if(n === 0){
+        verdictEl.innerHTML = '<b>暂无卡点</b>点击右侧按钮标记你遇到的卡点。';
+      } else {
+        var p = priorityStep();
+        var hint = n === 1
+          ? '<b>发现 1 个卡点 — 就从这里下手</b>'
+          : '<b>发现 ' + n + ' 个卡点 — 建议先改这一步</b>';
+        verdictEl.innerHTML = hint
+          + '「' + p.name + '」'
+          + (p.impact === 3
+              ? '频率高、重复多、出错代价大,是整个流程里性价比最高的改进点。'
+              : '改了之后对整体流程的顺畅度提升最明显。');
+      }
+    }
+
+    render();
+  })();
+  </script>
+</body>
+</html>

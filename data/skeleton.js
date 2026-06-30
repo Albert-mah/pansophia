@@ -92,29 +92,29 @@ window.STUDY_SKELETON = [
         { title: "错误预防与错误恢复", ref: "design-error-prevention" }
       ] },
       { title: "用户研究与需求", points: [
-        { title: "访谈与观察", status: "todo" },
-        { title: "任务分析(用户到底要完成什么)", status: "todo" },
-        { title: "Persona 与 Journey Map", status: "todo" },
-        { title: "可用性测试基础", status: "todo" }
+        { title: "访谈与观察", ref: "design-interview-observe" },
+        { title: "任务分析(用户到底要完成什么)", ref: "design-task-analysis" },
+        { title: "Persona 与 Journey Map", ref: "design-persona-journey" },
+        { title: "可用性测试基础", ref: "design-usability-test" }
       ] },
       { title: "信息架构与流程", points: [
         { title: "导航·分类·层级", ref: "design-nav-ia" },
         { title: "搜索与筛选", ref: "design-search-filter" },
         { title: "表单设计(顺序/默认值/即时校验)", ref: "design-form-design" },
-        { title: "列表·详情·工作流", status: "todo" },
+        { title: "列表·详情·工作流", ref: "design-list-detail-flow" },
         { title: "空状态·加载·错误·成功 四态", ref: "design-four-states" }
       ] },
       { title: "界面模式与组件", points: [
-        { title: "表格与批量操作", status: "todo" },
-        { title: "向导·弹窗·抽屉", status: "todo" },
-        { title: "仪表盘与设置页", status: "todo" },
-        { title: "模式复用(别从零发明交互)", status: "todo" }
+        { title: "表格与批量操作", ref: "design-table-batch" },
+        { title: "向导·弹窗·抽屉", ref: "design-wizard-modal-drawer" },
+        { title: "仪表盘与设置页", ref: "design-dashboard-settings" },
+        { title: "模式复用(别从零发明交互)", ref: "design-pattern-reuse" }
       ] },
       { title: "原型·评审·迭代", points: [
-        { title: "低保真 wireframe", status: "todo" },
-        { title: "高保真 prototype", status: "todo" },
-        { title: "设计走查与 critique", status: "todo" },
-        { title: "后台界面自查清单(每周拆解练习)", status: "todo" }
+        { title: "低保真 wireframe", ref: "design-wireframe" },
+        { title: "高保真 prototype", ref: "design-hifi-prototype" },
+        { title: "设计走查与 critique", ref: "design-critique" },
+        { title: "后台界面自查清单(每周拆解练习)", ref: "design-backend-checklist" }
       ] }
     ]
   },

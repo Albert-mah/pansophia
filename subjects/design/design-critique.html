@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设计走查与 critique(评审) · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-critique"></script>
+  <style>
+    /* 本页自用:找茬走查组件所需样式 */
+    .cq-mock {
+      border: 1px solid #d1d5db; border-radius: 10px; overflow: hidden;
+      background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.08); margin: 14px 0;
+    }
+    .cq-mock-titlebar {
+      background: #374151; color: #e5e7eb; padding: 7px 14px;
+      display: flex; align-items: center; gap: 7px; font-size: .78rem;
+    }
+    .cq-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .cq-dot.r { background: #ef4444; } .cq-dot.y { background: #f59e0b; } .cq-dot.g { background: #10b981; }
+    .cq-toolbar {
+      background: #f9fafb; border-bottom: 1px solid #e5e7eb;
+      padding: 8px 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .cq-tbl { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    .cq-tbl th { background: #f3f4f6; border-bottom: 1px solid #e5e7eb; padding: 7px 10px; text-align: left; color: #6b7280; font-weight: 700; }
+    .cq-tbl td { border-bottom: 1px solid #f3f4f6; padding: 7px 10px; color: #374151; vertical-align: middle; }
+    .cq-pagination { display: flex; align-items: center; gap: 6px; padding: 9px 14px; font-size: .78rem; color: #6b7280; }
+    /* 嫌疑点标记 */
+    .cq-spot {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #fbbf24; color: #1f2937; font-weight: 800; font-size: .72rem;
+      cursor: pointer; border: 2px solid #d97706; user-select: none;
+      transition: transform .1s, box-shadow .12s; flex-shrink: 0;
+      vertical-align: middle; margin: 0 3px;
+    }
+    .cq-spot:hover { transform: scale(1.2); box-shadow: 0 2px 10px rgba(217,119,6,.45); }
+    .cq-spot.is-prob { background: #ef4444; border-color: #b91c1c; color: #fff; cursor: default; }
+    .cq-spot.is-ok   { background: #10b981; border-color: #059669; color: #fff; cursor: default; }
+    /* 结果卡片 */
+    .cq-card {
+      border-radius: 8px; padding: 12px 14px; margin: 8px 0;
+      border: 1px solid #e5e7eb; font-size: .85rem; line-height: 1.65;
+    }
+    .cq-card.prob { border-color: #fca5a5; background: #fff5f5; }
+    .cq-card.ok   { border-color: #a7f3d0; background: #f0fdf9; }
+    .cq-verdict { font-weight: 800; margin-bottom: 5px; }
+    .cq-card.prob .cq-verdict { color: #dc2626; }
+    .cq-card.ok  .cq-verdict { color: #059669; }
+    .cq-ptag {
+      display: inline-block; background: #fef3c7; color: #92400e;
+      font-size: .76rem; font-weight: 700; padding: 2px 9px;
+      border-radius: 999px; margin-bottom: 6px;
+    }
+    /* 计分栏 */
+    .cq-scorebar {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
+    }
+    .cq-scorenum { font-size: 1.55rem; font-weight: 800; color: var(--accent); line-height: 1; }
+    .cq-scorelbl { font-size: .88rem; color: var(--text-soft); flex: 1; }
+    .cq-pips { display: flex; gap: 5px; }
+    .cq-pip { width: 20px; height: 20px; border-radius: 50%; background: var(--border); border: 2px solid var(--border); transition: background .2s, border-color .2s; }
+    .cq-pip.on { background: var(--accent); border-color: var(--accent); }
+    /* 模拟 UI 小部件 */
+    .mb { display: inline-block; padding: 3px 9px; border-radius: 5px; font-size: .76rem; font-weight: 600; }
+    .mb-blue { background: #3b82f6; color: #fff; }
+    .mb-gray { background: #e5e7eb; color: #374151; }
+    .mb-red  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .tog { display: inline-block; width: 32px; height: 16px; background: #d1d5db; border-radius: 999px; position: relative; vertical-align: middle; }
+    .tog::after { content:""; position:absolute; left:2px; top:2px; width:12px; height:12px; background:#fff; border-radius:50%; }
+    .tog.on { background: #3b82f6; }
+    .tog.on::after { left:auto; right:2px; }
+    @media (max-width: 600px) {
+      .cq-tbl th:nth-child(3), .cq-tbl td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">设计走查与 critique</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>设计走查与 critique</h1>
+      <div class="meta-row" data-meta><span>🔍 走查</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>你做完一个后台页面,怎么判断它"够不够好用"?靠感觉说"我觉得挺好的"不算数,靠别人说"感觉怪怪的"也没法改。设计领域有两套互补的检查方法:<b>启发式走查</b>把检查过程清单化,一个人半小时就能做;<b>critique 评审</b>把反馈语言格式化,让团队讨论有话可说、有处可改。学会这两件事,你对界面的每个判断都有据可查、可以被讨论、可以被迭代。</p>
+
+    <h2>1. 启发式走查:带着清单去挑毛病</h2>
+    <p><b>启发式走查(Heuristic Evaluation)</b> 的做法很直接:拿一套经过验证的设计原则——最常用的是<b>尼尔森十原则</b>——拿着这张清单<b>逐条对照</b>一个真实界面,找出"这里违反了哪条"。整个过程一个人就能做,不需要安排用户测试,快则半小时,慢则一两小时。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 尼尔森十原则速览(走查用)</div>
+      <p style="margin:6px 0">走查时逐条过,每条问自己:"这个界面在这一点上做得怎么样?"</p>
+      <p style="margin:8px 0 3px"><b>① 系统状态可见性</b> — 用户做了什么,系统要立刻告诉他结果。保存成功?显示"已保存"。加载中?显示进度条。</p>
+      <p style="margin:3px 0"><b>② 系统与现实世界的匹配</b> — 用用户听得懂的语言,不用系统术语。"Error 403"不如"你没有权限访问这个页面"。</p>
+      <p style="margin:3px 0"><b>③ 用户控制与自由</b> — 操作要可撤销。删错了能还原,填到一半能取消,不要把用户困死在某个状态里。</p>
+      <p style="margin:3px 0"><b>④ 一致性与标准</b> — 同一件事在整个系统里用同样的词、同样的位置、同样的外观。不要让用户猜"这里的删除和那里的删除是不是同一回事"。</p>
+      <p style="margin:3px 0"><b>⑤ 错误预防</b> — 与其等用户犯错再报错,不如用界面设计本身让错误做不出来。危险操作加确认,非法输入直接拦截。</p>
+      <p style="margin:3px 0"><b>⑥ 识别而非记忆</b> — 把选项摆出来让用户认,而不是让用户记住再输入。下拉选择比手打代码好。</p>
+      <p style="margin:3px 0"><b>⑦ 使用灵活性与效率</b> — 新手有引导,老手有快捷键。不要为了保护新手就让老手也只能慢慢来。</p>
+      <p style="margin:3px 0"><b>⑧ 美观与简约设计</b> — 每多一个不必要的元素,都在稀释真正重要的信息。只保留当前任务需要的内容。</p>
+      <p style="margin:3px 0"><b>⑨ 帮助用户识别、诊断和恢复错误</b> — 报错要说清:哪里错了?为什么错?怎么改?不要只说"操作失败"。</p>
+      <p style="margin:3px 0"><b>⑩ 帮助文档</b> — 复杂功能提供可以搜索到的说明;帮助应定位到具体步骤,而不是一堆泛泛的"常见问题"。</p>
+    </div>
+
+    <h3>走查怎么做?</h3>
+    <p>不需要十条全覆盖,也不需要按顺序来。实践中的做法是:打开界面,假装自己是第一次用这个系统的人,边操作边在脑子里对照这十条——"等一下,这里我点了之后什么反应都没有,这是原则①系统状态可见性的问题"。发现一条就记下来:哪个元素、违反了哪条、具体表现是什么。走完一遍,手上会有一份问题清单,每个问题都有出处。</p>
+    <p>走查的价值在于<b>快且系统</b>:不靠灵感,不靠情绪,拿着清单走一遍,大多数显而易见的毛病就浮出来了。它发现不了所有问题(真实用户会发现更多),但在不打扰任何人的情况下完成初步筛查,性价比极高。</p>
+
+    <h2>2. Critique 评审:反馈怎么说才有用</h2>
+    <p>很多人第一次参加设计评审会,要么变成抱怨会("这个颜色我不喜欢"),要么变成捧场会(什么都说好)。这两种都没用。<b>Critique 的核心约定只有一个:对事不对人,用"问题 + 影响 + 建议"来描述,不用"我喜不喜欢"来描述。</b></p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 这样的反馈没有用</div>
+      <p style="margin:6px 0">"这个按钮颜色太丑了。"<br>
+      "我觉得这里放一个弹窗会更好。"<br>
+      "这个界面整体感觉不太对。"<br>
+      "我们以前一直这么做,你为什么要改?"</p>
+      <p style="margin:8px 0 4px">这些反馈有一个共同问题:<b>它们都在描述说话人的感受,而不是界面的行为</b>。另一个人完全可以说"我就觉得挺好的",两种感受互相抵消,讨论无法推进,什么结论都出不来。</p>
+    </div>
+
+    <div class="box tip">
+      <div class="box-title">✅ 好反馈的三段式:问题 / 影响 / 建议</div>
+      <p style="margin:6px 0"><b>问题(What):</b> 描述界面上发生了什么,要客观、具体。<br><span style="color:var(--text-soft)">"删除按钮和保存按钮颜色相同、大小相同。"</span></p>
+      <p style="margin:8px 0"><b>影响(So what):</b> 这个问题会造成什么后果?要落到真实用户行为上。<br><span style="color:var(--text-soft)">"用户在快速扫描时容易误点删除,而删除操作不可恢复。"</span></p>
+      <p style="margin:8px 0"><b>建议(Now what):</b> 给出一个具体可落地的改法。<br><span style="color:var(--text-soft)">"建议把删除按钮改成红色,并加二次确认弹窗。"</span></p>
+      <p style="margin:10px 0 4px">三段拼起来:"删除和保存按钮外观相同(问题),用户扫描时容易误点,而误删不可恢复(影响),建议把删除改为红色并加确认弹窗(建议)。"这条反馈是客观可验证的,设计师可以直接拿去改。</p>
+    </div>
+
+    <h3>区分"我的偏好"和"真问题"</h3>
+    <p>这是 critique 里最容易踩的坑。<b>真问题</b>是指违反了某条可援引的原则,或者有证据表明用户会卡住、会出错——它不随说话的人变而变。<b>偏好</b>是指"我个人更喜欢这种风格",没有对错之分。</p>
+    <p>分辨方法:把"我"去掉,看这句话还成立吗?"删除和保存按钮外观一样会让用户误操作"——去掉"我",照样成立。这是真问题。"这个蓝色我不喜欢"——去掉"我"就变成了"这个蓝色不好",凭什么?没有依据,这就是偏好。</p>
+    <p>在评审会上,偏好不需要被"解决",说"这是我的个人偏好,不一定要改"就可以;真问题需要被回应——要么改,要么给出为什么可以不改的理由。把两者混为一谈,会让会议陷入无休止的风格争论。</p>
+
+    <h3>给反馈和收反馈的礼仪</h3>
+    <p><b>给反馈的人:</b>把"我不喜欢"换成"这里可能会让用户……";不用命令语气("你应该改掉这个"),用探讨语气("我们可以考虑……?");批评之后一定要附上建议,只说问题没有方向等于没说。</p>
+    <p><b>收反馈的人:</b>默认理解对方在说界面,不是在说你这个人;先听完,不要急着解释"我当初为什么这么设计";对偏好性意见可以说"我记下来了,先放一放";对真问题逐条确认自己理解了问题和影响,再讨论改不改、怎么改。</p>
+
+    <h3>自查 vs 找别人查</h3>
+    <p>启发式走查可以自己做,但有一个致命盲点:<b>你看不到自己的盲点</b>。你已经知道某个按钮在哪里、某个流程怎么走,所以你永远不会"找不到它"——但真实用户会。这就是为什么自查之后还要找别人查。</p>
+    <p>实践建议:先自查一遍找出问题,把能改的改掉;再找一个没接触过这个界面的人走一遍(不需要真实用户,找同事就行)。两轮合起来能覆盖大多数可发现的问题。找别人查时,只说"帮我完成 X 任务",不要提前剧透"这里有个问题",让他自然地用。</p>
+
+    <!-- ===== 交互实验室 ===== -->
+    <div class="lab">
+      <div class="lab-title">🔍 界面找茬走查 · 互动练习</div>
+      <p style="margin:0 0 12px;color:var(--text-soft);font-size:.92rem">下面是一个模拟的后台「工单管理」页面,里面埋了 <b>4 处真实设计毛病</b> 和 <b>1 个无问题的干扰项</b>。逐个点击黄色的 <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#fbbf24;color:#1f2937;font-weight:800;font-size:.7rem;border:2px solid #d97706;vertical-align:middle">?</span> 标记——点击即判断,系统立刻告诉你是不是问题、违反了哪条尼尔森原则、怎么改。</p>
+
+      <!-- 计分栏 -->
+      <div class="cq-scorebar">
+        <div class="cq-scorenum" id="cq-score">0</div>
+        <div class="cq-scorelbl">/ 4 个设计问题已找到</div>
+        <div class="cq-pips" id="cq-pips"></div>
+      </div>
+
+      <!-- 模拟后台界面 -->
+      <div class="cq-mock">
+        <div class="cq-mock-titlebar">
+          <span class="cq-dot r"></span><span class="cq-dot y"></span><span class="cq-dot g"></span>
+          <span style="margin-left:6px;opacity:.75">工单管理系统 · 后台</span>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="cq-toolbar" style="justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+            <span class="mb mb-blue">+ 新建工单</span>
+            <span class="mb mb-gray">导出 Excel</span>
+            <!-- 问题D:没有选中任何行时,批量删除依然显示且可点 -->
+            <span class="mb mb-gray" style="opacity:.55">批量删除</span>
+            <span id="cq-spot-D" class="cq-spot" title="点击判断">D</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="text" placeholder="搜索工单号…" readonly
+              style="border:1px solid #e5e7eb;border-radius:5px;padding:4px 9px;font-size:.76rem;width:120px;outline:none;background:#fff">
+            <!-- 嫌疑E:搜索框没有「搜索」按钮(干扰项) -->
+            <span id="cq-spot-E" class="cq-spot" title="点击判断">E</span>
+          </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <table class="cq-tbl">
+          <thead>
+            <tr>
+              <th style="width:32px"><input type="checkbox" disabled></th>
+              <th>工单编号</th>
+              <th>客户名称</th>
+              <th>
+                <!-- 问题A:状态只有开关色块,没有任何文字 -->
+                状态 <span id="cq-spot-A" class="cq-spot" title="点击判断">A</span>
+              </th>
+              <th>优先级</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" disabled></td>
+              <td style="font-family:monospace;font-size:.76rem;color:#6b7280">WO-2024-0601</td>
+              <td>张三科技</td>
+              <td><span class="tog"></span></td>
+              <td><span style="color:#ef4444;font-weight:700;font-size:.8rem">高</span></td>
+              <td style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+                <!-- 问题B:查看和删除按钮颜色完全一样 -->
+                <span class="mb mb-blue">查看</span>
+                <span class="mb mb-blue">删除</span>
+                <span id="cq-spot-B" class="cq-spot" title="点击判断">B</span>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" disabled></td>
+              <td style="font-family:monospace;font-size:.76rem;color:#6b7280">WO-2024-0602</td>
+              <td>李四实业</td>
+              <td><span class="tog on"></span></td>
+              <td><span style="color:#f59e0b;font-weight:700;font-size:.8rem">中</span></td>
+              <td style="display:flex;align-items:center;gap:4px">
+                <span class="mb mb-blue">查看</span>
+                <span class="mb mb-blue">删除</span>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" disabled></td>
+              <td style="font-family:monospace;font-size:.76rem;color:#6b7280">WO-2024-0603</td>
+              <td>王五集团</td>
+              <td><span class="tog"></span></td>
+              <td><span style="color:#6b7280;font-weight:700;font-size:.8rem">低</span></td>
+              <td style="display:flex;align-items:center;gap:4px">
+                <span class="mb mb-blue">查看</span>
+                <span class="mb mb-blue">删除</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- 分页:上一页/下一页方向颠倒 -->
+        <div class="cq-pagination">
+          <span id="cq-spot-C" class="cq-spot" title="点击判断">C</span>
+          <span style="color:#9ca3af">共 48 条</span>
+          <!-- 问题C:「下一页」在左,「上一页」在右,顺序颠倒 -->
+          <span class="mb mb-gray" style="font-size:.74rem">‹ 下一页</span>
+          <span class="mb mb-blue" style="font-size:.74rem">1</span>
+          <span class="mb mb-gray" style="font-size:.74rem">2</span>
+          <span class="mb mb-gray" style="font-size:.74rem">3</span>
+          <span class="mb mb-gray" style="font-size:.74rem">上一页 ›</span>
+        </div>
+      </div>
+
+      <!-- 结果输出区 -->
+      <div id="cq-results"></div>
+    </div>
+
+    <!-- 试一试 -->
+    <h2>试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 用三段式写 3 条 critique</div>
+      <p style="margin:6px 0">挑一个你用过或做过的后台页面(NocoBase 的某张表、某个表单、某个审批页都行),用"问题 / 影响 / 建议"三段式写 3 条 critique。</p>
+      <p style="margin:10px 0 6px"><b>每条套这个模板:</b></p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:.88rem;line-height:2.1">
+        <b>问题:</b> [描述界面上发生了什么——具体到某个元素或流程]<br>
+        <b>影响:</b> [这让用户……,会导致……]<br>
+        <b>建议:</b> [改成……可以解决这个问题]
+      </div>
+      <p style="margin:10px 0 4px;color:var(--text-soft);font-size:.88rem">写完之后逐条自检:能不能把"我觉得"三个字去掉?建议是不是具体到可以直接动手改?影响是不是落到了用户行为上而不是"感觉不好"?三个问题都是"是",这条 critique 就合格了。</p>
+    </div>
+
+    <p style="margin-top:14px">启发式走查和 critique 是两件互补的事:走查给你<b>找问题的工具</b>,critique 给你<b>说问题的语言</b>。有了这两件事,设计评审就不再是"大家说说感受",而是"我们逐条过这些问题,按影响大小决定先改哪个"。从感受到问题,从问题到改法——这才是设计真正迭代起来的路。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    var SPOTS = {
+      A: {
+        isProb: true,
+        label: '嫌疑点 A — 状态列',
+        principle: '原则① 系统状态可见性',
+        problem: '状态列只有颜色不同的开关图标,没有任何文字标签。用户不知道"蓝色"是开还是关,也无法在扫描时快速读出当前状态。',
+        fix: '在开关旁边加文字标签("启用中"/"已停用"),或在开关内部显示 ON/OFF 字样。颜色只能作为辅助,不能作为唯一的状态信息载体。'
+      },
+      B: {
+        isProb: true,
+        label: '嫌疑点 B — 操作按钮',
+        principle: '原则⑤ 错误预防',
+        problem: '「查看」和「删除」按钮外观完全相同(都是蓝底白字,大小一致)。用户在快速扫描或误触时极易把「删除」当成「查看」点掉,而删除通常不可恢复。',
+        fix: '把「删除」改为红色系按钮,并加二次确认弹窗("确认删除?此操作不可恢复")。危险操作的视觉权重必须与其后果匹配。'
+      },
+      C: {
+        isProb: true,
+        label: '嫌疑点 C — 分页',
+        principle: '原则④ 一致性与标准',
+        problem: '分页排列是「下一页」在左、「上一页」在右,与几乎所有后台系统及阅读习惯(过去=左,未来=右)完全相反。用户每次翻页都要在脑子里"反转"一遍,慢且易点错。',
+        fix: '改为「‹ 上一页」在左、「下一页 ›」在右。分页方向与用户的时间线直觉(左←旧,右→新)保持一致,一眼就知道该点哪边。'
+      },
+      D: {
+        isProb: true,
+        label: '嫌疑点 D — 批量删除按钮',
+        principle: '原则⑧ 美观与简约 + 原则⑤ 错误预防',
+        problem: '「批量删除」按钮无论有没有勾选行都始终显示,且处于半透明可点状态——没有选中任何行时点它会发生什么?用户无法预判,而且这个无效元素持续占据工具栏空间,增加了界面的噪音。',
+        fix: '没有勾选行时,将「批量删除」完全隐藏或设为 disabled(禁用且不可点击)。只在"有选中行"时才出现并激活,让工具栏上的每个元素都处于有意义的状态。'
+      },
+      E: {
+        isProb: false,
+        label: '嫌疑点 E — 搜索框无按钮',
+        analysis: '这不是设计问题。现代后台系统中,搜索框用回车触发、或输入后实时过滤,都是被广泛接受且用户熟悉的模式。没有独立的"搜索"按钮并不违反任何尼尔森原则。',
+        improve: '若想更友好,可在 placeholder 中注明"按 Enter 搜索",这属于锦上添花,而不是必须修复的缺陷。干扰项存在的意义,正是提醒你:不是所有"不熟悉"的设计都是问题。'
+      }
+    };
+
+    var TOTAL = 4;
+    var found = 0;
+    var clicked = {};
+
+    // 初始化计分点
+    var pipsEl = document.getElementById('cq-pips');
+    if (pipsEl) {
+      for (var i = 0; i < TOTAL; i++) {
+        var pip = document.createElement('div');
+        pip.className = 'cq-pip';
+        pip.id = 'cq-pip-' + i;
+        pipsEl.appendChild(pip);
+      }
+    }
+
+    function refreshScore() {
+      var el = document.getElementById('cq-score');
+      if (el) el.textContent = found;
+      for (var i = 0; i < TOTAL; i++) {
+        var p = document.getElementById('cq-pip-' + i);
+        if (p) p.className = 'cq-pip' + (i < found ? ' on' : '');
+      }
+    }
+
+    function reveal(key) {
+      if (clicked[key]) return;
+      clicked[key] = true;
+
+      var spotEl = document.getElementById('cq-spot-' + key);
+      var cfg = SPOTS[key];
+      if (!spotEl || !cfg) return;
+
+      if (cfg.isProb) {
+        spotEl.className = 'cq-spot is-prob';
+        spotEl.textContent = '!';
+        found++;
+        refreshScore();
+      } else {
+        spotEl.className = 'cq-spot is-ok';
+        spotEl.textContent = '✓';
+      }
+
+      var results = document.getElementById('cq-results');
+      if (!results) return;
+
+      var card = document.createElement('div');
+      card.className = 'cq-card ' + (cfg.isProb ? 'prob' : 'ok');
+
+      var html = '<div class="cq-verdict">'
+        + (cfg.isProb ? '❌ ' : '✅ ')
+        + cfg.label + (cfg.isProb ? ' — 这是一个问题' : ' — 这不是问题(干扰项)')
+        + '</div>';
+
+      if (cfg.isProb) {
+        html += '<div><span class="cq-ptag">违反 ' + cfg.principle + '</span></div>';
+        html += '<div><b>问题: </b>' + cfg.problem + '</div>';
+        html += '<div style="margin-top:6px"><b>建议: </b>' + cfg.fix + '</div>';
+      } else {
+        html += '<div><b>分析: </b>' + cfg.analysis + '</div>';
+        html += '<div style="margin-top:6px"><b>改进方向(可选): </b>' + cfg.improve + '</div>';
+      }
+
+      card.innerHTML = html;
+      results.appendChild(card);
+
+      // 全部点完后显示总结
+      if (Object.keys(clicked).length === Object.keys(SPOTS).length) {
+        var summary = document.createElement('div');
+        summary.style.cssText = 'text-align:center;padding:16px 12px 8px;font-weight:800;color:var(--accent);font-size:1.05rem';
+        summary.textContent = '走查完成!你找到了 ' + found + ' / ' + TOTAL + ' 个设计问题,还识别出了 1 个干扰项。';
+        results.appendChild(summary);
+      }
+    }
+
+    // 绑定点击
+    ['A', 'B', 'C', 'D', 'E'].forEach(function (key) {
+      var el = document.getElementById('cq-spot-' + key);
+      if (el) {
+        el.addEventListener('click', function () { reveal(key); });
+      }
+    });
+
+    refreshScore();
+  }());
+  </script>
+</body>
+</html>

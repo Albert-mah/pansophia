@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>表格与批量操作 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-table-batch"></script>
+  <style>
+    /* 本页自用:演示表格、工具条、撤销条所需样式 */
+    .tbl-wrap {
+      border-radius: 10px; border: 1px solid var(--border);
+      overflow: hidden; background: var(--surface);
+    }
+    .tbl-toolbar {
+      display: flex; align-items: center; gap: 10px; padding: 9px 14px;
+      background: var(--bg); border-bottom: 2px solid var(--border);
+      flex-wrap: wrap; transition: background .15s;
+    }
+    .tbl-toolbar.hidden { display: none; }
+    .tbl-sel-count { font-weight: 800; font-size: .9rem; color: var(--accent); }
+    .tbl-action {
+      border: 1px solid var(--border); background: var(--surface); color: var(--text-soft);
+      padding: 5px 14px; border-radius: 999px; font-size: .84rem; font-weight: 700; cursor: pointer;
+      transition: border-color .12s, color .12s, background .12s;
+    }
+    .tbl-action:hover { border-color: var(--accent); color: var(--accent); }
+    .tbl-action.danger { border-color: #e2524a; color: #e2524a; }
+    .tbl-action.danger:hover { background: #fdf2f1; }
+    .tbl-action.ghost { color: var(--text-faint); }
+    .tbl-action.ghost:hover { border-color: var(--border); color: var(--text-soft); }
+    .tbl-demo { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    .tbl-demo th {
+      background: var(--bg); font-weight: 700; border-bottom: 2px solid var(--border);
+      padding: 8px 12px; text-align: left; font-size: .8rem; color: var(--text-soft);
+      white-space: nowrap;
+    }
+    .tbl-demo td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .tbl-demo tr.last-row td { border-bottom: none; }
+    .tbl-demo .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tbl-demo .th-num { text-align: right; }
+    .tbl-demo tr.tbl-deleted td { opacity: .38; text-decoration: line-through; background: #fdf2f1; }
+    .tbl-badge {
+      display: inline-block; padding: 2px 9px; border-radius: 999px;
+      font-size: .76rem; font-weight: 700; white-space: nowrap;
+    }
+    .tbl-badge.active  { background: #f1faf3; color: #1f7a44; }
+    .tbl-badge.pending { background: #fff7ef; color: #c0660f; }
+    .tbl-badge.lost    { background: #fdf2f1; color: #b03030; }
+    .tbl-undo {
+      display: flex; align-items: center; gap: 10px;
+      background: #33291E; color: #fff; padding: 9px 16px;
+      font-size: .88rem; border-top: 1px solid rgba(255,255,255,.1);
+    }
+    .tbl-undo.hidden { display: none; }
+    .tbl-undo-msg { flex: 1; font-weight: 600; }
+    .tbl-undo-prog { width: 80px; height: 3px; background: rgba(255,255,255,.25); border-radius: 999px; overflow: hidden; flex: none; }
+    .tbl-undo-prog i { display: block; height: 100%; background: #fff; }
+    .tbl-undo-btn {
+      border: 1px solid rgba(255,255,255,.5); background: rgba(255,255,255,.12);
+      color: #fff; padding: 4px 13px; border-radius: 999px; font-size: .84rem;
+      font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+    .tbl-undo-btn:hover { background: rgba(255,255,255,.28); }
+    .tbl-empty {
+      text-align: center; color: var(--text-faint); padding: 36px 20px;
+      font-size: .92rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">表格与批量操作</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>表格与批量操作</h1>
+      <div class="meta-row" data-meta><span>🎮 交互</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>后台系统里最常见的页面就是列表——客户表、订单表、审批记录、库存清单……你一天要盯着它看几十次。一张设计糟糕的表格会让人眼睛发酸、找数字费力、批量处理数据时气到想摔键盘。这一页把表格设计拆成两块讲透：<b>单行呈现</b>（列顺序、对齐、格式、行高、长文本截断）和<b>批量操作</b>（勾选、工具条、全选策略、撤销机制、空状态）。全部落在 NocoBase 这类管理系统的真实使用场景。</p>
+
+    <h2>1. 表格设计:让每一列都有价值</h2>
+
+    <h3>列按优先级排,信息从左到右递减</h3>
+    <p>列的顺序不是随手排的。用户读一行时视线<b>从左到右</b>扫过去,最重要的信息要排最左边,辅助信息往右放,操作按钮始终在最右边。以客户列表为例:客户名称是"这条记录是谁"的核心,排第一;联系人是直接对接的人,排第二;金额、日期这类量化信息居中;状态标签、操作按钮放右侧。用户读了前两列就能定位"这是哪个客户",后面列再补充细节。</p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 坏例</div>
+      <p style="margin:6px 0">客户表把"创建时间"放第一列、"ID"放第二列、客户名称却藏在第五列。用户扫视一排数字和时间戳,完全无法感知"这条是什么"——他必须先横向找到名称列,再确认身份,最后回来看其他数据。而且操作按钮放在第二列,用户手还没读完数据就被要求做操作决定,完全脱离上下文。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例</div>
+      <p style="margin:6px 0">客户名称 → 联系人 → 签约金额 → 创建日期 → 状态 → 操作。用户从左扫到右,先确认"是谁",再看"多少钱",再看"什么时候",最后看"当前状态",需要做什么就去最右边点。信息密度从高到低,视线可以自然停下来。</p>
+    </div>
+
+    <h3>数字右对齐,金额和日期格式统一</h3>
+    <p>这是被忽略最多的细节。<b>金额、数量等数字列必须右对齐</b>。道理很简单:右对齐的数字列,每行的个位、十位、百位都在同一竖线上,眼睛可以瞬间比大小,根本不用逐位读。左对齐的数字列,每行长度不一,大脑得先在脑内"对齐"再比较,慢了整整一步。</p>
+    <p>格式统一同样关键。金额统一带千分位加货币符号(<code>¥128,000</code>),不要在同一列里混用<code>128000</code>和<code>12.8万</code>两种写法。日期统一一种格式(<code>2026-03-15</code> 或 <code>03/15</code>,选一个就到底),混用不同格式会让用户每次都停下来解读。小数位也要对齐:同一列要么全保留两位小数、要么全不保留,不要一行<code>¥56,500</code>旁边另一行<code>¥320,000.00</code>。</p>
+
+    <h3>固定表头 + 合理行高</h3>
+    <p>记录超过一屏时,<b>表头必须固定</b>——用户滚动到第 50 行时必须还能看到"这一列是金额还是数量",而不是滚回去确认。这是一行 CSS 能解决的问题(<code>position: sticky; top: 0</code>),却是最常被遗漏的。</p>
+    <p>行高要舒适。太矮(<code>24px</code>)每行挤在一起,点击目标小,手指或鼠标稍微偏一点就点到相邻行;太高(<code>80px</code>)浪费空间,同屏能显示的信息大幅减少。后台表格行高 <b>44–54px</b> 是经过检验的舒适区间。内容超出的话截断,不要让文字换行撑高行高——换行会破坏整张表的视觉节奏。</p>
+
+    <h3>长内容截断 + 悬浮显示全文</h3>
+    <p>备注、描述、地址这类长文本字段在表格里要<b>截断显示</b>,超出宽度的部分加省略号。鼠标悬浮时弹出 tooltip 显示完整内容。不要让长文本撑开列宽——一列宽度突然翻倍,整张表的对齐全毁了。也不要让它换行占用多行——这样这行的高度就比别人高一截,视觉完整性破坏。真正需要看全文,进详情页。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 表格列设计自查清单</div>
+      <p style="margin:6px 0">拿到一张新建的后台列表页,逐条检查。任何一条打叉就是改进点:</p>
+      <p style="margin:8px 0 4px">1. <b>列顺序</b> — 最重要的标识字段在最左边?操作列在最右边?</p>
+      <p style="margin:4px 0">2. <b>数字对齐</b> — 金额/数量列是右对齐的?同列格式(千分位/货币符号)统一?</p>
+      <p style="margin:4px 0">3. <b>日期格式</b> — 整张表只用一种日期写法?没有混用<code>2026-03-15</code>和<code>3/15</code>?</p>
+      <p style="margin:4px 0">4. <b>固定表头</b> — 内容超出屏幕高度时,滚动还能看到列名?</p>
+      <p style="margin:4px 0">5. <b>行高</b> — 行高约 44–54px,每行内容不换行、不撑高?</p>
+      <p style="margin:4px 0">6. <b>长文本</b> — 长内容省略号截断,悬浮可见全文,没撑宽列?</p>
+    </div>
+
+    <h2>2. 批量操作:勾选、工具条与可撤销</h2>
+
+    <p>单行操作和批量操作是两套不同的交互模式,<b>不能合并也不能混用</b>。每行末尾的"删除"按钮解决的是单条记录的操作;而"同时关闭二十个待审合同"需要的是完整的批量流程——勾选 → 看到选了几条 → 触发操作 → 有机会反悔。这套流程如果缺了任何一环,要么用户找不到功能,要么一次操作失误就带来无法挽回的后果。</p>
+
+    <h3>勾选触发,工具条随需浮出</h3>
+    <p>批量操作的入口是<b>行级勾选框</b>。用户没有勾选任何行时,批量工具条不应该存在——它只是占着空间的无效噪音。一旦勾选了任何行,工具条<b>立刻浮出</b>,告诉用户:"你现在已选 N 项,可以对它们做这些事。"</p>
+    <p>工具条里只放真正的批量操作:批量导出、批量删除、批量改状态、批量分配跟进人。不要把"新建记录"塞进工具条——那不是批量操作,那是对着勾选的行混入了一个不相关的功能,增加认知负担。</p>
+
+    <h3>危险批量操作要确认,更好的方案是可撤销</h3>
+    <p>批量删除、批量停用之类的<b>不可逆操作</b>至少要有二次确认弹窗。"确定要删除这 20 条记录吗?[取消] [确认删除]"——少一步确认,就多一次事故可能。</p>
+    <p>更好的设计是<b>可撤销模式</b>:点了批量删除不立刻真删,而是先把行变灰显示"待删除"状态,同时底部浮出一条提示"已删除 20 项 · 撤销(5 秒)"。5 秒内用户如果发现选错了,点撤销,行恢复;5 秒后自动真正删除。这个模式来自 Gmail 的"撤销发送"——它的优势在于<b>不打断工作流</b>:用户不需要在弹窗前停下来思考,操作完毕继续工作,真的选错了才去点撤销。比确认弹窗的体验好一个量级。</p>
+
+    <div class="box warn">
+      <div class="box-title">❌ 坏例</div>
+      <p style="margin:6px 0">表格顶部常驻一排四个按钮「新建」「导入」「导出」「删除」,其中「删除」是批量删除。但它没有显示当前选了几条,点了之后直接删除、没有确认弹窗、没有撤销条。最常见事故:用户以为自己只选了一条,其实全选了,点删就没了。或者用户想点「导出」,手滑点了「删除」,一样没救。</p>
+    </div>
+    <div class="box tip">
+      <div class="box-title">✅ 好例</div>
+      <p style="margin:6px 0">没有勾选时工具条不出现。勾选 3 行后,顶部浮出「✓ 已选 3 项 &nbsp;[批量导出] &nbsp;<span style="color:#e2524a">[批量删除]</span> &nbsp;取消选择」。点批量删除:3 行变灰并有删除线,底部出现「已删除 3 项 — 撤销 (5 秒)」。5 秒内点撤销则恢复,否则真正删除、行从表格消失。</p>
+    </div>
+
+    <h3>全选框:当页还是全部要说清楚</h3>
+    <p>表头的全选框,选的是<b>当前这一页可见的所有行</b>,还是满足当前筛选条件的所有数据库记录?这两件事有天壤之别。假设你的客户表里有 500 条数据,当前显示第 1 页共 20 条,点了表头全选框——到底选了 20 还是 500?</p>
+    <p>好的做法分两步走:表头全选框选中当前页所有行 → 随即在工具条里追加一行提示文字"<b>已选当前页 20 项 · 点此选择全部 500 项</b>"。用户需要跨页全选时要主动点击这一行来升级——因为大多数情况下用户只是要处理眼前这一页。不要默认就跨页全选,那是帮倒忙。</p>
+
+    <h3>空状态和加载态,不能当透明人</h3>
+    <p>表格有两个容易被遗忘的特殊状态。<b>空状态</b>:一条记录都没有时,不能只显示空白或空表头——要有插图加引导文字("还没有客户记录,点这里添加第一个"),让用户知道接下来该做什么,而不是对着空白发呆。<b>加载态</b>:数据在请求中时要有骨架屏或 loading 图标,不要让用户盯着空白区域猜测是在加载还是真的没有数据——这两种状态视觉上无法区分,会造成迷失感。</p>
+
+    <div class="lab">
+      <div class="lab-title">🎛️ 可勾选表格 + 批量工具条 + 撤销演示</div>
+      <p style="margin:0 0 14px; color:var(--text-soft); font-size:.92rem">下面是模拟的「客户管理」后台表格(7 条记录)。<b>勾选任意行</b>,顶部工具条立刻浮出并实时更新数量;点<b>表头勾选框</b>全选或全不选(半选时会显示 indeterminate 状态);点<b>批量删除</b>——行变灰打删除线,底部浮出 <b>5 秒可撤销条</b>,点撤销恢复,否则行真正消失。</p>
+      <div id="tbl-root"></div>
+    </div>
+
+    <h2>3. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 检查你后台里一张真实的表格</div>
+      <p style="margin:6px 0">打开你 NocoBase 里最常用的一张列表页(客户表、订单表、任务表都行),对照下面几个问题做一次快速排查。重点不是逐条打分,而是<b>找出一个最影响操作效率的问题</b>,然后只做一件事:想一个具体的改法。</p>
+      <p style="margin:12px 0 6px"><b>关于列:</b></p>
+      <ul style="margin:0 0 10px">
+        <li>这张表的第一列是什么?它是这条记录"最重要的标识"吗?</li>
+        <li>金额/数量列是右对齐的吗?同列格式统一了吗?</li>
+        <li>有没有哪一列,你每次都要停下来才能确认"这是什么字段"?</li>
+      </ul>
+      <p style="margin:10px 0 6px"><b>关于批量操作:</b></p>
+      <ul style="margin:0 0 10px">
+        <li>这张表支持批量操作吗?最常见的批量需求是什么?</li>
+        <li>批量删除有没有确认或撤销机制?有没有出过误删?</li>
+        <li>全选框选的是当页还是所有数据?用户清楚吗?</li>
+      </ul>
+      <p style="margin:10px 0 4px"><b>关于空状态:</b>在筛选框里搜一个不存在的词,看看结果区域长什么样——是空白、还是有引导性的提示文字?</p>
+      <p style="margin:10px 0 4px">改表格通常不需要大动工程:调整 NocoBase 列顺序、设置数字字段右对齐、给批量删除加二次确认——每一步改动都很小,但叠加起来会让这张表的日常使用体感有质的提升。</p>
+    </div>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    var root = document.getElementById('tbl-root');
+    if (!root) return;
+
+    var ROWS = [
+      { id: 1, name: '东方科技有限公司', contact: '王建国', amount: 128000, date: '2026-03-15', status: 'active' },
+      { id: 2, name: '华盛贸易集团',     contact: '李晓梅', amount: 56500,  date: '2026-04-02', status: 'active' },
+      { id: 3, name: '天润机械制造',     contact: '张伟',   amount: 320000, date: '2026-02-18', status: 'pending' },
+      { id: 4, name: '恒通物流股份',     contact: '刘芳',   amount: 89000,  date: '2026-05-10', status: 'active' },
+      { id: 5, name: '鑫源食品科技',     contact: '陈明',   amount: 45200,  date: '2026-01-28', status: 'lost' },
+      { id: 6, name: '远大建筑工程',     contact: '周建华', amount: 650000, date: '2026-03-08', status: 'active' },
+      { id: 7, name: '博睿信息技术',     contact: '赵丽',   amount: 198000, date: '2026-04-22', status: 'pending' }
+    ];
+
+    var STATUS_LABEL = { active: '活跃', pending: '待续签', lost: '流失' };
+
+    var selected    = new Set();
+    var deletedRows = new Set();
+    var undoTimer      = null;
+    var undoProgTimer  = null;
+    var UNDO_MS = 5000;
+
+    function fmtAmount(n) {
+      return '¥' + n.toLocaleString('zh-CN');
+    }
+
+    function render() {
+      var total  = ROWS.length;
+      var selArr = Array.from(selected);
+      var selN   = selArr.length;
+      var allSel = total > 0 && selN === total;
+      var noneSel = selN === 0;
+      var hasDeleted = deletedRows.size > 0;
+
+      var html = '<div class="tbl-wrap">';
+
+      /* ---- Toolbar ---- */
+      html += '<div class="tbl-toolbar' + (noneSel ? ' hidden' : '') + '" id="tbl-bar">';
+      html += '<span class="tbl-sel-count">✓ 已选 ' + selN + ' 项</span>';
+      html += '<button type="button" class="tbl-action" id="tbl-export">批量导出</button>';
+      html += '<button type="button" class="tbl-action danger" id="tbl-delete">批量删除</button>';
+      html += '<button type="button" class="tbl-action ghost" id="tbl-clear" style="margin-left:auto">取消选择</button>';
+      html += '</div>';
+
+      /* ---- Table ---- */
+      html += '<div style="overflow-x:auto">';
+      html += '<table class="tbl-demo">';
+      html += '<thead><tr>';
+      html += '<th style="width:36px"><input type="checkbox" id="tbl-all" title="全选当页"></th>';
+      html += '<th>客户名称</th>';
+      html += '<th>联系人</th>';
+      html += '<th class="th-num">签约金额</th>';
+      html += '<th>创建日期</th>';
+      html += '<th>状态</th>';
+      html += '</tr></thead>';
+      html += '<tbody>';
+
+      if (ROWS.length === 0) {
+        html += '<tr><td colspan="6"><div class="tbl-empty">📭 暂无客户记录,删除已被提交。刷新页面可重置演示。</div></td></tr>';
+      } else {
+        ROWS.forEach(function (row, idx) {
+          var isDel = deletedRows.has(row.id);
+          var isSel = selected.has(row.id);
+          var isLast = idx === ROWS.length - 1;
+          var rowCls = 'tbl-row' + (isDel ? ' tbl-deleted' : '') + (isLast ? ' last-row' : '');
+          html += '<tr class="' + rowCls + '" data-id="' + row.id + '">';
+          html += '<td><input type="checkbox" class="tbl-cb" data-id="' + row.id + '"'
+                + (isSel ? ' checked' : '')
+                + (isDel ? ' disabled' : '')
+                + '></td>';
+          html += '<td><b>' + row.name + '</b></td>';
+          html += '<td>' + row.contact + '</td>';
+          html += '<td class="num">' + fmtAmount(row.amount) + '</td>';
+          html += '<td>' + row.date + '</td>';
+          html += '<td><span class="tbl-badge ' + row.status + '">' + STATUS_LABEL[row.status] + '</span></td>';
+          html += '</tr>';
+        });
+      }
+
+      html += '</tbody></table></div>';
+
+      /* ---- Undo bar ---- */
+      html += '<div class="tbl-undo' + (hasDeleted ? '' : ' hidden') + '" id="tbl-undo">';
+      html += '<span class="tbl-undo-msg">🗑️ 已删除 ' + deletedRows.size + ' 项</span>';
+      html += '<div class="tbl-undo-prog"><i id="tbl-prog" style="width:100%"></i></div>';
+      html += '<button type="button" class="tbl-undo-btn" id="tbl-undo-btn">撤销</button>';
+      html += '</div>';
+
+      html += '</div>'; /* tbl-wrap */
+      root.innerHTML = html;
+
+      /* -- Wire up header checkbox -- */
+      var allCb = document.getElementById('tbl-all');
+      if (allCb) {
+        if (!noneSel && !allSel) {
+          allCb.indeterminate = true;
+        } else {
+          allCb.indeterminate = false;
+          allCb.checked = allSel;
+        }
+        allCb.addEventListener('change', function () {
+          ROWS.forEach(function (r) {
+            if (!deletedRows.has(r.id)) {
+              if (allCb.checked) { selected.add(r.id); }
+              else               { selected.delete(r.id); }
+            }
+          });
+          render();
+        });
+      }
+
+      /* -- Wire up row checkboxes -- */
+      var cbs = document.querySelectorAll('.tbl-cb');
+      for (var i = 0; i < cbs.length; i++) {
+        (function (cb) {
+          cb.addEventListener('change', function () {
+            var id = parseInt(cb.getAttribute('data-id'), 10);
+            if (cb.checked) { selected.add(id); }
+            else            { selected.delete(id); }
+            render();
+          });
+        })(cbs[i]);
+      }
+
+      /* -- Export button -- */
+      var exportBtn = document.getElementById('tbl-export');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function () {
+          flashToast('正在导出 ' + selN + ' 条记录…已生成 CSV');
+        });
+      }
+
+      /* -- Delete button -- */
+      var deleteBtn = document.getElementById('tbl-delete');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', function () {
+          doBatchDelete();
+        });
+      }
+
+      /* -- Clear button -- */
+      var clearBtn = document.getElementById('tbl-clear');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+          selected.clear();
+          render();
+        });
+      }
+
+      /* -- Undo button -- */
+      var undoBtn = document.getElementById('tbl-undo-btn');
+      if (undoBtn) {
+        undoBtn.addEventListener('click', function () {
+          doUndo();
+        });
+      }
+    }
+
+    /* ---- Batch delete: mark rows, start undo countdown ---- */
+    function doBatchDelete() {
+      if (selected.size === 0) return;
+
+      /* If a previous undo is still ticking, commit it first then start fresh */
+      if (undoTimer !== null) {
+        clearTimeout(undoTimer);
+        clearInterval(undoProgTimer);
+        undoTimer = null;
+        undoProgTimer = null;
+        commitDelete();
+      }
+
+      selected.forEach(function (id) { deletedRows.add(id); });
+      selected.clear();
+      render();
+
+      var startTime = Date.now();
+
+      undoProgTimer = setInterval(function () {
+        var elapsed = Date.now() - startTime;
+        var pct = Math.max(0, 100 - (elapsed / UNDO_MS * 100));
+        var progEl = document.getElementById('tbl-prog');
+        if (progEl) { progEl.style.width = pct + '%'; }
+        if (pct <= 0) { clearInterval(undoProgTimer); undoProgTimer = null; }
+      }, 60);
+
+      undoTimer = setTimeout(function () {
+        clearInterval(undoProgTimer);
+        undoProgTimer = null;
+        undoTimer = null;
+        commitDelete();
+      }, UNDO_MS);
+    }
+
+    /* ---- Commit: actually remove deleted rows ---- */
+    function commitDelete() {
+      deletedRows.forEach(function (id) { selected.delete(id); });
+      ROWS = ROWS.filter(function (r) { return !deletedRows.has(r.id); });
+      deletedRows.clear();
+      render();
+    }
+
+    /* ---- Undo: restore grayed rows ---- */
+    function doUndo() {
+      if (undoTimer !== null)     { clearTimeout(undoTimer); undoTimer = null; }
+      if (undoProgTimer !== null) { clearInterval(undoProgTimer); undoProgTimer = null; }
+      deletedRows.clear();
+      render();
+    }
+
+    /* ---- Simple floating toast ---- */
+    var _toastEl = null;
+    var _toastTimer = null;
+    function flashToast(msg) {
+      if (_toastEl) { _toastEl.remove(); clearTimeout(_toastTimer); }
+      _toastEl = document.createElement('div');
+      _toastEl.style.cssText = [
+        'position:fixed;bottom:76px;left:50%;transform:translateX(-50%);',
+        'background:#33291E;color:#fff;padding:9px 22px;border-radius:999px;',
+        'font-size:.88rem;font-weight:700;z-index:999;',
+        'opacity:1;transition:opacity .3s;pointer-events:none;white-space:nowrap'
+      ].join('');
+      _toastEl.textContent = msg;
+      document.body.appendChild(_toastEl);
+      _toastTimer = setTimeout(function () {
+        _toastEl.style.opacity = '0';
+        setTimeout(function () { if (_toastEl) { _toastEl.remove(); _toastEl = null; } }, 400);
+      }, 2400);
+    }
+
+    render();
+  })();
+  </script>
+
+</body>
+</html>

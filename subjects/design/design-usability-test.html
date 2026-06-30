@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>可用性测试基础 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-usability-test"></script>
+  <style>
+    /* 本页专用:迷你测试模拟界面 */
+    .ut-task-bar {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+      padding: 10px 14px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; flex-wrap: wrap;
+    }
+    .ut-task-num {
+      font-size: .78rem; font-weight: 800; color: #fff;
+      background: var(--accent); border-radius: 999px; padding: 2px 10px;
+      white-space: nowrap;
+    }
+    .ut-task-text { font-size: .95rem; font-weight: 700; flex: 1; }
+    .ut-sim {
+      background: #f0f4f8; border: 1px solid #d4dde8; border-radius: 10px;
+      overflow: hidden; margin-bottom: 14px;
+    }
+    .ut-sim-topbar {
+      background: #2d3a4a; color: #fff; padding: 8px 14px; font-size: .8rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .ut-sim-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .ut-sim-title { margin-left: 4px; opacity: .7; font-size: .78rem; }
+    .ut-sim-body { display: flex; min-height: 200px; }
+    .ut-sim-sidebar {
+      width: 140px; flex: none; background: #243040; padding: 10px 0;
+    }
+    .ut-sim-nav {
+      padding: 8px 16px; font-size: .78rem; color: rgba(255,255,255,.55);
+      cursor: pointer; transition: background .1s, color .1s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .ut-sim-nav:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .ut-sim-nav.active-nav { background: rgba(255,255,255,.12); color: #fff; font-weight: 700; }
+    .ut-sim-nav.clickable-entry { position: relative; }
+    .ut-sim-content { flex: 1; padding: 14px 18px; background: #f8fafc; }
+    .ut-sim-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .ut-sim-page-title { font-size: .92rem; font-weight: 800; color: #2d3a4a; flex: 1; }
+    .ut-action-btn {
+      border: 1px solid #c8d5e0; background: #fff; color: #3a5068;
+      border-radius: 6px; padding: 5px 12px; font-size: .78rem; font-weight: 700;
+      cursor: pointer; transition: border-color .1s, background .1s; white-space: nowrap;
+    }
+    .ut-action-btn:hover { border-color: #7aacce; background: #eef4f9; }
+    .ut-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+    .ut-table th { background: #edf1f5; color: #6a7f92; font-weight: 700; padding: 6px 10px; border-bottom: 1px solid #dde5ed; text-align: left; }
+    .ut-table td { padding: 7px 10px; border-bottom: 1px solid #edf1f5; color: #2d3a4a; }
+    .ut-table tr:last-child td { border-bottom: none; }
+    .ut-row-action {
+      border: none; background: none; color: #4a7aac; font-size: .75rem;
+      font-weight: 700; cursor: pointer; padding: 2px 6px; border-radius: 4px;
+      transition: background .1s;
+    }
+    .ut-row-action:hover { background: #e3eef7; }
+    .ut-status-badge {
+      display: inline-block; font-size: .7rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+    }
+    .ut-status-active { background: #e6f9f0; color: #1a7a44; }
+    .ut-status-lost { background: #fde8e6; color: #b03020; }
+
+    /* 点击反馈层 */
+    .ut-feedback {
+      margin-top: 8px; min-height: 32px; font-size: .88rem; font-weight: 700;
+      display: flex; align-items: center; gap: 8px; padding: 6px 0;
+    }
+    .ut-feedback.wrong { color: #c0392b; }
+    .ut-feedback.right { color: #1a7a44; }
+
+    /* 进度条 */
+    .ut-progress { display: flex; gap: 6px; margin-bottom: 14px; }
+    .ut-prog-dot {
+      width: 28px; height: 6px; border-radius: 999px; background: var(--border);
+      transition: background .25s;
+    }
+    .ut-prog-dot.done { background: #27ae60; }
+    .ut-prog-dot.current { background: var(--accent); }
+
+    /* 报告区 */
+    .ut-report {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 20px; display: none;
+    }
+    .ut-report-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 16px; }
+    .ut-report-row {
+      display: flex; align-items: baseline; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border); font-size: .9rem;
+    }
+    .ut-report-row:last-child { border-bottom: none; }
+    .ut-report-label { flex: 1; color: var(--text-soft); }
+    .ut-report-val { font-weight: 800; font-size: 1.05rem; }
+    .ut-report-val.good { color: #1a7a44; }
+    .ut-report-val.mid { color: #c07000; }
+    .ut-report-val.bad { color: #c0392b; }
+    .ut-insight {
+      margin-top: 14px; padding: 12px 14px;
+      background: #fff7ef; border-left: 4px solid #e67e22; border-radius: 8px;
+      font-size: .85rem; line-height: 1.7;
+    }
+    .ut-insight .ins-title { font-weight: 800; margin-bottom: 4px; }
+
+    .ut-restart-btn {
+      display: block; width: 100%; margin-top: 16px; border: 1px solid var(--accent);
+      background: var(--accent); color: #fff; border-radius: 8px;
+      padding: 10px; font-size: .95rem; font-weight: 800; cursor: pointer;
+    }
+    .ut-restart-btn:hover { opacity: .88; }
+
+    /* 弹窗模拟 */
+    .ut-modal-overlay {
+      position: absolute; inset: 0; background: rgba(30,40,55,.45);
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 10px; z-index: 10;
+    }
+    .ut-modal {
+      background: #fff; border-radius: 10px; padding: 20px;
+      width: 260px; box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    }
+    .ut-modal-title { font-size: .9rem; font-weight: 800; margin-bottom: 12px; }
+    .ut-modal-field { margin-bottom: 10px; }
+    .ut-modal-field label { font-size: .75rem; color: #6a7f92; display: block; margin-bottom: 3px; }
+    .ut-modal-select {
+      width: 100%; border: 1px solid #c8d5e0; border-radius: 6px;
+      padding: 6px 10px; font-size: .82rem; background: #fff; cursor: pointer;
+    }
+    .ut-modal-select.highlight { border-color: #27ae60; box-shadow: 0 0 0 2px #c6efd5; }
+    .ut-modal-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .ut-modal-ok {
+      flex: 1; border: none; background: #B6532F; color: #fff; border-radius: 6px;
+      padding: 7px; font-size: .82rem; font-weight: 800; cursor: pointer;
+    }
+    .ut-modal-cancel {
+      flex: 1; border: 1px solid #c8d5e0; background: #fff; color: #6a7f92;
+      border-radius: 6px; padding: 7px; font-size: .82rem; cursor: pointer;
+    }
+    .ut-sim-wrap { position: relative; }
+
+    @media (max-width: 600px) {
+      .ut-sim-sidebar { width: 100px; }
+      .ut-sim-nav { padding: 7px 10px; font-size: .72rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">可用性测试基础</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>可用性测试基础</h1>
+      <div class="meta-row" data-meta><span>🧪 实验</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>设计师最大的盲点是:我们太熟悉自己的界面了。一个新来的同事打开你做的后台,找不到某个按钮、不知道这个操作叫什么、点了半天点到错地方——这些问题,你因为太熟悉反而根本"看不见"。可用性测试要解决的就是这件事:<b>把真实用户面对界面时的迷茫过程,变成可以被记录、分析、改掉的数据。</b></p>
+
+    <div class="box example">
+      <div class="box-title">🪄 为什么后台比 C 端更需要测?</div>
+      <p style="margin:6px 0">C 端产品有百万用户,一个卡壳点会被大量行为数据压出来。后台用户少,数据稀薄,反馈回路慢。但操作的代价更高——填错一张审批表、误触删除、找不到导出——后果比用户点错一个按钮严重得多。而且后台用户天天用、压力大,"这个操作我每天要点三次,每次多找五秒"这种摩擦一累积就是真实的时间损耗。</p>
+      <p style="margin:6px 0">可用性测试给你一个机会:在上线前,<b>让一个真实用户坐在你面前,做一个真实任务,你闭嘴看着他怎么操作。</b>你会看到你从来没想到的卡点。</p>
+    </div>
+
+    <h2>1. 5 个用户就够了</h2>
+    <p>Jakob Nielsen 的研究结论在工程界广泛流传:<b>5 个用户大约能发现 85% 的可用性问题。</b>这不是说测 5 个人就完美了,而是说可用性测试的边际收益递减极快——第 6 个、第 7 个用户遇到的卡点,大多数都是前 5 个人已经遇到过的。</p>
+    <p>对我们来说,这意味着什么?——<b>不要用"没人手"当借口。</b>找 5 个同事、找 5 个真实用户,每人 20 分钟,一个下午就能搞定一轮测试。等攒够足够的"数据"再测,是在浪费时间。早测早改,改完再测一轮——这才是正确的节奏。</p>
+
+    <div class="box warn">
+      <div class="box-title">⚠️ 主持人最常犯的引导错误</div>
+      <p style="margin:6px 0">这些话一说出口,测试就废了大半:</p>
+      <ul style="margin:8px 0">
+        <li><b>"你看,这里有个按钮…"</b> — 你替他找到了,测试就没意义了。</li>
+        <li><b>"这个功能其实很简单的"</b> — 用户被迫假装自己没问题,不再出声思考。</li>
+        <li><b>"你应该先点这里"</b> — 你测的是你自己,不是他。</li>
+        <li><b>"你有没有用过 XX 软件?"</b> — 提前给了认知锚点,影响他的真实反应。</li>
+        <li><b>"这个你喜欢吗?"</b> — 可用性测的是"能不能做到",不是"喜不喜欢"。</li>
+      </ul>
+      <p style="margin:6px 0">正确的做法是:给出任务,闭嘴,观察,只在用户完全卡死不知道怎么继续时,问"你现在在想什么?"</p>
+    </div>
+
+    <h2>2. 给任务,不给提示</h2>
+    <p>可用性测试的任务要用<b>业务语言,不用界面语言</b>。差别在这里:</p>
+    <ul>
+      <li>❌ 错误:"请点击右上角的'导出'按钮,然后选择 Excel 格式" — 这等于给了地图,你测不出他能不能找到。</li>
+      <li>✅ 正确:"我们要给财务同事发一份这周的客户数据,请你来操作" — 他要自己判断去哪里、点什么、叫什么名字。</li>
+    </ul>
+    <p>任务要<b>真实可完成</b>,有清晰的终点状态,不能有多义。在后台场景里,好的任务描述通常来自真实的业务场景:审批一张领用申请、把一个客户的跟进状态改成"已签约"、找到上个月所有未付款的订单。</p>
+
+    <h2>3. 出声思考法(Think Aloud)</h2>
+    <p>你让用户边做边说他在想什么——"我在找导出的按钮…我以为是在这里…哦原来在这个菜单里面"。这让你能听到他的<b>心智模型</b>:他以为功能在哪里、他怎么命名这个操作、他卡住的原因是什么。</p>
+    <p>出声思考有个问题:大部分人不习惯,做着做着就安静了。你需要在开始前给他做一个短暂练习,比如:"你现在打开电脑的浏览器,请边操作边说出你在想什么"——先训练出声思考的习惯,再正式开始任务。过程中如果他安静了超过 15 秒,可以温和地提示:"你现在在想什么?"</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 一次小测试的 5 步</div>
+      <p style="margin:6px 0">这 5 步覆盖了一次最精简但有效的可用性测试:</p>
+      <p style="margin:8px 0 4px"><b>第 1 步:写任务。</b>选 3~5 个真实业务场景,写成业务语言的任务描述。不超过两句话,有明确终点。</p>
+      <p style="margin:4px 0"><b>第 2 步:找用户。</b>不用找"典型用户",找真实会用这个后台的人。5 个就够。内部同事也可以,只要他不是这个功能的设计者或开发者。</p>
+      <p style="margin:4px 0"><b>第 3 步:主持人闭嘴观察。</b>读出任务,把操作权交给用户,你只记录。不提示、不引导、不解释。用户卡住超过 30 秒才可以问"你现在在想什么?"</p>
+      <p style="margin:4px 0"><b>第 4 步:记录 4 项指标。</b>每个任务记录:①是否完成(Y/N)②在哪里卡住 ③花了多少时间 ④原话(他说了什么让你意外的话)。</p>
+      <p style="margin:4px 0"><b>第 5 步:找最高频的卡点,改。</b>5 个人都卡在同一个地方,那就是改动优先级最高的。不要试图一次性改完所有问题,先改最痛的那一个,然后再测一轮。</p>
+    </div>
+
+    <h2>4. 记录什么:四项核心指标</h2>
+    <p>可用性测试不是模糊的"看看用户感受",它有具体的可记录数据。对每一个任务,你需要记录这四项:</p>
+    <ul>
+      <li><b>完成率</b>:5 个用户里有几个在规定时间内成功完成了任务?3/5 意味着这个功能有严重问题。</li>
+      <li><b>卡壳点</b>:用户在哪里停顿、往回翻、犹豫、发出"哦……"的声音?这些位置就是界面设计失败的地方。</li>
+      <li><b>用时</b>:完成一个任务花了多少秒?这不是用来跟"标准时间"对比的,而是用来横向对比不同任务、不同版本之间的效率差异。</li>
+      <li><b>原话</b>:用户说了什么让你意外的话?"这个我以为叫'归档'""我以为删除会有确认框""这里能点吗"——这些原话比任何数据都有价值,直接告诉你用户的心智模型跟你的设计假设有什么偏差。</li>
+    </ul>
+
+    <h2>5. 测的是界面,不是用户</h2>
+    <p>这是可用性测试里最重要的心态。<b>用户卡住了,是界面的问题,不是用户太笨。</b>当 5 个用户里有 3 个在同一个地方卡住,你不能说"这 3 个人不仔细";你只能说"这个地方的设计让人找不到"。</p>
+    <p>在测试开始前,<b>向用户说清楚这一点</b>:"今天测试的是这个系统,不是你。如果你遇到了困难,那正好说明系统有地方需要改进,这对我们来说非常有价值。"这句话能让用户放松,更愿意暴露真实的困惑,而不是假装自己没问题。</p>
+    <p>主持人自己也要时刻提醒这一点——当用户卡住时,你心里那股"为什么这么简单的功能都找不到"的念头,要主动压下去。换成"这里的设计让用户没有找到,该怎么改?"</p>
+
+    <!-- 交互 lab -->
+    <div class="lab">
+      <div class="lab-title">🧪 迷你可用性测试</div>
+      <p style="margin:0 0 4px;color:var(--text-soft);font-size:.92rem">你现在是测试参与者。下面模拟了一个后台界面。<b>按照任务描述操作</b>,像真实用户一样去找、去点——系统会实时记录你点了几次错的、最终找到没有,3 个任务做完给出报告。</p>
+
+      <div id="ut-root" style="margin-top:16px"></div>
+    </div>
+
+    <h2>试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 对你自己的后台跑一个 3 步小测试</div>
+      <p style="margin:6px 0">不需要专业工具,不需要会议室,不需要预算。今天就可以做:</p>
+      <p style="margin:10px 0 4px"><b>第 1 步:写一个任务。</b>从你的后台里挑一个你觉得"应该很好找"的操作,写成业务语言。比如:"我们收到一笔退款,请你在后台把对应的订单状态改成'已退款'。"不要说在哪里,不要说叫什么名字。</p>
+      <p style="margin:4px 0"><b>第 2 步:找一个同事。</b>找一个不熟悉这个后台的同事。不需要提前培训,不需要解释系统。把任务描述给他看,把操作权交给他,你站在旁边<b>只看,不说话</b>。</p>
+      <p style="margin:4px 0 10px"><b>第 3 步:闭嘴,观察,记录。</b>他在哪里停顿?他第一眼找的是哪里?他有没有说出什么让你意外的话?他最终找到了吗?把这些写下来,那就是你今天的可用性测试结果。</p>
+      <p style="margin:6px 0;color:var(--text-soft);font-size:.9rem">如果他第一次就顺利找到了——恭喜,这个功能的可发现性不错。如果他卡了一下、走错了一步——那你找到了一个值得改进的点,比任何用户反馈都来得直接。</p>
+    </div>
+
+    <p style="margin-top:14px">可用性测试不是一次性的仪式,而是一个习惯。每次做了一个新功能,找一两个同事坐下来做一遍任务。用的人反馈少不代表没问题,很多时候是"反正就是这样,将就了"。测试把"将就"翻译成具体的改法,这是它最大的价值。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    /* ============================================================
+       迷你可用性测试组件 — 纯 vanilla JS，自包含 IIFE
+       3 个任务，每个任务 4~5 个可点击候选入口，只有 1 个正确路径
+       记录：错误次数、是否完成；结束给出报告 + 设计启示
+    ============================================================ */
+
+    var ACCENT = '#B6532F';
+    var GREEN  = '#27ae60';
+    var RED    = '#e2524a';
+    var ORANGE = '#e67e22';
+
+    /* ---------- 任务定义 ---------- */
+    var TASKS = [
+      {
+        id: 'churn',
+        instruction: '有一家客户最近半年没有下单,请把「北京天力科技」的状态改为「流失」。',
+        hint: '（提示:你在客户列表页,可以点击各种按钮或菜单项来尝试。）',
+        sim: 'client-list',
+        correctKey: 'edit-status',
+        wrongKeys: {
+          'delete-row':   '这是"删除客户"——删除会彻底移除这条记录,不是修改状态。',
+          'add-tag':      '标签用来分类打标,不等于状态字段——状态有明确的业务含义。',
+          'notes-btn':    '备注只是文本记录,不会改变客户的跟进状态。',
+          'export-btn':   '导出是把数据发出去,不能用来修改记录。'
+        },
+        insight: '「标记流失」在很多后台藏在「编辑」弹窗的状态下拉里,入口不明显。更好的做法:在行内直接放一个状态下拉或快捷操作按钮,让目标一眼可达。'
+      },
+      {
+        id: 'export',
+        instruction: '运营主管想要这张工单表本周的数据,请把它导出成 Excel。',
+        hint: '（提示:你在工单列表页。）',
+        sim: 'order-list',
+        correctKey: 'toolbar-export',
+        wrongKeys: {
+          'print-btn':    '打印输出的是纸质格式或 PDF,不是 Excel。',
+          'setting-btn':  '设置页用来配置字段和权限,没有导出功能。',
+          'row-detail':   '点进单条工单详情,只能看一条记录,不能导出整张表。'
+        },
+        insight: '「导出」经常被藏在不起眼的角落或被命名成"更多操作"之类的下拉里。用户最自然的找法是先扫顶部工具条——如果那里没有,他就会开始乱找。把高频操作放在工具条的第一层可见位置,是可见性原则最直接的落地。'
+      },
+      {
+        id: 'deadline',
+        instruction: '工单 #0231「设备年检」还没有截止日期,请给它设置截止日期为下周五。',
+        hint: '（提示:你在工单详情页。）',
+        sim: 'order-detail',
+        correctKey: 'deadline-field',
+        wrongKeys: {
+          'assignee-field':  '这是"负责人"字段,不是日期字段。',
+          'detail-note':     '附注是自由文本,填进去不会触发任何截止提醒逻辑。',
+          'status-field':    '状态字段管的是工单进展,不是时间节点。',
+          'relation-table':  '关联表里是子记录,不是设置当前工单属性的地方。'
+        },
+        insight: '截止日期字段在详情页里如果排版不显眼、标签语言不清晰(比如叫"期限"而不是"截止日期"),用户会先扫其他字段、甚至误以为需要去关联表里找。字段命名要贴近用户的业务语言,位置要在视觉权重靠前的地方。'
+      }
+    ];
+
+    /* ---------- 状态 ---------- */
+    var currentTask = 0;
+    var results = [];   // [{ taskId, completed, wrongCount }]
+    var wrongCount = 0;
+    var root = document.getElementById('ut-root');
+    if (!root) return;
+
+    /* ---------- 主渲染入口 ---------- */
+    function render() {
+      root.innerHTML = '';
+      if (currentTask >= TASKS.length) {
+        renderReport();
+      } else {
+        renderTask(TASKS[currentTask]);
+      }
+    }
+
+    /* ---------- 渲染单个任务 ---------- */
+    function renderTask(task) {
+      wrongCount = 0;
+
+      // 进度条
+      var prog = document.createElement('div');
+      prog.className = 'ut-progress';
+      for (var i = 0; i < TASKS.length; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'ut-prog-dot' + (i < currentTask ? ' done' : i === currentTask ? ' current' : '');
+        prog.appendChild(dot);
+      }
+      root.appendChild(prog);
+
+      // 任务说明条
+      var bar = document.createElement('div');
+      bar.className = 'ut-task-bar';
+      bar.innerHTML =
+        '<span class="ut-task-num">任务 ' + (currentTask + 1) + ' / ' + TASKS.length + '</span>' +
+        '<span class="ut-task-text">' + task.instruction + '</span>';
+      root.appendChild(bar);
+
+      var hint = document.createElement('p');
+      hint.style.cssText = 'font-size:.82rem;color:var(--text-faint);margin:0 0 10px';
+      hint.textContent = task.hint;
+      root.appendChild(hint);
+
+      // 模拟界面
+      var simWrap = document.createElement('div');
+      simWrap.className = 'ut-sim-wrap';
+      simWrap.innerHTML = buildSim(task);
+      root.appendChild(simWrap);
+
+      // 反馈区
+      var fb = document.createElement('div');
+      fb.className = 'ut-feedback';
+      fb.id = 'ut-feedback';
+      root.appendChild(fb);
+
+      // 绑定点击
+      bindClicks(task, simWrap, fb);
+    }
+
+    /* ---------- 构建模拟界面 HTML ---------- */
+    function buildSim(task) {
+      if (task.sim === 'client-list') return buildClientList();
+      if (task.sim === 'order-list')  return buildOrderList();
+      if (task.sim === 'order-detail') return buildOrderDetail();
+      return '';
+    }
+
+    function buildClientList() {
+      return '<div class="ut-sim">' +
+        '<div class="ut-sim-topbar">' +
+          '<span class="ut-sim-dot" style="background:#e55"></span>' +
+          '<span class="ut-sim-dot" style="background:#fa3;margin:0 3px"></span>' +
+          '<span class="ut-sim-dot" style="background:#5c5"></span>' +
+          '<span class="ut-sim-title">RakuCRM · 客户管理</span>' +
+        '</div>' +
+        '<div class="ut-sim-body">' +
+          '<div class="ut-sim-sidebar">' +
+            '<div class="ut-sim-nav active-nav">👥 客户列表</div>' +
+            '<div class="ut-sim-nav">📋 跟进记录</div>' +
+            '<div class="ut-sim-nav">📊 销售漏斗</div>' +
+            '<div class="ut-sim-nav">⚙️ 设置</div>' +
+          '</div>' +
+          '<div class="ut-sim-content">' +
+            '<div class="ut-sim-header">' +
+              '<span class="ut-sim-page-title">客户列表</span>' +
+              '<button class="ut-action-btn" data-key="export-btn">📤 导出</button>' +
+              '<button class="ut-action-btn">+ 新建客户</button>' +
+            '</div>' +
+            '<table class="ut-table">' +
+              '<thead><tr><th>客户名称</th><th>负责人</th><th>状态</th><th>最近联系</th><th>操作</th></tr></thead>' +
+              '<tbody>' +
+              '<tr><td>上海晨曦贸易</td><td>李雷</td><td><span class="ut-status-badge ut-status-active">跟进中</span></td><td>3 天前</td><td><button class="ut-row-action">编辑</button> <button class="ut-row-action">删除</button></td></tr>' +
+              '<tr style="background:#fdf9f5"><td><b>北京天力科技</b></td><td>韩梅梅</td><td><span class="ut-status-badge ut-status-active">跟进中</span></td><td>7 个月前</td>' +
+                '<td>' +
+                  '<button class="ut-row-action" data-key="edit-status">编辑</button> ' +
+                  '<button class="ut-row-action" data-key="delete-row">删除</button> ' +
+                  '<button class="ut-row-action" data-key="add-tag">标签</button> ' +
+                  '<button class="ut-row-action" data-key="notes-btn">备注</button>' +
+                '</td>' +
+              '</tr>' +
+              '<tr><td>广州鸿达电子</td><td>张伟</td><td><span class="ut-status-badge ut-status-lost">流失</span></td><td>1 年前</td><td><button class="ut-row-action">编辑</button> <button class="ut-row-action">删除</button></td></tr>' +
+              '</tbody>' +
+            '</table>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function buildOrderList() {
+      return '<div class="ut-sim">' +
+        '<div class="ut-sim-topbar">' +
+          '<span class="ut-sim-dot" style="background:#e55"></span>' +
+          '<span class="ut-sim-dot" style="background:#fa3;margin:0 3px"></span>' +
+          '<span class="ut-sim-dot" style="background:#5c5"></span>' +
+          '<span class="ut-sim-title">后台工单系统</span>' +
+        '</div>' +
+        '<div class="ut-sim-body">' +
+          '<div class="ut-sim-sidebar">' +
+            '<div class="ut-sim-nav active-nav">📋 工单列表</div>' +
+            '<div class="ut-sim-nav">➕ 新建工单</div>' +
+            '<div class="ut-sim-nav">📊 统计报表</div>' +
+            '<div class="ut-sim-nav">⚙️ 设置</div>' +
+          '</div>' +
+          '<div class="ut-sim-content">' +
+            '<div class="ut-sim-header">' +
+              '<span class="ut-sim-page-title">工单列表</span>' +
+              '<button class="ut-action-btn" data-key="print-btn">🖨️ 打印</button>' +
+              '<button class="ut-action-btn" data-key="toolbar-export">📤 导出 Excel</button>' +
+              '<button class="ut-action-btn" data-key="setting-btn">⚙️ 设置</button>' +
+            '</div>' +
+            '<table class="ut-table">' +
+              '<thead><tr><th>工单号</th><th>标题</th><th>状态</th><th>负责人</th><th>操作</th></tr></thead>' +
+              '<tbody>' +
+              '<tr><td>#0229</td><td>服务器巡检</td><td><span class="ut-status-badge ut-status-active">进行中</span></td><td>王芳</td><td><button class="ut-row-action" data-key="row-detail">查看</button></td></tr>' +
+              '<tr><td>#0230</td><td>数据迁移</td><td><span class="ut-status-badge ut-status-active">待处理</span></td><td>陈强</td><td><button class="ut-row-action" data-key="row-detail">查看</button></td></tr>' +
+              '<tr><td>#0231</td><td>设备年检</td><td><span class="ut-status-badge ut-status-active">待处理</span></td><td>李雷</td><td><button class="ut-row-action" data-key="row-detail">查看</button></td></tr>' +
+              '</tbody>' +
+            '</table>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function buildOrderDetail() {
+      return '<div class="ut-sim">' +
+        '<div class="ut-sim-topbar">' +
+          '<span class="ut-sim-dot" style="background:#e55"></span>' +
+          '<span class="ut-sim-dot" style="background:#fa3;margin:0 3px"></span>' +
+          '<span class="ut-sim-dot" style="background:#5c5"></span>' +
+          '<span class="ut-sim-title">后台工单系统 · 工单详情 #0231</span>' +
+        '</div>' +
+        '<div class="ut-sim-body">' +
+          '<div class="ut-sim-sidebar">' +
+            '<div class="ut-sim-nav active-nav">📋 工单列表</div>' +
+            '<div class="ut-sim-nav">➕ 新建工单</div>' +
+            '<div class="ut-sim-nav">📊 统计报表</div>' +
+            '<div class="ut-sim-nav">⚙️ 设置</div>' +
+          '</div>' +
+          '<div class="ut-sim-content" style="overflow:auto">' +
+            '<div class="ut-sim-header">' +
+              '<span class="ut-sim-page-title">工单 #0231 · 设备年检</span>' +
+            '</div>' +
+            '<table class="ut-table" style="margin:0">' +
+              '<tbody>' +
+              '<tr><td style="width:100px;color:#6a7f92;font-size:.78rem">标题</td><td>设备年检</td></tr>' +
+              '<tr><td style="color:#6a7f92;font-size:.78rem">状态</td><td><button class="ut-row-action" data-key="status-field" style="font-size:.78rem;border:1px solid #c8d5e0;border-radius:4px;padding:3px 8px;background:#fff">待处理 ▾</button></td></tr>' +
+              '<tr><td style="color:#6a7f92;font-size:.78rem">负责人</td><td><button class="ut-row-action" data-key="assignee-field" style="font-size:.78rem;border:1px solid #c8d5e0;border-radius:4px;padding:3px 8px;background:#fff">李雷 ▾</button></td></tr>' +
+              '<tr><td style="color:#6a7f92;font-size:.78rem">截止日期</td><td><button class="ut-row-action" data-key="deadline-field" style="font-size:.78rem;border:1px dashed #aac4da;border-radius:4px;padding:3px 8px;background:#f8fbff;color:#4a7aac">点击设置…</button></td></tr>' +
+              '<tr><td style="color:#6a7f92;font-size:.78rem">附注</td><td><button class="ut-row-action" data-key="detail-note" style="font-size:.78rem;border:1px solid #c8d5e0;border-radius:4px;padding:3px 8px;background:#fff">添加附注…</button></td></tr>' +
+              '</tbody>' +
+            '</table>' +
+            '<div style="margin-top:14px;font-size:.78rem;font-weight:700;color:#6a7f92;margin-bottom:6px">关联记录</div>' +
+            '<button class="ut-row-action" data-key="relation-table" style="font-size:.78rem;border:1px solid #c8d5e0;border-radius:4px;padding:4px 10px;background:#fff">📎 子任务 (2) ▾</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    /* ---------- 绑定点击事件 ---------- */
+    function bindClicks(task, container, fb) {
+      container.addEventListener('click', function (e) {
+        var target = e.target;
+        // 找最近带 data-key 的祖先
+        while (target && target !== container && !target.dataset.key) {
+          target = target.parentElement;
+        }
+        if (!target || !target.dataset.key) return;
+        var key = target.dataset.key;
+
+        if (key === task.correctKey) {
+          handleCorrect(task, target, fb);
+        } else if (task.wrongKeys[key]) {
+          handleWrong(task.wrongKeys[key], target, fb);
+        }
+      });
+    }
+
+    function handleWrong(msg, btn, fb) {
+      wrongCount++;
+      // 短暂红闪
+      var orig = btn.style.background;
+      btn.style.background = '#fde8e6';
+      btn.style.borderColor = RED;
+      setTimeout(function () {
+        btn.style.background = orig;
+        btn.style.borderColor = '';
+      }, 600);
+
+      fb.className = 'ut-feedback wrong';
+      fb.innerHTML = '❌ <span>' + msg + '</span>';
+    }
+
+    function handleCorrect(task, btn, fb) {
+      // 如果是 client-list 任务,显示弹窗让用户选状态
+      if (task.sim === 'client-list') {
+        showEditModal(task, btn.closest('.ut-sim-wrap'), fb);
+        return;
+      }
+      // 其他任务直接标记完成
+      markComplete(task, fb);
+    }
+
+    function showEditModal(task, simWrap, fb) {
+      fb.innerHTML = '';
+      var overlay = document.createElement('div');
+      overlay.className = 'ut-modal-overlay';
+      overlay.innerHTML =
+        '<div class="ut-modal">' +
+          '<div class="ut-modal-title">编辑客户 · 北京天力科技</div>' +
+          '<div class="ut-modal-field">' +
+            '<label>状态</label>' +
+            '<select class="ut-modal-select" id="ut-status-select">' +
+              '<option value="">跟进中</option>' +
+              '<option value="lost">流失</option>' +
+              '<option value="signed">已签约</option>' +
+              '<option value="pause">暂停合作</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="ut-modal-actions">' +
+            '<button class="ut-modal-cancel" id="ut-modal-cancel">取消</button>' +
+            '<button class="ut-modal-ok" id="ut-modal-ok">保存</button>' +
+          '</div>' +
+        '</div>';
+      simWrap.appendChild(overlay);
+
+      var sel = document.getElementById('ut-status-select');
+      if (sel) {
+        sel.addEventListener('change', function () {
+          if (sel.value === 'lost') {
+            sel.className = 'ut-modal-select highlight';
+          } else {
+            sel.className = 'ut-modal-select';
+          }
+        });
+      }
+
+      document.getElementById('ut-modal-cancel').onclick = function () {
+        simWrap.removeChild(overlay);
+        fb.className = 'ut-feedback wrong';
+        fb.innerHTML = '↩ 取消了弹窗,任务未完成。再试一次,记得在弹窗里把状态改为「流失」再保存。';
+      };
+
+      document.getElementById('ut-modal-ok').onclick = function () {
+        var sv = sel ? sel.value : '';
+        simWrap.removeChild(overlay);
+        if (sv === 'lost') {
+          markComplete(task, fb);
+        } else {
+          wrongCount++;
+          fb.className = 'ut-feedback wrong';
+          fb.innerHTML = '❌ 状态没有选「流失」就点了保存。再来一次,选择「流失」后再点保存。';
+        }
+      };
+    }
+
+    function markComplete(task, fb) {
+      results.push({ taskId: task.id, completed: true, wrongCount: wrongCount });
+      fb.className = 'ut-feedback right';
+      fb.innerHTML = wrongCount === 0
+        ? '✅ 一次找到!进入下一个任务…'
+        : '✅ 完成!中间走错了 ' + wrongCount + ' 次,这些误点的地方就是设计需要改进的地方。';
+      setTimeout(function () {
+        currentTask++;
+        render();
+      }, 1600);
+    }
+
+    /* ---------- 渲染报告 ---------- */
+    function renderReport() {
+      var completedCount = results.filter(function (r) { return r.completed; }).length;
+      var totalTasks = TASKS.length;
+      var totalWrong = results.reduce(function (s, r) { return s + r.wrongCount; }, 0);
+      var avgWrong = totalTasks > 0 ? (totalWrong / totalTasks).toFixed(1) : 0;
+
+      var rateClass = completedCount === totalTasks ? 'good' : completedCount >= 2 ? 'mid' : 'bad';
+      var wrongClass = parseFloat(avgWrong) === 0 ? 'good' : parseFloat(avgWrong) <= 1.5 ? 'mid' : 'bad';
+
+      // 收集踩过的坑
+      var pitfalls = [];
+      results.forEach(function (r, i) {
+        if (r.wrongCount > 0 && TASKS[i]) {
+          pitfalls.push(TASKS[i].insight);
+        }
+      });
+
+      var report = document.createElement('div');
+      report.className = 'ut-report';
+      report.style.display = 'block';
+
+      report.innerHTML =
+        '<div class="ut-report-title">📊 你的测试报告</div>' +
+        '<div class="ut-report-row">' +
+          '<span class="ut-report-label">完成率</span>' +
+          '<span class="ut-report-val ' + rateClass + '">' + completedCount + ' / ' + totalTasks + ' 项任务</span>' +
+        '</div>' +
+        '<div class="ut-report-row">' +
+          '<span class="ut-report-label">平均误点次数</span>' +
+          '<span class="ut-report-val ' + wrongClass + '">' + avgWrong + ' 次 / 任务</span>' +
+        '</div>' +
+        (pitfalls.length > 0
+          ? '<div class="ut-insight">' +
+              '<div class="ins-title">💡 你踩过的坑 → 对应的设计启示</div>' +
+              pitfalls.map(function (p, i) {
+                return '<p style="margin:' + (i === 0 ? '6px' : '10px') + ' 0 0;font-size:.85rem;line-height:1.7"><b>坑 ' + (i + 1) + ':</b> ' + p + '</p>';
+              }).join('') +
+            '</div>'
+          : '<div class="ut-insight"><div class="ins-title">🎉 全程零误点!</div><p style="margin:6px 0;font-size:.85rem">这些任务对你来说一次找到,说明你对后台设计的直觉非常准。但记住:你已经熟悉了这类系统。对一个第一次接触的用户,同样的操作可能完全找不到。</p></div>') +
+        '<button class="ut-restart-btn" id="ut-restart">重新测一遍</button>';
+
+      root.appendChild(report);
+
+      document.getElementById('ut-restart').onclick = function () {
+        currentTask = 0;
+        results = [];
+        wrongCount = 0;
+        render();
+      };
+    }
+
+    /* ---------- 启动 ---------- */
+    render();
+  })();
+  </script>
+</body>
+</html>

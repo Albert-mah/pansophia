@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Persona 与 Journey Map:用户画像与旅程地图 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-persona-journey"></script>
+  <style>
+    /* 本页自用:Persona 卡片 + 情绪曲线 lab 专属样式 */
+    .pj-persona-header {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+    }
+    .pj-avatar {
+      width: 56px; height: 56px; border-radius: 50%; background: #e8d5bc;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.9rem; flex: none;
+    }
+    .pj-persona-name { font-size: 1.1rem; font-weight: 800; margin-bottom: 2px; }
+    .pj-persona-role { font-size: .85rem; color: var(--text-soft); }
+    .pj-persona-rows { display: flex; flex-direction: column; gap: 8px; }
+    .pj-persona-row { display: flex; gap: 10px; font-size: .9rem; line-height: 1.55; }
+    .pj-persona-label {
+      font-weight: 700; color: var(--text-soft);
+      min-width: 64px; flex: none;
+    }
+
+    /* 滑块行 */
+    .pj-stage-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .pj-stage-row:last-child { border-bottom: none; }
+    .pj-stage-name {
+      width: 72px; font-size: .88rem; font-weight: 700; flex: none;
+      color: var(--text-soft); line-height: 1.35;
+    }
+    .pj-stage-row input[type=range] {
+      flex: 1; accent-color: var(--accent); cursor: pointer;
+    }
+    .pj-stage-val {
+      width: 62px; text-align: right; font-size: .88rem;
+      font-weight: 800; font-variant-numeric: tabular-nums;
+    }
+
+    /* SVG 容器 */
+    .pj-svg-wrap {
+      margin: 14px 0 8px; background: var(--bg);
+      border-radius: 10px; border: 1px solid var(--border); overflow: hidden;
+    }
+
+    /* 痛点 / 顺畅 提示框 */
+    .pj-callout {
+      padding: 12px 16px; border-radius: 10px; margin-top: 10px;
+      font-size: .9rem; line-height: 1.65; display: none;
+    }
+    .pj-callout.pain {
+      display: block; border: 1.5px solid #f6d6d2; background: #fdf2f1;
+    }
+    .pj-callout.good {
+      display: block; border: 1.5px solid #cdeed7; background: #f1faf3;
+    }
+    .pj-callout.neutral {
+      display: block; border: 1.5px solid var(--border); background: var(--surface);
+    }
+    .pj-callout-title { font-weight: 800; margin-bottom: 4px; }
+    .pj-callout.pain   .pj-callout-title { color: #c0392b; }
+    .pj-callout.good   .pj-callout-title { color: #1f7a44; }
+    .pj-callout.neutral .pj-callout-title { color: var(--text-soft); }
+
+    @media (max-width: 520px) {
+      .pj-stage-name { width: 56px; font-size: .8rem; }
+      .pj-stage-val  { width: 52px; font-size: .8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">Persona 与 Journey Map</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>Persona 与 Journey Map</h1>
+      <div class="meta-row" data-meta>
+        <span>🎮 交互</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span>
+      </div>
+    </header>
+
+    <p>设计师最容易犯的错误叫"<b>为所有人设计</b>"。一旦说"我们的用户涵盖各部门管理员、一线操作员、主管……",就等于说"我不知道我在为谁设计"。真实的设计决策需要一个具体的人:她多大、做什么、每天面对哪些操作、最讨厌什么、目标是什么。<b>Persona(用户画像)</b> 和 <b>Journey Map(旅程地图)</b> 这两个工具,专门用来打破这种幻觉——把"虚构的通用用户"换成"一个有名字的真实角色",再跟着她走完一个任务,把旅途中的每个情绪起伏标出来。曲线的谷底,就是最该改的地方。</p>
+
+    <h2>一、Persona:给你的用户一个名字</h2>
+
+    <p>Persona 不是统计报表,也不是"典型用户群的描述"。它是一个虚构但高度具体的人——有姓名、年龄、职位、工作场景、目标和痛点。它的价值在于让设计决策有一个<b>具体的裁判</b>:当团队讨论"这个按钮要不要加"时,一句"张姐会找不到这里"立刻比"部分用户可能不熟悉"要有力得多。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 Persona 的核心要素</div>
+      <p style="margin:6px 0">一个 Persona 至少包含四件事:<b>姓名与角色</b>(让她真实存在)、<b>工作场景</b>(她在什么时候、用什么设备、为什么打开这个系统)、<b>主要目标</b>(她想完成什么、完成的标准是什么)、<b>痛点</b>(什么事情让她烦躁、出错、来回返工)。一个项目通常只需要 <b>1~2 个主 Persona</b>——太多了反而哪个都照顾不到。</p>
+    </div>
+
+    <div class="box example">
+      <div class="box-title">🧍 Persona 卡片示例</div>
+      <div class="pj-persona-header">
+        <div class="pj-avatar">👩</div>
+        <div>
+          <div class="pj-persona-name">张姐 · 45 岁</div>
+          <div class="pj-persona-role">仓库管理员 · 某制造企业</div>
+        </div>
+      </div>
+      <div class="pj-persona-rows">
+        <div class="pj-persona-row">
+          <span class="pj-persona-label">使用场景</span>
+          <span>每天上午 9–11 点在仓库的固定电脑上录入当天到货的入库单,偶尔用手机拍照上传送货单附件。</span>
+        </div>
+        <div class="pj-persona-row">
+          <span class="pj-persona-label">主要目标</span>
+          <span>在下班前把所有单据录完并通过审批,保证当天库存数字准确无误。</span>
+        </div>
+        <div class="pj-persona-row">
+          <span class="pj-persona-label">痛点</span>
+          <span>附件上传经常失败;供应商名字每次要手打;找不到上周同一供应商的历史单据做参照;不知道审批到哪一步了。</span>
+        </div>
+        <div class="pj-persona-row">
+          <span class="pj-persona-label">技术水平</span>
+          <span>熟练使用微信、会用 Excel,但对新系统学习意愿低——她的精力在货,不在电脑。</span>
+        </div>
+      </div>
+    </div>
+
+    <p>有了张姐这张卡片,设计决策就有了具体的参照:她是否会注意到这个按钮?附件上传超时了她会怎么做?这比"用户技术水平不均衡"这种空话精确得多。</p>
+
+    <div class="box warn">
+      <div class="box-title">⚠️ 常见误区:Persona 不是年龄段标签</div>
+      <p style="margin:6px 0">"我们的用户是 30–50 岁的中层管理者"——这不是 Persona,这还是统计描述。Persona 要具体到某人<b>某一天的某个操作</b>:张姐上午 9 点坐下来、打开系统、发现要录 20 张单——她的第一个动作是什么,她可能在哪一步卡住。只有足够具体,Persona 才能在团队讨论时真正代替真实用户发声。</p>
+    </div>
+
+    <h2>二、Journey Map 旅程地图:跟着用户走完一件事</h2>
+
+    <p>Persona 回答的是"用户是谁",Journey Map 回答的是"她做一件事时经历了什么"。旅程地图把一个任务拆成几个<b>阶段</b>,每个阶段记录四件事:</p>
+
+    <ul>
+      <li><b>行为</b>:她实际做了什么操作。</li>
+      <li><b>想法/台词</b>:她脑子里在想什么,可能说出来的话。</li>
+      <li><b>情绪</b>:这一步让她愉快、中性、还是沮丧——通常画成情绪曲线。</li>
+      <li><b>痛点与机会</b>:哪里最难受?如果只改一件事,改哪里回报最大?</li>
+    </ul>
+
+    <p>情绪曲线上的<b>谷底</b>(情绪最低点)就是优先改进的地方。一个有 6 个阶段的旅程,可能只有 1~2 个真正的谷底——集中资源解决这两处,整体体验提升最显著。</p>
+
+    <div class="box example">
+      <div class="box-title">🗺️ 旅程叙事:张姐的入库单录入之旅</div>
+      <p style="margin:6px 0"><b>阶段一 · 登录:</b>张姐坐到仓库电脑前,系统每天要重新登录。她记得密码,输进去等了几秒,进来了。<em>情绪:中性,已经习惯了。</em></p>
+      <p style="margin:8px 0"><b>阶段二 · 找到入口:</b>她想新建一张入库单,但"入库管理"在左侧菜单的第三层——点开"仓储"→"入库"→"新增入库单"。昨天也找了半天,今天还是停顿了一下。<em>情绪:轻微烦躁。</em></p>
+      <p style="margin:8px 0"><b>阶段三 · 填表:</b>供应商名要手打,张姐把"上海XX物流"打了一半弹出搜索建议,算还好。货品编号、数量逐行填入,20 张单大概要 40 分钟。<em>情绪:平静但机械。</em></p>
+      <p style="margin:8px 0"><b>阶段四 · 上传附件(谷底):</b>把手机拍的送货单上传。第一张 3MB 转圈 30 秒后"上传失败"。她压缩重传,又失败。换浏览器,第三次才成功。心情已经很差。<em>情绪:非常沮丧。</em></p>
+      <p style="margin:8px 0"><b>阶段五 · 提交:</b>点击"提交审批",弹了一个 toast 说"已提交"。总算完了。<em>情绪:松了口气,但还带着刚才上传的阴影。</em></p>
+      <p style="margin:8px 0"><b>阶段六 · 等审批:</b>张姐不知道审批在谁那里,也不知道要等多久。她下午要对库存,但不确定单据今天能不能过。偶尔去刷新一下状态页。<em>情绪:焦虑、被动等待。</em></p>
+      <p style="margin:10px 0 0"><b>结论:</b>谷底在"上传附件"——这里是整个旅程情绪最低的点。第二个问题是"等审批"的焦虑。改好这两处,张姐的一天会好很多。</p>
+    </div>
+
+    <h2>三、旅程情绪曲线(实时交互)</h2>
+
+    <p>下面就是张姐那条旅程的情绪曲线——默认预填了一套典型值。拖动任意阶段的滑块来调整情绪分数(-2 非常糟 到 +2 非常好),曲线会<b>实时重绘</b>,情绪最低的阶段自动标红并给出一句改进提示。改到所有阶段都正情绪,会有不一样的反馈。</p>
+
+    <div class="lab">
+      <div class="lab-title">📈 旅程情绪曲线</div>
+      <p style="margin:0 0 16px; color:var(--text-soft); font-size:.92rem">拖动每个阶段的滑块(-2 到 +2),曲线实时更新。情绪最低的阶段自动标红,并显示一句改进建议。</p>
+
+      <div id="pj-sliders"></div>
+
+      <div class="pj-svg-wrap">
+        <div id="pj-svg-container"></div>
+      </div>
+
+      <div id="pj-callout" class="pj-callout"></div>
+    </div>
+
+    <h2>四、试一试</h2>
+
+    <div class="box">
+      <div class="box-title">✏️ 给自己的后台画一条情绪曲线</div>
+      <p style="margin:6px 0">挑一个你天天做的后台流程(录入一张单、跑一份报表、分配一批任务……),按下面四步来:</p>
+      <ol>
+        <li>把这个流程拆成 4~6 个阶段,每个阶段取一个动词短语(如"找到入口"、"填字段"、"等确认")。</li>
+        <li>回忆做这件事时每个阶段的真实情绪,从 -2(非常糟) 到 +2(非常顺) 给每个阶段打一分。</li>
+        <li>找到分数最低的那个阶段——那就是你的痛点。</li>
+        <li>只想一件事:<b>如果只改这一处的一个点,你会改什么?</b></li>
+      </ol>
+      <p style="margin:10px 0 4px; color:var(--text-soft); font-size:.9rem">小窍门:谷底通常和"不知道在等什么"、"做了没反应"、"要重复操作好几遍"、"找了很久才找到"这几类体验有关。找到谷底,就找到了改进后台最值那一处。</p>
+    </div>
+
+    <p style="margin-top:14px">Persona 帮你把"用户"从抽象概念变成一个有名字的人;Journey Map 帮你把"用户体验"从泛泛的"好不好用"变成一条有起伏的曲线——曲线的谷底就是你的改进待办清单第一条。两个工具加起来,等于给"改进后台"这件事找到了一个具体的起点:不是"整体体验需要优化",而是"先把上传附件的失败率降下来"。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    var STAGES = [
+      {
+        name: '登录',
+        short: '登录',
+        tip: '接入公司 SSO 或记住密码 7 天,减少每天重复输密码的摩擦。'
+      },
+      {
+        name: '找到入口',
+        short: '找入口',
+        tip: '把"新建入库单"固定到首页快捷入口或侧边常驻,不要让用户穿越三级菜单。'
+      },
+      {
+        name: '填表',
+        short: '填表',
+        tip: '供应商名、货品编号支持历史记录自动填充;非必填项折叠隐藏,减少视觉噪音。'
+      },
+      {
+        name: '上传附件',
+        short: '传附件',
+        tip: '支持手机拍照直传并自动压缩;给出清晰的大小和格式提示;上传失败时告诉用户具体原因而不只是"失败"。'
+      },
+      {
+        name: '提交',
+        short: '提交',
+        tip: '提交后立刻弹"单号 #XXXX 已收到"确认框,提供"继续录入下一张"快捷按钮。'
+      },
+      {
+        name: '等审批',
+        short: '等审批',
+        tip: '在单据列表显示"当前在 × 主管处审批中,预计今日完成",消除"不知道在哪儿卡着"的焦虑。'
+      }
+    ];
+
+    // 预设典型仓管旅程情绪值:登录=0,找入口=-1,填表=0,传附件=-2,提交=1,等审批=-1
+    var values = [0, -1, 0, -2, 1, -1];
+
+    var EMOJIS     = ['😫', '😕', '😐', '😊', '😄'];
+    var VAL_COLORS = ['#e2524a', '#e67e22', '#9a8a6f', '#27ae60', '#2ecc71'];
+    var ACCENT     = '#B6532F';
+    var RED        = '#e2524a';
+    var GREEN      = '#27ae60';
+
+    /* ---- 构建滑块区域 ---- */
+    var slidersEl = document.getElementById('pj-sliders');
+    if (!slidersEl) { return; }
+
+    var html = '';
+    for (var i = 0; i < STAGES.length; i++) {
+      html += '<div class="pj-stage-row">'
+            + '<div class="pj-stage-name">' + STAGES[i].name + '</div>'
+            + '<input type="range" min="-2" max="2" step="1" value="' + values[i] + '" '
+            +   'id="pj-slider-' + i + '">'
+            + '<div class="pj-stage-val" id="pj-val-' + i + '"></div>'
+            + '</div>';
+    }
+    slidersEl.innerHTML = html;
+
+    /* ---- 绑定滑块事件 ---- */
+    for (var si = 0; si < STAGES.length; si++) {
+      (function (idx) {
+        var el = document.getElementById('pj-slider-' + idx);
+        if (!el) { return; }
+        el.addEventListener('input', function () {
+          values[idx] = parseInt(this.value, 10);
+          redraw();
+        });
+      })(si);
+    }
+
+    /* ---- 求情绪最低阶段 ---- */
+    function findMin() {
+      var minV = values[0];
+      var minIdx = 0;
+      for (var i = 1; i < values.length; i++) {
+        if (values[i] < minV) {
+          minV = values[i];
+          minIdx = i;
+        }
+      }
+      return { v: minV, idx: minIdx };
+    }
+
+    /* ---- 构建 SVG 字符串 ---- */
+    function buildSVG() {
+      var W    = 560;
+      var H    = 210;
+      var padL = 44;
+      var padR = 18;
+      var padT = 26;
+      var padB = 44;
+      var chartW = W - padL - padR;   // 498
+      var chartH = H - padT - padB;   // 140
+      var n    = STAGES.length;        // 6
+      var step = chartW / (n - 1);    // 99.6
+
+      function cx(i) { return padL + i * step; }
+      // v=+2 → padT, v=0 → padT+chartH/2, v=-2 → padT+chartH
+      function cy(v) { return padT + chartH / 2 - v * (chartH / 4); }
+
+      var min  = findMin();
+      var hasPain = min.v < 0;
+
+      var parts = ['<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;display:block">'];
+
+      // 水平网格线 + 左侧 Y 轴标签
+      var gridVals = [-2, -1, 0, 1, 2];
+      for (var gi = 0; gi < gridVals.length; gi++) {
+        var gv  = gridVals[gi];
+        var gy  = cy(gv);
+        var isN = (gv === 0);
+        parts.push('<line x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '" '
+          + 'stroke="' + (isN ? '#c0a880' : '#e4d9c8') + '" '
+          + 'stroke-width="' + (isN ? '1.5' : '1') + '" '
+          + (isN ? '' : 'stroke-dasharray="4,4" ') + '/>');
+        var labelTxt = gv > 0 ? '+' + gv : '' + gv;
+        parts.push('<text x="' + (padL - 6) + '" y="' + (gy + 4) + '" '
+          + 'text-anchor="end" font-size="11" fill="#9a8a6f" font-family="sans-serif">'
+          + labelTxt + '</text>');
+      }
+
+      // 曲线下方填充面(中性线与曲线之间)
+      var neutralY = cy(0);
+      var fillPts  = '';
+      for (var fi = 0; fi < n; fi++) {
+        fillPts += cx(fi).toFixed(1) + ',' + cy(values[fi]).toFixed(1) + ' ';
+      }
+      fillPts += cx(n - 1).toFixed(1) + ',' + neutralY + ' ' + cx(0).toFixed(1) + ',' + neutralY;
+      parts.push('<polygon points="' + fillPts.trim() + '" fill="rgba(182,83,47,0.07)" stroke="none"/>');
+
+      // 情绪折线
+      var linePts = '';
+      for (var li = 0; li < n; li++) {
+        linePts += cx(li).toFixed(1) + ',' + cy(values[li]).toFixed(1) + ' ';
+      }
+      parts.push('<polyline points="' + linePts.trim() + '" fill="none" stroke="' + ACCENT + '" '
+        + 'stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>');
+
+      // 数据点圆圈
+      for (var pi = 0; pi < n; pi++) {
+        var px   = cx(pi);
+        var py   = cy(values[pi]);
+        var isPain = hasPain && (pi === min.idx);
+        var r    = isPain ? 9 : 6;
+        var fc;
+        if (isPain) {
+          fc = RED;
+        } else if (values[pi] > 0) {
+          fc = GREEN;
+        } else if (values[pi] === 0) {
+          fc = '#9a8a6f';
+        } else {
+          fc = '#e67e22';
+        }
+        parts.push('<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="' + r + '" '
+          + 'fill="' + fc + '"'
+          + (isPain ? ' stroke="#fff" stroke-width="2"' : '') + '/>');
+
+        // 痛点标注
+        if (isPain) {
+          var lbY = (py - 20 < padT + 8) ? (py + 22) : (py - 20);
+          parts.push('<text x="' + px.toFixed(1) + '" y="' + lbY.toFixed(1) + '" '
+            + 'text-anchor="middle" font-size="11" font-weight="700" fill="' + RED + '" font-family="sans-serif">'
+            + '⚠ 痛点</text>');
+        }
+      }
+
+      // 阶段名称标签(底部)
+      for (var ni = 0; ni < n; ni++) {
+        var nx = cx(ni);
+        parts.push('<text x="' + nx.toFixed(1) + '" y="' + (H - padB + 17) + '" '
+          + 'text-anchor="middle" font-size="11" fill="#7A6E5E" font-family="sans-serif">'
+          + STAGES[ni].short + '</text>');
+      }
+
+      parts.push('</svg>');
+      return parts.join('\n');
+    }
+
+    /* ---- 更新值显示 ---- */
+    function updateValDisplays() {
+      for (var i = 0; i < STAGES.length; i++) {
+        var el = document.getElementById('pj-val-' + i);
+        if (!el) { continue; }
+        var v    = values[i];
+        var sign = v > 0 ? '+' : '';
+        el.textContent = EMOJIS[v + 2] + ' ' + sign + v;
+        el.style.color = VAL_COLORS[v + 2];
+      }
+    }
+
+    /* ---- 更新痛点提示框 ---- */
+    function updateCallout() {
+      var el = document.getElementById('pj-callout');
+      if (!el) { return; }
+
+      var min = findMin();
+
+      if (min.v < 0) {
+        var stageName = STAGES[min.idx].name;
+        el.className = 'pj-callout pain';
+        el.innerHTML = '<div class="pj-callout-title">🚨 痛点阶段:「' + stageName + '」(情绪 ' + min.v + ')&nbsp;— 优先改这里!</div>'
+          + '<div><b>改进方向:</b>' + STAGES[min.idx].tip + '</div>';
+      } else if (min.v === 0) {
+        el.className = 'pj-callout neutral';
+        el.innerHTML = '<div class="pj-callout-title">🤔 整条旅程暂无明显谷底</div>'
+          + '<div>试着把体验最差的那个阶段再往下拖一拖,让曲线更贴近真实感受。</div>';
+      } else {
+        el.className = 'pj-callout good';
+        el.innerHTML = '<div class="pj-callout-title">😄 整条旅程情绪全正!</div>'
+          + '<div>这个流程对用户非常友好。接下来可以挑战:把最低那个阶段推到 +2,看能做什么改进。</div>';
+      }
+    }
+
+    /* ---- 主渲染函数 ---- */
+    function redraw() {
+      updateValDisplays();
+      var container = document.getElementById('pj-svg-container');
+      if (container) {
+        container.innerHTML = buildSVG();
+      }
+      updateCallout();
+    }
+
+    // 初始渲染
+    redraw();
+  })();
+  </script>
+</body>
+</html>

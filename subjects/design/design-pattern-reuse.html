@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模式复用:别从零发明交互 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-pattern-reuse"></script>
+  <style>
+    /* 本页自用:模式匹配器 */
+    .pm-needs { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+    .pm-need {
+      display: flex; align-items: flex-start; gap: 12px; padding: 11px 14px;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg); cursor: pointer; text-align: left; width: 100%;
+      transition: border-color .13s, background .13s, transform .1s;
+      font-size: .95rem; color: var(--text);
+    }
+    .pm-need:hover { border-color: var(--accent); background: var(--surface); transform: translateX(2px); }
+    .pm-need.active { border-color: var(--accent); background: var(--surface); border-left: 4px solid var(--accent); }
+    .pm-need .idx {
+      flex: none; width: 26px; height: 26px; border-radius: 50%;
+      background: var(--border); color: var(--text-soft); font-weight: 800; font-size: .8rem;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .pm-need.active .idx { background: var(--accent); color: #fff; }
+    .pm-answer {
+      margin-top: 16px; padding: 18px 18px 14px;
+      border-radius: var(--radius-sm); border: 1px solid #cdeed7;
+      background: #f1faf3; display: none;
+    }
+    .pm-answer.show { display: block; }
+    .pm-answer .pm-pattern { font-size: 1.15rem; font-weight: 800; color: #1f7a44; margin-bottom: 6px; }
+    .pm-answer .pm-why { font-size: .9rem; color: var(--text-soft); line-height: 1.65; margin-bottom: 8px; }
+    .pm-answer .pm-dont {
+      display: inline-block; font-size: .8rem; font-weight: 700;
+      background: #fdf2f1; border: 1px solid #f6d6d2; color: #c0392b;
+      border-radius: 999px; padding: 2px 12px;
+    }
+    @media (max-width: 600px) {
+      .pm-need { font-size: .88rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">模式复用</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>模式复用:别从零发明交互</h1>
+      <div class="meta-row" data-meta><span>🎮 交互</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>你有没有遇到过这种后台——按钮的位置和所有别的系统都不一样,筛选条件的交互方式是自己发明的,连"确认删除"的弹窗都长得稀奇古怪?用起来不顺手,因为<b>它逼你从零开始学这个系统的"方言"</b>。而你以前在别处积累的所有操作记忆,在这里全部失效。</p>
+    <p>好的后台设计恰好相反:<b>用户打开来,凭着过去在 ERP、OA、表格工具里积累的肌肉记忆,就能直接上手。</b>这不是因为它"简单",而是因为它复用了用户已经内化的交互模式。用户不需要重新学,只需要去完成任务本身。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 一个对比</div>
+      <p style="margin:6px 0">同样是"让用户从几百条数据里选几条",一个团队自己做了个带复选框的弹窗,但每一行都要双击才能选中,单击是高亮不是选中——<b>5 个用户里有 4 个反复点错</b>,反复问"为什么我点了没反应"。</p>
+      <p style="margin:6px 0">另一个团队直接用了组件库里的<b>穿梭框(Transfer)</b>——左边候选列表,右边已选列表,点箭头移动。用户第一次打开,完全没人说明,几秒内自己摸清楚了。为什么?因为他们在 Ant Design、Element UI、飞书表格里见过十次了。</p>
+      <p style="margin:6px 0">这就是模式复用的力量:<b>用户的学习成本,在你之前已经有人替你付过了。</b></p>
+    </div>
+
+    <h2>1. 成熟模式 = 用户已经会用的东西</h2>
+    <p>每一个被广泛采纳的交互模式背后,都有无数个团队的用户研究和迭代打磨。CRUD 列表、分页、批量操作、筛选区——这些东西之所以看起来"千篇一律",正是因为它们经历了<b>自然选择</b>:不好用的被淘汰了,好用的活下来并被所有人模仿。</p>
+    <p>你自创一个新交互,用户会有一个"解码"过程——他们要猜:"这个是干嘛的?怎么用?点了会怎样?"这个解码过程要消耗认知资源,消耗时间,消耗耐心。解码失败,他们就觉得"这个系统难用"。而如果你用的是他们认识的模式,<b>解码时间几乎是零</b>:一看就知道是筛选区,一看就知道这行能点开详情。</p>
+
+    <div class="box warn">
+      <div class="box-title">⚠️ 自创交互的代价</div>
+      <p style="margin:6px 0"><b>用户培训成本上升。</b>凡是和"业界惯例"不一样的地方,都要在操作手册里专门说明,要在新员工培训时专门讲,要在用户提工单时专门解释。每一条"为什么我们这里不一样",都是一笔额外的沟通成本。</p>
+      <p style="margin:6px 0 6px"><b>迁移成本。</b>如果你之后想换组件库、换前端框架,那些"自创"的部分会成为迁移的阻力——它们没法被直接替换,因为没有现成对应物。</p>
+      <p style="margin:6px 0"><b>可访问性倒退。</b>成熟组件库的标准模式通常已经处理好了键盘导航、屏幕阅读器支持。自己从头写的控件,这些往往是空白。</p>
+    </div>
+
+    <h2>2. 一致性 > 个人创意(尤其是后台)</h2>
+    <p>在后台管理系统这个场景里,这个原则比任何其他场景都更重要。后台的用户是<b>每天重复使用这个工具的人</b>——他们不是在欣赏产品有多新奇,他们是在完成工作任务。工具越透明(越不需要花精力去"用工具"),他们能放在真正任务上的注意力就越多。</p>
+    <p>一致性有两个层面:</p>
+    <ul>
+      <li><b>系统内一致</b>:同一个后台里,同类操作的位置、颜色、触发方式都应该一样。"删除"在列表页是红色右边的按钮,在详情页也应该如此。用户建立起一次预期,就在整个系统里复用。</li>
+      <li><b>跨系统一致</b>:和用户日常使用的其他工具保持一致。保存是 Ctrl+S,撤销是 Ctrl+Z,确认是蓝色/绿色主按钮,取消是次要按钮放左边——这些约定不是某一个产品定的,是整个行业几十年磨出来的。</li>
+    </ul>
+    <p>个人创意的发挥空间当然存在,但<b>它应该花在业务逻辑、信息架构、数据呈现的独特性上,而不是花在"确认按钮放左边还是右边"这种早就有公论的问题上</b>。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 后台常用模式速查</div>
+      <p style="margin:6px 0"><b>CRUD 列表</b> — 数据最多的地方。列标题可排序,行可点开详情,右侧或行末放操作按钮(编辑/删除),顶部放新建按钮。这是所有后台的基本单元。</p>
+      <p style="margin:6px 0"><b>筛选区</b> — 放在列表上方,支持多条件组合。展开/收起高级筛选,筛选条件以 Tag 形式展示并可单独清除。用户知道这个区域是干什么的。</p>
+      <p style="margin:6px 0"><b>批量操作</b> — 勾选行后浮出工具条,显示"已选 N 项"和批量动作。不勾选时工具条隐藏。绝不藏在右键菜单里。</p>
+      <p style="margin:6px 0"><b>分步向导(Wizard/Stepper)</b> — 表单步骤多、顺序有依赖时使用。顶部进度条显示当前步骤,每步验证通过才能下一步,支持返回上一步。</p>
+      <p style="margin:6px 0"><b>主从布局(Master-Detail)</b> — 左侧或上方是列表,右侧或下方是选中项的详情。适合记录之间频繁切换比较的场景(如邮件客户端、工单系统)。</p>
+      <p style="margin:6px 0"><b>空状态(Empty State)</b> — 列表为空时,不要只显示空白或"暂无数据"。要说明为什么空、下一步该做什么(通常是一个新建按钮)。</p>
+      <p style="margin:6px 0"><b>确认/撤销</b> — 危险操作(删除、清空)必须二次确认弹窗,弹窗内重申后果。批量删除可考虑"撤销"Toast 替代强制确认,降低摩擦同时保留安全网。</p>
+      <p style="margin:6px 0"><b>标签页(Tabs)</b> — 同一对象的不同维度信息(基本信息/操作日志/关联记录)放在标签页里,避免页面过长。标签页之间切换不重新加载整页。</p>
+    </div>
+
+    <h2>3. 遵循平台和组件库的约定</h2>
+    <p>如果你在用 Ant Design、Element Plus、Arco Design 这类成熟组件库,它们已经替你做了大量的一致性决策:按钮的层级(primary/default/text)、Modal 的结构、Form 的校验时机、Table 的分页位置。<b>最省力也最正确的做法,就是按组件库的约定来用,而不是二次包装出"我们自己的版本"。</b></p>
+    <p>很多团队踩过这样的坑:把 Ant Design 的 Button 包了一层"自己的 Button",改了一些样式,结果之后组件库升级了,自己的包装层和新版本不兼容,修起来比直接用更麻烦。</p>
+    <p>当然组件库不是万能的,有些业务场景组件库确实没有现成支持。但即便如此,也应该<b>先研究有没有组合已有组件的方案</b>,再考虑从零自建。</p>
+
+    <h2>4. 什么时候才该自创?</h2>
+    <p>不是说永远不能自创——而是<b>自创的门槛要足够高</b>。满足以下全部条件时,再考虑自创:</p>
+    <ul>
+      <li>标准模式确实无法满足业务需求(不是"不好看",是"功能上做不到")</li>
+      <li>已经找不到第三方库或组件库的扩展能解决这个需求</li>
+      <li>有时间和资源做<b>可用性测试</b>——至少找 5 个真实用户试用,观察他们在哪卡住</li>
+      <li>文档、培训计划已经考虑进去</li>
+    </ul>
+    <p>满足这些条件的场景确实存在——比如 NocoBase 的区块拖拽编辑器、可视化流程图编辑器。但大多数后台的日常功能点,都到不了这个门槛。<b>先问"有没有现成模式",再问"要不要自创"。</b></p>
+
+    <div class="lab">
+      <div class="lab-title">🧩 模式匹配器 — 点需求,立刻看推荐模式</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">下面列出 8 条后台里常见的交互需求,<b>点任意一条</b>,右侧立刻显示:推荐用哪个标准模式、为什么不要自创。</p>
+
+      <div id="pm-wrap" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; align-items:start">
+        <div>
+          <div style="font-size:.8rem;font-weight:700;color:var(--text-faint);margin-bottom:8px">👇 点一条交互需求</div>
+          <div class="pm-needs" id="pm-list"></div>
+        </div>
+        <div>
+          <div style="font-size:.8rem;font-weight:700;color:var(--text-faint);margin-bottom:8px">💡 推荐模式</div>
+          <div id="pm-result">
+            <div style="padding:32px 16px;text-align:center;color:var(--text-faint);font-size:.9rem;border:1px dashed var(--border);border-radius:var(--radius-sm)">
+              点左侧任意一条需求,这里立刻给答案
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="box-title">✏️ 试一试</div>
+      <p style="margin:6px 0">打开你现在正在做的 NocoBase 后台(或者任何一个你最熟悉的后台),找一处"感觉有点别扭、但说不清为什么"的交互。</p>
+      <p style="margin:10px 0">问自己两个问题:</p>
+      <p style="margin:6px 0">1. <b>这里在解决什么交互需求?</b>(选多项?确认操作?展示多维信息?)</p>
+      <p style="margin:6px 0">2. <b>对应的标准模式是什么?</b>(参考上面的速查表,或者打开 Ant Design 的组件列表找有没有现成的)</p>
+      <p style="margin:10px 0 4px">如果你找到了一个"其实可以换成标准模式"的地方,换过去试试——通常只需要改几行代码,却能让用户立刻觉得顺手。<b>这就是模式复用的回报率:花最小的代价,收最快的用户体验提升。</b></p>
+    </div>
+
+    <p style="margin-top:14px">下次你想在后台里做一个"前所未有"的交互时,先停一秒:把你要解决的问题用一句话说清楚,然后去 Ant Design、Arco Design、Element Plus 的组件列表里找一圈。如果找到了,直接用;如果找不到,再开始考虑自建。<b>省下来的那些设计和开发时间,花在真正独特的业务逻辑上,才是最有价值的。</b></p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    var ACCENT = '#B6532F';
+    var GREEN  = '#27ae60';
+
+    var NEEDS = [
+      {
+        label: '让用户从很多项里选几项',
+        pattern: '多选下拉 / 穿梭框(Transfer)',
+        why: '下拉多选适合候选项 ≤20 条的场景;穿梭框适合候选项多、需要清晰对比"已选/未选"的场景。两者用户都见过无数次,不需要任何说明。',
+        dont: '别自己做"双击行选中"或"长按拖拽",用户会在那里卡住。'
+      },
+      {
+        label: '让用户确认一个危险操作(如删除)',
+        pattern: '二次确认弹窗 + 可撤销 Toast',
+        why: '弹窗里重申操作后果("将永久删除 5 条记录,无法恢复"),主按钮用红色。批量删除时也可用"已删除 5 条 · 撤销"Toast 代替弹窗,减少摩擦同时保留安全网。',
+        dont: '别把确认按钮做成不显眼的链接,也别省略二次确认直接执行。'
+      },
+      {
+        label: '一个很长的表单需要分步填写',
+        pattern: '分步向导(Stepper / Wizard)',
+        why: '顶部进度条显示"第 2 步 / 共 4 步",每步只展示当前步骤的字段,降低认知负担。每步通过校验才能继续,支持返回上一步修改。',
+        dont: '别把所有字段堆在一页然后滚动,也别用纯 Tab 切换替代向导(Tab 不强制顺序)。'
+      },
+      {
+        label: '用户需要查某条记录的详情同时能切换到下一条',
+        pattern: '主从布局(Master-Detail)',
+        why: '左侧列表 + 右侧详情,点列表行即切换详情,不跳页。适合工单、邮件、审批等需要快速浏览多条记录的场景。用户在 Outlook、Notion、飞书里都见过。',
+        dont: '别每次点详情都整页跳转,来回跳页会让用户丢失列表的滚动位置和筛选状态。'
+      },
+      {
+        label: '根据多个条件过滤列表数据',
+        pattern: '筛选区(Filter Bar + 已选 Tag)',
+        why: '列表上方放筛选控件,已选条件以可删除的 Tag 展示。用户一眼知道"当前过滤了什么",也知道点 Tag 上的 × 可以清除。这是后台列表页的标准搭配。',
+        dont: '别把筛选藏进某个下拉或弹窗里;也别让筛选条件在刷新后消失(应该保存到 URL 参数)。'
+      },
+      {
+        label: '对多条记录同时执行同一操作',
+        pattern: '批量操作工具条(Bulk Action Bar)',
+        why: '勾选行后,列表顶部浮出工具条:"已选 8 项 · 批量删除 · 批量导出 · 取消"。操作完成后工具条收起。这是所有成熟后台的标准范式,用户零培训。',
+        dont: '别把批量操作藏进右键菜单——大多数人不会右键,尤其是触控板用户。'
+      },
+      {
+        label: '页面数据为空,需要引导用户开始',
+        pattern: '空状态(Empty State)+ 行动号召按钮',
+        why: '空状态应该告诉用户"为什么是空的"和"下一步做什么"。通常是一张插画/图标 + 一句说明 + 一个主按钮(如"新建第一条记录")。让空变成起点而不是终点。',
+        dont: '别只显示"暂无数据"或什么都不显示;别显示加载失败的错误样式来代替正常的空状态。'
+      },
+      {
+        label: '同一区域需要展示同一对象的多种信息分类',
+        pattern: '标签页(Tabs)',
+        why: '基本信息、操作日志、关联记录分在不同 Tab 里,切换不重新加载整页。用户对"点 Tab 切内容"的心智模型来自浏览器、表格工具、所有 OA 系统。',
+        dont: '别把不同维度全部纵向堆叠在一页里滚动;也别用手风琴(Accordion)替代 Tabs——手风琴适合 FAQ 式内容,不适合后台数据分区。'
+      }
+    ];
+
+    var list   = document.getElementById('pm-list');
+    var result = document.getElementById('pm-result');
+    if (!list || !result) return;
+
+    var activeIdx = -1;
+
+    function render() {
+      list.innerHTML = '';
+      NEEDS.forEach(function (n, i) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pm-need' + (i === activeIdx ? ' active' : '');
+        btn.innerHTML =
+          '<span class="idx">' + (i + 1) + '</span>' +
+          '<span>' + n.label + '</span>';
+        btn.addEventListener('click', function () {
+          activeIdx = i;
+          render();
+          showAnswer(n);
+        });
+        list.appendChild(btn);
+      });
+    }
+
+    function showAnswer(n) {
+      result.innerHTML =
+        '<div class="pm-answer show">' +
+          '<div class="pm-pattern">✅ 推荐模式:' + n.pattern + '</div>' +
+          '<div class="pm-why">' + n.why + '</div>' +
+          '<span class="pm-dont">⚠️ ' + n.dont + '</span>' +
+        '</div>';
+    }
+
+    // 响应式:小屏改为单列
+    function applyLayout() {
+      var wrap = document.getElementById('pm-wrap');
+      if (!wrap) return;
+      if (window.innerWidth < 640) {
+        wrap.style.gridTemplateColumns = '1fr';
+      } else {
+        wrap.style.gridTemplateColumns = '1fr 1fr';
+      }
+    }
+    applyLayout();
+    window.addEventListener('resize', applyLayout);
+
+    render();
+  })();
+  </script>
+</body>
+</html>

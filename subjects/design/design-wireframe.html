@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>低保真线框图:结构先行,颜色靠后 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="design-wireframe"></script>
+  <style>
+    /* 本页自用:线框搭建器专属样式,只作用于本页 */
+    .wf-toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
+    }
+    .wf-add-btn {
+      border: 1px solid var(--border); background: var(--surface); color: var(--text-soft);
+      padding: 7px 14px; border-radius: 999px; font-size: .85rem; font-weight: 700;
+      cursor: pointer; transition: border-color .12s, color .12s, background .12s;
+    }
+    .wf-add-btn:hover { border-color: #6b7a8d; color: #6b7a8d; background: #f4f2ef; }
+    .wf-ctrl-btn {
+      border: 1px solid var(--border); background: var(--surface); color: var(--text-faint);
+      padding: 7px 14px; border-radius: 999px; font-size: .85rem; font-weight: 700;
+      cursor: pointer; transition: all .12s;
+    }
+    .wf-ctrl-btn.del:hover { border-color: #e2524a; color: #e2524a; background: #fdf2f1; }
+    .wf-ctrl-btn.clr:hover { border-color: #e67e22; color: #e67e22; background: #fff7ef; }
+    .wf-ctrl-sep { width: 1px; background: var(--border); align-self: stretch; margin: 0 2px; }
+    .wf-canvas {
+      min-height: 220px; background: #f0ede8; border: 2px dashed #c5baa8;
+      border-radius: 10px; padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 10px;
+      position: relative;
+    }
+    .wf-canvas-hint {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      color: #b0a898; font-size: .9rem; pointer-events: none;
+    }
+    /* 通用线框占位块 */
+    .wf-block {
+      border: 2px dashed #b0a898; background: #e4e0d9; border-radius: 6px;
+      color: #9a8870; font-size: .8rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; letter-spacing: .3px; user-select: none;
+    }
+    /* 顶栏 */
+    .wf-topbar { height: 46px; border-radius: 6px; }
+    /* 页面标题 */
+    .wf-title { min-height: 58px; flex-direction: column; gap: 4px; }
+    .wf-title .wf-sub { font-size: .72rem; color: #b0a898; font-weight: 400; }
+    /* 搜索框 */
+    .wf-search { height: 40px; width: 65%; margin: 0 auto; border-radius: 999px; }
+    /* 表格 */
+    .wf-table {
+      flex-direction: column; padding: 0; gap: 0;
+      border-radius: 6px; overflow: hidden;
+    }
+    .wf-table-head {
+      display: flex; background: #d9d4cc; border-bottom: 1px solid #b0a898;
+      padding: 7px 10px; gap: 0;
+    }
+    .wf-table-row {
+      display: flex; padding: 7px 10px; border-bottom: 1px solid #cdc8bf; gap: 0;
+    }
+    .wf-table-row:last-child { border-bottom: none; }
+    .wf-table-cell {
+      flex: 1; font-size: .73rem; font-weight: 700; color: #9a8870; text-align: center;
+    }
+    .wf-table-cell.wide { flex: 2; }
+    /* 卡片行 */
+    .wf-card-row {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+      background: transparent; border: none; padding: 0;
+    }
+    .wf-card-item {
+      border: 2px dashed #b0a898; background: #e4e0d9; border-radius: 6px;
+      min-height: 80px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 5px;
+      color: #9a8870; font-size: .76rem; font-weight: 700;
+    }
+    .wf-card-item .wf-card-thumb {
+      width: 32px; height: 32px; background: #c5baa8; border-radius: 4px;
+    }
+    /* 按钮行 */
+    .wf-btn-row {
+      display: flex; gap: 8px; background: transparent; border: none; padding: 0;
+    }
+    .wf-btn-item {
+      border: 2px dashed #b0a898; background: #e4e0d9; border-radius: 6px;
+      padding: 0 16px; height: 36px; display: flex; align-items: center;
+      color: #9a8870; font-size: .76rem; font-weight: 700;
+    }
+    .wf-btn-item.primary { background: #c5baa8; border-style: solid; }
+    /* 图表 */
+    .wf-chart {
+      flex-direction: column; padding: 10px 14px 6px; gap: 6px; min-height: 100px;
+    }
+    .wf-chart-label { font-size: .72rem; color: #b0a898; font-weight: 700; align-self: flex-start; }
+    .wf-chart-bars {
+      display: flex; align-items: flex-end; gap: 7px; height: 60px; width: 100%;
+    }
+    .wf-chart-bar { flex: 1; background: #c5baa8; border-radius: 3px 3px 0 0; }
+    @media (max-width: 560px) {
+      .wf-card-row { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb>
+        <a href="../../index.html">🏠 学习中心</a>
+        <span class="sep">›</span>
+        <a href="../../index.html">🎨 设计</a>
+        <span class="sep">›</span><span>交互设计</span>
+        <span class="sep">›</span><span class="cur">低保真线框图</span>
+      </nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>设计 · 交互设计</div>
+      <h1>低保真线框图</h1>
+      <div class="meta-row" data-meta><span>🖊 结构</span> · <span>难度 ●●○</span> · <span>更新于 2026-06-30</span></div>
+    </header>
+
+    <p>一个后台页面的设计,最容易犯的错误不是颜色选错了、字体不好看,而是<b>还没想清楚放什么、放在哪、谁先谁后,就急着打开设计工具开始画精细稿</b>。等颜色和图标都调好了,才发现这张表格不该放在这里,或者这个筛选栏应该在搜索框的上面——改起来损失大,大家也舍不得推翻。</p>
+    <p><b>低保真线框图</b>就是在这个阶段出手的工具。它只画三件事:<b>页面结构、信息层次、区块布局</b>——颜色一律灰阶,字体不换,内容用占位块代替。快画快改,改到结构对了再往下走。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 先有个画面感</div>
+      <p style="margin:6px 0">想象你要给 NocoBase 里的"采购申请"功能画一个管理页面。你有两条路:第一条,直接打开 NocoBase 的配置界面开始加字段、加区块、调样式;第二条,先拿一张纸,画几个灰色方块——这里是顶栏、这里是搜索框、下面是表格、右侧浮出详情弹窗。</p>
+      <p style="margin:6px 0">第二条路看上去多费了一步,实际上省掉了大量返工。<b>线框图是草稿,草稿改起来没有心理负担</b>。它让你在投入任何配置成本之前,就能把结构讨论清楚。</p>
+    </div>
+
+    <h2>1. 线框图该有什么、不该有什么</h2>
+    <p>线框图不是半成品的视觉稿,它有自己明确的边界。哪些要画,哪些坚决不碰,分清楚才能画得快、改得狠。</p>
+
+    <div class="box key">
+      <div class="box-title">🔑 线框图的范围</div>
+      <p style="margin:6px 0"><b>必须有:</b></p>
+      <ul style="margin:6px 0">
+        <li><b>区块和位置</b> — 顶栏、搜索区、表格、操作按钮、详情面板放在页面哪里,互相怎么排列</li>
+        <li><b>信息层次</b> — 哪个区块更突出,哪些信息是次要的;用块的大小和位置表达,不用颜色</li>
+        <li><b>交互节点</b> — 哪里可以点(按钮/行/链接),点了之后界面怎么变(弹窗/跳页/展开)</li>
+        <li><b>占位文字</b> — 用"[ 搜索框 ]""[ 状态筛选 ]""[ 表格:申请人/金额/状态 ]"说明内容类型,不填真实数据</li>
+      </ul>
+      <p style="margin:12px 0 6px"><b>坚决不碰:</b></p>
+      <ul style="margin:6px 0">
+        <li>颜色 — 除了灰阶,全部留白</li>
+        <li>字体、字号、字重 — 统一用默认即可</li>
+        <li>图标 — 用方块加文字标注代替,如"[ 图标:下载 ]"</li>
+        <li>真实文案、真实数据 — 你不需要真正的"订单编号 2026-04-28-0042",只要"订单号列"就够</li>
+        <li>阴影、圆角、渐变 — 这些都是视觉阶段的事</li>
+      </ul>
+    </div>
+
+    <h2>2. 为什么低保真比高保真好</h2>
+    <p>很多人觉得线框图是"偷懒",画出来的东西又丑又难看,不如直接画精细稿来得有说服力。这个想法在项目里会造成持续的麻烦。</p>
+
+    <h3>改得快,才敢推翻</h3>
+    <p>一张线框图,移动一个区块只需要把方块挪一挪。但如果你已经在高保真稿里调好了表格列宽、调好了表头颜色、加好了排序图标,再说"这个表格移到下面去"——心理阻力立刻翻倍。<b>沉没成本让人不敢推翻已有的结构</b>,就算那个结构其实有问题。线框图把沉没成本降到接近零,你才真的敢大改。</p>
+
+    <h3>聚焦信息架构,不纠结样式</h3>
+    <p>一张后台页面上,真正影响用户效率的是:哪些信息出现在第一屏、操作路径是几步、筛选项放在哪里、异常状态怎么呈现。这些全是<b>结构问题,和颜色无关</b>。低保真线框图强迫你只面对结构。如果线框图阶段就觉得"这个页面好用",后面加上颜色会更好用;如果线框图阶段就觉得"找不到想找的东西",加上再漂亮的颜色也救不了它。</p>
+
+    <h3>评审时大家不被颜色带跑</h3>
+    <p>你见过在评审会上讨论半小时"这个绿色太亮了"、"这个按钮能不能圆一点"的场景吗?这种讨论在线框图阶段完全不会发生——因为根本没有颜色可以讨论。<b>评审的注意力会自动集中在"这个流程对不对""这个操作在这里找得到吗"</b>这些真正重要的问题上。</p>
+
+    <h3>画得快,迭代轮次多</h3>
+    <p>一张低保真线框图,熟练了十五分钟能画完一个页面。一张高保真设计稿,可能要两天。<b>同样的时间,低保真能迭代十轮,高保真只能迭代一轮</b>。十轮反馈打磨出来的结构,远比一轮精修的结果更接近真实需求。在 NocoBase 项目里,早期结构经常变动,低保真的迭代效率优势更为明显。</p>
+
+    <div class="box warn">
+      <div class="box-title">⚠️ 过早高保真的四个坑</div>
+      <p style="margin:6px 0"><b>坑 1:改不动。</b>把精细稿给客户评审,客户说"这个筛选放到上面去"——改一处可能牵连十处对齐、间距、颜色,半天没了。</p>
+      <p style="margin:6px 0"><b>坑 2:客户把视觉当承诺。</b>一旦看到带颜色的稿子,客户的心理预期就锚定了。你说"这只是方案,颜色之后再调",他听到的是"颜色就这样了"。</p>
+      <p style="margin:6px 0"><b>坑 3:讨论跑偏。</b>上面提到的颜色讨论陷阱。颜色越精细,离题讨论越多;灰色方块,反而逼着大家谈核心。</p>
+      <p style="margin:6px 0"><b>坑 4:结构问题被掩盖。</b>精细稿里填上真实数据和漂亮排版,信息架构的问题会被视觉美感遮住。等上线了用户才发现找不到东西,那时候改的代价更大。</p>
+    </div>
+
+    <h2>3. 不要用 Lorem ipsum 掩盖问题</h2>
+    <p>Lorem ipsum 是西方设计里的老习惯——把占位文本填成一串拉丁乱码,让版面"看起来有内容"。在后台管理系统里,这个习惯会掩盖真实的信息架构问题。</p>
+    <p>NocoBase 后台里一张审批记录,可能包含:申请人、申请时间、所属部门、审批状态、审批链、备注、附件。如果你在线框图里把这些全填成"Lorem ipsum dolor sit amet",你就<b>看不出"备注"和"申请原因"放在同一行会有多拥挤,看不出"审批链"展开后会把下面的内容顶多远</b>。</p>
+    <p>正确做法是用<b>真实的字段名</b>做占位——写"[ 申请人姓名 ]""[ 金额 ¥0,000 ]""[ 状态:待审核 ]"。这样线框图阶段就能暴露信息密度问题。更好的方式是偶尔填一两条<b>极端值</b>:最长的名字、最大的金额、最多的备注文字——测试布局是否撑得住。</p>
+
+    <div class="box tip">
+      <div class="box-title">✅ 后台线框图占位符的写法</div>
+      <ul style="margin:6px 0">
+        <li>列标题直接写字段名:「申请人」「提交时间」「审批状态」「操作」</li>
+        <li>单元格内容写类型+范例长度:「张三·东京营业部」(模拟较长的姓名+部门组合)</li>
+        <li>按钮区域写意图:「[ 主按钮:提交申请 ] [ 次按钮:保存草稿 ] [ 危险按钮:撤回 ]」</li>
+        <li>弹窗、抽屉区域画虚线框,标注「弹窗:填写申请详情(含 7 个字段 + 附件上传)」</li>
+        <li>图表区域画一个灰色矩形,写「折线图:近 30 天申请量趋势」</li>
+      </ul>
+    </div>
+
+    <h2>4. 先线框,再视觉</h2>
+    <p>这条听起来理所当然,但实际上在做 NocoBase 配置时极容易被打破。配置一个表格区块,你会忍不住顺手调列宽、排序、颜色标签——<b>这些都是视觉层的决策,你还没确定这张表格该放在哪、要展示哪些列</b>。</p>
+    <p>一个可操作的分界线:在你打开 NocoBase 开始拖拽区块之前,先在纸上或工具里花十分钟画完这个页面的线框图。明确以下四件事再开始配置:</p>
+    <ul>
+      <li>这个页面有哪些<b>信息区</b>(顶部操作栏、筛选区、列表/表格、详情面板、统计卡片)</li>
+      <li>各信息区之间的<b>主次关系</b>和<b>空间分配</b>(谁占整宽,谁并排,谁是浮层)</li>
+      <li>用户在这个页面的<b>主操作路径</b>是什么(看列表→筛选→点进详情→发起操作)</li>
+      <li>有哪些<b>空状态/异常状态</b>需要在结构上预留位置</li>
+    </ul>
+    <p>把这四件事画清楚,再去 NocoBase 配置就会快很多——你知道自己要做什么,不会在配置的过程中反复拆掉重来。</p>
+
+    <div class="lab">
+      <div class="lab-title">🖊 线框搭建器</div>
+      <p style="margin:0 0 14px; color:var(--text-soft); font-size:.92rem">用下面的按钮往画布里<b>实时追加灰阶占位块</b>,拼出一个后台页面的线框。纯线框样式:灰底、虚线框、占位文字,没有任何颜色。拼好后对照着想一想:信息层次清楚吗?主操作路径找得到吗?</p>
+
+      <div class="wf-toolbar" id="wf-toolbar">
+        <button type="button" class="wf-add-btn" data-block="topbar">＋ 顶栏</button>
+        <button type="button" class="wf-add-btn" data-block="title">＋ 标题区</button>
+        <button type="button" class="wf-add-btn" data-block="search">＋ 搜索框</button>
+        <button type="button" class="wf-add-btn" data-block="table">＋ 表格</button>
+        <button type="button" class="wf-add-btn" data-block="card">＋ 卡片行</button>
+        <button type="button" class="wf-add-btn" data-block="btns">＋ 按钮组</button>
+        <button type="button" class="wf-add-btn" data-block="chart">＋ 图表</button>
+        <div class="wf-ctrl-sep"></div>
+        <button type="button" class="wf-ctrl-btn del" id="wf-undo">删除上一个</button>
+        <button type="button" class="wf-ctrl-btn clr" id="wf-clear">清空</button>
+      </div>
+
+      <div class="wf-canvas" id="wf-canvas">
+        <div class="wf-canvas-hint" id="wf-hint">点击上方按钮,往这里追加线框区块 ↑</div>
+      </div>
+
+      <p style="margin:10px 0 0; font-size:.8rem; color:var(--text-faint)">提示:可以多次点同一个按钮,比如加两次「表格」来模拟主从列表布局。</p>
+    </div>
+
+    <h2>5. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 给自己的后台页面画 5 分钟线框</div>
+      <p style="margin:6px 0">挑一个你正在做或者打算做的 NocoBase 页面(比如「采购申请列表」「员工考勤记录」「客户跟进详情」),用上面的搭建器——或者就用纸笔——花<b>五分钟</b>只做一件事:</p>
+      <p style="margin:10px 0 4px"><b>把这个页面的区块放到画布上,不加任何颜色,只定结构。</b></p>
+      <p style="margin:6px 0">画完后问自己三个问题:</p>
+      <ol style="margin:6px 0">
+        <li>用户打开这个页面,<b>第一眼</b>会落在哪里?是你想让他先看的东西吗?</li>
+        <li>用户想做<b>最常见的操作</b>(比如「新建一条申请」「筛选本月数据」),最快几步能找到入口?</li>
+        <li>如果这个页面<b>没有数据</b>(空列表),这个线框还站得住吗?空状态要怎么处理?</li>
+      </ol>
+      <p style="margin:10px 0 4px; color:var(--text-soft); font-size:.9rem">你不需要回答得完美。五分钟画完,三个问题有一个让你停顿了——那就是值得在配置前多想一步的地方。线框图的价值就在这里:它让你在投入任何实际配置工作之前,先把结构问题暴露出来。</p>
+    </div>
+
+    <p style="margin-top:14px">线框图是一个习惯,不是一个技能。技能要练才会,习惯要坚持才能变成本能。从下一个 NocoBase 页面开始,在打开配置界面之前先画两分钟线框——坚持几次,你就会发现自己配置页面的速度和返工率都在变好。结构对了,后面的每一步都会更顺。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related>
+        <a href="design-norman-principles.html" style="--rc:#B6532F">
+          <b>诺曼五要素:可见性·映射·反馈·约束·示能</b>
+          <span>设计 · 交互设计</span>
+        </a>
+        <a href="interaction-design.html" style="--rc:#B6532F">
+          <b>交互设计 · 学习路线与每周练习</b>
+          <span>设计 · 交互设计</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <script>
+  (function () {
+    var canvas = document.getElementById('wf-canvas');
+    var hint   = document.getElementById('wf-hint');
+    var toolbar = document.getElementById('wf-toolbar');
+    var undoBtn = document.getElementById('wf-undo');
+    var clearBtn = document.getElementById('wf-clear');
+    if (!canvas) return;
+
+    /* ------- 区块生成器 ------- */
+    function makeTopbar() {
+      var el = document.createElement('div');
+      el.className = 'wf-block wf-topbar';
+      el.innerHTML = '[ 顶栏:Logo &nbsp;|&nbsp; 导航菜单 &nbsp;|&nbsp; 用户头像 ]';
+      return el;
+    }
+
+    function makeTitle() {
+      var el = document.createElement('div');
+      el.className = 'wf-block wf-title';
+      el.innerHTML = '<span>[ 页面标题 · 一级标题 H1 ]</span>'
+        + '<span class="wf-sub">[ 面包屑:首页 / 模块 / 当前页 ] &nbsp;|&nbsp; [ 页面描述一行 ]</span>';
+      return el;
+    }
+
+    function makeSearch() {
+      var el = document.createElement('div');
+      el.className = 'wf-block wf-search';
+      el.innerHTML = '🔍&nbsp; [ 搜索框:按关键词搜索 ]';
+      return el;
+    }
+
+    function makeTable() {
+      var el = document.createElement('div');
+      el.className = 'wf-block wf-table';
+
+      var head = document.createElement('div');
+      head.className = 'wf-table-head';
+      ['编号', '申请人', '所属部门', '金额', '状态', '提交时间', '操作'].forEach(function (col, i) {
+        var cell = document.createElement('div');
+        cell.className = 'wf-table-cell' + (i === 1 || i === 2 ? ' wide' : '');
+        cell.textContent = col;
+        head.appendChild(cell);
+      });
+      el.appendChild(head);
+
+      var rowLabels = [
+        ['001', '张 · 东京营业部', '销售一部', '¥12,000', '待审核', '2026-06-28', '查看 / 审批'],
+        ['002', '李 · 总部', '运营部', '¥3,500', '已通过', '2026-06-27', '查看'],
+        ['003', '王 · 大阪分公司', '采购部', '¥88,000', '已驳回', '2026-06-25', '查看'],
+      ];
+      rowLabels.forEach(function (cols) {
+        var row = document.createElement('div');
+        row.className = 'wf-table-row';
+        cols.forEach(function (c, i) {
+          var cell = document.createElement('div');
+          cell.className = 'wf-table-cell' + (i === 1 || i === 2 ? ' wide' : '');
+          cell.textContent = c;
+          row.appendChild(cell);
+        });
+        el.appendChild(row);
+      });
+      return el;
+    }
+
+    function makeCards() {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'wf-card-row';
+      var labels = ['统计卡片 A\n数值占位', '统计卡片 B\n数值占位', '统计卡片 C\n数值占位'];
+      labels.forEach(function (txt) {
+        var card = document.createElement('div');
+        card.className = 'wf-card-item';
+        var thumb = document.createElement('div');
+        thumb.className = 'wf-card-thumb';
+        card.appendChild(thumb);
+        var label = document.createElement('span');
+        label.textContent = txt.replace('\n', ' · ');
+        card.appendChild(label);
+        wrapper.appendChild(card);
+      });
+      return wrapper;
+    }
+
+    function makeBtns() {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'wf-btn-row';
+      var defs = [
+        { label: '新建申请', primary: true },
+        { label: '批量导出', primary: false },
+        { label: '筛选 ▾', primary: false },
+      ];
+      defs.forEach(function (d) {
+        var btn = document.createElement('div');
+        btn.className = 'wf-btn-item' + (d.primary ? ' primary' : '');
+        btn.textContent = d.label;
+        wrapper.appendChild(btn);
+      });
+      return wrapper;
+    }
+
+    function makeChart() {
+      var el = document.createElement('div');
+      el.className = 'wf-block wf-chart';
+      var label = document.createElement('div');
+      label.className = 'wf-chart-label';
+      label.textContent = '[ 图表:近 30 天申请量趋势(折线/柱状) ]';
+      el.appendChild(label);
+      var bars = document.createElement('div');
+      bars.className = 'wf-chart-bars';
+      var heights = [35, 50, 28, 60, 42, 55, 38, 62, 45, 30, 58, 48];
+      heights.forEach(function (h) {
+        var bar = document.createElement('div');
+        bar.className = 'wf-chart-bar';
+        bar.style.height = h + 'px';
+        bars.appendChild(bar);
+      });
+      el.appendChild(bars);
+      return el;
+    }
+
+    var BUILDERS = {
+      topbar: makeTopbar,
+      title:  makeTitle,
+      search: makeSearch,
+      table:  makeTable,
+      card:   makeCards,
+      btns:   makeBtns,
+      chart:  makeChart,
+    };
+
+    /* ------- 状态 ------- */
+    var blocks = []; // 追加到画布的元素列表
+
+    function updateHint() {
+      if (hint) hint.style.display = blocks.length === 0 ? 'flex' : 'none';
+    }
+
+    function addBlock(type) {
+      var builder = BUILDERS[type];
+      if (!builder) return;
+      var el = builder();
+      canvas.appendChild(el);
+      blocks.push(el);
+      updateHint();
+    }
+
+    function undoLast() {
+      if (blocks.length === 0) return;
+      var last = blocks.pop();
+      canvas.removeChild(last);
+      updateHint();
+    }
+
+    function clearAll() {
+      blocks.forEach(function (el) {
+        if (el.parentNode === canvas) canvas.removeChild(el);
+      });
+      blocks = [];
+      updateHint();
+    }
+
+    /* ------- 事件绑定 ------- */
+    toolbar.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-block]');
+      if (btn) addBlock(btn.getAttribute('data-block'));
+    });
+    undoBtn.addEventListener('click', undoLast);
+    clearBtn.addEventListener('click', clearAll);
+
+    updateHint();
+  })();
+  </script>
+</body>
+</html>
