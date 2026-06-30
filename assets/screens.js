@@ -676,7 +676,7 @@
         <div style="display:flex;gap:14px;align-items:center;font-size:13px;color:#9a8a6f;margin-bottom:24px;"><span>${sel.t}</span><span>·</span><span>${sc.name}</span></div>
         <p>${sel.kp.summary || ""}</p>
         <div class="pan-callout"><strong>打开完整讲解</strong><br/>这一节已有交互讲解页,点开看可调参数的可视化与例题。</div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;padding-top:24px;border-top:1px solid #EEE3CF;"><a class="pan-btn ink" href=${sel.kp.path}>打开讲解页 →</a><span class="pan-btn ghost" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope }); }}>做练习</span><span class="pan-btn ghost" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope, mode: "exam" }); }}>📝 模拟试卷</span>${masterBtn()}</div></div>`;
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;padding-top:24px;border-top:1px solid #EEE3CF;"><span class="pan-btn ink" onClick=${function () { app.openLesson(sel.kp.path, sel.kp.title); }}>📖 打开讲解 →</span><a class="pan-btn ghost" href=${sel.kp.path} target="_blank" rel="noopener" title="新标签打开 / 分享">↗</a><span class="pan-btn ghost" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope }); }}>做练习</span><span class="pan-btn ghost" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope, mode: "exam" }); }}>📝 模拟试卷</span>${masterBtn()}</div></div>`;
     } else if (sel) {
       center = html`<div class="pan-article"><div style="font-size:12.5px;color:#9a8a6f;margin-bottom:8px;">${sel.t} · ${sc.name}</div>
         <h1>${sel.p.title}</h1>

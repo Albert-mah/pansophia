@@ -29,7 +29,7 @@
   }
   var html = window.htm.bind(h);
   window.h = h;
-  var useState = React.useState, useContext = React.useContext, useEffect = React.useEffect;
+  var useState = React.useState, useContext = React.useContext, useEffect = React.useEffect, useRef = React.useRef;
 
   var Ctx = React.createContext(null);
   window.AppCtx = Ctx;
@@ -260,10 +260,39 @@
     </div>`;
   }
 
+  /* ---------------- 讲解页 系统内覆盖层(iframe,保留交互) ---------------- */
+  function LessonOverlay(props) {
+    var L = props.lesson;
+    var ref = useRef(null);
+    function full() {
+      var el = ref.current; if (!el) return;
+      var fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if (fn) { try { fn.call(el); } catch (e) {} }
+    }
+    useEffect(function () {
+      function onKey(e) { if (e.key === "Escape") props.onClose(); }
+      window.addEventListener("keydown", onKey);
+      return function () { window.removeEventListener("keydown", onKey); };
+    }, []);
+    return html`<div class="pan-lesson-mask" onClick=${function (e) { if (e.target.classList.contains("pan-lesson-mask")) props.onClose(); }}>
+      <div class="pan-lesson-win">
+        <div class="pan-lesson-bar">
+          <div class="pan-lesson-title">📖 ${L.title}</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="pan-btn ghost sm" onClick=${full}>⛶ 全屏</span>
+            <a class="pan-btn ghost sm" href=${L.path} target="_blank" rel="noopener" title="新标签打开 / 分享">新标签 ↗</a>
+            <span class="pan-lesson-x" onClick=${props.onClose} title="关闭 (Esc)">✕</span>
+          </div>
+        </div>
+        <iframe ref=${ref} src=${L.path} class="pan-lesson-frame" title=${L.title}></iframe>
+      </div>
+    </div>`;
+  }
+
   /* ---------------- 根组件 ---------------- */
   function App() {
     var initScreen = qsGet("screen"); if (SCREENS.indexOf(initScreen) < 0) initScreen = "home";
-    var s0 = useState({ screen: initScreen, params: { disc: qsGet("disc") || null, cat: qsGet("cat") || null }, menuOpen: false, userPop: false, moreOpen: false, ready: false, tick: 0, toast: null });
+    var s0 = useState({ screen: initScreen, params: { disc: qsGet("disc") || null, cat: qsGet("cat") || null }, menuOpen: false, userPop: false, moreOpen: false, ready: false, tick: 0, toast: null, lesson: null });
     var st = s0[0], setSt = s0[1];
 
     // 启动:从数据库水合当前用户全部状态,完成后检测成就(基于已有进度回溯解锁),再渲染
@@ -289,7 +318,10 @@
         C.hydrate().then(function () { var fresh = C.checkAchievements(); setSt(function (p) { return Object.assign({}, p, { ready: true, tick: p.tick + 1, toast: (fresh && fresh.length) ? fresh : null }); }); });
       },
       // 动作后检测成就:刷新 + 若有新解锁则弹 toast
-      checkAch: function () { var fresh = C.checkAchievements(); setSt(function (p) { return Object.assign({}, p, { tick: p.tick + 1, toast: (fresh && fresh.length) ? fresh : p.toast }); }); }
+      checkAch: function () { var fresh = C.checkAchievements(); setSt(function (p) { return Object.assign({}, p, { tick: p.tick + 1, toast: (fresh && fresh.length) ? fresh : p.toast }); }); },
+      // 讲解页在系统内打开(iframe 覆盖层),保留交互;可全屏 / 新标签分享
+      openLesson: function (path, title) { setSt(function (p) { return Object.assign({}, p, { lesson: { path: path, title: title || "讲解" } }); }); },
+      closeLesson: function () { setSt(function (p) { return Object.assign({}, p, { lesson: null }); }); }
     };
 
     var Screens = window.Screens || {};
@@ -309,6 +341,7 @@
         })}</div>` : null}
         ${st.ready ? html`<${Dispatcher} />` : null}
         ${st.ready ? html`<${CourseHud} />` : null}
+        ${st.lesson ? html`<${LessonOverlay} lesson=${st.lesson} onClose=${api.closeLesson} />` : null}
       </div>
     </${Ctx.Provider}>`;
   }

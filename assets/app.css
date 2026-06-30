@@ -341,3 +341,14 @@ h1, h2, h3, .serif { font-family: var(--serif); }
   .pan-stat { padding: 13px 14px; }
   .pan-stat .num { font-size: 22px; }
 }
+
+/* ---------------- 讲解页 系统内覆盖层 ---------------- */
+.pan-lesson-mask { position: fixed; inset: 0; z-index: 1200; background: rgba(40,28,16,.55); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 2.5vh 2vw; animation: panFade .16s ease; }
+@keyframes panFade { from { opacity: 0; } to { opacity: 1; } }
+.pan-lesson-win { width: 95vw; max-width: 1180px; height: 95vh; background: var(--paper); border-radius: 18px; box-shadow: 0 24px 70px rgba(60,40,20,.4); display: flex; flex-direction: column; overflow: hidden; }
+.pan-lesson-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: rgba(252,246,236,.96); border-bottom: 1px solid var(--line-2); flex-shrink: 0; }
+.pan-lesson-title { font-family: var(--serif); font-weight: 700; font-size: 15px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pan-lesson-x { cursor: pointer; font-size: 16px; color: var(--muted); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 9px; }
+.pan-lesson-x:hover { background: var(--tint-terra); color: var(--terra); }
+.pan-lesson-frame { flex: 1; width: 100%; border: 0; background: var(--paper); }
+@media (max-width: 620px) { .pan-lesson-win { width: 100vw; height: 100vh; border-radius: 0; } .pan-lesson-mask { padding: 0; } }
