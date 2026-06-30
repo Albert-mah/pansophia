@@ -803,12 +803,42 @@
   }
 
   // 课程资料库 / 文件柜:上传文件 或 粘文件直链→缓存进库;按文件夹分组;浏览器内打开(PDF/图/文本)或下载
+  // 把扁平资料项 [{path:[seg…], …}] 组织成目录树:{ dirs:{name:node}, files:[item] }
+  function buildResTree(items) {
+    var root = { dirs: {}, files: [] };
+    (items || []).forEach(function (it) {
+      var node = root;
+      (it.path || []).forEach(function (s) { node.dirs[s] = node.dirs[s] || { dirs: {}, files: [] }; node = node.dirs[s]; });
+      node.files.push(it);
+    });
+    return root;
+  }
+  function countLeaves(node) { var n = node.files.length; Object.keys(node.dirs).forEach(function (k) { n += countLeaves(node.dirs[k]); }); return n; }
+  // 递归渲染目录树:文件夹可折叠(默认展开),叶子交给 leafRender
+  function ResTreeNode(props) {
+    var node = props.node, depth = props.depth || 0, exp = props.expanded, pre = props.prefix || "", pad = depth * 12 + 2;
+    var dirs = Object.keys(node.dirs).sort();
+    return html`<div>
+      ${dirs.map(function (dn, i) {
+        var key = pre + "/" + dn, open = exp[key] !== false;
+        return html`<div key=${"d" + i}>
+          <div onClick=${function () { props.onToggle(key); }} style=${"display:flex;align-items:center;gap:5px;cursor:pointer;padding:5px 4px;border-radius:7px;font-size:12px;font-weight:700;color:#8a7a62;padding-left:" + pad + "px;"}>
+            <span style="font-size:9px;width:9px;color:#bbab8c;">${open ? "▾" : "▸"}</span><span>📁 ${dn}</span><span style="font-size:10.5px;color:#cbb9a0;font-weight:600;">${countLeaves(node.dirs[dn])}</span>
+          </div>
+          ${open ? html`<${ResTreeNode} node=${node.dirs[dn]} depth=${depth + 1} expanded=${exp} onToggle=${props.onToggle} leafRender=${props.leafRender} prefix=${key} />` : null}
+        </div>`;
+      })}
+      ${node.files.map(function (it, i) { return html`<div key=${"f" + i} style=${"padding-left:" + pad + "px;"}>${props.leafRender(it)}</div>`; })}
+    </div>`;
+  }
   function CourseFilesPanel(props) {
     var did = props.disc, scope = props.scope || null;
     var f0 = useState(null); var files = f0[0], setFiles = f0[1];
     var a0 = useState(false); var adding = a0[0], setAdding = a0[1];
     var b0 = useState({}); var busy = b0[0], setBusy = b0[1];
     var fm0 = useState({ mode: "link", name: "", url: "", folder: "", note: "" }); var form = fm0[0], setForm = fm0[1];
+    var ex0 = useState({}); var exp = ex0[0], setExp = ex0[1];
+    function toggle(key) { setExp(function (p) { var n = Object.assign({}, p); n[key] = (p[key] === false); return n; }); }
     function load() { C.courseFiles(did, scope).then(setFiles); }
     useEffect(function () { setFiles(null); load(); }, [did, scope]);
     function up(k, v) { setForm(function (p) { var n = Object.assign({}, p); n[k] = v; return n; }); }
@@ -834,44 +864,45 @@
     }
     function cache(it) { setBusy(function (b) { var n = Object.assign({}, b); n[it.id] = 1; return n; }); C.cacheCourseFile(it.id).then(function (r) { setBusy(function (b) { var n = Object.assign({}, b); delete n[it.id]; return n; }); if (!(r && r.ok)) window.alert((r && r.error) || "缓存失败"); load(); }); }
     function del(it) { if (window.confirm("从资料库删除「" + it.name + "」?")) C.deleteCourseFile(it.id).then(load); }
-    var groups = {}; (files || []).forEach(function (it) { var f = it.folder || ""; (groups[f] = groups[f] || []).push(it); });
-    var folders = Object.keys(groups).sort();
     function iconOf(it) { var s = (it.mime || "") + " " + (it.name || ""); return /pdf/i.test(s) ? "📕" : /image|png|jpg|jpeg|gif|webp|svg/i.test(s) ? "🖼" : /zip|rar|7z/i.test(s) ? "🗜" : /ppt|presentation/i.test(s) ? "📊" : /doc|word/i.test(s) ? "📝" : /xls|sheet|csv/i.test(s) ? "📈" : /mp4|video/i.test(s) ? "🎬" : "📄"; }
     var recs = (props.materials || []).slice().sort(function (a, b) { var r = { official: 0, authoritative: 1, generated: 2 }; return (r[a.authority] == null ? 3 : r[a.authority]) - (r[b.authority] == null ? 3 : r[b.authority]); });
+    var KIND_LABEL = { textbook: "教材 / 书", pdf: "教材 / 书", site: "网站 / 工具", course: "课程 / 认证", video: "视频", guide: "学习指南", link: "文章 / 链接" };
+    var recTree = buildResTree(recs.map(function (m) { return { path: [KIND_LABEL[m.kind] || "其它"], rec: m }; }));
+    var fileTree = buildResTree((files || []).map(function (it) { return { path: (it.folder || "").split("/").map(function (s) { return s.trim(); }).filter(Boolean), file: it }; }));
+    function recLeaf(o) {
+      var m = o.rec, au = m.authority === "official" ? ["官方", "#3f8a52", "#eef7f0"] : m.authority === "authoritative" ? ["权威", "#2c5fb3", "#eaf1fb"] : ["AI", "#a86a00", "#FBF4E6"];
+      var local = !!m.file_id, href = local ? C.fileUrl(m.file_id) : m.url;
+      return html`<div style="padding:5px 0 6px;border-bottom:1px solid #F4ECDC;">
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <span class="pan-pill" style=${"color:" + au[1] + ";background:" + au[2] + ";font-size:10px;flex-shrink:0;"}>${au[0]}</span>
+          ${!href ? html`<span style="font-size:12.5px;color:#9a8a6f;flex:1;min-width:0;">${m.title}</span>`
+            : local ? html`<a href=${href} target="_blank" rel="noopener" style="font-size:12.5px;font-weight:600;color:#3a3023;text-decoration:none;flex:1;min-width:0;line-height:1.45;">📕 ${m.title} <span style="color:#9FB07A;font-size:10.5px;">· 本地</span></a>`
+              : html`<a href=${href} target="_blank" rel="noopener" class="pan-reslink" style="flex:1;min-width:0;">🔗 ${m.title} ↗</a>`}
+        </div>
+        ${m.note ? html`<div style="font-size:11px;color:#9a8a6f;line-height:1.5;margin-top:2px;">${m.note}</div>` : null}
+      </div>`;
+    }
+    function fileLeaf(o) {
+      var it = o.file, cached = !!it.file_id, href = cached ? C.fileUrl(it.file_id) : it.url;
+      return html`<div class="pan-row" style="display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:8px;">
+        ${cached
+          ? html`<a href=${href} target="_blank" rel="noopener" title=${it.name} style="flex:1;min-width:0;font-size:12.5px;color:#3a3023;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${iconOf(it)} ${it.name}</a>`
+          : html`<a href=${href} target="_blank" rel="noopener" title=${it.name} class="pan-reslink" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">🔗 ${it.name} ↗</a>`}
+        ${(it.url && !cached) ? html`<span class="lnk" style="color:#B6532F;cursor:pointer;font-size:11px;flex-shrink:0;" onClick=${function () { if (!busy[it.id]) cache(it); }}>${busy[it.id] ? "下载中…" : "缓存"}</span>` : null}
+        ${cached ? html`<span style="color:#9FB07A;font-size:11px;flex-shrink:0;">✓本地</span>` : null}
+        <span style="color:#cbb9a0;cursor:pointer;font-size:12px;flex-shrink:0;" title="删除" onClick=${function () { del(it); }}>✕</span></div>`;
+    }
+    var hasFiles = (files || []).length > 0;
     return html`<div>
-      ${recs.length ? html`<div style="margin-bottom:22px;">
-        <div class="pan-eyebrow" style="margin-bottom:10px;">📚 推荐资料 · 点开就能看</div>
-        ${recs.map(function (m, i) {
-          var au = m.authority === "official" ? ["官方", "#3f8a52", "#eef7f0"] : m.authority === "authoritative" ? ["权威", "#2c5fb3", "#eaf1fb"] : ["AI", "#a86a00", "#FBF4E6"];
-          var open = m.file_id ? C.fileUrl(m.file_id) : m.url;
-          return html`<div key=${i} style="padding:8px 0;border-bottom:1px solid #F0E6D2;">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span class="pan-pill" style=${"color:" + au[1] + ";background:" + au[2] + ";font-size:10.5px;flex-shrink:0;"}>${au[0]}</span>
-              ${open ? html`<a href=${open} target="_blank" rel="noopener" style="font-size:12.5px;font-weight:600;color:#3a3023;text-decoration:none;flex:1;min-width:0;line-height:1.4;">${m.title} <span style="color:#B6532F;">↗</span></a>`
-                : html`<span style="font-size:12.5px;font-weight:600;color:#9a8a6f;flex:1;min-width:0;line-height:1.4;">${m.title}</span>`}
-            </div>
-            ${m.note ? html`<div style="font-size:11px;color:#9a8a6f;line-height:1.55;margin-top:3px;">${m.note}</div>` : null}
-          </div>`;
-        })}
-        <div style="font-size:11px;color:#bbab8c;margin-top:9px;line-height:1.65;">免费的(NN/g、Laws of UX、IxDF 百科)点开直接读;受版权的书给的是正规借阅 / 购买页,自己取用。${props.onPickTb ? html` <span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${props.onPickTb}>· 选作课本 →</span>` : null}</div>
+      ${recs.length ? html`<div style="margin-bottom:20px;">
+        <div class="pan-eyebrow" style="margin-bottom:8px;">📚 推荐资料 · 点开就能看</div>
+        ${html`<${ResTreeNode} node=${recTree} expanded=${exp} onToggle=${toggle} leafRender=${recLeaf} prefix="rec" />`}
+        <div style="font-size:11px;color:#bbab8c;margin-top:9px;line-height:1.65;"><span style="color:#2c5fb3;text-decoration:underline;">🔗 蓝色</span>=外链点开即看(NN/g、Laws of UX、IxDF 百科);受版权的书给的是正规借阅 / 购买页。${props.onPickTb ? html` <span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${props.onPickTb}>· 选作课本 →</span>` : null}</div>
       </div>` : null}
-      <div class="pan-eyebrow" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">我的资料库 · 上传 / 链接 <span class="lnk" style="color:#B6532F;cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;" onClick=${function () { setAdding(true); }}>＋ 添加</span></div>
+      <div class="pan-eyebrow" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">我的资料库 · 本地 / 链接 <span class="lnk" style="color:#B6532F;cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;" onClick=${function () { setAdding(true); }}>＋ 添加</span></div>
       ${files == null ? html`<div style="font-size:12px;color:#9a8a6f;">加载中…</div>`
-        : !folders.length ? html`<div style="font-size:12.5px;color:#9a8a6f;line-height:1.7;">还没有资料。点「＋ 添加」上传文件,或粘一个课件/PDF 直链缓存进来 —— PDF/图片/文本能在浏览器直接看,Office/压缩包可下载。</div>`
-        : folders.map(function (f, fi) {
-            return html`<div key=${fi} style="margin-bottom:12px;">
-              ${f ? html`<div style="font-size:11px;font-weight:700;color:#bbab8c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">📁 ${f}</div>` : null}
-              ${groups[f].map(function (it) {
-                var cached = !!it.file_id;
-                return html`<div key=${it.id} class="pan-row" style="display:flex;align-items:center;gap:7px;padding:7px 7px;border-radius:8px;">
-                  <span style="font-size:15px;flex-shrink:0;">${iconOf(it)}</span>
-                  <a style="flex:1;min-width:0;font-size:12.5px;color:#3a3023;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" href=${cached ? C.fileUrl(it.file_id) : it.url} target="_blank" rel="noopener" title=${it.name}>${it.name}</a>
-                  ${(it.url && !cached) ? html`<span class="lnk" style="color:#B6532F;cursor:pointer;font-size:11px;flex-shrink:0;" onClick=${function () { if (!busy[it.id]) cache(it); }}>${busy[it.id] ? "下载中…" : "缓存"}</span>` : null}
-                  ${cached ? html`<span style="color:#9FB07A;font-size:11px;flex-shrink:0;">✓本地</span>` : null}
-                  <span style="color:#cbb9a0;cursor:pointer;font-size:12px;flex-shrink:0;" onClick=${function () { del(it); }}>✕</span></div>`;
-              })}
-            </div>`;
-          })}
+        : !hasFiles ? html`<div style="font-size:12.5px;color:#9a8a6f;line-height:1.7;">还没有资料。点「＋ 添加」上传文件或粘链接 —— 文件夹支持用「/」分层(如 讲义/第一章),自动组织成目录树;本地文件和外链可混放。</div>`
+        : html`<${ResTreeNode} node=${fileTree} expanded=${exp} onToggle=${toggle} leafRender=${fileLeaf} prefix="my" />`}
       ${adding ? html`<div class="pan-modal-mask" onClick=${function (e) { if (e.target.classList.contains("pan-modal-mask")) setAdding(false); }}>
         <div class="pan-modal" style="max-width:440px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h2 style="font-family:var(--serif);margin:0;font-size:18px;">添加资料</h2><span onClick=${function () { setAdding(false); }} style="cursor:pointer;color:#9a8a6f;font-size:20px;">×</span></div>
@@ -879,7 +910,7 @@
             <span class=${"pan-tag" + (form.mode === "link" ? " on" : "")} onClick=${function () { up("mode", "link"); }}>🔗 加链接</span>
             <span class=${"pan-tag" + (form.mode === "upload" ? " on" : "")} onClick=${function () { up("mode", "upload"); }}>⬆ 上传文件</span>
           </div>
-          <input value=${form.folder} onInput=${function (e) { up("folder", e.target.value); }} placeholder="文件夹(可选,如 讲义 / 习题 / 幻灯片)" style="width:100%;box-sizing:border-box;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-size:13.5px;margin-bottom:10px;outline:none;background:#FFFDF8;" />
+          <input value=${form.folder} onInput=${function (e) { up("folder", e.target.value); }} placeholder="文件夹(可选,用 / 分层,如 讲义/第一章)" style="width:100%;box-sizing:border-box;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-size:13.5px;margin-bottom:10px;outline:none;background:#FFFDF8;" />
           ${form.mode === "link" ? html`<div>
             <input value=${form.url} onInput=${function (e) { up("url", e.target.value); }} placeholder="文件直链(PDF / 课件 / 图片… 的 URL)" style="width:100%;box-sizing:border-box;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-size:13.5px;margin-bottom:10px;outline:none;background:#FFFDF8;" />
             <input value=${form.name} onInput=${function (e) { up("name", e.target.value); }} placeholder="名称(留空用链接里的文件名)" style="width:100%;box-sizing:border-box;border:1px solid #EBDEC8;border-radius:9px;padding:9px 11px;font-size:13.5px;margin-bottom:14px;outline:none;background:#FFFDF8;" />

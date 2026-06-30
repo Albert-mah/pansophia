@@ -205,6 +205,9 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 .pan-lesson-inbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; padding: 0 2px; }
 .pan-lesson-inframe { width: 100%; height: calc(100vh - 212px); min-height: 480px; border: 1px solid var(--line-2); border-radius: 14px; background: var(--paper); box-shadow: 0 6px 24px rgba(60,40,20,.06); }
 @media (max-width: 900px) { .pan-lesson-inline { margin: 0; } .pan-lesson-inframe { height: 80vh; min-height: 420px; } }
+/* 资料目录树:外链给明确的链接样式(本地文件则用文件图标+「本地」标) */
+.pan-reslink { font-size: 12.5px; font-weight: 600; color: #2c5fb3; text-decoration: underline; text-decoration-color: #bcd0ef; text-underline-offset: 2px; line-height: 1.45; cursor: pointer; }
+.pan-reslink:hover { color: #1c4794; text-decoration-color: #2c5fb3; }
 
 /* 课程正文排版 */
 .pan-article p { font-size: 16px; line-height: 1.8; color: var(--ink-2); margin: 0 0 18px; }
