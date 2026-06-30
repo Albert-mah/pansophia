@@ -1447,6 +1447,44 @@
     useEffect(function () { load(); }, []);
     function set(k, v) { setF(function (o) { var n = Object.assign({}, o); n[k] = v; return n; }); }
     var mine = C.myDiscs();
+    /* ---- 批量上传(自己拍的课本/整理的资料):按文件名自动匹配学科,匹配不到可自选/命名 ---- */
+    var bat0 = useState([]); var batch = bat0[0], setBatch = bat0[1];
+    var bp0 = useState(null); var batProg = bp0[0], setBatProg = bp0[1];
+    var DISC_KW = { "foreign-lit": ["英语", "新概念", "english", "日语", "外语", "japanese", "toefl", "托福"], "chinese-lit": ["语文", "中国语言", "chinese", "作文", "古诗", "名著"], "math": ["数学", "math", "几何", "代数", "函数"], "biology": ["生物", "biology", "生命科学"], "physics": ["物理", "physics"], "chemistry": ["化学", "chemistry"], "design": ["设计", "交互", "design", "ux"], "history": ["历史", "history"], "geography": ["地理", "geography"], "politics": ["政治", "道法", "道德与法治"] };
+    function guessDisc(fn) {
+      var low = String(fn || "").toLowerCase();
+      for (var i = 0; i < mine.length; i++) {
+        var id = mine[i], dn = ((C.disciplineById(id) || {}).name || "").toLowerCase(), kws = DISC_KW[id] || [];
+        if (dn && low.indexOf(dn) >= 0) return id;
+        for (var j = 0; j < kws.length; j++) { if (low.indexOf(String(kws[j]).toLowerCase()) >= 0) return id; }
+      }
+      return "";
+    }
+    function stripExt(n) { return String(n || "").replace(/\.[a-z0-9]{1,5}$/i, ""); }
+    function onBatchPick(e) {
+      var files = e.target.files ? Array.prototype.slice.call(e.target.files) : [];
+      var add = files.map(function (file) { return { file: file, name: file.name, title: stripExt(file.name), discId: guessDisc(file.name) }; });
+      setBatch(function (b) { return b.concat(add); }); e.target.value = "";
+    }
+    function setBat(i, k, v) { setBatch(function (b) { var n = b.slice(); var row = Object.assign({}, n[i]); row[k] = v; n[i] = row; return n; }); }
+    function rmBat(i) { setBatch(function (b) { return b.filter(function (_, j) { return j !== i; }); }); }
+    function readB64(file) { return new Promise(function (res, rej) { var rd = new FileReader(); rd.onload = function () { res(String(rd.result).split(",")[1] || ""); }; rd.onerror = rej; rd.readAsDataURL(file); }); }
+    function uploadBatch() {
+      if (!batch.length || batProg) return;
+      var items = batch.slice(), i = 0, okN = 0;
+      function next() {
+        if (i >= items.length) { setBatProg(null); setBatch([]); load(); window.alert("批量上传完成:成功 " + okN + " / " + items.length + " 个"); return; }
+        var it = items[i]; setBatProg("上传中 " + (i + 1) + "/" + items.length + " · " + it.name);
+        if (it.file.size > 50 * 1024 * 1024) { i++; return next(); }
+        readB64(it.file).then(function (b64) {
+          var isImg = /^image\//.test(it.file.type || "");
+          return C.uploadFile(it.name, it.file.type || "application/octet-stream", b64).then(function (r) {
+            if (r && r.ok && r.id) return C.saveMaterial({ discId: it.discId || null, kind: isImg ? "image" : "pdf", title: it.title || it.name, fileId: r.id, authority: "authoritative", note: "批量上传" }).then(function () { okN++; });
+          });
+        }).then(function () { i++; next(); }).catch(function () { i++; next(); });
+      }
+      next();
+    }
     var PRESETS = [
       { label: "国家中小学智慧教育平台(官方)", url: "https://basic.smartedu.cn/tchMaterial", authority: "official", kind: "textbook", note: "官方电子课本,可在线看 / 下载 PDF" },
       { label: "ChinaTextbook(开源教材PDF)", url: "https://github.com/TapXWorld/ChinaTextbook", authority: "authoritative", kind: "repo", note: "GitHub 开源教材合集,免费无水印、可下载" },
@@ -1501,8 +1539,27 @@
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px;">
         <div><h1 class="pan-page-h" style="margin:0 0 4px;">课本库 <span class="en">/ Library</span></h1>
         <div style="font-size:13px;color:#9a8a6f;">所有课本 / 考纲 / 资料的总库。未缓存的可一键缓存 PDF 到本地;也能上传自己的课本 / 书。</div></div>
-        <div style="display:flex;gap:8px;"><label class="pan-btn ghost" style="cursor:pointer;">⬆ 上传课本/书<input type="file" accept="application/pdf,image/*" onChange=${upload} style="display:none;" /></label><span class="pan-btn ink" onClick=${function () { setAdding(!adding); }}>${adding ? "收起" : "＋ 加链接"}</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;"><label class="pan-btn ghost" style="cursor:pointer;">⬆ 上传课本/书<input type="file" accept="application/pdf,image/*" onChange=${upload} style="display:none;" /></label><label class="pan-btn grad" style="cursor:pointer;">📚 批量上传<input type="file" multiple accept="application/pdf,image/*" onChange=${onBatchPick} style="display:none;" /></label><span class="pan-btn ink" onClick=${function () { setAdding(!adding); }}>${adding ? "收起" : "＋ 加链接"}</span></div>
       </div>
+      ${batch.length ? html`<div class="pan-panel" style="margin:10px 0 18px;border:1.5px solid #E4EAD2;background:#F8FAF1;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+          <b style="font-size:14px;">📚 待上传 ${batch.length} 个 · 按文件名自动匹配学科,可改名 / 改学科</b>
+          <div style="display:flex;gap:8px;align-items:center;">${batProg ? html`<span style="font-size:12px;color:#6E7A4F;">${batProg}</span>` : null}
+            <span class=${"pan-btn sm " + (batProg ? "ghost" : "grad")} onClick=${uploadBatch}>${batProg ? "上传中…" : "全部上传 →"}</span>
+            ${!batProg ? html`<span class="lnk" style="font-size:12px;color:#b09a7a;cursor:pointer;" onClick=${function () { setBatch([]); }}>清空</span>` : null}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;max-height:48vh;overflow:auto;">${batch.map(function (it, i) {
+          return html`<div key=${i} style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #EBDEC8;border-radius:9px;padding:7px 10px;">
+            <span style="font-size:18px;">${/^image\//.test(it.file.type || "") ? "🖼️" : "📄"}</span>
+            <input value=${it.title} onInput=${function (e) { setBat(i, "title", e.target.value); }} placeholder="名称(默认文件名)" style="flex:2;min-width:150px;border:1px solid #EBDEC8;border-radius:7px;padding:6px 9px;font-family:var(--sans);font-size:13px;" />
+            <select value=${it.discId} onChange=${function (e) { setBat(i, "discId", e.target.value); }} style=${"flex:1;min-width:120px;border:1px solid " + (it.discId ? "#E4EAD2" : "#EAC9A0") + ";border-radius:7px;padding:6px;font-family:var(--sans);font-size:12.5px;background:" + (it.discId ? "#F2F4E8" : "#FBF4E6") + ";"}>
+              <option value="">${"未匹配 · 选学科 / 通用"}</option>${mine.map(function (id) { var d = C.disciplineById(id) || { name: id }; return html`<option key=${id} value=${id}>${d.name}</option>`; })}</select>
+            <span style="font-size:11px;color:#9a8a6f;white-space:nowrap;">${Math.max(1, Math.round(it.file.size / 1024)) + "KB"}</span>
+            <span class="lnk" style="color:#b6532f;cursor:pointer;font-size:12px;" onClick=${function () { rmBat(i); }}>✕</span>
+          </div>`;
+        })}</div>
+        <div style="font-size:11.5px;color:#9a8a6f;margin-top:8px;">绿底=已匹配学科,黄底=没匹配上(留"通用"也行,或自己选)。单文件≤50MB,只你的实例可见。</div>
+      </div>` : null}
       ${adding ? html`<div class="pan-panel" style="margin:10px 0 18px;">
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">${PRESETS.map(function (ps, i) { return html`<span key=${i} class="pan-tag" style="cursor:pointer;" onClick=${function () { applyPreset(ps); }}>+ ${ps.label}</span>`; })}</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
