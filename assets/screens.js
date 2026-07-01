@@ -714,7 +714,7 @@
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0;">
             <span class="pan-btn ghost sm" onClick=${function () { app.openLesson(lp.path, lp.title); }} title="全屏查看">⛶ 全屏</span>
             <a class="pan-btn ghost sm" href=${lp.path} target="_blank" rel="noopener" title="新标签打开 / 分享">↗ 新标签</a>
-            <span class="pan-btn ghost sm" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope }); }}>做练习</span>
+            <span class="pan-btn ghost sm" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope, kp: lp.id }); }}>做这点的题</span>
             ${masterBtn()}
           </div>
         </div>
@@ -1482,6 +1482,7 @@
   function QuizRun(p) {
     var app = useApp();
     var r0 = useState({ i: 0, answered: null, fill: "", fillOk: false, lastOk: false, correct: 0, earned: 0, wrong: 0, reviewed: {}, items: [] });
+    var mk0 = useState(false); var mkd = mk0[0], setMkd = mk0[1];   // 完成页「标记掌握」标志(单考点练习用)
     var run = r0[0], setRun = r0[1];
     var qs = p.questions || [], q = qs[run.i];
     function val(qq) { return 2 + (qq.difficulty || 2); }
@@ -1499,6 +1500,9 @@
           <h1 style="font-family:var(--serif);font-size:26px;margin:0 0 6px;">${run.correct} / ${qs.length} 正确</h1>
           <div style="color:#9a8a6f;margin-bottom:6px;">正确率 ${acc}% · 获得 ⬡ ${run.earned}</div>
           <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${run.wrong ? "错 " + run.wrong + " 题,已进错题本" : "全对,漂亮!"} · 成绩已保存,下次进来可直接回顾</div>
+          ${p.kp ? html`<div style="margin-bottom:16px;">${(mkd || C.isMastered(p.kp))
+            ? html`<span class="pan-pill" style="background:#EFF1E0;color:#6E7A4F;font-weight:700;">✓ 这个知识点已掌握</span>`
+            : html`<span class="pan-btn terra" onClick=${function () { var kc = C.catalogById(p.kp); C.setMastery(p.kp, true, { title: kc ? kc.title : "", subject: kc ? ((SUBJECTS[kc.subject] || {}).name || kc.subject) : "", disc: kc ? kc.discipline : "", difficulty: 2 }); app.checkAch(); setMkd(true); }}>✓ 把这个知识点标记为已掌握</span>`}</div>` : null}
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><span class="pan-btn ink" onClick=${p.onClose || function () { app.go("home"); }}>完成</span><span class="pan-btn ghost" onClick=${function () { app.go("reviews"); }}>导师点评</span><span class="pan-btn ghost" onClick=${function () { app.go("wrongbook"); }}>错题本</span></div></div>
         ${html`<${QuizReview} items=${run.items} />`}
       </div>`;
@@ -1531,15 +1535,17 @@
 
   function PracticeScreen() {
     var app = useApp();
-    var did = app.params.disc, scope = app.params.scope, mode = app.params.mode;
+    var did = app.params.disc, scope = app.params.scope, mode = app.params.mode, kpParam = app.params.kp || null;
     var isExam = mode === "exam";
     var d = did && C.disciplineById(did);
-    var runKey = did ? (did + "|" + (scope || "") + "|" + (mode || "practice")) : null;
+    var kpc = kpParam ? C.catalogById(kpParam) : null;   // 单考点练习
+    var runKey = did ? (did + "|" + (scope || "") + "|" + (mode || "practice") + (kpParam ? "|" + kpParam : "")) : null;
     var rd0 = useState(false); var redo = rd0[0], setRedo = rd0[1];   // true=用户选了重新练习
     var q0 = useState(null); var qs = q0[0], setQs = q0[1];
     useEffect(function () {
       if (!d) { setQs([]); return; }
-      C.questionsFor({ subject: d.subject, scope: scope || null, limit: isExam ? 300 : 20 }).then(function (rows) {
+      var opt = kpParam ? { kp: [kpParam], scope: scope || null, limit: 30 } : { subject: d.subject, scope: scope || null, limit: isExam ? 300 : 20 };
+      C.questionsFor(opt).then(function (rows) {
         var list = rows.map(normQ);
         if (isExam) {   // 组卷:每个知识点取一题,覆盖全部,打乱
           var byKp = {}, order = [];
@@ -1549,8 +1555,8 @@
         }
         setQs(list);
       });
-    }, [did, scope, mode]);
-    var title = ((d && d.name) || "") + (isExam ? " 模拟试卷" : " 练习");
+    }, [did, scope, mode, kpParam]);
+    var title = kpc ? (kpc.title + " · 练习") : (((d && d.name) || "") + (isExam ? " 模拟试卷" : " 练习"));
     function back() { app.go("course", scope ? { disc: did, scope: scope } : { disc: did }); }
     var saved = (runKey && !redo) ? C.quizRunFor(runKey) : null;   // 上次完成的整套(没选重做时优先展示回顾,不盲目重来)
     var savedAcc = saved && saved.total ? Math.round(saved.correct / saved.total * 100) : 0;
@@ -1569,7 +1575,7 @@
         : qs == null ? html`<div class="pan-empty">加载题目中…</div>`
         : !qs.length ? html`<div class="pan-empty">这门课还没有题目。<br/>让 AI 导师出一套(挂知识点),或在留言箱发给导师。<br/>
           <span class="pan-btn grad" style="margin-top:14px;" onClick=${function () { C.sendMessage({ kind: "ask", text: "请给「" + ((d && d.name) || "") + "」" + (isExam ? "出一份覆盖全部知识点的模拟试卷(用变体题防过拟合)" : "出一套随堂练习题(挂知识点)") + "。", context: { discId: did, scope: scope } }).then(function () { app.go("messages"); }); }}>✉️ 请导师出题</span></div>`
-        : html`<${QuizRun} questions=${qs} title=${title} subject=${d.subject} runKey=${runKey} examId=${isExam ? "exam-" + did + "-" + (scope || "") : null}
+        : html`<${QuizRun} questions=${qs} title=${title} subject=${d.subject} runKey=${runKey} kp=${kpParam} examId=${isExam ? "exam-" + did + "-" + (scope || "") : null}
             onDone=${isExam ? function (r) { if (r.acc >= 80) C.setCourseVerified(did, scope || null, { score: r.acc, ts: Date.now() }); } : null}
             onClose=${back} />`}
     </div>`;
