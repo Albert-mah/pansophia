@@ -149,7 +149,14 @@
     try { new ResizeObserver(reportHeight).observe(document.body); } catch (e) {}
     document.addEventListener("click", function () { setTimeout(reportHeight, 60); });   // 交互组件展开后重测
   }
-  function start() { build(); loadMathJax(); initSelectSpeak(); initHeightReport(); }
+  // 内嵌(在 App 的 iframe 里)时:App 已有自己的导航,隐藏讲解页自带的顶栏面包屑;独立打开时保留
+  function hideChromeIfEmbedded() {
+    if (window.parent === window) return;
+    document.documentElement.classList.add("in-embed");
+    var tb = document.querySelector(".topbar");
+    if (tb) tb.style.display = "none";
+  }
+  function start() { hideChromeIfEmbedded(); build(); loadMathJax(); initSelectSpeak(); initHeightReport(); }
   if (document.readyState === "loading")
     document.addEventListener("DOMContentLoaded", start);
   else start();
