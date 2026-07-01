@@ -1602,11 +1602,13 @@
         : !rows.length ? html`<div class="pan-empty">还没有错题。去课程里做练习,错的会自动收进来。</div>`
         : html`<div style="display:flex;flex-direction:column;gap:12px;">${rows.map(function (r) {
           var ans = r.type === "fill" ? (r.answer || []).join(" / ") : ((r.options || [])[r.answer] || "");
+          var lk = C.catalogForKp(r.kp);
           return html`<div key=${r.id} class="pan-panel" style="padding:14px 16px;">
-            <div style="font-size:11.5px;color:#9a8a6f;margin-bottom:5px;">${(SUBJECTS[r.subject] || {}).name || r.subject || ""}${r.kp ? " · " + r.kp : ""}</div>
+            <div style="font-size:11.5px;color:#9a8a6f;margin-bottom:5px;">${(SUBJECTS[r.subject] || {}).name || r.subject || ""}${lk ? " · " + lk.title : (r.kp ? " · " + r.kp : "")}</div>
             <div style="font-size:14px;color:#3a3023;line-height:1.55;margin-bottom:6px;">${r.stem}</div>
             <div style="font-size:13px;color:#3f8a52;">正确答案:${ans}</div>
             ${r.explain ? html`<div style="font-size:12.5px;color:#9a8a6f;margin-top:4px;">${r.explain}</div>` : null}
+            ${lk ? html`<div style="margin-top:9px;"><span class="pan-btn ghost sm" onClick=${function () { app.openLesson(lk.path, lk.title); }}>📖 看这题的讲解</span></div>` : null}
           </div>`;
         })}</div>`}
     </div>`;
