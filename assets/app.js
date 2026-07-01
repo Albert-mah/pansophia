@@ -277,12 +277,61 @@
     </div>`;
   }
 
-  /* ---------------- 讲解页 系统内覆盖层(iframe,保留交互) ---------------- */
+  /* ---------------- 讲解正文:同文档注入(原生,无 iframe) ---------------- */
+  var _lessonCache = {};
+  function fetchLessonDoc(path) {
+    if (_lessonCache[path]) return Promise.resolve(_lessonCache[path]);
+    return fetch(path).then(function (r) { return r.text(); }).then(function (txt) {
+      var doc = new DOMParser().parseFromString(txt, "text/html");
+      var article = doc.querySelector("article.page");
+      var markup = article ? article.outerHTML : (doc.body ? doc.body.innerHTML : "");
+      var scripts = [], styles = [];
+      doc.querySelectorAll("style").forEach(function (s) { if (s.textContent) styles.push(s.textContent); });
+      doc.querySelectorAll("script").forEach(function (s) {
+        if (s.src) return;
+        var t = (s.textContent || "").trim(); if (!t) return;
+        if (/data-page-id|STUDY_CATALOG|window\.MathJax\s*=/.test(t)) return;   // 跳过引导/配置脚本,只留组件脚本
+        scripts.push(s.textContent);
+      });
+      var needsMath = /\\\(|\\\[|\$\$/.test(txt) || !!doc.querySelector("[data-mathjax]");
+      return (_lessonCache[path] = { markup: markup, scripts: scripts, styles: styles, needsMath: needsMath });
+    });
+  }
+  function typesetMath(container) {
+    if (window.MathJax && window.MathJax.typesetPromise) { try { window.MathJax.typesetPromise([container]); } catch (e) {} return; }
+    if (document.getElementById("mj-embed")) return;
+    window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] }, svg: { fontCache: "global" } };
+    var s = document.createElement("script"); s.id = "mj-embed"; s.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js";
+    s.onload = function () { try { if (window.MathJax.typesetPromise) window.MathJax.typesetPromise([container]); } catch (e) {} };
+    document.head.appendChild(s);
+  }
+  // 把讲解正文注入容器 + 重新执行其组件脚本(innerHTML 不会自动跑 <script>)。一次只挂一篇,id 不冲突。
+  function mountLesson(container, path) {
+    if (!container) return;
+    container.innerHTML = '<div class="pan-lesson-loading">载入讲解…</div>';
+    fetchLessonDoc(path).then(function (L) {
+      container.innerHTML = L.markup;
+      L.styles.forEach(function (css) { try { var st = document.createElement("style"); st.textContent = css; container.appendChild(st); } catch (e) {} });
+      L.scripts.forEach(function (code) { try { var sc = document.createElement("script"); sc.textContent = code; container.appendChild(sc); } catch (e) {} });
+      if (L.needsMath) typesetMath(container);
+    }).catch(function () {
+      container.innerHTML = '<div class="pan-lesson-loading">讲解载入失败,<a href="' + path + '" target="_blank" rel="noopener">在新标签打开 ↗</a></div>';
+    });
+  }
+  // 内嵌讲解容器(课程中间栏 + 全屏浮层复用);expose 给 screens.js
+  function LessonEmbed(props) {
+    var ref = useRef(null);
+    useEffect(function () { if (props.path && ref.current) mountLesson(ref.current, props.path); }, [props.path]);
+    return html`<div class="pan-lesson-embed" ref=${ref}></div>`;
+  }
+  window.LessonEmbed = LessonEmbed;
+
+  /* ---------------- 讲解 全屏浮层(注入正文,可交互) ---------------- */
   function LessonOverlay(props) {
     var L = props.lesson;
-    var ref = useRef(null);
+    var winRef = useRef(null);
     function full() {
-      var el = ref.current; if (!el) return;
+      var el = winRef.current; if (!el) return;
       var fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
       if (fn) { try { fn.call(el); } catch (e) {} }
     }
@@ -292,7 +341,7 @@
       return function () { window.removeEventListener("keydown", onKey); };
     }, []);
     return html`<div class="pan-lesson-mask" onClick=${function (e) { if (e.target.classList.contains("pan-lesson-mask")) props.onClose(); }}>
-      <div class="pan-lesson-win">
+      <div class="pan-lesson-win" ref=${winRef}>
         <div class="pan-lesson-bar">
           <div class="pan-lesson-title">📖 ${L.title}</div>
           <div style="display:flex;gap:8px;align-items:center;">
@@ -301,7 +350,7 @@
             <span class="pan-lesson-x" onClick=${props.onClose} title="关闭 (Esc)">✕</span>
           </div>
         </div>
-        <iframe ref=${ref} src=${L.path} class="pan-lesson-frame" title=${L.title}></iframe>
+        <div class="pan-lesson-scroll">${html`<${LessonEmbed} path=${L.path} />`}</div>
       </div>
     </div>`;
   }
@@ -318,7 +367,7 @@
     useEffect(function () { if (!st.toast) return; var t = setTimeout(function () { setSt(function (p) { return Object.assign({}, p, { toast: null }); }); }, 5200); return function () { clearTimeout(t); }; }, [st.toast]);
 
     var api = {
-      screen: st.screen, params: st.params, menuOpen: st.menuOpen, userPop: st.userPop, moreOpen: st.moreOpen, navOpen: st.navOpen,
+      screen: st.screen, params: st.params, menuOpen: st.menuOpen, userPop: st.userPop, moreOpen: st.moreOpen, navOpen: st.navOpen, lessonOpen: !!st.lesson,
       go: function (screen, params) {
         if (SCREENS.indexOf(screen) < 0) screen = "home";
         setUrl({ screen: screen, disc: (params && params.disc) || null });
@@ -380,14 +429,34 @@
     if (ReactDOM.createRoot) ReactDOM.createRoot(root).render(html`<${App} />`);
     else ReactDOM.render(html`<${App} />`, root);
   }
-  // 内嵌讲解页上报高度 → 把对应 iframe 高度设为内容高度,消除「iframe 与外页分开滚动」(移动端尤其明显)
-  window.addEventListener("message", function (e) {
-    var d = e.data; if (!d || d.type !== "pan-lesson-height" || !d.h) return;
-    var frames = document.querySelectorAll("iframe.pan-lesson-inframe");
-    for (var i = 0; i < frames.length; i++) {
-      if (frames[i].contentWindow === e.source) { frames[i].style.height = Math.ceil(d.h) + "px"; frames[i].style.minHeight = "0"; }
+  // 讲解正文里选中英文 → 冒出「🔊 朗读」浮动按钮(注入后正文在同一 DOM,全局初始化一次;只在讲解容器内生效)
+  function initLessonSpeak() {
+    var btn = null;
+    function hide() { if (btn) { btn.remove(); btn = null; } }
+    function place() {
+      var sel = window.getSelection && window.getSelection();
+      var text = sel ? String(sel).trim() : "";
+      if (!text || text.length > 240 || !/[a-zA-Z]/.test(text)) { hide(); return; }
+      var n = sel.anchorNode, el = n && (n.nodeType === 1 ? n : n.parentElement);
+      if (!el || !el.closest || !el.closest(".pan-lesson-embed")) { hide(); return; }
+      var rect; try { rect = sel.getRangeAt(0).getBoundingClientRect(); } catch (e) { return; }
+      if (!rect || (!rect.width && !rect.height)) { hide(); return; }
+      if (!btn) {
+        btn = document.createElement("button"); btn.type = "button"; btn.textContent = "🔊 朗读";
+        btn.style.cssText = "position:fixed;z-index:99999;border:0;border-radius:999px;background:#B6532F;color:#fff;font-size:13px;font-weight:700;padding:7px 14px;box-shadow:0 4px 14px rgba(60,40,20,.35);cursor:pointer;";
+        btn.addEventListener("mousedown", function (e) { e.preventDefault(); });
+        btn.addEventListener("click", function (e) { e.stopPropagation(); var s = window.getSelection && String(window.getSelection()).trim(); if (s) C.speak(s, "en"); });
+        document.body.appendChild(btn);
+      }
+      btn.style.top = Math.max(6, rect.top - 42) + "px";
+      btn.style.left = Math.max(6, rect.left + rect.width / 2 - 38) + "px";
     }
-  });
+    document.addEventListener("mouseup", function () { setTimeout(place, 10); });
+    document.addEventListener("touchend", function () { setTimeout(place, 10); });
+    document.addEventListener("selectionchange", function () { var s = window.getSelection && String(window.getSelection()).trim(); if (!s) hide(); });
+    document.addEventListener("scroll", hide, true);
+  }
   if (document.readyState !== "loading") boot();
   else document.addEventListener("DOMContentLoaded", boot);
+  initLessonSpeak();
 })();

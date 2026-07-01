@@ -133,30 +133,9 @@
     document.addEventListener("selectionchange", function () { var s = window.getSelection && String(window.getSelection()).trim(); if (!s) hide(); });
     document.addEventListener("scroll", hide, true);
   }
-  // 内嵌时把自身内容高度上报给外层,外层据此把 iframe 高度设为内容高度 → 不再内部滚动、整页一个滚动条
-  function reportHeight() {
-    try { if (window.parent === window) return;
-      var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight);
-      window.parent.postMessage({ type: "pan-lesson-height", h: h }, "*");
-    } catch (e) {}
-  }
-  function initHeightReport() {
-    if (window.parent === window) return;   // 顶层独立打开时不需要
-    reportHeight();
-    window.addEventListener("load", reportHeight);
-    window.addEventListener("resize", reportHeight);
-    setTimeout(reportHeight, 400); setTimeout(reportHeight, 1500);
-    try { new ResizeObserver(reportHeight).observe(document.body); } catch (e) {}
-    document.addEventListener("click", function () { setTimeout(reportHeight, 60); });   // 交互组件展开后重测
-  }
-  // 内嵌(在 App 的 iframe 里)时:App 已有自己的导航,隐藏讲解页自带的顶栏面包屑;独立打开时保留
-  function hideChromeIfEmbedded() {
-    if (window.parent === window) return;
-    document.documentElement.classList.add("in-embed");
-    var tb = document.querySelector(".topbar");
-    if (tb) tb.style.display = "none";
-  }
-  function start() { hideChromeIfEmbedded(); build(); loadMathJax(); initSelectSpeak(); initHeightReport(); }
+  // 说明:App 内嵌已改为「同文档注入」(见 app.js mountLesson),不再用 iframe;
+  //       故原来的高度上报 / 内嵌隐藏面包屑等 iframe 补丁已删除。page.js 只负责独立打开时的渲染。
+  function start() { build(); loadMathJax(); initSelectSpeak(); }
   if (document.readyState === "loading")
     document.addEventListener("DOMContentLoaded", start);
   else start();

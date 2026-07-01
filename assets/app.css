@@ -208,8 +208,10 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 /* 课程中间栏:直接内嵌讲解页(无需二次点击) */
 .pan-lesson-inline { display: flex; flex-direction: column; margin: 0 -24px; }
 .pan-lesson-inbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; padding: 0 2px; }
-.pan-lesson-inframe { width: 100%; height: calc(100vh - 212px); min-height: 480px; border: 1px solid var(--line-2); border-radius: 14px; background: var(--paper); box-shadow: 0 6px 24px rgba(60,40,20,.06); }
-@media (max-width: 900px) { .pan-lesson-inline { margin: 0; } .pan-lesson-inframe { height: 80vh; min-height: 420px; } }
+/* 同文档注入的讲解正文容器(随内容自然增高,由外层面板滚动 → 单一滚动) */
+.pan-lesson-embed { background: var(--paper); border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; }
+.pan-lesson-loading { padding: 44px 20px; text-align: center; color: var(--muted); font-size: 14px; }
+@media (max-width: 900px) { .pan-lesson-inline { margin: 0; } .pan-lesson-embed { border: 0; border-radius: 0; } }
 /* 资料目录树:外链给明确的链接样式(本地文件则用文件图标+「本地」标) */
 .pan-reslink { font-size: 12.5px; font-weight: 600; color: #2c5fb3; text-decoration: underline; text-decoration-color: #bcd0ef; text-underline-offset: 2px; line-height: 1.45; cursor: pointer; }
 .pan-reslink:hover { color: #1c4794; text-decoration-color: #2c5fb3; }
@@ -238,7 +240,6 @@ h1, h2, h3, .serif { font-family: var(--serif); }
   .pan-main-crumb { display: none !important; }
   .pan-lesson-inline { margin: 0; }
   .pan-lesson-inbar { padding: 10px 12px; margin-bottom: 0; }
-  .pan-lesson-inframe { height: calc(100vh - 116px); min-height: 0; border: 0; border-radius: 0; box-shadow: none; }
 }
 
 /* 课程正文排版 */
@@ -396,5 +397,6 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 .pan-lesson-title { font-family: var(--serif); font-weight: 700; font-size: 15px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pan-lesson-x { cursor: pointer; font-size: 16px; color: var(--muted); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 9px; }
 .pan-lesson-x:hover { background: var(--tint-terra); color: var(--terra); }
-.pan-lesson-frame { flex: 1; width: 100%; border: 0; background: var(--paper); }
+.pan-lesson-scroll { flex: 1; width: 100%; overflow: auto; background: var(--paper); -webkit-overflow-scrolling: touch; }
+.pan-lesson-scroll .pan-lesson-embed { border: 0; border-radius: 0; }
 @media (max-width: 620px) { .pan-lesson-win { width: 100vw; height: 100vh; border-radius: 0; } .pan-lesson-mask { padding: 0; } }

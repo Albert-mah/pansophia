@@ -707,7 +707,9 @@
             ${masterBtn()}
           </div>
         </div>
-        <iframe src=${lp.path} class="pan-lesson-inframe" title=${lp.title} loading="lazy"></iframe>
+        ${app.lessonOpen
+          ? html`<div class="pan-lesson-embed" style="min-height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13.5px;">正在全屏查看这篇讲解…</div>`
+          : html`<${window.LessonEmbed} path=${lp.path} />`}
       </div>`;
     } else if (sel) {
       center = html`<div class="pan-article"><div style="font-size:12.5px;color:#9a8a6f;margin-bottom:8px;">${sel.t} · ${sc.name}</div>
