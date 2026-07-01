@@ -81,6 +81,17 @@
             <div style="display:flex;gap:10px;"><span class="pan-btn pill" style="background:#fff;color:#B6532F;" onClick=${function () { app.go("explore"); }}>＋ 探索学科</span>
             <span class="pan-btn pill" style="background:rgba(255,255,255,.18);color:#fff;" onClick=${function () { app.go("plan"); }}>制定计划 →</span></div></div>`}
 
+          ${(function () {
+            var rl = C.recentLessons(6);
+            if (!rl.length) return null;
+            var last = rl[0];
+            return html`<div class="pan-panel"><div class="pan-sec-h"><h2>最近学的</h2><span style="font-size:12.5px;color:#9a8a6f;">接着上次继续 · Recent</span></div>
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;${rl.length > 1 ? "margin-bottom:14px;" : ""}">
+                <span class="pan-btn ink" onClick=${function () { app.openLesson(last.path, last.title); }}>▸ 接着看:${last.title}</span>
+                <span style="font-size:12px;color:#9a8a6f;">${relTime(last.ts)}</span></div>
+              ${rl.length > 1 ? html`<div style="display:flex;gap:8px;flex-wrap:wrap;">${rl.slice(1).map(function (r, i) { return html`<span key=${i} onClick=${function () { app.openLesson(r.path, r.title); }} style="cursor:pointer;font-size:12.5px;color:#3a3023;background:#F4EAD8;border-radius:999px;padding:6px 12px;">${r.title}</span>`; })}</div>` : null}</div>`;
+          })()}
+
           <div class="pan-panel"><div class="pan-sec-h"><h2>今日待办</h2><span style="font-size:12.5px;color:#9a8a6f;">完成 ${doneN} / ${todos.length} · Today</span></div>
           <div style="display:flex;flex-direction:column;gap:2px;">
             ${todos.length ? todos.map(function (it) {
@@ -763,11 +774,13 @@
           return html`<div key=${ti}><div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#bbab8c;text-transform:uppercase;margin:14px 0 8px;">${t.title}</div>
             ${(t.points || []).map(function (p, pi) {
               var kp = p.ref ? C.catalogById(p.ref) : null; var isSel = sel && sel.p === p;
-              var qz = p.ref ? C.kpQuiz(p.ref) : null;   // 做题状态:已练几题、对几题
-              var qzAllOk = qz && qz.correct >= qz.answered;
-              var qChip = qz ? html`<span style=${"margin-left:auto;flex-shrink:0;font-size:10.5px;font-weight:700;white-space:nowrap;color:" + (isSel ? "#E8B06A" : qzAllOk ? "#6E7A4F" : "#C8852E") + ";"} title="练习:答对 ${qz.correct}/${qz.answered}">${qzAllOk ? "✓" : "✎"} ${qz.correct}/${qz.answered}</span>` : null;
-              if (isSel) return html`<div key=${pi} style="display:flex;gap:10px;align-items:center;padding:11px 9px;border-radius:8px;font-size:13.5px;font-weight:600;background:#33291E;color:#F2E8D6;"><span>▸</span> <span style="flex:1;min-width:0;">${p.title}</span>${qChip}</div>`;
-              return html`<div key=${pi} class="pan-row" onClick=${function () { setSel(p.ref || p.title); setMnav(null); }} style=${"display:flex;gap:10px;align-items:center;padding:9px 8px;font-size:13px;cursor:pointer;" + (kp ? "" : "color:#7A6E5E;")}>${kp ? html`<span style="color:#6E7A4F;flex-shrink:0;">✓</span>` : html`<span style="color:#d8cbb3;flex-shrink:0;">○</span>`} <span style="flex:1;min-width:0;">${p.title}</span>${qChip}</div>`;
+              var stt = p.ref ? C.kpState(p.ref) : "todo";   // 统一 4 态:todo/read/practiced/mastered
+              var qz = (stt === "practiced" && p.ref) ? C.kpQuiz(p.ref) : null;
+              var SB = { todo: { ic: "○", c: "#c9b99c", lb: "" }, read: { ic: "📖", c: "#2c5fb3", lb: "读过" }, practiced: { ic: "✎", c: "#C8852E", lb: qz ? "练 " + qz.correct + "/" + qz.answered : "练过" }, mastered: { ic: "✓", c: "#6E7A4F", lb: "已掌握" } }[stt];
+              var lead = html`<span style=${"flex-shrink:0;width:16px;text-align:center;color:" + (kp ? SB.c : "#d8cbb3") + ";"}>${kp ? SB.ic : "○"}</span>`;
+              var chip = SB.lb ? html`<span style=${"margin-left:auto;flex-shrink:0;font-size:10.5px;font-weight:700;white-space:nowrap;color:" + (isSel ? "#E8B06A" : SB.c) + ";"}>${SB.lb}</span>` : null;
+              if (isSel) return html`<div key=${pi} style="display:flex;gap:10px;align-items:center;padding:11px 9px;border-radius:8px;font-size:13.5px;font-weight:600;background:#33291E;color:#F2E8D6;"><span>▸</span> <span style="flex:1;min-width:0;">${p.title}</span>${chip}</div>`;
+              return html`<div key=${pi} class="pan-row" onClick=${function () { setSel(p.ref || p.title); setMnav(null); }} style=${"display:flex;gap:10px;align-items:center;padding:9px 8px;font-size:13px;cursor:pointer;" + (kp ? "" : "color:#7A6E5E;")}>${lead} <span style="flex:1;min-width:0;">${p.title}</span>${chip}</div>`;
             })}</div>`;
         })}
       </div>

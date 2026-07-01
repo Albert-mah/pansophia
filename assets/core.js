@@ -245,6 +245,29 @@ window.Core = (function () {
   function quizRuns() { return store("quizruns", {}); }
   function saveQuizRun(key, data) { if (!key) return; var m = Object.assign({}, quizRuns()); m[key] = data; save("quizruns", m); }
   function quizRunFor(key) { return quizRuns()[key] || null; }
+  // 讲解读过记录(events kind=lesson,按 path 记最近时间)
+  function lessonReads() { var m = {}; events().forEach(function (e) { if (e.kind === "lesson" && e.path && (!m[e.path] || e.ts > m[e.path])) m[e.path] = e.ts; }); return m; }
+  function lessonRead(path) { return !!(path && lessonReads()[path]); }
+  // 考点统一状态:todo 未开始 / read 读过讲解 / practiced 练过 / mastered 已掌握(取已达到的最高态)
+  function kpState(ref) {
+    if (!ref) return "todo";
+    if (isMastered(ref)) return "mastered";
+    var qz = kpQuiz(ref); if (qz && qz.answered) return "practiced";
+    var k = catalogById(ref); if (k && lessonRead(k.path)) return "read";
+    return "todo";
+  }
+  // 最近打开的讲解(去重,新→旧),供首页「继续 / 最近」
+  function recentLessons(limit) {
+    limit = limit || 8; var out = [], seen = {}, ev = events();
+    for (var i = ev.length - 1; i >= 0 && out.length < limit; i--) {
+      var e = ev[i];
+      if (e.kind !== "lesson" || !e.path || seen[e.path]) continue;
+      seen[e.path] = 1;
+      var k = catalogByPath(e.path);
+      out.push({ path: e.path, title: e.label || (k && k.title) || "讲解", ref: k && k.id, ts: e.ts });
+    }
+    return out;
+  }
 
   function logEvent(ev) {
     var list = events().slice();
@@ -482,6 +505,7 @@ window.Core = (function () {
 
   /* ---------------- skeleton / catalog / 覆盖度 ---------------- */
   function catalogById(id) { return CATALOG.filter(function (k) { return k.id === id; })[0] || null; }
+  function catalogByPath(p) { return p ? (CATALOG.filter(function (k) { return k.path === p; })[0] || null) : null; }
   // 题目的 kp 可能是 catalog id,也可能是知识点中文名(老题库)。先按 id,再按标题精确,最后忽略空格/标点做前缀或包含匹配。
   function catalogForKp(kp) {
     if (!kp) return null;
@@ -976,6 +1000,7 @@ window.Core = (function () {
     myCourses: myCourses, hasCourse: hasCourse, enrollCourse: enrollCourse, unenrollCourse: unenrollCourse, toggleCourse: toggleCourse, courseScopesOf: courseScopesOf, courseKey: courseKey,
     points: points, wishlist: wishlist, notes: notes, events: events, progress: progress, plan: plan, schedule: schedule, goals: goals,
     recordQuiz: recordQuiz, kpQuiz: kpQuiz, saveQuizRun: saveQuizRun, quizRunFor: quizRunFor,
+    lessonRead: lessonRead, kpState: kpState, recentLessons: recentLessons, catalogByPath: catalogByPath,
     logEvent: logEvent, award: award,
     LEVELS: LEVELS, levelOf: levelOf, knowledgeValue: knowledgeValue,
     ACHIEVEMENTS: ACHIEVEMENTS, evalAchievements: evalAchievements, checkAchievements: checkAchievements,
