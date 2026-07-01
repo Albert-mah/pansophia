@@ -325,6 +325,7 @@
     return html`<div class="pan-lesson-embed" ref=${ref}></div>`;
   }
   window.LessonEmbed = LessonEmbed;
+  window.mountLesson = mountLesson;
 
   /* ---------------- 讲解 全屏浮层(注入正文,可交互) ---------------- */
   function LessonOverlay(props) {
