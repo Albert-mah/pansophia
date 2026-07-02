@@ -164,6 +164,64 @@
       <div id="tbl-root"></div>
     </div>
 
+    <style>
+    /* 商品表格批量操作演示 — 全 .tbb- 前缀，注入 App 后不污染全站 */
+    .tbb-wrap { border-radius:10px; border:1px solid var(--border); overflow:hidden; background:var(--surface); margin-top:12px; }
+    .tbb-toolbar { display:flex; align-items:center; gap:8px; padding:9px 14px; background:rgba(99,120,200,.08); border-bottom:2px solid var(--border); flex-wrap:wrap; }
+    .tbb-toolbar.tbb-hidden { display:none; }
+    .tbb-sel { font-weight:800; font-size:.88rem; color:var(--accent); }
+    .tbb-btn { border:1.5px solid var(--border); background:var(--surface); color:var(--text-soft); padding:5px 13px; border-radius:999px; font-size:.82rem; font-weight:700; cursor:pointer; transition:border-color .12s, color .12s, background .12s; }
+    .tbb-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .tbb-btn.tbb-danger { border-color:#e2524a; color:#e2524a; }
+    .tbb-btn.tbb-danger:hover { background:rgba(226,82,74,.08); }
+    .tbb-btn.tbb-ghost { color:var(--text-faint); margin-left:auto; }
+    .tbb-btn.tbb-ghost:hover { color:var(--text-soft); }
+    .tbb-tbl { width:100%; border-collapse:collapse; font-size:.88rem; }
+    .tbb-th { background:var(--bg); font-weight:700; border-bottom:2px solid var(--border); padding:8px 11px; text-align:left; font-size:.78rem; color:var(--text-soft); white-space:nowrap; }
+    .tbb-th.tbb-num { text-align:right; }
+    .tbb-td { padding:9px 11px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .tbb-row:last-child .tbb-td { border-bottom:none; }
+    .tbb-row { position:relative; transition:background .1s; }
+    .tbb-row:hover { background:var(--bg); }
+    .tbb-row.tbb-sel-row { background:rgba(99,120,200,.07); }
+    .tbb-num { text-align:right; font-variant-numeric:tabular-nums; }
+    .tbb-badge { display:inline-block; padding:2px 9px; border-radius:999px; font-size:.74rem; font-weight:700; white-space:nowrap; }
+    .tbb-badge-on  { background:#f1faf3; color:#1f7a44; }
+    .tbb-badge-off { background:#f5f5f5; color:#888; }
+    .tbb-badge-pending { background:#fff7ef; color:#c0660f; }
+    .tbb-edit-btn { opacity:0; pointer-events:none; border:1.5px solid var(--border); background:var(--surface); color:var(--text-soft); padding:3px 11px; border-radius:999px; font-size:.78rem; font-weight:700; cursor:pointer; transition:opacity .15s; }
+    .tbb-row:hover .tbb-edit-btn { opacity:1; pointer-events:auto; }
+    .tbb-edit-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .tbb-undo-bar { display:flex; align-items:center; gap:10px; background:#33291E; color:#fff; padding:9px 16px; font-size:.86rem; border-top:1px solid rgba(255,255,255,.08); }
+    .tbb-undo-bar.tbb-hidden { display:none; }
+    .tbb-undo-msg { flex:1; font-weight:600; }
+    .tbb-undo-prog { width:72px; height:3px; background:rgba(255,255,255,.25); border-radius:999px; overflow:hidden; flex-shrink:0; }
+    .tbb-undo-fill { display:block; height:100%; background:#fff; }
+    .tbb-undo-act { border:1.5px solid rgba(255,255,255,.5); background:rgba(255,255,255,.12); color:#fff; padding:4px 13px; border-radius:999px; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; }
+    .tbb-undo-act:hover { background:rgba(255,255,255,.28); }
+    .tbb-confirm-bar { display:flex; align-items:center; gap:8px; background:#fdf2f1; color:#b03030; padding:9px 16px; font-size:.86rem; border-bottom:2px solid rgba(226,82,74,.2); flex-wrap:wrap; }
+    .tbb-confirm-bar.tbb-hidden { display:none; }
+    .tbb-confirm-msg { flex:1; font-weight:600; }
+    .tbb-confirm-ok { border:1.5px solid #e2524a; background:#e2524a; color:#fff; padding:4px 12px; border-radius:999px; font-size:.82rem; font-weight:700; cursor:pointer; }
+    .tbb-confirm-ok:hover { background:#c0392b; border-color:#c0392b; }
+    .tbb-confirm-cancel { border:1.5px solid rgba(176,48,48,.3); background:transparent; color:#b03030; padding:4px 11px; border-radius:999px; font-size:.82rem; font-weight:700; cursor:pointer; }
+    .tbb-empty { text-align:center; color:var(--text-faint); padding:32px 20px; font-size:.9rem; }
+    @keyframes tbb-slide-in { from { opacity:0; transform:translateY(-3px); } to { opacity:1; transform:translateY(0); } }
+    .tbb-toolbar:not(.tbb-hidden) { animation:tbb-slide-in .15s ease; }
+    </style>
+
+    <div class="lab">
+      <div class="lab-title">🖥️ 上手玩:带批量操作的商品表格</div>
+      <p style="margin:0 0 14px; color:var(--text-soft); font-size:.92rem">
+        模拟的「商品管理」后台，8 行中文商品数据。<b>勾选任意行</b>后工具条立刻浮出（全不选时消失）；
+        表头勾选框支持<b>半选态（indeterminate）</b>；
+        <b>批量上架/下架</b>状态徽标立即变化，表格下方浮出「已操作 N 件 · 撤销」可撤销条，点撤销<b>真的回滚</b>；
+        <b>删除</b>走另一条路：顶部换出确认条「确定删除 N 件？此操作不可撤销 [删除][取消]」，确认后行消失；
+        鼠标<b>悬浮单行</b>右侧出现「编辑」按钮——高频单行操作不该藏进批量流程。
+      </p>
+      <div id="tbb-root"></div>
+    </div>
+
     <h2>3. 试一试</h2>
     <div class="box">
       <div class="box-title">✏️ 检查你后台里一张真实的表格</div>
@@ -423,6 +481,247 @@
         _toastEl.style.opacity = '0';
         setTimeout(function () { if (_toastEl) { _toastEl.remove(); _toastEl = null; } }, 400);
       }, 2400);
+    }
+
+    render();
+  })();
+  </script>
+
+  <script>
+  /* 🖥️ 商品表格批量操作演示 */
+  (function(){
+    var root = document.getElementById('tbb-root');
+    if(!root) return;
+
+    var ROWS = [
+      { id:1, name:'无线蓝牙耳机 Pro', cat:'数码配件', stock:156, status:'on' },
+      { id:2, name:'人体工学办公椅',   cat:'办公家具', stock:32,  status:'off' },
+      { id:3, name:'竹纤维瑜伽垫',     cat:'运动健康', stock:89,  status:'on' },
+      { id:4, name:'手持挂烫机',       cat:'家用电器', stock:0,   status:'pending' },
+      { id:5, name:'可折叠手机支架',   cat:'数码配件', stock:234, status:'on' },
+      { id:6, name:'精油香薰扩散仪',   cat:'家居用品', stock:45,  status:'off' },
+      { id:7, name:'天然橡木砧板',     cat:'厨房用品', stock:78,  status:'on' },
+      { id:8, name:'保温不锈钢水壶',   cat:'厨房用品', stock:12,  status:'pending' }
+    ];
+
+    var STATUS_LABEL = { on:'已上架', off:'已下架', pending:'待审核' };
+    var STATUS_CLS   = { on:'tbb-badge-on', off:'tbb-badge-off', pending:'tbb-badge-pending' };
+
+    var selected = new Set();
+    var undoState = null;
+    var undoTimer = null;
+    var undoProgTimer = null;
+    var confirmPending = false;
+    var pendingDelCount = 0;
+    var UNDO_MS = 5000;
+
+    function render() {
+      var selN    = selected.size;
+      var allN    = ROWS.length;
+      var allSel  = allN > 0 && selN === allN;
+      var noneSel = selN === 0;
+      var hasUndo = undoState !== null;
+      var showConfirm = confirmPending && !noneSel;
+      var showToolbar = !noneSel && !showConfirm;
+
+      var html = '<div class="tbb-wrap">';
+
+      /* confirm bar — 不可逆删除走确认路径 */
+      html += '<div class="tbb-confirm-bar' + (showConfirm ? '' : ' tbb-hidden') + '">';
+      if(showConfirm) {
+        html += '<span class="tbb-confirm-msg">⚠️ 确定删除 ' + pendingDelCount + ' 件商品？此操作不可撤销</span>';
+        html += '<button type="button" class="tbb-confirm-ok" id="tbb-confirm-ok">删除</button>';
+        html += '<button type="button" class="tbb-confirm-cancel" id="tbb-confirm-cancel">取消</button>';
+      }
+      html += '</div>';
+
+      /* toolbar — 有勾选且非确认态时浮出 */
+      html += '<div class="tbb-toolbar' + (showToolbar ? '' : ' tbb-hidden') + '">';
+      html += '<span class="tbb-sel">✓ 已选 ' + selN + ' 项</span>';
+      html += '<button type="button" class="tbb-btn" id="tbb-btn-on">批量上架</button>';
+      html += '<button type="button" class="tbb-btn" id="tbb-btn-off">批量下架</button>';
+      html += '<button type="button" class="tbb-btn tbb-danger" id="tbb-btn-del">删除</button>';
+      html += '<button type="button" class="tbb-btn tbb-ghost" id="tbb-btn-cancel">取消</button>';
+      html += '</div>';
+
+      /* table */
+      html += '<div style="overflow-x:auto">';
+      html += '<table class="tbb-tbl">';
+      html += '<thead><tr>';
+      html += '<th class="tbb-th" style="width:36px"><input type="checkbox" id="tbb-hdr-cb" title="全选当页"></th>';
+      html += '<th class="tbb-th">商品名称</th>';
+      html += '<th class="tbb-th">分类</th>';
+      html += '<th class="tbb-th tbb-num">库存</th>';
+      html += '<th class="tbb-th">状态</th>';
+      html += '<th class="tbb-th">操作</th>';
+      html += '</tr></thead>';
+      html += '<tbody>';
+
+      if(ROWS.length === 0) {
+        html += '<tr><td class="tbb-td" colspan="6"><div class="tbb-empty">📩 所有商品已删除，刷新页面可重置演示。</div></td></tr>';
+      } else {
+        ROWS.forEach(function(row) {
+          var isSel = selected.has(row.id);
+          html += '<tr class="tbb-row' + (isSel ? ' tbb-sel-row' : '') + '" data-id="' + row.id + '">';
+          html += '<td class="tbb-td"><input type="checkbox" class="tbb-cb" data-id="' + row.id + '"' + (isSel ? ' checked' : '') + '></td>';
+          html += '<td class="tbb-td"><b>' + row.name + '</b></td>';
+          html += '<td class="tbb-td" style="color:var(--text-soft)">' + row.cat + '</td>';
+          html += '<td class="tbb-td tbb-num">' + row.stock + '</td>';
+          html += '<td class="tbb-td"><span class="tbb-badge ' + STATUS_CLS[row.status] + '">' + STATUS_LABEL[row.status] + '</span></td>';
+          html += '<td class="tbb-td"><button type="button" class="tbb-edit-btn" data-id="' + row.id + '">编辑</button></td>';
+          html += '</tr>';
+        });
+      }
+
+      html += '</tbody></table></div>';
+
+      /* undo bar — 可逆操作才有撤销，不可逆删除没有 */
+      html += '<div class="tbb-undo-bar' + (hasUndo ? '' : ' tbb-hidden') + '">';
+      if(hasUndo) {
+        var label = undoState.action === 'on' ? '上架' : '下架';
+        var cnt   = Object.keys(undoState.prev).length;
+        html += '<span class="tbb-undo-msg">✅ 已' + label + ' ' + cnt + ' 件商品</span>';
+        html += '<div class="tbb-undo-prog"><span class="tbb-undo-fill" id="tbb-undo-fill" style="width:100%"></span></div>';
+        html += '<button type="button" class="tbb-undo-act" id="tbb-undo-act">撤销</button>';
+      }
+      html += '</div>';
+
+      html += '</div>'; /* .tbb-wrap */
+      root.innerHTML = html;
+
+      /* wire header checkbox + indeterminate */
+      var hdrCb = document.getElementById('tbb-hdr-cb');
+      if(hdrCb) {
+        if(!noneSel && !allSel) { hdrCb.indeterminate = true; }
+        else { hdrCb.indeterminate = false; hdrCb.checked = allSel; }
+        hdrCb.addEventListener('change', function() {
+          ROWS.forEach(function(r) {
+            if(hdrCb.checked) selected.add(r.id); else selected.delete(r.id);
+          });
+          render();
+        });
+      }
+
+      /* wire row checkboxes */
+      var cbs = root.querySelectorAll('.tbb-cb');
+      for(var i = 0; i < cbs.length; i++) {
+        (function(cb) {
+          cb.addEventListener('change', function() {
+            var id = parseInt(cb.getAttribute('data-id'), 10);
+            if(cb.checked) selected.add(id); else selected.delete(id);
+            render();
+          });
+        })(cbs[i]);
+      }
+
+      /* toolbar buttons */
+      var btnOn  = document.getElementById('tbb-btn-on');
+      if(btnOn)  btnOn.addEventListener('click',  function() { doBatchStatus('on');  });
+      var btnOff = document.getElementById('tbb-btn-off');
+      if(btnOff) btnOff.addEventListener('click', function() { doBatchStatus('off'); });
+      var btnDel = document.getElementById('tbb-btn-del');
+      if(btnDel) btnDel.addEventListener('click', function() { pendingDelCount = selected.size; confirmPending = true; render(); });
+      var btnCancel = document.getElementById('tbb-btn-cancel');
+      if(btnCancel) btnCancel.addEventListener('click', function() { selected.clear(); confirmPending = false; render(); });
+
+      /* confirm buttons */
+      var cOk = document.getElementById('tbb-confirm-ok');
+      if(cOk) cOk.addEventListener('click', function() { doDelete(); });
+      var cCancel = document.getElementById('tbb-confirm-cancel');
+      if(cCancel) cCancel.addEventListener('click', function() { confirmPending = false; render(); });
+
+      /* undo button */
+      var undoAct = document.getElementById('tbb-undo-act');
+      if(undoAct) undoAct.addEventListener('click', function() { doUndo(); });
+
+      /* edit buttons — 悬浮单行才出现，演示高频单行操作 */
+      var editBtns = root.querySelectorAll('.tbb-edit-btn');
+      for(var j = 0; j < editBtns.length; j++) {
+        (function(eb) {
+          eb.addEventListener('click', function() {
+            var id = parseInt(eb.getAttribute('data-id'), 10);
+            var row = null;
+            for(var k = 0; k < ROWS.length; k++) { if(ROWS[k].id === id) { row = ROWS[k]; break; } }
+            if(row) showToast('编辑「' + row.name + '」（演示）');
+          });
+        })(editBtns[j]);
+      }
+    }
+
+    /* 批量改状态：可逆，操作后浮出撤销条 */
+    function doBatchStatus(newStatus) {
+      if(selected.size === 0) return;
+      cancelUndo();
+      var prev = {};
+      selected.forEach(function(id) {
+        for(var k = 0; k < ROWS.length; k++) {
+          if(ROWS[k].id === id) { prev[id] = ROWS[k].status; ROWS[k].status = newStatus; break; }
+        }
+      });
+      undoState = { action: newStatus, prev: prev };
+      selected.clear();
+      confirmPending = false;
+      render();
+      startUndoTimer();
+    }
+
+    function startUndoTimer() {
+      var t0 = Date.now();
+      undoProgTimer = setInterval(function() {
+        var pct = Math.max(0, 100 - (Date.now() - t0) / UNDO_MS * 100);
+        var el = document.getElementById('tbb-undo-fill');
+        if(el) el.style.width = pct + '%';
+        if(pct <= 0) { clearInterval(undoProgTimer); undoProgTimer = null; }
+      }, 60);
+      undoTimer = setTimeout(function() {
+        cancelUndo();
+        undoState = null;
+        render();
+      }, UNDO_MS);
+    }
+
+    function cancelUndo() {
+      if(undoTimer)     { clearTimeout(undoTimer);     undoTimer     = null; }
+      if(undoProgTimer) { clearInterval(undoProgTimer); undoProgTimer = null; }
+    }
+
+    function doUndo() {
+      cancelUndo();
+      if(!undoState) return;
+      var prev = undoState.prev;
+      for(var idStr in prev) {
+        var id = parseInt(idStr, 10);
+        for(var k = 0; k < ROWS.length; k++) {
+          if(ROWS[k].id === id) { ROWS[k].status = prev[idStr]; break; }
+        }
+      }
+      undoState = null;
+      render();
+    }
+
+    /* 删除：不可逆，走确认路径 */
+    function doDelete() {
+      cancelUndo();
+      undoState = null;
+      var toDelete = {};
+      selected.forEach(function(id) { toDelete[id] = true; });
+      ROWS = ROWS.filter(function(r) { return !toDelete[r.id]; });
+      selected.clear();
+      confirmPending = false;
+      render();
+    }
+
+    var _toast = null, _toastT = null;
+    function showToast(msg) {
+      if(_toast) { _toast.remove(); clearTimeout(_toastT); }
+      _toast = document.createElement('div');
+      _toast.style.cssText = 'position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#33291E;color:#fff;padding:8px 20px;border-radius:999px;font-size:.86rem;font-weight:700;z-index:9999;pointer-events:none;white-space:nowrap;';
+      _toast.textContent = msg;
+      document.body.appendChild(_toast);
+      _toastT = setTimeout(function() {
+        _toast.style.cssText += 'opacity:0;transition:opacity .3s;';
+        setTimeout(function() { if(_toast) { _toast.remove(); _toast = null; } }, 350);
+      }, 2000);
     }
 
     render();

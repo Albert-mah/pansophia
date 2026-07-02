@@ -154,6 +154,50 @@
       <div id="ldf-root" style="margin-top:16px"></div>
     </div>
 
+    <style>
+    /* 订单演示 Lab 专属样式:全部 .ldf-o- 前缀,注入 App 后不污染全站 */
+    .ldf-o-stage{position:relative;overflow:hidden;border-radius:12px;border:1px solid var(--border);background:var(--bg);height:440px;display:flex;flex-direction:column}
+    .ldf-o-bar{padding:9px 14px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px}
+    .ldf-o-scroll{flex:1;overflow-y:auto}
+    .ldf-o-tbl{width:100%;border-collapse:collapse;font-size:.88rem}
+    .ldf-o-th{padding:7px 12px;text-align:left;font-size:.73rem;font-weight:700;color:var(--text-faint);background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:1}
+    .ldf-o-td{padding:10px 12px;border:none;border-bottom:1px solid var(--border)}
+    .ldf-o-row{cursor:pointer}
+    .ldf-o-row:hover{background:rgba(182,83,47,.07)}
+    .ldf-o-hl{background:rgba(182,83,47,.13) !important}
+    .ldf-o-bdg{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.73rem;font-weight:800;color:#fff;white-space:nowrap}
+    .ldf-o-nm{font-size:.75rem}
+    .ldf-o-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.18);z-index:10;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .22s}
+    .ldf-o-overlay.ldf-o-vis{opacity:1;pointer-events:auto}
+    .ldf-o-drawer{position:absolute;top:0;right:0;width:58%;height:100%;background:var(--surface);border-left:1px solid var(--border);z-index:20;transform:translateX(101%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow:hidden;display:flex;flex-direction:column;box-shadow:-4px 0 18px rgba(0,0,0,.10)}
+    .ldf-o-drawer.ldf-o-open{transform:translateX(0)}
+    .ldf-o-drw-head{padding:9px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;background:var(--bg);flex-shrink:0}
+    .ldf-o-drw-nav{display:flex;gap:5px;flex:1}
+    .ldf-o-nav-btn{border:1px solid var(--border);background:var(--surface);color:var(--text-soft);padding:4px 11px;border-radius:6px;font-size:.8rem;cursor:pointer;font-weight:700}
+    .ldf-o-nav-btn:disabled{opacity:.32;cursor:not-allowed}
+    .ldf-o-x-btn{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--text-soft);font-size:1rem;cursor:pointer;font-weight:700;flex-shrink:0;padding:0;line-height:1}
+    .ldf-o-drw-body{flex:1;overflow-y:auto;padding:14px}
+    .ldf-o-sec{margin-bottom:16px}
+    .ldf-o-sec-t{font-size:.67rem;font-weight:800;letter-spacing:.8px;color:var(--text-faint);text-transform:uppercase;margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+    .ldf-o-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+    .ldf-o-field{min-width:0}
+    .ldf-o-fl{font-size:.68rem;color:var(--text-faint);margin-bottom:2px}
+    .ldf-o-fv{font-size:.86rem;font-weight:600;color:var(--text);line-height:1.4}
+    .ldf-o-edit{cursor:text;border-bottom:1.5px dashed var(--border);padding-bottom:1px;display:inline-block;min-width:60px}
+    .ldf-o-edit:hover{border-bottom-color:var(--accent);color:var(--accent)}
+    .ldf-o-note-inp{width:100%;border:1.5px solid var(--accent);border-radius:6px;padding:5px 8px;font-size:.86rem;background:var(--bg);color:var(--text);outline:none;box-sizing:border-box}
+    .ldf-o-note-tip{font-size:.72rem;color:var(--text-faint);margin-top:3px}
+    .ldf-o-ship-btn{margin-top:12px;border:none;padding:8px 18px;border-radius:8px;font-size:.88rem;font-weight:800;cursor:pointer;background:#27ae60;color:#fff}
+    .ldf-o-ship-btn:hover{opacity:.82}
+    .ldf-o-tip{font-size:.74rem;color:var(--text-faint);margin-top:5px}
+    </style>
+
+    <div class="lab">
+      <div class="lab-title">🖥️ 上手玩:订单列表 → 详情 → 编辑 的完整一圈</div>
+      <p style="margin:0 0 10px;color:var(--text-soft);font-size:.9rem"><b>点任意行</b>打开右侧详情抽屉;顶部「‹ / ›」不关抽屉切换记录;<b>备注字段</b>点击内联编辑,回车保存后列表行出现 📝 角标;<b>发货</b>按钮点击状态双向同步;按 Esc、点遮罩、点 × 均可关闭,关闭后滚动位置与高亮保持。</p>
+      <div id="ldf-ord-root"></div>
+    </div>
+
     <h2>五、试一试</h2>
     <div class="box">
       <div class="box-title">✏️ 给自己系统里的一个对象套三件套框架</div>
@@ -518,6 +562,234 @@
         });
       }
     }
+
+    renderList();
+  })();
+  </script>
+
+  <script>
+  (function(){
+    var rootEl = document.getElementById('ldf-ord-root');
+    if (!rootEl) return;
+
+    var ACCENT = '#B6532F', GREEN = '#27ae60', ORANGE = '#e67e22';
+
+    var orders = [
+      { id:'ORD-001', cust:'张明华', amt:'¥2,450',  status:'待发货', date:'2024-03-10', prod:'办公椅 × 10',      addr:'上海市浦东新区张江路 100 号', paid:'已付款', note:'', tracking:'',             noted:false, editing:false },
+      { id:'ORD-002', cust:'李晓丽', amt:'¥8,920',  status:'已发货', date:'2024-03-08', prod:'显示器 × 4',       addr:'北京市朝阳区建国路 88 号',   paid:'已付款', note:'', tracking:'SF1023456789', noted:false, editing:false },
+      { id:'ORD-003', cust:'王建国', amt:'¥1,380',  status:'待发货', date:'2024-03-11', prod:'机械键盘 × 6',     addr:'广州市天河区珠江新城 5 号',  paid:'待付款', note:'', tracking:'',             noted:false, editing:false },
+      { id:'ORD-004', cust:'赵芳芳', amt:'¥5,670',  status:'待发货', date:'2024-03-09', prod:'站立式办公桌 × 3', addr:'深圳市南山区科技园 20 号',   paid:'已付款', note:'', tracking:'',             noted:false, editing:false },
+      { id:'ORD-005', cust:'陈志伟', amt:'¥3,200',  status:'已发货', date:'2024-03-07', prod:'人体工学椅 × 8',   addr:'杭州市余杭区文一西路 9 号',  paid:'已付款', note:'', tracking:'SF9876543210', noted:false, editing:false },
+      { id:'ORD-006', cust:'刘美玲', amt:'¥990',    status:'待发货', date:'2024-03-12', prod:'台灯 × 15',        addr:'成都市高新区天府大道 33 号', paid:'待付款', note:'', tracking:'',             noted:false, editing:false }
+    ];
+
+    var openIdx = null, hlIdx = null, savedST = 0;
+
+    rootEl.innerHTML = [
+      '<div id="ldf-ord-stage" class="ldf-o-stage">',
+        '<div class="ldf-o-bar">',
+          '<span style="font-size:.82rem;color:var(--text-soft)">共 <b>6</b> 条订单 &nbsp;·&nbsp; 点任意行查看详情</span>',
+          '<span style="font-size:.76rem;color:var(--text-faint)">&#x1F4DD; = 有备注</span>',
+        '</div>',
+        '<div id="ldf-ord-scroll" class="ldf-o-scroll">',
+          '<table class="ldf-o-tbl">',
+            '<thead><tr>',
+              '<th class="ldf-o-th">单号</th>',
+              '<th class="ldf-o-th">客户</th>',
+              '<th class="ldf-o-th">金额</th>',
+              '<th class="ldf-o-th">状态</th>',
+              '<th class="ldf-o-th" style="text-align:center">&#x1F4DD;</th>',
+            '</tr></thead>',
+            '<tbody id="ldf-ord-tbody"></tbody>',
+          '</table>',
+        '</div>',
+        '<div id="ldf-ord-overlay" class="ldf-o-overlay"></div>',
+        '<div id="ldf-ord-drawer" class="ldf-o-drawer">',
+          '<div class="ldf-o-drw-head">',
+            '<div class="ldf-o-drw-nav">',
+              '<button id="ldf-ord-prev" class="ldf-o-nav-btn">&#8249; 上一单</button>',
+              '<button id="ldf-ord-next" class="ldf-o-nav-btn">下一单 &#8250;</button>',
+            '</div>',
+            '<button id="ldf-ord-close" class="ldf-o-x-btn" title="关闭 (Esc)">&#215;</button>',
+          '</div>',
+          '<div id="ldf-ord-drw-body" class="ldf-o-drw-body"></div>',
+        '</div>',
+      '</div>'
+    ].join('');
+
+    var scrollEl  = document.getElementById('ldf-ord-scroll');
+    var overlayEl = document.getElementById('ldf-ord-overlay');
+    var drawerEl  = document.getElementById('ldf-ord-drawer');
+    var prevBtn   = document.getElementById('ldf-ord-prev');
+    var nextBtn   = document.getElementById('ldf-ord-next');
+    var closeBtn  = document.getElementById('ldf-ord-close');
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function bdg(status) {
+      return '<span class="ldf-o-bdg" style="background:'+(status==='已发货'?GREEN:ORANGE)+'">'+escHtml(status)+'</span>';
+    }
+
+    function fld(label, val) {
+      return '<div class="ldf-o-field"><div class="ldf-o-fl">'+label+'</div><div class="ldf-o-fv">'+val+'</div></div>';
+    }
+
+    function renderList() {
+      var tbody = document.getElementById('ldf-ord-tbody');
+      var h = '';
+      for (var i = 0; i < orders.length; i++) {
+        var o = orders[i];
+        h += '<tr class="ldf-o-row'+(i===hlIdx?' ldf-o-hl':'')+'" data-i="'+i+'">';
+        h += '<td class="ldf-o-td" style="font-family:monospace;font-size:.78rem;color:var(--text-faint)">'+o.id+'</td>';
+        h += '<td class="ldf-o-td" style="font-weight:600">'+escHtml(o.cust)+'</td>';
+        h += '<td class="ldf-o-td" style="font-weight:700;color:'+ACCENT+';font-variant-numeric:tabular-nums">'+o.amt+'</td>';
+        h += '<td class="ldf-o-td">'+bdg(o.status)+'</td>';
+        h += '<td class="ldf-o-td" style="text-align:center">'+(o.noted?'<span class="ldf-o-nm">&#x1F4DD;</span>':'')+'</td>';
+        h += '</tr>';
+      }
+      tbody.innerHTML = h;
+      var rows = tbody.querySelectorAll('.ldf-o-row');
+      for (var ri = 0; ri < rows.length; ri++) {
+        (function(row){
+          row.addEventListener('click', function(){
+            openDrawer(parseInt(this.getAttribute('data-i'), 10));
+          });
+        })(rows[ri]);
+      }
+    }
+
+    function openDrawer(idx) {
+      savedST = scrollEl.scrollTop;
+      hlIdx = idx; openIdx = idx;
+      renderList();
+      scrollEl.scrollTop = savedST;
+      renderDrawer(idx);
+      overlayEl.classList.add('ldf-o-vis');
+      drawerEl.classList.add('ldf-o-open');
+    }
+
+    function closeDrawer() {
+      if (openIdx === null) return;
+      var o = orders[openIdx];
+      if (o) o.editing = false;
+      openIdx = null;
+      overlayEl.classList.remove('ldf-o-vis');
+      drawerEl.classList.remove('ldf-o-open');
+      renderList();
+      scrollEl.scrollTop = savedST;
+    }
+
+    function renderDrawer(idx) {
+      var o = orders[idx];
+      if (!o) return;
+      prevBtn.disabled = (idx === 0);
+      nextBtn.disabled = (idx === orders.length - 1);
+      prevBtn.onclick = function(){ openDrawer(idx - 1); };
+      nextBtn.onclick = function(){ openDrawer(idx + 1); };
+
+      var drwBody = document.getElementById('ldf-ord-drw-body');
+      var h = '';
+
+      /* order header */
+      h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">';
+      h += '<span style="font-family:monospace;font-size:.8rem;color:var(--text-faint)">'+o.id+'</span>';
+      h += bdg(o.status);
+      h += '</div>';
+
+      /* 基本信息 */
+      h += '<div class="ldf-o-sec"><div class="ldf-o-sec-t">基本信息</div>';
+      h += '<div class="ldf-o-grid">';
+      h += fld('客户名', escHtml(o.cust));
+      h += fld('下单日期', escHtml(o.date));
+      h += '<div class="ldf-o-field" style="grid-column:span 2"><div class="ldf-o-fl">商品明细</div><div class="ldf-o-fv">'+escHtml(o.prod)+'</div></div>';
+      h += '</div>';
+      h += '<div style="margin-top:10px"><div class="ldf-o-fl">备注 <span style="font-size:.65rem;color:var(--text-faint)">(点击编辑,回车保存)</span></div>';
+      if (o.editing) {
+        h += '<input id="ldf-ord-ninp" class="ldf-o-note-inp" value="'+escHtml(o.note)+'" placeholder="输入备注,回车保存">';
+        h += '<div class="ldf-o-note-tip">&#8629; 回车保存 &nbsp;&#183;&nbsp; Esc 取消</div>';
+      } else {
+        h += '<div id="ldf-ord-nview" class="ldf-o-fv ldf-o-edit">';
+        h += o.note ? escHtml(o.note) : '<span style="color:var(--text-faint);font-weight:400">点击添加备注…</span>';
+        h += '</div>';
+      }
+      h += '</div></div>';
+
+      /* 金额 */
+      h += '<div class="ldf-o-sec"><div class="ldf-o-sec-t">金额</div>';
+      h += '<div class="ldf-o-grid">';
+      h += fld('订单金额','<span style="color:'+ACCENT+';font-size:1rem;font-weight:800">'+o.amt+'</span>');
+      h += fld('付款状态', escHtml(o.paid));
+      h += '</div></div>';
+
+      /* 物流 */
+      h += '<div class="ldf-o-sec"><div class="ldf-o-sec-t">物流</div>';
+      h += '<div style="margin-bottom:8px"><div class="ldf-o-fl">收货地址</div><div class="ldf-o-fv" style="line-height:1.5">'+escHtml(o.addr)+'</div></div>';
+      h += '<div class="ldf-o-grid">';
+      h += fld('运单号', o.tracking ? escHtml(o.tracking) : '<span style="color:var(--text-faint);font-weight:400">—</span>');
+      h += '</div>';
+      if (o.status === '待发货') {
+        h += '<button id="ldf-ord-ship" class="ldf-o-ship-btn">&#x1F69A; 发货</button>';
+        h += '<div class="ldf-o-tip">点击后列表行状态同步更新,并生成运单号</div>';
+      } else {
+        h += '<div style="margin-top:10px;font-size:.85rem;font-weight:700;color:'+GREEN+'">&#10003; 已发货 &nbsp;&#183;&nbsp; 运单已生成</div>';
+      }
+      h += '</div>';
+
+      drwBody.innerHTML = h;
+
+      /* note view → edit */
+      var nview = document.getElementById('ldf-ord-nview');
+      if (nview) {
+        nview.addEventListener('click', function(){
+          o.editing = true;
+          renderDrawer(idx);
+          var inp = document.getElementById('ldf-ord-ninp');
+          if (inp) inp.focus();
+        });
+      }
+
+      /* note input keydown */
+      var ninp = document.getElementById('ldf-ord-ninp');
+      if (ninp) {
+        ninp.addEventListener('keydown', function(e){
+          if (e.key === 'Enter') {
+            o.note = ninp.value.trim();
+            o.noted = !!o.note;
+            o.editing = false;
+            e.stopPropagation();
+            renderDrawer(idx);
+            renderList();
+            scrollEl.scrollTop = savedST;
+          } else if (e.key === 'Escape') {
+            o.editing = false;
+            e.stopPropagation();
+            renderDrawer(idx);
+          }
+        });
+      }
+
+      /* ship button */
+      var ship = document.getElementById('ldf-ord-ship');
+      if (ship) {
+        ship.addEventListener('click', function(){
+          o.status = '已发货';
+          o.tracking = 'SF' + (1000000 + idx * 1111 + Math.floor(Math.random() * 8888));
+          renderDrawer(idx);
+          renderList();
+          scrollEl.scrollTop = savedST;
+        });
+      }
+    }
+
+    overlayEl.addEventListener('click', closeDrawer);
+    closeBtn.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && openIdx !== null) {
+        if (!document.getElementById('ldf-ord-ninp')) closeDrawer();
+      }
+    });
 
     renderList();
   })();

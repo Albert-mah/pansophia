@@ -159,6 +159,93 @@
       </div>
     </div>
 
+    <div class="lab">
+      <div class="lab-title">🖥️ 上手玩:同一张订单列表的每种状态</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">下面是一个高仿真的后台「订单管理」页面。点上方按钮在各种状态之间切换——每个状态右侧有小字说明「该给用户什么」。<b>重点玩法:</b>点「出错」里的「↻ 重试」会走真实的加载→成功过渡;点「空(首次)」里的「+ 新建订单」会加一条演示数据切到正常态;点「搜索空」体会它和首次空的区别。</p>
+
+      <style>
+        /* === 订单列表 lab 专属样式,全部 .fst- 前缀,不污染全站 === */
+        @keyframes fst-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+        .fst-wrap { border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-top:10px; background:var(--surface); box-shadow:0 2px 8px rgba(0,0,0,.06); }
+        .fst-pageheader { display:flex; align-items:flex-start; gap:8px; padding:10px 16px; background:var(--bg); border-bottom:1px solid var(--border); }
+        .fst-breadcrumb { font-size:.75rem; color:var(--text-faint); margin-bottom:2px; }
+        .fst-pagetitle { font-size:.97rem; font-weight:800; }
+        .fst-toolbar { display:flex; align-items:center; gap:8px; padding:8px 14px; background:var(--surface); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+        .fst-search { flex:1; min-width:120px; border:1px solid var(--border); border-radius:7px; padding:5px 10px; font-size:.83rem; background:var(--bg); color:var(--text); outline:none; }
+        .fst-tbtn { border:none; border-radius:7px; padding:6px 13px; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; }
+        .fst-tbtn-primary { background:var(--accent); color:#fff; }
+        .fst-tbtn-primary:hover { opacity:.88; }
+        .fst-tbtn-ghost { background:var(--bg); color:var(--text-soft); border:1px solid var(--border); }
+        .fst-tbtn-ghost:hover { background:var(--border); }
+        .fst-thead { display:grid; grid-template-columns:128px 1fr 90px 88px 58px; padding:7px 14px; border-bottom:1px solid var(--border); background:var(--bg); }
+        .fst-th { font-size:.74rem; font-weight:700; color:var(--text-faint); letter-spacing:.04em; }
+        .fst-content { min-height:238px; }
+        .fst-trow { display:grid; grid-template-columns:128px 1fr 90px 88px 58px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border); font-size:.85rem; transition:background .1s; }
+        .fst-trow:last-child { border-bottom:0; }
+        .fst-trow:hover { background:var(--bg); }
+        .fst-ordernum { font-family:monospace; color:var(--accent); font-size:.79rem; }
+        .fst-customer { font-weight:600; }
+        .fst-amount { font-variant-numeric:tabular-nums; font-weight:700; font-size:.83rem; }
+        .fst-badge { display:inline-block; font-size:.7rem; font-weight:700; padding:2px 8px; border-radius:999px; }
+        .fst-rowact { color:var(--text-faint); font-size:.8rem; cursor:pointer; }
+        .fst-rowact:hover { color:var(--accent); }
+        .fst-skrow { display:grid; grid-template-columns:128px 1fr 90px 88px 58px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border); }
+        .fst-skrow:last-child { border-bottom:0; }
+        .fst-sk { background:var(--border); border-radius:5px; animation:fst-pulse 1.4s ease-in-out infinite; }
+        .fst-sk-a { height:10px; width:108px; }
+        .fst-sk-b { height:10px; width:62%; }
+        .fst-sk-c { height:10px; width:54px; }
+        .fst-sk-d { height:10px; width:64px; }
+        .fst-center { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:34px 20px; text-align:center; min-height:238px; }
+        .fst-center-ico { font-size:2.8rem; line-height:1; }
+        .fst-center-title { font-weight:800; font-size:1rem; }
+        .fst-center-desc { font-size:.84rem; color:var(--text-faint); max-width:280px; line-height:1.6; }
+        .fst-center-btn { border:none; border-radius:999px; padding:9px 20px; font-size:.87rem; font-weight:700; color:#fff; cursor:pointer; }
+        .fst-center-btn:hover { opacity:.88; }
+        .fst-error-bar { width:100%; max-width:400px; background:rgba(226,82,74,.08); border:1px solid rgba(226,82,74,.28); border-radius:10px; padding:12px 15px; display:flex; align-items:flex-start; gap:10px; text-align:left; }
+        .fst-error-icon { font-size:1.3rem; flex-shrink:0; margin-top:1px; }
+        .fst-error-msg { font-weight:700; color:#c0392b; font-size:.88rem; }
+        .fst-error-hint { font-size:.79rem; color:var(--text-faint); margin-top:3px; line-height:1.5; }
+        .fst-retry-btn { border:none; border-radius:999px; background:#e2524a; color:#fff; padding:8px 18px; font-size:.85rem; font-weight:700; cursor:pointer; }
+        .fst-retry-btn:hover { opacity:.88; }
+        .fst-error-help { font-size:.8rem; color:var(--text-faint); }
+        .fst-statusbar { display:flex; align-items:center; gap:7px; padding:6px 14px; border-top:1px solid var(--border); background:var(--bg); font-size:.75rem; color:var(--text-faint); }
+        .fst-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; transition:background .2s; }
+        .fst-switcher { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }
+        .fst-swbtn { border:2px solid var(--border); background:var(--surface); color:var(--text-soft); padding:6px 14px; border-radius:999px; font-size:.84rem; font-weight:700; cursor:pointer; transition:all .12s; }
+        .fst-hint { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 14px; margin-top:8px; font-size:.82rem; color:var(--text-soft); line-height:1.65; min-height:34px; }
+      </style>
+
+      <div class="fst-switcher" id="fst-switcher"></div>
+      <div class="fst-hint" id="fst-hint"></div>
+
+      <div class="fst-wrap">
+        <div class="fst-pageheader">
+          <div>
+            <div class="fst-breadcrumb">首页 › 销售 › 订单管理</div>
+            <div class="fst-pagetitle">📋 订单管理</div>
+          </div>
+        </div>
+        <div class="fst-toolbar">
+          <input class="fst-search" id="fst-search" type="text" placeholder="搜索订单号、客户名…">
+          <button class="fst-tbtn fst-tbtn-primary" id="fst-newbtn">+ 新建订单</button>
+          <button class="fst-tbtn fst-tbtn-ghost" id="fst-refbtn">↻ 刷新</button>
+        </div>
+        <div class="fst-thead">
+          <div class="fst-th">单号</div>
+          <div class="fst-th">客户</div>
+          <div class="fst-th">金额</div>
+          <div class="fst-th">状态</div>
+          <div class="fst-th">操作</div>
+        </div>
+        <div class="fst-content" id="fst-content"></div>
+        <div class="fst-statusbar">
+          <div class="fst-dot" id="fst-dot"></div>
+          <span id="fst-statustext">就绪</span>
+        </div>
+      </div>
+    </div>
+
     <h2>5. 试一试</h2>
     <div class="box">
       <div class="box-title">✏️ 给你自己的后台页面补四态</div>
@@ -307,6 +394,167 @@
 
     // 初始:成功态
     setActive('success', true);
+  })();
+  </script>
+
+  <script>
+  (function(){
+    var switcher = document.getElementById('fst-switcher');
+    var hintEl   = document.getElementById('fst-hint');
+    var content  = document.getElementById('fst-content');
+    var dot      = document.getElementById('fst-dot');
+    var stText   = document.getElementById('fst-statustext');
+    var searchEl = document.getElementById('fst-search');
+    var newBtn   = document.getElementById('fst-newbtn');
+    var refBtn   = document.getElementById('fst-refbtn');
+    if(!switcher || !content) return;
+
+    var timer = null;
+    var active = 'success';
+
+    var ORDERS = [
+      { no:'ORD-2024-0081', cust:'蓝鲸科技', amt:'¥128,400', st:'已完成', bg:'rgba(39,174,96,.12)',  cl:'#27ae60' },
+      { no:'ORD-2024-0080', cust:'远山贸易', amt:'¥ 56,800', st:'待发货', bg:'rgba(59,111,224,.12)', cl:'#3b6fe0' },
+      { no:'ORD-2024-0079', cust:'晨光文创', amt:'¥ 18,300', st:'审批中', bg:'rgba(230,126,34,.12)', cl:'#e67e22' },
+      { no:'ORD-2024-0078', cust:'海德设计', amt:'¥ 92,000', st:'已完成', bg:'rgba(39,174,96,.12)',  cl:'#27ae60' },
+      { no:'ORD-2024-0077', cust:'星辰贸易', amt:'¥ 34,600', st:'待付款', bg:'rgba(142,68,173,.12)', cl:'#8e44ad' }
+    ];
+
+    var STATE_COLORS = { loading:'#e67e22', empty:'#8e44ad', search:'#2980b9', error:'#e2524a', success:'#27ae60' };
+    var STATE_LABELS = { loading:'⏳ 加载中', empty:'📭 空(首次)', search:'🔍 搜索空', error:'❌ 出错', success:'✅ 正常' };
+    var STATE_KEYS   = ['loading','empty','search','error','success'];
+
+    function getHint(key){
+      if(key==='loading') return '<strong>该给用户什么:</strong> "系统正在获取数据,稍等就好。"骨架屏比空白+转圈好——让人预感到"一张表格快出来了",等待焦虑更低。';
+      if(key==='empty')   return '<strong>该给用户什么:</strong> "这里以后会有订单,现在还没有。"要给:<b>图标</b>(表示空不是坏) + <b>一句解释</b> + <b>「新建」引导按钮</b>。试试点「+ 新建订单」。';
+      if(key==='search')  return '<strong>该给用户什么:</strong> "有数据,但当前关键词没命中。" ⚠️ 绝不能叫人「新建第一条」!应给「清除搜索」或「换个关键词」——搜不到东西弹新建,用户会懵。';
+      if(key==='error')   return '<strong>该给用户什么:</strong> "出问题了,但数据没丢,可以重试。"说清是哪种错 + 给「重试」按钮。试试点「↻ 重试」,会走加载→成功真实过渡。';
+      return '<strong>该给用户什么:</strong> "这里有 <b>'+ORDERS.length+'</b> 条订单,信息完整可操作。"这是四态里最后才到的那张——但设计时往往第一张就画它,其余三态同样重要。';
+    }
+
+    function esc(s){ return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+
+    function setStatus(label, color){
+      if(dot){ dot.style.background=color; }
+      if(stText){ stText.textContent=label; }
+    }
+
+    function renderLoading(){
+      setStatus('加载中…','#e67e22');
+      if(searchEl){ searchEl.value=''; searchEl.disabled=true; }
+      var row='<div class="fst-skrow"><div class="fst-sk fst-sk-a"></div>'
+        +'<div class="fst-sk fst-sk-b"></div><div class="fst-sk fst-sk-c"></div>'
+        +'<div class="fst-sk fst-sk-d"></div><div class="fst-sk fst-sk-c"></div></div>';
+      content.innerHTML=row+row+row+row+row;
+    }
+
+    function renderEmpty(){
+      setStatus('空状态','#8e44ad');
+      if(searchEl){ searchEl.value=''; searchEl.disabled=false; }
+      content.innerHTML='<div class="fst-center">'
+        +'<div class="fst-center-ico">📦</div>'
+        +'<div class="fst-center-title">还没有订单</div>'
+        +'<div class="fst-center-desc">这里会显示所有订单记录。先创建第一条,列表就活起来了。</div>'
+        +'<button class="fst-center-btn" id="fst-emptybtn" style="background:#8e44ad">+ 新建订单</button>'
+        +'</div>';
+      var b=document.getElementById('fst-emptybtn');
+      if(b) b.addEventListener('click',function(){
+        ORDERS.unshift({no:'ORD-2024-0082',cust:'(演示)新客户',amt:'¥ 10,000',st:'待付款',bg:'rgba(142,68,173,.12)',cl:'#8e44ad'});
+        transitionTo('success');
+      });
+    }
+
+    function renderSearch(){
+      setStatus('搜索无结果','#2980b9');
+      if(searchEl){ searchEl.value='上海 XX 公司'; searchEl.disabled=false; }
+      content.innerHTML='<div class="fst-center">'
+        +'<div class="fst-center-ico">🔍</div>'
+        +'<div class="fst-center-title">没有找到匹配的订单</div>'
+        +'<div class="fst-center-desc">没有符合 "上海 XX 公司" 的订单。试试换个关键词,或清除筛选条件。</div>'
+        +'<button class="fst-center-btn" id="fst-clearbtn" style="background:#2980b9">✕ 清除搜索</button>'
+        +'</div>';
+      var b=document.getElementById('fst-clearbtn');
+      if(b) b.addEventListener('click',function(){ active='success'; highlightBtn(); render(); });
+    }
+
+    function renderError(){
+      setStatus('加载失败','#e2524a');
+      if(searchEl){ searchEl.value=''; searchEl.disabled=true; }
+      content.innerHTML='<div class="fst-center">'
+        +'<div class="fst-error-bar">'
+        +  '<div class="fst-error-icon">🚫</div>'
+        +  '<div><div class="fst-error-msg">加载失败:网络超时</div>'
+        +  '<div class="fst-error-hint">服务器未响应(Request Timeout)。你的数据没有丢失,联网后可直接重试。</div></div>'
+        +'</div>'
+        +'<button class="fst-retry-btn" id="fst-retrybtn">↻ 重试</button>'
+        +'<div class="fst-error-help">重试仍失败?请联系管理员</div>'
+        +'</div>';
+      var b=document.getElementById('fst-retrybtn');
+      if(b) b.addEventListener('click',function(){ transitionTo('success'); });
+    }
+
+    function renderSuccess(){
+      setStatus('共 '+ORDERS.length+' 条','#27ae60');
+      if(searchEl){ searchEl.value=''; searchEl.disabled=false; }
+      content.innerHTML=ORDERS.map(function(r){
+        return '<div class="fst-trow">'
+          +'<span class="fst-ordernum">'+esc(r.no)+'</span>'
+          +'<span class="fst-customer">'+esc(r.cust)+'</span>'
+          +'<span class="fst-amount">'+esc(r.amt)+'</span>'
+          +'<span><span class="fst-badge" style="background:'+r.bg+';color:'+r.cl+'">'+esc(r.st)+'</span></span>'
+          +'<span class="fst-rowact">查看</span>'
+          +'</div>';
+      }).join('');
+    }
+
+    function render(){
+      clearTimeout(timer);
+      if(active==='loading')     renderLoading();
+      else if(active==='empty')  renderEmpty();
+      else if(active==='search') renderSearch();
+      else if(active==='error')  renderError();
+      else                       renderSuccess();
+    }
+
+    function transitionTo(target){
+      active='loading'; highlightBtn(); renderLoading();
+      clearTimeout(timer);
+      timer=setTimeout(function(){ active=target; highlightBtn(); render(); },1000);
+    }
+
+    function highlightBtn(){
+      var found=null;
+      Array.prototype.forEach.call(switcher.children,function(btn){
+        var key=btn.dataset.key;
+        var on=key===active;
+        var col=STATE_COLORS[key]||'#888';
+        btn.style.background=on?col:'var(--surface)';
+        btn.style.borderColor=on?col:'var(--border)';
+        btn.style.color=on?'#fff':'var(--text-soft)';
+        if(on) found=key;
+      });
+      if(found&&hintEl) hintEl.innerHTML=getHint(found);
+    }
+
+    if(newBtn) newBtn.addEventListener('click',function(){
+      if(active!=='success'){
+        ORDERS.unshift({no:'ORD-2024-0082',cust:'(演示)新客户',amt:'¥ 10,000',st:'待付款',bg:'rgba(142,68,173,.12)',cl:'#8e44ad'});
+        transitionTo('success');
+      }
+    });
+    if(refBtn) refBtn.addEventListener('click',function(){
+      transitionTo(active==='error'?'success':active);
+    });
+
+    STATE_KEYS.forEach(function(key){
+      var b=document.createElement('button');
+      b.type='button'; b.className='fst-swbtn'; b.dataset.key=key;
+      b.textContent=STATE_LABELS[key];
+      b.addEventListener('click',function(){ active=key; highlightBtn(); render(); });
+      switcher.appendChild(b);
+    });
+
+    active='success'; highlightBtn(); render();
   })();
   </script>
 </body>

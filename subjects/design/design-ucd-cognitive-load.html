@@ -48,6 +48,39 @@
     .ucd-qbtns { display:flex; gap:8px; margin-top:8px; }
     .ucd-qbtn { border:1.5px solid var(--border); background:var(--bg); color:var(--text-soft); border-radius:999px; padding:6px 16px; font-size:.85rem; font-weight:700; cursor:pointer; }
     .ucd-qwhy { margin-top:8px; font-size:.82rem; color:var(--text-soft); line-height:1.6; display:none; }
+
+    /* ucdf- = ucd-form 专属，与上方 ucd-/cl- 前缀不冲突，注入 App 后不污染全站 */
+    .ucdf-tab-row { display:flex; gap:8px; margin-bottom:12px; }
+    .ucdf-tab-btn { flex:1; padding:10px 0; border-radius:10px; font-size:.9rem; font-weight:700; cursor:pointer; border:2px solid var(--border); background:var(--surface); color:var(--text-soft); transition:all .15s; }
+    .ucdf-tab-btn.ucdf-active-bad  { border-color:#e2524a; background:rgba(226,82,74,.1); color:#c0392b; }
+    .ucdf-tab-btn.ucdf-active-good { border-color:#27ae60; background:rgba(39,174,96,.1); color:#1f7a44; }
+    .ucdf-panel { display:none; }
+    .ucdf-panel.ucdf-shown { display:block; }
+    .ucdf-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; margin:8px 0; }
+    @media (max-width:640px){ .ucdf-form-grid { grid-template-columns:1fr; } }
+    .ucdf-field-group { display:flex; flex-direction:column; gap:3px; }
+    .ucdf-lbl { font-size:.82rem; color:var(--text-soft); font-weight:600; }
+    .ucdf-inp { border:1.5px solid var(--border); border-radius:7px; padding:7px 10px; font-size:.88rem; background:var(--bg); color:var(--text); width:100%; box-sizing:border-box; }
+    .ucdf-inp:focus { outline:none; border-color:var(--accent); }
+    .ucdf-inp.ucdf-autofilled { background:rgba(39,174,96,.07); border-color:rgba(39,174,96,.5); }
+    .ucdf-details-wrap { margin:10px 0; border:1px dashed var(--border); border-radius:8px; overflow:hidden; }
+    .ucdf-details-sum { padding:8px 12px; font-size:.86rem; font-weight:700; color:var(--text-soft); cursor:pointer; background:var(--surface); }
+    .ucdf-details-inner { padding:10px 12px; }
+    .ucdf-submit-btn { display:block; width:100%; margin-top:14px; padding:11px 0; border-radius:10px; font-size:.95rem; font-weight:700; cursor:pointer; border:none; background:var(--accent); color:#fff; transition:opacity .15s; }
+    .ucdf-submit-btn:hover { opacity:.88; }
+    .ucdf-submit-btn.ucdf-submit-good { background:#27ae60; }
+    .ucdf-result-line { margin-top:12px; padding:10px 14px; border-radius:9px; background:var(--surface); border:1px solid var(--border); font-size:.9rem; line-height:1.7; }
+    .ucdf-compare-box { margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    @media (max-width:640px){ .ucdf-compare-box { grid-template-columns:1fr; } }
+    .ucdf-cmp-card { border-radius:10px; padding:12px 14px; border:1px solid var(--border); background:var(--surface); }
+    .ucdf-cmp-card.ucdf-cmp-bad  { border-color:rgba(226,82,74,.4); background:rgba(226,82,74,.05); }
+    .ucdf-cmp-card.ucdf-cmp-good { border-color:rgba(39,174,96,.4);  background:rgba(39,174,96,.06); }
+    .ucdf-cmp-title { font-weight:700; font-size:.9rem; margin-bottom:6px; }
+    .ucdf-cmp-num   { font-size:1.6rem; font-weight:900; line-height:1.1; }
+    .ucdf-cmp-sub   { font-size:.82rem; color:var(--text-soft); margin-top:3px; }
+    .ucdf-timer-badge { display:inline-block; font-size:.8rem; padding:2px 8px; border-radius:999px; background:var(--bg); color:var(--text-soft); border:1px solid var(--border); margin-left:8px; vertical-align:middle; }
+    .ucdf-field-count-badge { font-size:.78rem; padding:2px 7px; border-radius:999px; background:rgba(226,82,74,.12); color:#c0392b; border:1px solid rgba(226,82,74,.3); margin-left:6px; }
+    .ucdf-field-count-badge.ucdf-good-badge { background:rgba(39,174,96,.12); color:#1f7a44; border-color:rgba(39,174,96,.3); }
     </style>
     <header class="page-header">
       <div class="kicker" data-kicker></div>
@@ -77,6 +110,125 @@
         <div class="ucd-bar-row"><span class="ucd-lbl">每单耗时</span><div class="ucd-track"><div class="ucd-bar" style="width:17%;background:#27ae60"></div></div><b>~30 秒</b></div>
         <div class="ucd-bar-row"><span class="ucd-lbl">脑力占用</span><div class="ucd-track"><div class="ucd-bar" style="width:25%;background:#27ae60"></div></div><b>很轻松</b></div>
         <p>常用值有默认、其余收进「更多信息」，一眼端住整张表单。</p>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🖥️ 上手玩：两版入库单，亲手各录一单</div>
+      <p style="margin:0 0 10px; color:var(--text-soft); font-size:.92rem">切换坏版/好版，各填一张入库单再提交。系统自动计时并对比两版的<b>填写框数 × 耗时</b>——让数字替你说话。</p>
+      <div class="ucdf-tab-row">
+        <button type="button" id="ucdf-tab-bad"  class="ucdf-tab-btn">⚠️ 坏版 28 字段</button>
+        <button type="button" id="ucdf-tab-good" class="ucdf-tab-btn">✅ 好版 5+折叠</button>
+      </div>
+
+      <!-- 坏版：28 字段全部平铺 -->
+      <div id="ucdf-panel-bad" class="ucdf-panel">
+        <div style="font-size:.82rem; color:var(--text-faint); margin-bottom:8px">28 个字段全部展开 <span class="ucdf-field-count-badge">需填 28 个框</span> <span id="ucdf-timer-bad" class="ucdf-timer-badge">⏱ 0 秒</span></div>
+        <div class="ucdf-form-grid">
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b01">供应商 *</label><input class="ucdf-inp" id="ucdf-b01" type="text" placeholder="请输入供应商全称"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b02">合同号 *</label><input class="ucdf-inp" id="ucdf-b02" type="text" placeholder="如 HT-2026-0712"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b03">税率</label><input class="ucdf-inp" id="ucdf-b03" type="text" placeholder="如 13%"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b04">币种</label><input class="ucdf-inp" id="ucdf-b04" type="text" placeholder="如 人民币"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b05">仓位</label><input class="ucdf-inp" id="ucdf-b05" type="text" placeholder="如 A区1号架"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b06">批次 *</label><input class="ucdf-inp" id="ucdf-b06" type="text" placeholder="如 BL2026071201"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b07">保质期（天）</label><input class="ucdf-inp" id="ucdf-b07" type="text" placeholder="如 365"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b08">商品名称 *</label><input class="ucdf-inp" id="ucdf-b08" type="text" placeholder="如 A4打印纸"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b09">规格型号</label><input class="ucdf-inp" id="ucdf-b09" type="text" placeholder="如 70g 500张/包"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b10">数量 *</label><input class="ucdf-inp" id="ucdf-b10" type="text" placeholder="如 200"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b11">单位</label><input class="ucdf-inp" id="ucdf-b11" type="text" placeholder="如 包"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b12">单价（元）</label><input class="ucdf-inp" id="ucdf-b12" type="text" placeholder="如 32.50"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b13">金额（元）</label><input class="ucdf-inp" id="ucdf-b13" type="text" placeholder="如 6500"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b14">到货日期 *</label><input class="ucdf-inp" id="ucdf-b14" type="date"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b15">生产日期</label><input class="ucdf-inp" id="ucdf-b15" type="date"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b16">生产批号</label><input class="ucdf-inp" id="ucdf-b16" type="text" placeholder="如 P20260701"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b17">采购员</label><input class="ucdf-inp" id="ucdf-b17" type="text" placeholder="如 陈晓燕"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b18">复核员</label><input class="ucdf-inp" id="ucdf-b18" type="text" placeholder="如 王建国"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b19">质检员</label><input class="ucdf-inp" id="ucdf-b19" type="text" placeholder="如 李梅"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b20">质检结论</label><input class="ucdf-inp" id="ucdf-b20" type="text" placeholder="如 合格"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b21">运输方式</label><input class="ucdf-inp" id="ucdf-b21" type="text" placeholder="如 公路运输"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b22">发票号</label><input class="ucdf-inp" id="ucdf-b22" type="text" placeholder="如 FP20260701001"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b23">收货人</label><input class="ucdf-inp" id="ucdf-b23" type="text" placeholder="如 孙志远"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b24">收货地址</label><input class="ucdf-inp" id="ucdf-b24" type="text" placeholder="如 北京朝阳区XX路88号"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b25">联系电话</label><input class="ucdf-inp" id="ucdf-b25" type="text" placeholder="如 010-88888888"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b26">付款方式</label><input class="ucdf-inp" id="ucdf-b26" type="text" placeholder="如 30天账期"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b27">付款期限</label><input class="ucdf-inp" id="ucdf-b27" type="date"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-b28">备注</label><input class="ucdf-inp" id="ucdf-b28" type="text" placeholder="其他说明"></div>
+        </div>
+        <button type="button" id="ucdf-submit-bad" class="ucdf-submit-btn">提交入库单</button>
+        <div id="ucdf-result-bad" class="ucdf-result-line" style="display:none"></div>
+      </div>
+
+      <!-- 好版：5 核心字段 + details 折叠 + 供应商自动带出 -->
+      <div id="ucdf-panel-good" class="ucdf-panel">
+        <div style="font-size:.82rem; color:var(--text-faint); margin-bottom:8px">5 个核心字段 + 折叠区 <span class="ucdf-field-count-badge ucdf-good-badge">核心 5 个框</span> <span id="ucdf-timer-good" class="ucdf-timer-badge">⏱ 0 秒</span></div>
+        <div class="ucdf-form-grid">
+          <div class="ucdf-field-group">
+            <label class="ucdf-lbl" for="ucdf-g-supplier">供应商 *</label>
+            <select class="ucdf-inp" id="ucdf-g-supplier">
+              <option value="">— 请选择 —</option>
+              <option value="mingda"   data-phone="021-66887799" data-loc="A区1号架">上海明达贸易有限公司</option>
+              <option value="shunfeng" data-phone="010-95338888" data-loc="B区3号架">北京顺丰物流集团</option>
+              <option value="xinke"    data-phone="020-38765432" data-loc="C区2号架">广州新科技术股份公司</option>
+            </select>
+          </div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-goods">商品名称 *</label><input class="ucdf-inp" id="ucdf-g-goods" type="text" placeholder="如 A4打印纸"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-qty">数量 *</label><input class="ucdf-inp" id="ucdf-g-qty" type="text" placeholder="如 200"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-batch">批次 *</label><input class="ucdf-inp" id="ucdf-g-batch" type="text" placeholder="如 BL2026071201"></div>
+          <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-date">到货日期 *</label><input class="ucdf-inp" id="ucdf-g-date" type="date"></div>
+        </div>
+        <div id="ucdf-autofill-row" style="display:none; font-size:.83rem; padding:7px 10px; background:rgba(39,174,96,.07); border:1px solid rgba(39,174,96,.3); border-radius:7px; color:var(--text-soft); margin:6px 0 8px;">
+          🔗 已带出：联系电话 <strong id="ucdf-af-phone"></strong>　仓位 <strong id="ucdf-af-loc"></strong>
+        </div>
+        <details class="ucdf-details-wrap">
+          <summary class="ucdf-details-sum">📂 更多信息（23 项，通常不需要当场填）</summary>
+          <div class="ucdf-details-inner">
+            <div class="ucdf-form-grid">
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-contract">合同号</label><input class="ucdf-inp" id="ucdf-g-contract" type="text" placeholder="如 HT-2026-0712"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-tax">税率</label><input class="ucdf-inp" id="ucdf-g-tax" type="text" placeholder="如 13%"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-currency">币种</label><input class="ucdf-inp" id="ucdf-g-currency" type="text" value="人民币"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-loc">仓位</label><input class="ucdf-inp" id="ucdf-g-loc" type="text" placeholder="选供应商后自动带出"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-shelf">保质期（天）</label><input class="ucdf-inp" id="ucdf-g-shelf" type="text" placeholder="如 365"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-spec">规格型号</label><input class="ucdf-inp" id="ucdf-g-spec" type="text" placeholder="如 70g 500张/包"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-unit">单位</label><input class="ucdf-inp" id="ucdf-g-unit" type="text" placeholder="如 包"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-price">单价（元）</label><input class="ucdf-inp" id="ucdf-g-price" type="text" placeholder="如 32.50"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-amount">金额（元）</label><input class="ucdf-inp" id="ucdf-g-amount" type="text" placeholder="如 6500"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-proddate">生产日期</label><input class="ucdf-inp" id="ucdf-g-proddate" type="date"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-prodbatch">生产批号</label><input class="ucdf-inp" id="ucdf-g-prodbatch" type="text" placeholder="如 P20260701"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-buyer">采购员</label><input class="ucdf-inp" id="ucdf-g-buyer" type="text" placeholder="如 陈晓燕"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-reviewer">复核员</label><input class="ucdf-inp" id="ucdf-g-reviewer" type="text" placeholder="如 王建国"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-qcstaff">质检员</label><input class="ucdf-inp" id="ucdf-g-qcstaff" type="text" placeholder="如 李梅"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-qcresult">质检结论</label><input class="ucdf-inp" id="ucdf-g-qcresult" type="text" placeholder="如 合格"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-transport">运输方式</label><input class="ucdf-inp" id="ucdf-g-transport" type="text" placeholder="如 公路运输"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-invoice">发票号</label><input class="ucdf-inp" id="ucdf-g-invoice" type="text" placeholder="如 FP20260701001"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-receiver">收货人</label><input class="ucdf-inp" id="ucdf-g-receiver" type="text" placeholder="如 孙志远"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-address">收货地址</label><input class="ucdf-inp" id="ucdf-g-address" type="text" placeholder="如 北京朝阳区XX路88号"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-phone">联系电话</label><input class="ucdf-inp" id="ucdf-g-phone" type="text" placeholder="选供应商后自动带出"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-payment">付款方式</label><input class="ucdf-inp" id="ucdf-g-payment" type="text" placeholder="如 30天账期"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-paydue">付款期限</label><input class="ucdf-inp" id="ucdf-g-paydue" type="date"></div>
+              <div class="ucdf-field-group"><label class="ucdf-lbl" for="ucdf-g-note">备注</label><input class="ucdf-inp" id="ucdf-g-note" type="text" placeholder="其他说明"></div>
+            </div>
+          </div>
+        </details>
+        <button type="button" id="ucdf-submit-good" class="ucdf-submit-btn ucdf-submit-good">提交入库单</button>
+        <div id="ucdf-result-good" class="ucdf-result-line" style="display:none"></div>
+      </div>
+
+      <!-- 双版对比（两版都提交后显示） -->
+      <div id="ucdf-compare" style="display:none">
+        <div style="font-size:.9rem; font-weight:700; color:var(--text); margin:14px 0 6px">📊 两版对比</div>
+        <div class="ucdf-compare-box">
+          <div class="ucdf-cmp-card ucdf-cmp-bad">
+            <div class="ucdf-cmp-title">⚠️ 坏版</div>
+            <div class="ucdf-cmp-num" id="ucdf-cmp-bad-time">—</div>
+            <div class="ucdf-cmp-sub">耗时（秒）· 填了 28 个框</div>
+          </div>
+          <div class="ucdf-cmp-card ucdf-cmp-good">
+            <div class="ucdf-cmp-title">✅ 好版</div>
+            <div class="ucdf-cmp-num" id="ucdf-cmp-good-time">—</div>
+            <div class="ucdf-cmp-sub">耗时（秒）· 填了 5 个框</div>
+          </div>
+        </div>
+        <div id="ucdf-cmp-conclusion" style="margin-top:10px; padding:10px 14px; border-radius:9px; background:var(--bg); border:1px solid var(--border); font-size:.9rem; line-height:1.7"></div>
       </div>
     </div>
 
@@ -441,6 +593,170 @@
       btns.appendChild(mk('🧠 回忆(费脑)', 'c'));
       box.appendChild(btns); box.appendChild(why); host.appendChild(box);
     });
+  })();
+  </script>
+
+  <script>
+  // 🖥️ ucdf — 两版入库单对比交互：tab 切换、计时、供应商带出、提交校验、双版结果对比
+  (function(){
+    var tabBad  = document.getElementById('ucdf-tab-bad');
+    var tabGood = document.getElementById('ucdf-tab-good');
+    var panelBad  = document.getElementById('ucdf-panel-bad');
+    var panelGood = document.getElementById('ucdf-panel-good');
+    var submitBad  = document.getElementById('ucdf-submit-bad');
+    var submitGood = document.getElementById('ucdf-submit-good');
+    var resultBad  = document.getElementById('ucdf-result-bad');
+    var resultGood = document.getElementById('ucdf-result-good');
+    var timerBadEl  = document.getElementById('ucdf-timer-bad');
+    var timerGoodEl = document.getElementById('ucdf-timer-good');
+    var compareEl   = document.getElementById('ucdf-compare');
+    var cmpBadTime  = document.getElementById('ucdf-cmp-bad-time');
+    var cmpGoodTime = document.getElementById('ucdf-cmp-good-time');
+    var cmpConclusion = document.getElementById('ucdf-cmp-conclusion');
+    var supplierSel   = document.getElementById('ucdf-g-supplier');
+    var autofillRow   = document.getElementById('ucdf-autofill-row');
+    var afPhone = document.getElementById('ucdf-af-phone');
+    var afLoc   = document.getElementById('ucdf-af-loc');
+
+    if (!tabBad || !tabGood) return;
+
+    // 好版到货日期默认今天
+    var today = new Date().toISOString().slice(0, 10);
+    var gDate = document.getElementById('ucdf-g-date');
+    if (gDate) gDate.value = today;
+
+    var timers = {
+      bad:  { start: 0, elapsed: 0, interval: null, done: false },
+      good: { start: 0, elapsed: 0, interval: null, done: false }
+    };
+    var submitted = { bad: false, good: false };
+
+    function startTimer(which) {
+      var t = timers[which];
+      if (t.done || t.interval) return;
+      t.start = Date.now() - t.elapsed * 1000;
+      var el = which === 'bad' ? timerBadEl : timerGoodEl;
+      t.interval = setInterval(function() {
+        t.elapsed = Math.floor((Date.now() - t.start) / 1000);
+        if (el) el.textContent = '⏱ ' + t.elapsed + ' 秒';
+      }, 500);
+    }
+
+    function stopTimer(which) {
+      var t = timers[which];
+      if (t.interval) { clearInterval(t.interval); t.interval = null; }
+      t.done = true;
+      t.elapsed = Math.floor((Date.now() - t.start) / 1000);
+      var el = which === 'bad' ? timerBadEl : timerGoodEl;
+      if (el) el.textContent = '⏱ ' + t.elapsed + ' 秒';
+    }
+
+    function showPanel(which) {
+      panelBad.className  = 'ucdf-panel' + (which === 'bad'  ? ' ucdf-shown' : '');
+      panelGood.className = 'ucdf-panel' + (which === 'good' ? ' ucdf-shown' : '');
+      tabBad.className  = 'ucdf-tab-btn' + (which === 'bad'  ? ' ucdf-active-bad'  : '');
+      tabGood.className = 'ucdf-tab-btn' + (which === 'good' ? ' ucdf-active-good' : '');
+      if (!submitted[which]) startTimer(which);
+    }
+
+    tabBad.addEventListener('click',  function() { showPanel('bad');  });
+    tabGood.addEventListener('click', function() { showPanel('good'); });
+
+    // 供应商选择后自动带出联系电话和仓位
+    if (supplierSel) {
+      supplierSel.addEventListener('change', function() {
+        var opt = supplierSel.options[supplierSel.selectedIndex];
+        var phone = opt.getAttribute('data-phone') || '';
+        var loc   = opt.getAttribute('data-loc')   || '';
+        var phoneInp = document.getElementById('ucdf-g-phone');
+        var locInp   = document.getElementById('ucdf-g-loc');
+        if (phone) {
+          if (phoneInp) { phoneInp.value = phone; phoneInp.className = 'ucdf-inp ucdf-autofilled'; }
+          if (locInp)   { locInp.value = loc;     locInp.className   = 'ucdf-inp ucdf-autofilled'; }
+          if (afPhone) afPhone.textContent = phone;
+          if (afLoc)   afLoc.textContent   = loc;
+          if (autofillRow) autofillRow.style.display = 'block';
+        } else {
+          if (phoneInp) { phoneInp.value = ''; phoneInp.className = 'ucdf-inp'; }
+          if (locInp)   { locInp.value = '';   locInp.className   = 'ucdf-inp'; }
+          if (autofillRow) autofillRow.style.display = 'none';
+        }
+      });
+    }
+
+    function getVal(id) {
+      var el = document.getElementById(id);
+      return el ? el.value.trim() : '';
+    }
+
+    function showCompare() {
+      if (!compareEl) return;
+      compareEl.style.display = 'block';
+      var badSec  = timers.bad.elapsed;
+      var goodSec = timers.good.elapsed;
+      if (cmpBadTime)  cmpBadTime.textContent  = badSec  + ' 秒';
+      if (cmpGoodTime) cmpGoodTime.textContent = goodSec + ' 秒';
+      var diff = badSec - goodSec;
+      var msg;
+      if (diff > 0) {
+        msg = '好版比坏版节省了 <b>' + diff + ' 秒</b>——如果每天录 20 张单，一天就能省 <b>' + Math.round(diff * 20 / 60) + ' 分钟</b>。而且好版只要记住 5 个值，坏版要你同时应付 28 个框——这就是认知负荷的差距。';
+      } else if (diff === 0) {
+        msg = '两版耗时相同——试试在好版里再来一轮：供应商直接下拉选，日期用默认值，看看能不能甩开坏版。';
+      } else {
+        msg = '好版比坏版多用了 ' + (-diff) + ' 秒——可能展开折叠区消耗了时间。真实场景里，23 项额外字段几乎不需要填，好版会快很多。';
+      }
+      if (cmpConclusion) cmpConclusion.innerHTML = msg;
+    }
+
+    function showResult(which, sec) {
+      var el = which === 'bad' ? resultBad : resultGood;
+      if (!el) return;
+      el.style.display = 'block';
+      var count = which === 'bad' ? 28 : 5;
+      el.innerHTML = '✓ 已录入！本单你填了 <b>' + count + '</b> 个框、耗时 <b>' + sec + '</b> 秒。' +
+        (which === 'good' ? '<br><span style="font-size:.83rem;color:var(--text-soft)">（其余 23 项已收进折叠区，本次不需要填。）</span>' : '');
+      submitted[which] = true;
+      if (submitted.bad && submitted.good) showCompare();
+    }
+
+    if (submitBad) {
+      submitBad.addEventListener('click', function() {
+        if (submitted.bad) return;
+        var missing = [];
+        if (!getVal('ucdf-b01')) missing.push('供应商');
+        if (!getVal('ucdf-b06')) missing.push('批次');
+        if (!getVal('ucdf-b08')) missing.push('商品名称');
+        if (!getVal('ucdf-b10')) missing.push('数量');
+        if (!getVal('ucdf-b14')) missing.push('到货日期');
+        if (missing.length) {
+          if (resultBad) { resultBad.style.display = 'block'; resultBad.innerHTML = '⚠️ 请填写必填项：<b>' + missing.join('、') + '</b>'; }
+          return;
+        }
+        stopTimer('bad');
+        showResult('bad', timers.bad.elapsed);
+      });
+    }
+
+    if (submitGood) {
+      submitGood.addEventListener('click', function() {
+        if (submitted.good) return;
+        var missing = [];
+        if (!getVal('ucdf-g-supplier')) missing.push('供应商');
+        if (!getVal('ucdf-g-goods'))    missing.push('商品名称');
+        if (!getVal('ucdf-g-qty'))      missing.push('数量');
+        if (!getVal('ucdf-g-batch'))    missing.push('批次');
+        if (!getVal('ucdf-g-date'))     missing.push('到货日期');
+        if (missing.length) {
+          if (resultGood) { resultGood.style.display = 'block'; resultGood.innerHTML = '⚠️ 请填写必填项：<b>' + missing.join('、') + '</b>'; }
+          return;
+        }
+        stopTimer('good');
+        showResult('good', timers.good.elapsed);
+      });
+    }
+
+    // 初始显示坏版，同时开始计时
+    showPanel('bad');
   })();
   </script>
 </body>

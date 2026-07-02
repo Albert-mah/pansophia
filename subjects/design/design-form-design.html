@@ -129,6 +129,332 @@
       </div>
     </div>
 
+    <style>
+    /* ===== fdm- 专属样式:注入 App 后不污染全站 ===== */
+    .fdm-group { margin-bottom:18px; }
+    .fdm-group-title { font-weight:700; font-size:.82rem; color:var(--text-faint); letter-spacing:.07em; text-transform:uppercase; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+    .fdm-field { margin-bottom:14px; position:relative; }
+    .fdm-label { display:block; font-weight:700; font-size:.9rem; color:var(--text-soft); margin-bottom:5px; }
+    .fdm-tag-req { color:#e2524a; margin-left:6px; font-size:.75rem; font-weight:700; }
+    .fdm-tag-opt { color:var(--text-faint); margin-left:6px; font-size:.75rem; font-weight:600; }
+    .fdm-tag-def { color:#27ae60; margin-left:8px; font-size:.73rem; font-weight:600; }
+    .fdm-input { width:100%; padding:10px 13px; border:1.5px solid var(--border); border-radius:9px; font-size:.95rem; background:var(--surface); color:var(--text); outline:none; font-family:inherit; box-sizing:border-box; transition:border-color .15s; }
+    .fdm-input:focus { border-color:var(--accent); }
+    .fdm-input.fdm-ok  { border-color:#27ae60; }
+    .fdm-input.fdm-err { border-color:#e2524a; }
+    .fdm-msg { font-size:.8rem; margin-top:4px; min-height:16px; line-height:1.4; }
+    .fdm-msg.fdm-ok  { color:#27ae60; }
+    .fdm-msg.fdm-err { color:#e2524a; }
+    .fdm-select { width:100%; padding:10px 13px; border:1.5px solid var(--border); border-radius:9px; font-size:.95rem; background:var(--surface); color:var(--text); outline:none; font-family:inherit; cursor:pointer; box-sizing:border-box; }
+    .fdm-select:focus { border-color:var(--accent); }
+    .fdm-textarea { width:100%; padding:10px 13px; border:1.5px solid var(--border); border-radius:9px; font-size:.95rem; background:var(--surface); color:var(--text); outline:none; font-family:inherit; resize:vertical; min-height:72px; box-sizing:border-box; }
+    .fdm-extra { border:1px dashed var(--border); border-radius:10px; padding:10px 14px; background:var(--surface); margin-bottom:16px; }
+    .fdm-extra-sum { cursor:pointer; font-weight:700; color:var(--text-soft); font-size:.9rem; list-style:none; padding:0; }
+    .fdm-extra-sum::before { content:'▶  '; font-size:.73rem; }
+    .fdm-extra[open] .fdm-extra-sum::before { content:'▼  '; }
+    .fdm-extra[open] .fdm-extra-sum { margin-bottom:12px; display:block; }
+    .fdm-ac-list { position:absolute; top:100%; left:0; right:0; z-index:99; background:var(--surface); border:1.5px solid var(--accent); border-radius:9px; box-shadow:0 4px 14px rgba(0,0,0,.12); overflow:hidden; display:none; margin-top:2px; }
+    .fdm-ac-item { padding:9px 13px; font-size:.9rem; color:var(--text); cursor:pointer; }
+    .fdm-ac-item:hover { background:var(--bg); color:var(--accent); }
+    .fdm-hint { font-size:.82rem; color:var(--text-soft); background:var(--bg); border-radius:8px; padding:8px 13px; margin-bottom:10px; line-height:1.6; display:none; }
+    .fdm-submit-btn { border:none; background:var(--accent); color:#fff; border-radius:10px; padding:12px 30px; font-size:1rem; font-weight:700; cursor:pointer; transition:opacity .15s; }
+    .fdm-submit-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .fdm-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+    @media(max-width:520px){ .fdm-grid-2 { grid-template-columns:1fr; } }
+    .fdm-success-card { border:2px solid #27ae60; background:#f1faf3; border-radius:14px; padding:20px 22px; animation:fdm-fadein .22s ease; }
+    .fdm-success-title { font-size:1.1rem; font-weight:800; color:#1f7a44; margin-bottom:12px; }
+    .fdm-success-row { font-size:.88rem; color:var(--text-soft); margin:4px 0; }
+    .fdm-reset-btn { margin-top:14px; border:1.5px solid var(--accent); background:transparent; color:var(--accent); border-radius:10px; padding:9px 22px; font-size:.9rem; font-weight:700; cursor:pointer; }
+    @keyframes fdm-fadein { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+
+    <div class="lab">
+      <div class="lab-title">🖥️ 上手玩:一张把最佳实践全用上的『新建客户』表单</div>
+      <p style="margin:0 0 14px;color:var(--text-soft);font-size:.92rem">下面这张表单把本页讲的所有要点一次全演示:字段分三组、必填只有三项、手机号失焦即验(错红 ✓ 绿)、城市联想输入、客户等级与负责人有智能默认、提交按钮实时显示还差哪几项才能点亮。真实可填,纯前端模拟,建议从头填到底感受一遍。</p>
+
+      <div id="fdm-wrap" style="max-width:500px">
+        <div id="fdm-form-area">
+
+          <!-- 基本信息组 -->
+          <div class="fdm-group">
+            <div class="fdm-group-title">基本信息</div>
+
+            <div class="fdm-field">
+              <label class="fdm-label" for="fdm-cname">客户名称<span class="fdm-tag-req">* 必填</span></label>
+              <input class="fdm-input" id="fdm-cname" type="text" placeholder="如:上海跃新科技有限公司" autocomplete="off">
+              <div class="fdm-msg" id="fdm-cname-msg"></div>
+            </div>
+
+            <div class="fdm-grid-2">
+              <div class="fdm-field" style="margin-bottom:0">
+                <label class="fdm-label" for="fdm-level">客户等级<span class="fdm-tag-def">已默认「普通」</span></label>
+                <select class="fdm-select" id="fdm-level">
+                  <option value="普通" selected>普通</option>
+                  <option value="银牌">银牌</option>
+                  <option value="金牌">金牌</option>
+                  <option value="战略">战略</option>
+                </select>
+              </div>
+              <div class="fdm-field" style="margin-bottom:0">
+                <label class="fdm-label" for="fdm-owner">负责人<span class="fdm-tag-def">已默认「王芳」</span></label>
+                <input class="fdm-input" id="fdm-owner" type="text" value="王芳" placeholder="负责人姓名">
+              </div>
+            </div>
+          </div>
+
+          <!-- 联系方式组 -->
+          <div class="fdm-group">
+            <div class="fdm-group-title">联系方式</div>
+
+            <div class="fdm-field">
+              <label class="fdm-label" for="fdm-phone">手机号<span class="fdm-tag-req">* 必填</span></label>
+              <input class="fdm-input" id="fdm-phone" type="text" placeholder="11 位手机号" maxlength="13" autocomplete="off">
+              <div class="fdm-msg" id="fdm-phone-msg"></div>
+            </div>
+
+            <div class="fdm-field">
+              <label class="fdm-label" for="fdm-city">所在城市<span class="fdm-tag-req">* 必填</span></label>
+              <input class="fdm-input" id="fdm-city" type="text" placeholder="输入城市名首字,如:上" autocomplete="off">
+              <div class="fdm-ac-list" id="fdm-ac-list"></div>
+              <div class="fdm-msg" id="fdm-city-msg"></div>
+            </div>
+
+            <div class="fdm-field">
+              <label class="fdm-label" for="fdm-email">邮箱<span class="fdm-tag-opt">选填</span></label>
+              <input class="fdm-input" id="fdm-email" type="text" placeholder="选填,如 wang@company.com" autocomplete="off">
+              <div class="fdm-msg" id="fdm-email-msg"></div>
+            </div>
+          </div>
+
+          <!-- 补充信息(折叠) -->
+          <details class="fdm-extra" id="fdm-extra">
+            <summary class="fdm-extra-sum">补充信息<span style="color:var(--text-faint);font-weight:normal;margin-left:6px;font-size:.85rem">选填 · 点击展开</span></summary>
+
+            <div class="fdm-field">
+              <label class="fdm-label" for="fdm-source">客户来源<span class="fdm-tag-opt">选填</span></label>
+              <select class="fdm-select" id="fdm-source">
+                <option value="">可不填</option>
+                <option value="朋友介绍">朋友介绍</option>
+                <option value="搜索引擎">搜索引擎</option>
+                <option value="广告投放">广告投放</option>
+                <option value="线下展会">线下展会</option>
+                <option value="老客户转介绍">老客户转介绍</option>
+              </select>
+            </div>
+
+            <div class="fdm-field" style="margin-bottom:0">
+              <label class="fdm-label" for="fdm-note">备注<span class="fdm-tag-opt">选填</span></label>
+              <textarea class="fdm-textarea" id="fdm-note" placeholder="如:该客户对价格敏感,首次接触通过线下拜访"></textarea>
+            </div>
+          </details>
+
+          <!-- 提示 & 提交 -->
+          <div class="fdm-hint" id="fdm-hint"></div>
+          <button class="fdm-submit-btn" id="fdm-submit" disabled>创建客户</button>
+        </div>
+
+        <!-- 成功卡片 -->
+        <div id="fdm-success" style="display:none">
+          <div class="fdm-success-card">
+            <div class="fdm-success-title">✓ 客户已创建</div>
+            <div class="fdm-success-row"><b>客户名称:</b> <span id="fdm-s-cname"></span></div>
+            <div class="fdm-success-row"><b>手机号:</b> <span id="fdm-s-phone"></span></div>
+            <div class="fdm-success-row"><b>所在城市:</b> <span id="fdm-s-city"></span></div>
+            <div class="fdm-success-row"><b>客户等级:</b> <span id="fdm-s-level"></span></div>
+            <div class="fdm-success-row"><b>负责人:</b> <span id="fdm-s-owner"></span></div>
+            <div id="fdm-s-extra"></div>
+          </div>
+          <button class="fdm-reset-btn" id="fdm-reset">↺ 再建一个</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      var CITIES = ['上海','北京','广州','深圳','杭州','成都','武汉','南京','苏州','西安'];
+
+      function gi(id){ return document.getElementById(id); }
+
+      var cnameEl   = gi('fdm-cname');
+      var phoneEl   = gi('fdm-phone');
+      var cityEl    = gi('fdm-city');
+      var emailEl   = gi('fdm-email');
+      var levelEl   = gi('fdm-level');
+      var ownerEl   = gi('fdm-owner');
+      var sourceEl  = gi('fdm-source');
+      var noteEl    = gi('fdm-note');
+      var acListEl  = gi('fdm-ac-list');
+      var hintEl    = gi('fdm-hint');
+      var submitEl  = gi('fdm-submit');
+      var formArea  = gi('fdm-form-area');
+      var successEl = gi('fdm-success');
+      var resetEl   = gi('fdm-reset');
+      var extraEl   = gi('fdm-extra');
+
+      if (!cnameEl) return;
+
+      var ST = { cnameOk: false, phoneOk: false, cityOk: false };
+
+      function setMsg(id, text, cls) {
+        var e = gi(id);
+        if (!e) return;
+        e.textContent = text;
+        e.className = 'fdm-msg' + (cls ? ' fdm-' + cls : '');
+      }
+      function setIn(e, cls) {
+        e.className = 'fdm-input' + (cls ? ' fdm-' + cls : '');
+      }
+
+      /* ---- 客户名称 ---- */
+      function chkCname() {
+        var v = cnameEl.value.trim();
+        ST.cnameOk = v !== '';
+        setIn(cnameEl, ST.cnameOk ? 'ok' : '');
+        setMsg('fdm-cname-msg', ST.cnameOk ? '✓' : '', ST.cnameOk ? 'ok' : '');
+        recompute();
+      }
+      cnameEl.addEventListener('input', chkCname);
+      cnameEl.addEventListener('blur',  chkCname);
+
+      /* ---- 手机号:输入时实时提示进度,失焦时升级为错误提示 ---- */
+      function chkPhone(onBlur) {
+        var v = phoneEl.value.trim();
+        if (v === '') {
+          ST.phoneOk = false; setIn(phoneEl, ''); setMsg('fdm-phone-msg', '', '');
+        } else if (!/^\d+$/.test(v)) {
+          ST.phoneOk = false; setIn(phoneEl, 'err'); setMsg('fdm-phone-msg', '手机号只能是数字', 'err');
+        } else if (v.length < 11) {
+          ST.phoneOk = false;
+          setIn(phoneEl, onBlur ? 'err' : '');
+          setMsg('fdm-phone-msg',
+            onBlur ? '手机号应为 11 位数字,当前 ' + v.length + ' 位' : '已填 ' + v.length + ' 位,还差 ' + (11 - v.length) + ' 位',
+            onBlur ? 'err' : '');
+        } else if (v.length > 11) {
+          ST.phoneOk = false; setIn(phoneEl, 'err'); setMsg('fdm-phone-msg', '超出 11 位了,多了 ' + (v.length - 11) + ' 位', 'err');
+        } else {
+          ST.phoneOk = true; setIn(phoneEl, 'ok'); setMsg('fdm-phone-msg', '✓ 格式正确', 'ok');
+        }
+        recompute();
+      }
+      phoneEl.addEventListener('input', function(){ chkPhone(false); });
+      phoneEl.addEventListener('blur',  function(){ chkPhone(true); });
+
+      /* ---- 城市联想输入 ---- */
+      function showAc(v) {
+        acListEl.innerHTML = '';
+        if (!v) { acListEl.style.display = 'none'; return; }
+        var hits = CITIES.filter(function(c){ return c.indexOf(v) >= 0; });
+        if (!hits.length) { acListEl.style.display = 'none'; return; }
+        hits.forEach(function(c){
+          var item = document.createElement('div');
+          item.className = 'fdm-ac-item';
+          item.textContent = c;
+          item.addEventListener('mousedown', function(ev){
+            ev.preventDefault();
+            cityEl.value = c;
+            acListEl.style.display = 'none';
+            ST.cityOk = true;
+            setIn(cityEl, 'ok');
+            setMsg('fdm-city-msg', '✓', 'ok');
+            recompute();
+          });
+          acListEl.appendChild(item);
+        });
+        acListEl.style.display = 'block';
+      }
+      cityEl.addEventListener('input', function(){
+        ST.cityOk = false;
+        setIn(cityEl, '');
+        setMsg('fdm-city-msg', '', '');
+        showAc(cityEl.value.trim());
+        recompute();
+      });
+      cityEl.addEventListener('blur', function(){
+        setTimeout(function(){
+          acListEl.style.display = 'none';
+          var v = cityEl.value.trim();
+          if (!v) {
+            ST.cityOk = false; setIn(cityEl, ''); setMsg('fdm-city-msg', '', '');
+          } else {
+            ST.cityOk = true; setIn(cityEl, 'ok'); setMsg('fdm-city-msg', '✓', 'ok');
+          }
+          recompute();
+        }, 160);
+      });
+
+      /* ---- 邮箱(选填,填了才验) ---- */
+      function chkEmail() {
+        var v = emailEl.value.trim();
+        if (!v) { setIn(emailEl, ''); setMsg('fdm-email-msg', '', ''); return; }
+        var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        setIn(emailEl, ok ? 'ok' : 'err');
+        setMsg('fdm-email-msg', ok ? '✓ 格式正确' : '邮箱格式不对,应该长这样:name@company.com', ok ? 'ok' : 'err');
+      }
+      emailEl.addEventListener('blur',  chkEmail);
+      emailEl.addEventListener('input', function(){
+        if (!emailEl.value.trim()) { setIn(emailEl, ''); setMsg('fdm-email-msg', '', ''); }
+      });
+
+      /* ---- 提交按钮:实时统计还差哪几项 ---- */
+      function recompute() {
+        var missing = [];
+        if (!ST.cnameOk) missing.push('客户名称');
+        if (!ST.phoneOk) missing.push('手机号');
+        if (!ST.cityOk)  missing.push('所在城市');
+        var pass = missing.length === 0;
+        submitEl.disabled = !pass;
+        if (!pass) {
+          hintEl.style.display = 'block';
+          hintEl.textContent = '还差:' + missing.join('、') + ' 填完才能提交';
+        } else {
+          hintEl.style.display = 'none';
+        }
+      }
+
+      /* ---- 提交:显示成功卡片 ---- */
+      submitEl.addEventListener('click', function(){
+        if (submitEl.disabled) return;
+        gi('fdm-s-cname').textContent = cnameEl.value.trim();
+        gi('fdm-s-phone').textContent = phoneEl.value.trim();
+        gi('fdm-s-city').textContent  = cityEl.value.trim();
+        gi('fdm-s-level').textContent = levelEl.value;
+        gi('fdm-s-owner').textContent = ownerEl.value.trim() || '王芳';
+        var extra = '';
+        if (emailEl.value.trim())  extra += '<div class="fdm-success-row"><b>邮箱:</b> '     + emailEl.value.trim()  + '</div>';
+        if (sourceEl.value)        extra += '<div class="fdm-success-row"><b>客户来源:</b> ' + sourceEl.value        + '</div>';
+        if (noteEl.value.trim())   extra += '<div class="fdm-success-row"><b>备注:</b> '     + noteEl.value.trim()   + '</div>';
+        gi('fdm-s-extra').innerHTML = extra;
+        formArea.style.display  = 'none';
+        successEl.style.display = 'block';
+      });
+
+      /* ---- 重置:清空全部字段回初始 ---- */
+      resetEl.addEventListener('click', function(){
+        cnameEl.value  = '';
+        phoneEl.value  = '';
+        cityEl.value   = '';
+        emailEl.value  = '';
+        ownerEl.value  = '王芳';
+        levelEl.value  = '普通';
+        sourceEl.value = '';
+        noteEl.value   = '';
+        ST.cnameOk = ST.phoneOk = ST.cityOk = false;
+        ['fdm-cname','fdm-phone','fdm-city','fdm-email'].forEach(function(k){
+          var inp = gi(k); if(inp) inp.className = 'fdm-input';
+          var msg = gi(k+'-msg'); if(msg){ msg.textContent=''; msg.className='fdm-msg'; }
+        });
+        if (extraEl) extraEl.removeAttribute('open');
+        hintEl.style.display    = 'none';
+        submitEl.disabled       = true;
+        successEl.style.display = 'none';
+        formArea.style.display  = 'block';
+        recompute();
+      });
+
+      recompute();
+    })();
+    </script>
+
     <div class="box key">
       <div class="box-title">🔑 一张表单上线前的 8 条自查</div>
       <p style="margin:6px 0">逐条过一遍,有一条答不上“是”,就还没准备好上线:</p>

@@ -182,6 +182,446 @@
       <div class="ct-hint"  id="ct-hint"></div>
     </div>
 
+    <style>
+    /* ===== Lab:wmd- ——「新建商品」三种容器亲手开一遍 ===== */
+    .wmd-btns { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; }
+    .wmd-btn { border:2px solid var(--border); background:var(--surface); color:var(--text-soft); padding:9px 20px; border-radius:999px; font-size:.92rem; font-weight:800; cursor:pointer; transition:all .12s; }
+    .wmd-btn.wmd-active { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .wmd-stage { position:relative; height:460px; background:var(--bg); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-top:14px; }
+    .wmd-plist-wrap { height:100%; display:flex; flex-direction:column; }
+    .wmd-plist-header { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border-bottom:1px solid var(--border); flex:none; }
+    .wmd-plist-title { font-size:.82rem; font-weight:700; color:var(--text-faint); }
+    .wmd-plist-add { border:none; background:var(--accent); color:#fff; border-radius:6px; padding:7px 14px; font-size:.82rem; font-weight:800; cursor:pointer; }
+    .wmd-plist-cols { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:8px; padding:6px 14px; border-bottom:1px solid var(--border); background:var(--surface); }
+    .wmd-plist-col-h { font-size:.72rem; font-weight:700; color:var(--text-faint); }
+    .wmd-plist-rows { flex:1; overflow-y:auto; padding:4px 0; }
+    .wmd-prow { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:8px; padding:8px 14px; border-bottom:1px solid var(--border); font-size:.82rem; color:var(--text-soft); align-items:center; }
+    @keyframes wmd-highlight { 0%{background:rgba(39,174,96,.3)} 100%{background:rgba(39,174,96,.06)} }
+    .wmd-prow.wmd-new-row { background:rgba(39,174,96,.06); animation:wmd-highlight .9s ease; }
+    .wmd-overlay { position:absolute; inset:0; background:rgba(40,30,20,.48); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .15s; border-radius:10px; }
+    .wmd-overlay.wmd-open { opacity:1; pointer-events:auto; }
+    .wmd-modal-box { background:var(--surface); border-radius:12px; width:88%; max-width:340px; box-shadow:0 8px 32px rgba(0,0,0,.22); overflow:hidden; }
+    .wmd-modal-hd { padding:13px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .wmd-modal-title { font-weight:700; font-size:.95rem; }
+    .wmd-modal-close { border:none; background:none; font-size:1.25rem; line-height:1; cursor:pointer; color:var(--text-faint); }
+    .wmd-modal-body { padding:14px 16px; }
+    .wmd-modal-ft { padding:10px 16px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; }
+    .wmd-inline-note { font-size:.74rem; color:var(--text-faint); margin:6px 0 0; line-height:1.5; }
+    .wmd-drawer-overlay { position:absolute; inset:0; background:rgba(40,30,20,.22); opacity:0; pointer-events:none; transition:opacity .2s; border-radius:10px; }
+    .wmd-drawer-overlay.wmd-open { opacity:1; pointer-events:auto; }
+    .wmd-drawer-panel { position:absolute; top:0; right:-75%; width:72%; min-width:180px; bottom:0; background:var(--surface); border-left:1px solid var(--border); border-radius:0 10px 10px 0; box-shadow:-4px 0 20px rgba(0,0,0,.13); display:flex; flex-direction:column; transition:right .25s ease; }
+    .wmd-drawer-panel.wmd-open { right:0; }
+    .wmd-drawer-hd { padding:12px 14px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex:none; }
+    .wmd-drawer-title { font-weight:700; font-size:.88rem; }
+    .wmd-drawer-close { border:none; background:none; font-size:1.2rem; line-height:1; cursor:pointer; color:var(--text-faint); }
+    .wmd-drawer-body { flex:1; overflow-y:auto; padding:12px 14px; }
+    .wmd-drawer-ft { padding:10px 14px; border-top:1px solid var(--border); display:flex; gap:8px; flex:none; }
+    .wmd-wizard-panel { position:absolute; inset:0; background:var(--surface); border-radius:10px; display:flex; flex-direction:column; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .wmd-wizard-panel.wmd-open { opacity:1; pointer-events:auto; }
+    .wmd-wiz-hd { padding:12px 16px; border-bottom:1px solid var(--border); flex:none; }
+    .wmd-wiz-title { font-weight:700; font-size:.9rem; margin-bottom:10px; }
+    .wmd-step-bar { display:flex; align-items:center; }
+    .wmd-step-item { display:flex; flex-direction:column; align-items:center; flex:1; }
+    .wmd-step-circle { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:800; flex:none; }
+    .wmd-step-label { font-size:.66rem; margin-top:3px; font-weight:600; }
+    .wmd-step-line { flex:2; height:2px; background:var(--border); margin-bottom:16px; min-width:6px; }
+    .wmd-step-line.wmd-step-done { background:#27ae60; }
+    .wmd-wiz-body { flex:1; overflow-y:auto; padding:14px 16px; }
+    .wmd-wiz-ft { padding:10px 16px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; flex:none; }
+    .wmd-field { margin-bottom:10px; }
+    .wmd-field-label { font-size:.78rem; font-weight:700; display:block; margin-bottom:4px; color:var(--text-soft); }
+    .wmd-field-req { color:#e2524a; }
+    .wmd-field-input { width:100%; border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-size:.85rem; outline:none; background:var(--bg); box-sizing:border-box; color:var(--text); }
+    .wmd-field-select { width:100%; border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-size:.85rem; background:var(--bg); color:var(--text); }
+    .wmd-btn-cancel { border:1px solid var(--border); background:var(--surface); border-radius:6px; padding:8px 16px; font-size:.83rem; font-weight:700; cursor:pointer; color:var(--text-soft); }
+    .wmd-btn-save { border:none; background:var(--accent); color:#fff; border-radius:6px; padding:8px 16px; font-size:.83rem; font-weight:700; cursor:pointer; }
+    .wmd-btn-prev { border:1px solid var(--border); background:var(--surface); border-radius:6px; padding:8px 16px; font-size:.83rem; font-weight:700; cursor:pointer; color:var(--text-soft); }
+    .wmd-btn-next { border:none; background:var(--accent); color:#fff; border-radius:6px; padding:8px 16px; font-size:.83rem; font-weight:700; cursor:pointer; }
+    .wmd-btn-finish { border:none; background:#27ae60; color:#fff; border-radius:6px; padding:8px 16px; font-size:.83rem; font-weight:700; cursor:pointer; }
+    .wmd-context { margin-top:12px; border:1px solid var(--border); border-left:4px solid var(--border); border-radius:8px; padding:11px 15px; background:var(--surface); font-size:.85rem; color:var(--text-soft); line-height:1.65; min-height:50px; transition:border-left-color .2s; }
+    .wmd-context.wmd-ctx-modal { border-left-color:#3b6fe0; }
+    .wmd-context.wmd-ctx-drawer { border-left-color:#27ae60; }
+    .wmd-context.wmd-ctx-wizard { border-left-color:var(--accent); }
+    .wmd-confirm-row { display:flex; justify-content:space-between; padding:5px 0; font-size:.85rem; border-bottom:1px solid var(--border); }
+    .wmd-confirm-row:last-child { border-bottom:none; }
+    </style>
+
+    <div class="lab">
+      <div class="lab-title">🖥️ 上手玩:同一个「新建商品」,三种容器亲手开一遍</div>
+      <p style="margin:0 0 4px;color:var(--text-soft);font-size:.92rem">点下方任意按钮,容器就在舞台里打开——商品列表始终在背后,对比有没有被挡住。填完名称点「保存」,新商品会顶部插入;Esc 或点遮罩可关。</p>
+      <div class="wmd-btns">
+        <button type="button" id="wmd-open-modal"  class="wmd-btn">⬛ 弹窗 Modal</button>
+        <button type="button" id="wmd-open-drawer" class="wmd-btn">▷ 抽屉 Drawer</button>
+        <button type="button" id="wmd-open-wizard" class="wmd-btn">📋 向导 Wizard</button>
+      </div>
+
+      <!-- 仿后台舞台：460px 高，position:relative，overflow:hidden -->
+      <div class="wmd-stage" id="wmd-stage">
+
+        <!-- 商品列表背景 -->
+        <div class="wmd-plist-wrap">
+          <div class="wmd-plist-header">
+            <span class="wmd-plist-title">🛒 商品列表</span>
+            <button type="button" class="wmd-plist-add" id="wmd-stage-add-btn">+ 新建商品</button>
+          </div>
+          <div class="wmd-plist-cols">
+            <span class="wmd-plist-col-h">商品名称</span>
+            <span class="wmd-plist-col-h">分类</span>
+            <span class="wmd-plist-col-h">价格</span>
+            <span class="wmd-plist-col-h">库存</span>
+          </div>
+          <div class="wmd-plist-rows" id="wmd-plist-rows">
+            <div class="wmd-prow"><span>有机牛奶(1L)</span><span>乳制品</span><span>¥38</span><span>1200</span></div>
+            <div class="wmd-prow"><span>精装大米(5kg)</span><span>粮食</span><span>¥89</span><span>800</span></div>
+            <div class="wmd-prow"><span>压榨花生油</span><span>食用油</span><span>¥68</span><span>500</span></div>
+          </div>
+        </div>
+
+        <!-- ① 弹窗遮罩：position:absolute 限在 stage 内，绝不 fixed -->
+        <div class="wmd-overlay" id="wmd-modal-overlay">
+          <div class="wmd-modal-box">
+            <div class="wmd-modal-hd">
+              <span class="wmd-modal-title">新建商品</span>
+              <button type="button" class="wmd-modal-close" id="wmd-modal-x">×</button>
+            </div>
+            <div class="wmd-modal-body">
+              <div class="wmd-field">
+                <label class="wmd-field-label">商品名称 <span class="wmd-field-req">*</span></label>
+                <input type="text" class="wmd-field-input" id="wmd-modal-name" placeholder="如:有机苹果(5kg)">
+              </div>
+              <div class="wmd-field">
+                <label class="wmd-field-label">分类</label>
+                <select class="wmd-field-select" id="wmd-modal-cat">
+                  <option>乳制品</option><option>粮食</option><option>食用油</option><option>水果</option><option>蔬菜</option>
+                </select>
+              </div>
+              <div class="wmd-inline-note">💡 轻量 · 一步完成 · 打断式 — 字段 ≤5 个时的首选</div>
+            </div>
+            <div class="wmd-modal-ft">
+              <button type="button" class="wmd-btn-cancel" id="wmd-modal-cancel">取消</button>
+              <button type="button" class="wmd-btn-save"   id="wmd-modal-save">保存</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ② 抽屉半透明背景 + 从右滑入的面板 -->
+        <div class="wmd-drawer-overlay" id="wmd-drawer-overlay"></div>
+        <div class="wmd-drawer-panel"   id="wmd-drawer-panel">
+          <div class="wmd-drawer-hd">
+            <span class="wmd-drawer-title">新建商品</span>
+            <button type="button" class="wmd-drawer-close" id="wmd-drawer-x">×</button>
+          </div>
+          <div class="wmd-drawer-body">
+            <div class="wmd-field">
+              <label class="wmd-field-label">商品名称 <span class="wmd-field-req">*</span></label>
+              <input type="text" class="wmd-field-input" id="wmd-drawer-name" placeholder="如:有机苹果(5kg)">
+            </div>
+            <div class="wmd-field">
+              <label class="wmd-field-label">分类</label>
+              <select class="wmd-field-select" id="wmd-drawer-cat">
+                <option>乳制品</option><option>粮食</option><option>食用油</option><option>水果</option><option>蔬菜</option>
+              </select>
+            </div>
+            <div class="wmd-field">
+              <label class="wmd-field-label">售价(元)</label>
+              <input type="number" class="wmd-field-input" id="wmd-drawer-price" placeholder="0.00" min="0">
+            </div>
+            <div class="wmd-field">
+              <label class="wmd-field-label">初始库存</label>
+              <input type="number" class="wmd-field-input" id="wmd-drawer-stock" placeholder="0" min="0">
+            </div>
+            <div class="wmd-field">
+              <label class="wmd-field-label">供应商</label>
+              <input type="text" class="wmd-field-input" id="wmd-drawer-supplier" placeholder="如:绿源农产品有限公司">
+            </div>
+            <div class="wmd-inline-note">💡 保留上下文 · 中等复杂度 — 边看列表边填</div>
+          </div>
+          <div class="wmd-drawer-ft">
+            <button type="button" class="wmd-btn-cancel" id="wmd-drawer-cancel" style="flex:1">取消</button>
+            <button type="button" class="wmd-btn-save"   id="wmd-drawer-save"   style="flex:2">保存商品</button>
+          </div>
+        </div>
+
+        <!-- ③ 向导：占满舞台，3 步 -->
+        <div class="wmd-wizard-panel" id="wmd-wizard-panel">
+          <div class="wmd-wiz-hd">
+            <div class="wmd-wiz-title">新建商品 · 向导</div>
+            <div class="wmd-step-bar" id="wmd-step-bar"></div>
+          </div>
+          <div class="wmd-wiz-body" id="wmd-wiz-body"></div>
+          <div class="wmd-wiz-ft"   id="wmd-wiz-ft"></div>
+        </div>
+
+      </div><!-- /wmd-stage -->
+
+      <div class="wmd-context" id="wmd-context">↑ 点上方按钮打开容器,这里会显示它的适用场景。</div>
+    </div><!-- /lab -->
+
+    <script>
+    (function(){
+      'use strict';
+      var modalOpen = false, drawerOpen = false, wizardOpen = false;
+      var wizStep = 1;
+      var WIZ_STEPS = 3;
+      var WIZ_NAMES = ['基本信息','价格库存','确认提交'];
+      var wizData = { name:'', cat:'乳制品', price:'', stock:'' };
+
+      function g(id){ return document.getElementById(id); }
+      function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+      var btnModal    = g('wmd-open-modal');
+      var btnDrawer   = g('wmd-open-drawer');
+      var btnWizard   = g('wmd-open-wizard');
+      var stageAddBtn = g('wmd-stage-add-btn');
+      var plistRows   = g('wmd-plist-rows');
+      var ctxEl       = g('wmd-context');
+
+      var modalOverlay = g('wmd-modal-overlay');
+      var modalX       = g('wmd-modal-x');
+      var modalCancel  = g('wmd-modal-cancel');
+      var modalSave    = g('wmd-modal-save');
+      var modalName    = g('wmd-modal-name');
+      var modalCat     = g('wmd-modal-cat');
+
+      var drawerOverlay = g('wmd-drawer-overlay');
+      var drawerPanel   = g('wmd-drawer-panel');
+      var drawerX       = g('wmd-drawer-x');
+      var drawerCancel  = g('wmd-drawer-cancel');
+      var drawerSave    = g('wmd-drawer-save');
+      var drawerName    = g('wmd-drawer-name');
+      var drawerCat     = g('wmd-drawer-cat');
+      var drawerPrice   = g('wmd-drawer-price');
+      var drawerStock   = g('wmd-drawer-stock');
+
+      var wizPanel   = g('wmd-wizard-panel');
+      var wizStepBar = g('wmd-step-bar');
+      var wizBody    = g('wmd-wiz-body');
+      var wizFt      = g('wmd-wiz-ft');
+
+      if(!btnModal || !plistRows) return;
+
+      var CONTEXT = {
+        modal:  '<b>弹窗 · 什么时候用:</b> 操作短(≤5 个字段)、需要聚焦、必须先于其他操作完成。背后列表被遮罩<b>完全盖住</b>——适合不需要参考背景的操作。',
+        drawer: '<b>抽屉 · 什么时候用:</b> 5-15 个字段、用户需要<b>边看列表边填</b>(列表仍然可见!)。操作完成后回到同一位置,不丢失上下文。',
+        wizard: '<b>向导 · 什么时候用:</b> 3 步以上、步骤之间有依赖、用户对操作陌生。步骤条让人知道"还剩几步",最后一步确认降低出错率。'
+      };
+
+      /* 添加商品到列表顶部 */
+      function addProduct(name, cat, price, stock){
+        var row = document.createElement('div');
+        row.className = 'wmd-prow wmd-new-row';
+        row.innerHTML = '<span>' + esc(name||'新商品') + '</span>'
+                      + '<span>' + esc(cat||'—') + '</span>'
+                      + '<span>' + (price ? '¥' + esc(price) : '—') + '</span>'
+                      + '<span>' + esc(stock||'—') + '</span>';
+        if(plistRows.firstChild){
+          plistRows.insertBefore(row, plistRows.firstChild);
+        } else {
+          plistRows.appendChild(row);
+        }
+      }
+
+      /* ---- Modal ---- */
+      function closeModal(resetActive){
+        modalOpen = false;
+        if(modalOverlay) modalOverlay.classList.remove('wmd-open');
+        if(resetActive) clearActive();
+      }
+      function openModal(){
+        closeAllPanels();
+        modalOpen = true;
+        if(modalOverlay) modalOverlay.classList.add('wmd-open');
+        if(modalName){ modalName.value = ''; modalName.focus(); }
+        setActive(btnModal, 'modal');
+      }
+
+      if(modalOverlay) modalOverlay.onclick = function(e){ if(e.target === modalOverlay) closeModal(true); };
+      if(modalX)       modalX.onclick       = function(){ closeModal(true); };
+      if(modalCancel)  modalCancel.onclick  = function(){ closeModal(true); };
+      if(modalSave)    modalSave.onclick    = function(){
+        addProduct(
+          modalName ? modalName.value : '',
+          modalCat  ? modalCat.value  : '—',
+          '', ''
+        );
+        closeModal(true);
+      };
+
+      /* ---- Drawer ---- */
+      function closeDrawer(resetActive){
+        drawerOpen = false;
+        if(drawerOverlay) drawerOverlay.classList.remove('wmd-open');
+        if(drawerPanel)   drawerPanel.classList.remove('wmd-open');
+        if(resetActive) clearActive();
+      }
+      function openDrawer(){
+        closeAllPanels();
+        drawerOpen = true;
+        if(drawerOverlay) drawerOverlay.classList.add('wmd-open');
+        if(drawerPanel)   drawerPanel.classList.add('wmd-open');
+        if(drawerName)  drawerName.value  = '';
+        if(drawerPrice) drawerPrice.value = '';
+        if(drawerStock) drawerStock.value = '';
+        setTimeout(function(){ if(drawerName) drawerName.focus(); }, 260);
+        setActive(btnDrawer, 'drawer');
+      }
+
+      if(drawerOverlay) drawerOverlay.onclick = function(){ closeDrawer(true); };
+      if(drawerX)       drawerX.onclick       = function(){ closeDrawer(true); };
+      if(drawerCancel)  drawerCancel.onclick  = function(){ closeDrawer(true); };
+      if(drawerSave)    drawerSave.onclick    = function(){
+        addProduct(
+          drawerName  ? drawerName.value  : '',
+          drawerCat   ? drawerCat.value   : '—',
+          drawerPrice ? drawerPrice.value : '',
+          drawerStock ? drawerStock.value : ''
+        );
+        closeDrawer(true);
+      };
+
+      /* ---- Wizard ---- */
+      function saveCurrentStep(){
+        var wn = g('wmd-wiz-name');  if(wn) wizData.name  = wn.value;
+        var wc = g('wmd-wiz-cat');   if(wc) wizData.cat   = wc.value;
+        var wp = g('wmd-wiz-price'); if(wp) wizData.price = wp.value;
+        var ws = g('wmd-wiz-stock'); if(ws) wizData.stock = ws.value;
+      }
+
+      function renderWizard(){
+        /* 步骤条 */
+        var barH = '';
+        for(var i = 0; i < WIZ_NAMES.length; i++){
+          var done   = (i + 1) < wizStep;
+          var active = (i + 1) === wizStep;
+          var bg  = done ? '#27ae60' : (active ? 'var(--accent)' : 'var(--border)');
+          var tc  = (done || active) ? '#fff' : 'var(--text-faint)';
+          var lc  = active ? 'var(--text)' : 'var(--text-faint)';
+          var lfw = active ? '700' : '400';
+          barH += '<div class="wmd-step-item">'
+                + '<div class="wmd-step-circle" style="background:' + bg + ';color:' + tc + '">'
+                + (done ? '✓' : (i + 1)) + '</div>'
+                + '<div class="wmd-step-label" style="color:' + lc + ';font-weight:' + lfw + '">' + WIZ_NAMES[i] + '</div>'
+                + '</div>';
+          if(i < WIZ_NAMES.length - 1){
+            barH += '<div class="wmd-step-line' + (done ? ' wmd-step-done' : '') + '"></div>';
+          }
+        }
+        if(wizStepBar) wizStepBar.innerHTML = barH;
+
+        /* 步骤内容 */
+        var bodyH = '';
+        if(wizStep === 1){
+          bodyH += '<div class="wmd-field"><label class="wmd-field-label">商品名称 <span class="wmd-field-req">*</span></label>'
+                 + '<input type="text" class="wmd-field-input" id="wmd-wiz-name" placeholder="如:有机苹果(5kg)" value="' + esc(wizData.name) + '"></div>';
+          bodyH += '<div class="wmd-field"><label class="wmd-field-label">商品描述</label>'
+                 + '<input type="text" class="wmd-field-input" id="wmd-wiz-desc" placeholder="一句话描述商品特点"></div>';
+          bodyH += '<div class="wmd-inline-note">💡 步骤之间有依赖——先确定名字,后面才知道填什么价格。</div>';
+        } else if(wizStep === 2){
+          bodyH += '<div class="wmd-field"><label class="wmd-field-label">分类</label>'
+                 + '<select class="wmd-field-select" id="wmd-wiz-cat"><option>乳制品</option><option>粮食</option><option>食用油</option><option>水果</option><option>蔬菜</option></select></div>';
+          bodyH += '<div class="wmd-field"><label class="wmd-field-label">售价(元)</label>'
+                 + '<input type="number" class="wmd-field-input" id="wmd-wiz-price" placeholder="0.00" min="0" value="' + esc(wizData.price) + '"></div>';
+          bodyH += '<div class="wmd-field"><label class="wmd-field-label">初始库存</label>'
+                 + '<input type="number" class="wmd-field-input" id="wmd-wiz-stock" placeholder="0" min="0" value="' + esc(wizData.stock) + '"></div>';
+        } else {
+          bodyH += '<p style="margin:0 0 10px;font-size:.84rem;color:var(--text-soft)">确认信息后点「完成」,商品将添加到列表:</p>';
+          bodyH += '<div class="wmd-confirm-row"><span>商品名称</span><b>' + esc(wizData.name || '(未填)') + '</b></div>';
+          bodyH += '<div class="wmd-confirm-row"><span>分类</span><b>'     + esc(wizData.cat) + '</b></div>';
+          bodyH += '<div class="wmd-confirm-row"><span>售价</span><b>'     + (wizData.price ? '¥' + esc(wizData.price) : '—') + '</b></div>';
+          bodyH += '<div class="wmd-confirm-row"><span>库存</span><b>'     + esc(wizData.stock || '—') + '</b></div>';
+          bodyH += '<div class="wmd-inline-note" style="margin-top:10px">💡 最后一步确认——降低高出错代价任务的失误率,这是向导的核心价值。</div>';
+        }
+        if(wizBody) wizBody.innerHTML = bodyH;
+
+        /* 绑定输入事件 */
+        var wn = g('wmd-wiz-name');  if(wn){ wn.oninput  = function(){ wizData.name  = this.value; }; }
+        var wc = g('wmd-wiz-cat');   if(wc){ wc.value = wizData.cat; wc.onchange = function(){ wizData.cat = this.value; }; }
+        var wp = g('wmd-wiz-price'); if(wp){ wp.oninput = function(){ wizData.price = this.value; }; }
+        var ws = g('wmd-wiz-stock'); if(ws){ ws.oninput = function(){ wizData.stock = this.value; }; }
+
+        /* 底部按钮 */
+        var ftH = '';
+        if(wizStep > 1){
+          ftH += '<button type="button" class="wmd-btn-prev" id="wmd-wiz-prev">← 上一步</button>';
+        } else {
+          ftH += '<button type="button" class="wmd-btn-cancel" id="wmd-wiz-cancel">取消</button>';
+        }
+        if(wizStep < WIZ_STEPS){
+          ftH += '<button type="button" class="wmd-btn-next" id="wmd-wiz-next">下一步 →</button>';
+        } else {
+          ftH += '<button type="button" class="wmd-btn-finish" id="wmd-wiz-finish">✓ 完成</button>';
+        }
+        if(wizFt) wizFt.innerHTML = ftH;
+
+        var prevBtn   = g('wmd-wiz-prev');
+        var cancelBtn = g('wmd-wiz-cancel');
+        var nextBtn   = g('wmd-wiz-next');
+        var finBtn    = g('wmd-wiz-finish');
+
+        if(prevBtn)   prevBtn.onclick   = function(){ saveCurrentStep(); wizStep--; renderWizard(); };
+        if(cancelBtn) cancelBtn.onclick = function(){ closeWizard(true); };
+        if(nextBtn)   nextBtn.onclick   = function(){ saveCurrentStep(); wizStep++; renderWizard(); };
+        if(finBtn)    finBtn.onclick    = function(){
+          addProduct(wizData.name, wizData.cat, wizData.price, wizData.stock);
+          closeWizard(true);
+        };
+      }
+
+      function closeWizard(resetActive){
+        wizardOpen = false;
+        if(wizPanel) wizPanel.classList.remove('wmd-open');
+        if(resetActive) clearActive();
+      }
+      function openWizard(){
+        closeAllPanels();
+        wizardOpen = true;
+        wizStep = 1;
+        wizData = { name:'', cat:'乳制品', price:'', stock:'' };
+        if(wizPanel) wizPanel.classList.add('wmd-open');
+        renderWizard();
+        setActive(btnWizard, 'wizard');
+      }
+
+      /* ---- 共用辅助 ---- */
+      function closeAllPanels(){
+        closeModal(false);
+        closeDrawer(false);
+        closeWizard(false);
+      }
+      function setActive(btn, type){
+        [btnModal, btnDrawer, btnWizard].forEach(function(b){ if(b) b.classList.remove('wmd-active'); });
+        if(btn) btn.classList.add('wmd-active');
+        if(ctxEl){
+          ctxEl.className = 'wmd-context wmd-ctx-' + type;
+          ctxEl.innerHTML = CONTEXT[type] || '';
+        }
+      }
+      function clearActive(){
+        [btnModal, btnDrawer, btnWizard].forEach(function(b){ if(b) b.classList.remove('wmd-active'); });
+        if(ctxEl){
+          ctxEl.className = 'wmd-context';
+          ctxEl.innerHTML = '↑ 点上方按钮打开容器,这里会显示它的适用场景。';
+        }
+      }
+
+      /* Esc 关闭 */
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape'){
+          if(modalOpen)  closeModal(true);
+          if(drawerOpen) closeDrawer(true);
+          if(wizardOpen) closeWizard(true);
+        }
+      });
+
+      /* 顶层按钮绑定 */
+      btnModal.onclick  = openModal;
+      btnDrawer.onclick = openDrawer;
+      btnWizard.onclick = openWizard;
+      if(stageAddBtn) stageAddBtn.onclick = openModal;
+
+    })();
+    </script>
+
     <h2>5. 试一试</h2>
     <div class="box">
       <div class="box-title">✏️ 给你后台的三个操作各选一种容器</div>
