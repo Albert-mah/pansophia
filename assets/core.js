@@ -506,6 +506,7 @@ window.Core = (function () {
   /* ---------------- skeleton / catalog / 覆盖度 ---------------- */
   function catalogById(id) { return CATALOG.filter(function (k) { return k.id === id; })[0] || null; }
   function catalogByPath(p) { return p ? (CATALOG.filter(function (k) { return k.path === p; })[0] || null) : null; }
+  function catalogForDiscipline(did) { return did ? CATALOG.filter(function (k) { return k.discipline === did && k.status !== "draft"; }) : []; }
   // 题目的 kp 可能是 catalog id,也可能是知识点中文名(老题库)。先按 id,再按标题精确,最后忽略空格/标点做前缀或包含匹配。
   function catalogForKp(kp) {
     if (!kp) return null;
@@ -1000,7 +1001,7 @@ window.Core = (function () {
     myCourses: myCourses, hasCourse: hasCourse, enrollCourse: enrollCourse, unenrollCourse: unenrollCourse, toggleCourse: toggleCourse, courseScopesOf: courseScopesOf, courseKey: courseKey,
     points: points, wishlist: wishlist, notes: notes, events: events, progress: progress, plan: plan, schedule: schedule, goals: goals,
     recordQuiz: recordQuiz, kpQuiz: kpQuiz, saveQuizRun: saveQuizRun, quizRunFor: quizRunFor,
-    lessonRead: lessonRead, kpState: kpState, recentLessons: recentLessons, catalogByPath: catalogByPath,
+    lessonRead: lessonRead, kpState: kpState, recentLessons: recentLessons, catalogByPath: catalogByPath, catalogForDiscipline: catalogForDiscipline,
     logEvent: logEvent, award: award,
     LEVELS: LEVELS, levelOf: levelOf, knowledgeValue: knowledgeValue,
     ACHIEVEMENTS: ACHIEVEMENTS, evalAchievements: evalAchievements, checkAchievements: checkAchievements,

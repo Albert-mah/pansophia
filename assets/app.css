@@ -212,6 +212,13 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 .pan-lesson-embed { background: var(--paper); border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; }
 .pan-lesson-loading { padding: 44px 20px; text-align: center; color: var(--muted); font-size: 14px; }
 @media (max-width: 900px) { .pan-lesson-inline { margin: 0; } .pan-lesson-embed { border: 0; border-radius: 0; } }
+/* 考点小 App tab 栏:学 / 练 / 结·笔记 / 拓展 —— 每节自成闭环 */
+.pan-kp-tabs { display: flex; gap: 2px; border-bottom: 1.5px solid var(--line-2); margin: 2px 0 14px; padding: 0 2px; overflow-x: auto; scrollbar-width: none; }
+.pan-kp-tabs::-webkit-scrollbar { display: none; }
+.pan-kp-tab { flex-shrink: 0; padding: 9px 14px; margin-bottom: -1.5px; font-size: 13.5px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+.pan-kp-tab.on { color: var(--terra); border-bottom-color: var(--terra); font-weight: 700; }
+.pan-kp-tab i { font-style: normal; font-size: 10.5px; font-weight: 700; color: #C8852E; margin-left: 5px; }
+.pan-kp-body { padding: 0 2px 30px; }
 /* 资料目录树:外链给明确的链接样式(本地文件则用文件图标+「本地」标) */
 .pan-reslink { font-size: 12.5px; font-weight: 600; color: #2c5fb3; text-decoration: underline; text-decoration-color: #bcd0ef; text-underline-offset: 2px; line-height: 1.45; cursor: pointer; }
 .pan-reslink:hover { color: #1c4794; text-decoration-color: #2c5fb3; }
@@ -239,7 +246,11 @@ h1, h2, h3, .serif { font-family: var(--serif); }
   .pan-course .main { padding: 0 !important; }
   .pan-main-crumb { display: none !important; }
   .pan-lesson-inline { margin: 0; }
+  /* 工具条按钮组可收缩换行,防止「标记掌握」把页面挤出横向滚动 */
   .pan-lesson-inbar { padding: 10px 12px; margin-bottom: 0; }
+  .pan-lesson-inbar > div { min-width: 0; }
+  .pan-kp-tabs { margin: 0 0 10px; padding: 0 8px; }
+  .pan-kp-body { padding: 0 12px 40px; }
 }
 
 /* 课程正文排版 */

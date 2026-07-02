@@ -627,10 +627,13 @@
     </div>`;
   }
 
+  // 每门课记住「选中的考点 + 小 App tab」:app.refresh/checkAch 会按 tick 整屏重挂载,不缓存就丢状态(存笔记/标掌握后跳回第一节)
+  var _courseMem = {};
   function CourseScreen() {
     var app = useApp();
     var did = app.params.disc;
-    var selState = useState(null); var selRef = selState[0], setSel = selState[1];
+    var mem = _courseMem[did] || {};
+    var selState = useState(mem.ref || null); var selRef = selState[0], setSel = selState[1];
     var tb0 = useState(false); var pickTb = tb0[0], setPickTb = tb0[1];
     var mt0 = useState(null); var mats = mt0[0], setMats = mt0[1];
     var lb0 = useState({}); var libMap = lb0[0], setLibMap = lb0[1];   // 课本本地副本(按 url 索引)
@@ -638,6 +641,8 @@
     var bz0 = useState({}); var busy = bz0[0], setBusy = bz0[1];
     var rt0 = useState("res"); var resTab = rt0[0], setResTab = rt0[1];   // 右栏:资料 / 笔记 两个 tab
     var mn0 = useState(null); var mnav = mn0[0], setMnav = mn0[1];        // 移动端:null=只看详情 / "list"=唤出考点目录 / "res"=唤出资料
+    var kt0 = useState(mem.tab || "learn"); var kpTab = kt0[0], setKpTab = kt0[1];   // 考点小 App 的 tab:learn 学 / drill 练 / digest 结 / extend 拓展
+    function selKp(ref) { setSel(ref); setKpTab("learn"); setMnav(null); _courseMem[did] = { ref: ref, tab: "learn" }; }   // 换考点回到「学」
     useEffect(function () { if (did) C.materialsFor(did).then(setMats); }, [did]);
     // 点选带讲解的考点 → 记一次「读讲解」事件(achStats 按 path 去重,支持「读讲解」类成就)
     useEffect(function () { if (selRef) { var k = C.catalogById(selRef); if (k && k.path) C.logEvent({ kind: "lesson", path: k.path, label: k.title }); } }, [selRef]);
@@ -699,28 +704,47 @@
     var mref = sel ? (sel.p.ref || sel.p.title) : null;
     var mMastered = mref ? C.isMastered(mref) : false;
     function masterBtn() {
-      return html`<span class=${"pan-btn pill " + (mMastered ? "ghost" : "terra")} onClick=${function () { C.setMastery(mref, !mMastered, { title: sel.p.title, subject: sc.name, disc: did, difficulty: (sel.kp && sel.kp.difficulty) || 2 }); app.checkAch(); }}>${mMastered ? "✓ 已掌握" : "✓ 标记掌握 · 得分"}</span>`;
+      return html`<span class=${"pan-btn pill " + (mMastered ? "ghost" : "terra")} onClick=${function () { C.setMastery(mref, !mMastered, { title: sel.p.title, subject: sc.name, disc: did, difficulty: (sel.kp && sel.kp.difficulty) || 2 }); app.checkAch(); }}>${mMastered ? "✓ 已掌握" : "✓ 标记掌握"}</span>`;
     }
+    // 大纲里全部考点 id(拓展 tab 用来算「课外」内容;关联点选时判断在不在课内)
+    var sylIds = allPts.map(function (x) { return x.p.ref; }).filter(Boolean);
+    function pickKp(id) { if (sylIds.indexOf(id) >= 0) selKp(id); else { var k = C.catalogById(id); if (k) app.openLesson(k.path, k.title); } }
+    function goTab(k) { setKpTab(k); _courseMem[did] = { ref: mref, tab: k }; }
 
     var center;
     if (sel && sel.kp) {
       var lp = sel.kp;
+      var lqz = C.kpQuiz(lp.id);
+      var lnotes = C.notes().filter(function (n) { return n.kp === lp.id; }).length;
+      var KPTABS = [
+        { k: "learn", t: "📖 学", b: null },
+        { k: "drill", t: "✍️ 练", b: lqz ? lqz.correct + "/" + lqz.answered : null },
+        { k: "digest", t: "📝 结·笔记", b: lnotes ? String(lnotes) : null },
+        { k: "extend", t: "🔭 拓展", b: null },
+      ];
+      var body;
+      if (kpTab === "drill") body = html`<div class="pan-kp-body"><${KpPracticePanel} did=${did} scope=${entry.scope} kp=${lp} subject=${sc.name} /></div>`;
+      else if (kpTab === "digest") body = html`<div class="pan-kp-body"><${KpSummaryPanel} kp=${lp} did=${did} scope=${entry.scope} subject=${sc.name} onDrill=${function () { goTab("drill"); }} /></div>`;
+      else if (kpTab === "extend") body = html`<div class="pan-kp-body"><${KpExtendPanel} kp=${lp} did=${did} discName=${(d && d.name) || sc.name} sylIds=${sylIds} onPick=${pickKp} /></div>`;
+      else body = app.lessonOpen
+        ? html`<div class="pan-lesson-embed" style="min-height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13.5px;">正在全屏查看这篇讲解…</div>`
+        : html`<${window.LessonEmbed} path=${lp.path} />`;
       center = html`<div class="pan-lesson-inline">
         <div class="pan-lesson-inbar">
           <div style="min-width:0;flex:1;">
             <div style="font-size:11.5px;color:#9a8a6f;margin-bottom:2px;">${sel.t} · ${sc.name}${lp.type ? html` · <span style="color:#B6532F;">${lp.type}</span>` : ""}</div>
             <div style="font-family:var(--serif);font-size:17px;font-weight:700;color:#33291E;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${lp.title}</div>
           </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0;">
-            <span class="pan-btn ghost sm" onClick=${function () { app.openLesson(lp.path, lp.title); }} title="全屏查看">⛶ 全屏</span>
-            <a class="pan-btn ghost sm" href=${lp.path} target="_blank" rel="noopener" title="新标签打开 / 分享">↗ 新标签</a>
-            <span class="pan-btn ghost sm" onClick=${function () { app.go("practice", { disc: did, scope: entry.scope, kp: lp.id }); }}>做这点的题</span>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-width:0;">
+            ${kpTab === "learn" ? html`<span class="pan-btn ghost sm" onClick=${function () { app.openLesson(lp.path, lp.title); }} title="全屏查看">⛶ 全屏</span>
+            <a class="pan-btn ghost sm" href=${lp.path} target="_blank" rel="noopener" title="新标签打开 / 分享">↗ 分享</a>` : null}
             ${masterBtn()}
           </div>
         </div>
-        ${app.lessonOpen
-          ? html`<div class="pan-lesson-embed" style="min-height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13.5px;">正在全屏查看这篇讲解…</div>`
-          : html`<${window.LessonEmbed} path=${lp.path} />`}
+        <div class="pan-kp-tabs">${KPTABS.map(function (tb) {
+          return html`<span key=${tb.k} class=${"pan-kp-tab" + (kpTab === tb.k ? " on" : "")} onClick=${function () { goTab(tb.k); }}>${tb.t}${tb.b ? html`<i>${tb.b}</i>` : null}</span>`;
+        })}</div>
+        ${body}
       </div>`;
     } else if (sel) {
       center = html`<div class="pan-article"><div style="font-size:12.5px;color:#9a8a6f;margin-bottom:8px;">${sel.t} · ${sc.name}</div>
@@ -780,7 +804,7 @@
               var lead = html`<span style=${"flex-shrink:0;width:16px;text-align:center;color:" + (kp ? SB.c : "#d8cbb3") + ";"}>${kp ? SB.ic : "○"}</span>`;
               var chip = SB.lb ? html`<span style=${"margin-left:auto;flex-shrink:0;font-size:10.5px;font-weight:700;white-space:nowrap;color:" + (isSel ? "#E8B06A" : SB.c) + ";"}>${SB.lb}</span>` : null;
               if (isSel) return html`<div key=${pi} style="display:flex;gap:10px;align-items:center;padding:11px 9px;border-radius:8px;font-size:13.5px;font-weight:600;background:#33291E;color:#F2E8D6;"><span>▸</span> <span style="flex:1;min-width:0;">${p.title}</span>${chip}</div>`;
-              return html`<div key=${pi} class="pan-row" onClick=${function () { setSel(p.ref || p.title); setMnav(null); }} style=${"display:flex;gap:10px;align-items:center;padding:9px 8px;font-size:13px;cursor:pointer;" + (kp ? "" : "color:#7A6E5E;")}>${lead} <span style="flex:1;min-width:0;">${p.title}</span>${chip}</div>`;
+              return html`<div key=${pi} class="pan-row" onClick=${function () { selKp(p.ref || p.title); }} style=${"display:flex;gap:10px;align-items:center;padding:9px 8px;font-size:13px;cursor:pointer;" + (kp ? "" : "color:#7A6E5E;")}>${lead} <span style="flex:1;min-width:0;">${p.title}</span>${chip}</div>`;
             })}</div>`;
         })}
       </div>
@@ -1447,7 +1471,7 @@
     if (!ke) return null;
     var rel = (ke.related || []).map(function (id) { return C.catalogById(id); }).filter(Boolean);
     return html`<div style="margin-top:16px;border:1px solid #EEE3CF;border-radius:14px;padding:16px 18px;background:#fff;">
-      <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:6px;">📖 这道题考的知识点</div>
+      <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:6px;">${props.heading || "📖 这道题考的知识点"}</div>
       <div style="font-family:var(--serif);font-size:16.5px;font-weight:700;margin-bottom:7px;">${ke.title}</div>
       <div style="font-size:13.5px;color:#3a3023;line-height:1.78;margin-bottom:13px;">${intro || ke.summary || ""}</div>
       <span class="pan-btn ink sm" onClick=${function () { app.openLesson(ke.path, ke.title); }}>📖 打开完整讲解 →</span>
@@ -1479,6 +1503,100 @@
     </div>`;
   }
 
+  /* ---- 考点小 App:课程页中间栏的「练 / 结·笔记 / 拓展」三个面板 ---- */
+
+  // ✍️ 练:这节的配套练习。与练习页共用 runKey,做过先出成绩回顾,可重练;没题给「请导师出题」。
+  function KpPracticePanel(p) {
+    var app = useApp();
+    var kpId = p.kp.id;
+    var runKey = p.did + "|" + (p.scope || "") + "|practice|" + kpId;
+    var q0 = useState(null); var qs = q0[0], setQs = q0[1];
+    var rd0 = useState(false); var redo = rd0[0], setRedo = rd0[1];
+    useEffect(function () { setRedo(false); setQs(null); C.questionsFor({ kp: [kpId], scope: p.scope || null, limit: 30 }).then(function (rows) { setQs(rows.map(normQ)); }); }, [kpId, p.scope]);
+    var saved = !redo ? C.quizRunFor(runKey) : null;
+    var savedAcc = saved && saved.total ? Math.round(saved.correct / saved.total * 100) : 0;
+    if (saved) return html`<div>
+      <div class="pan-panel" style="padding:20px 22px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div style="font-size:32px;">${savedAcc >= 80 ? "🎉" : savedAcc >= 60 ? "👍" : "💪"}</div>
+        <div style="flex:1;min-width:140px;"><div style="font-family:var(--serif);font-size:18px;font-weight:700;">上次 ${saved.correct}/${saved.total} · ${savedAcc}%</div><div style="font-size:12.5px;color:#9a8a6f;">${relTime(saved.ts)}${saved.earned ? " · 获得 ⬡ " + saved.earned : ""} · 下面逐题回顾</div></div>
+        ${C.isMastered(kpId) ? html`<span class="pan-pill" style="background:#EFF1E0;color:#6E7A4F;font-weight:700;">✓ 已掌握</span>`
+          : html`<span class="pan-btn terra sm" onClick=${function () { C.setMastery(kpId, true, { title: p.kp.title, subject: p.subject || "", disc: p.did, difficulty: p.kp.difficulty || 2 }); app.checkAch(); }}>✓ 标记已掌握</span>`}
+        <span class="pan-btn ink" onClick=${function () { setRedo(true); }}>🔄 重新练</span>
+      </div>
+      ${html`<${QuizReview} items=${saved.items} />`}
+    </div>`;
+    if (qs == null) return html`<div class="pan-empty">加载题目中…</div>`;
+    if (!qs.length) return html`<div class="pan-empty">「${p.kp.title}」还没有配套题。<br/>
+      <span class="pan-btn grad" style="margin-top:14px;" onClick=${function () { C.sendMessage({ kind: "ask", text: "请给知识点「" + p.kp.title + "」出一套配套练习题(kp 挂 " + kpId + ")。", context: { discId: p.did, scope: p.scope, kp: kpId } }).then(function () { app.go("messages"); }); }}>✉️ 请导师出题</span></div>`;
+    return html`<${QuizRun} questions=${qs} title=${p.kp.title + " · 练习"} subject=${p.subject} runKey=${runKey} kp=${kpId} onClose=${function () { setRedo(false); }} />`;
+  }
+
+  // 📝 结·笔记:学习档案 + 知识点归纳 + 这节的笔记 + 这节的错题 —— 反馈闭环收在本节里
+  function KpSummaryPanel(p) {
+    var app = useApp();
+    var kp = p.kp;
+    var qz = C.kpQuiz(kp.id), st = C.kpState(kp.id);
+    var w0 = useState(null); var wrongs = w0[0], setWrongs = w0[1];
+    useEffect(function () {
+      C.wrongbookFetch({ limit: 100 }).then(function (rows) {
+        setWrongs((rows || []).filter(function (r) { if (!r.kp) return false; if (r.kp === kp.id) return true; var lk = C.catalogForKp(r.kp); return lk && lk.id === kp.id; }));
+      });
+    }, [kp.id]);
+    var notesAll = C.notes(); var myNotes = notesAll.filter(function (n) { return n.kp === kp.id; });
+    function addNote(v) { v = (v || "").trim(); if (!v) return; var nt = C.notes().slice(); nt.unshift({ title: v.slice(0, 24), body: v, subject: p.subject || "随堂笔记", kp: kp.id, ts: Date.now() }); C.save("notes", nt); app.refresh(); }
+    function delNote(n) { C.save("notes", C.notes().filter(function (x) { return x !== n && !(x.ts === n.ts && x.body === n.body); })); app.refresh(); }
+    var STLB = { todo: "还没学", read: "读过讲解", practiced: "练过", mastered: "已掌握 ✓" };
+    return html`<div>
+      <div class="pan-panel" style="padding:16px 18px;margin-bottom:14px;display:flex;gap:10px 18px;align-items:center;flex-wrap:wrap;font-size:13px;">
+        <span style="font-weight:700;color:#6E7A4F;">📊 学习档案</span>
+        <span>状态:<b>${STLB[st]}</b></span>
+        ${qz ? html`<span>做题:<b style=${qz.correct === qz.answered ? "color:#6E7A4F;" : ""}>${qz.correct}/${qz.answered} 对</b></span>` : html`<span style="color:#9a8a6f;">还没做过题</span>`}
+        ${(!qz || qz.correct < qz.answered) ? html`<span class="pan-btn ghost sm" style="margin-left:auto;" onClick=${p.onDrill}>${qz ? "再练练 →" : "去做题 →"}</span>` : null}
+      </div>
+      ${html`<${KpCard} kp=${kp} app=${app} heading="🧭 知识点归纳" />`}
+      <div style="margin-top:14px;border:1px solid #EEE3CF;border-radius:14px;padding:16px 18px;background:#fff;">
+        <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:8px;">📝 我在这节的笔记</div>
+        <textarea class="pan-note-input" placeholder="记下你的理解、易错点…(回车保存,只挂在这一节下)" onKeyDown=${function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addNote(e.target.value); e.target.value = ""; } }}></textarea>
+        ${myNotes.map(function (n, i) { return html`<div key=${i} style="display:flex;gap:8px;align-items:flex-start;background:#FBF6EC;border-radius:10px;padding:10px 12px;margin-top:9px;"><div style="flex:1;font-size:13px;line-height:1.65;color:#3a3023;white-space:pre-wrap;">${n.body || n.title}</div><span onClick=${function () { delNote(n); }} title="删除" style="cursor:pointer;color:#cbb9a0;font-size:14px;">✕</span></div>`; })}
+      </div>
+      <div style="margin-top:14px;border:1px solid #EEE3CF;border-radius:14px;padding:16px 18px;background:#fff;">
+        <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:8px;">✗ 这节的错题${wrongs && wrongs.length ? "(" + wrongs.length + ")" : ""}</div>
+        ${wrongs == null ? html`<div style="font-size:12.5px;color:#9a8a6f;">加载中…</div>`
+          : !wrongs.length ? html`<div style="font-size:12.5px;color:#9a8a6f;">这节还没有错题${qz ? ",保持!" : ""}。做错的题会自动收进来。</div>`
+          : html`<div>${wrongs.slice(0, 5).map(function (r, i) {
+              var ans = r.type === "fill" ? (r.answer || []).join(" / ") : ((r.options || [])[r.answer] || "");
+              return html`<div key=${i} style="padding:10px 0;border-top:1px solid #F4ECDC;font-size:13px;line-height:1.6;"><div style="color:#3a3023;">${r.stem}</div><div style="color:#3f8a52;font-size:12.5px;margin-top:3px;">正确答案:${ans}</div></div>`;
+            })}
+            <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;"><span class="pan-btn ghost sm" onClick=${p.onDrill}>🔄 重练这节 →</span><span class="pan-btn ghost sm" onClick=${function () { app.go("wrongbook"); }}>错题本 →</span></div></div>`}
+      </div>
+    </div>`;
+  }
+
+  // 🔭 拓展:关联知识点(课内直接跳)+ 同学科课外内容(在库里但不在这门课大纲里)+ 请导师补充
+  function KpExtendPanel(p) {
+    var app = useApp();
+    var kp = p.kp, me = C.userKey();
+    var rel = (kp.related || []).map(function (id) { return C.catalogById(id); }).filter(Boolean);
+    var pool = C.catalogForDiscipline(p.did).filter(function (k) { return k.id !== kp.id && p.sylIds.indexOf(k.id) < 0; });
+    var mine = pool.filter(function (k) { return !k.profile || k.profile === me; });
+    var other = pool.filter(function (k) { return k.profile && k.profile !== me; });
+    function row(k, i) {
+      var inCourse = p.sylIds.indexOf(k.id) >= 0;
+      return html`<div key=${i} class="pan-row bordered" style="padding:11px 13px;border-radius:11px;cursor:pointer;margin-bottom:8px;" onClick=${function () { p.onPick(k.id); }}>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13.5px;font-weight:600;flex:1;min-width:0;">${k.title}</span>${inCourse ? html`<span class="pan-pill" style="color:#6E7A4F;background:#EFF1E0;">课内</span>` : html`<span class="pan-pill" style="color:#a86a00;background:#FBF4E6;">课外</span>`}</div>
+        ${k.summary ? html`<div style="font-size:12px;color:#9a8a6f;margin-top:3px;line-height:1.5;">${k.summary}</div>` : null}</div>`;
+    }
+    return html`<div>
+      ${rel.length ? html`<div style="margin-bottom:16px;">
+        <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:8px;">🔗 和这节有关的知识点</div>
+        ${rel.map(row)}</div>` : null}
+      <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:8px;">🔭 课外延伸 · 感兴趣可以多学(不算课程进度)</div>
+      ${mine.length ? mine.slice(0, 12).map(row) : html`<div style="font-size:12.5px;color:#9a8a6f;margin-bottom:10px;">这个学科暂时没有课外内容。想学点大纲外的?让导师给你加。</div>`}
+      ${other.length ? html`<details style="margin-top:6px;"><summary style="cursor:pointer;font-size:12px;color:#9a8a6f;font-weight:600;">👀 其他学段的同学科内容(${other.length},挑战一下?)</summary><div style="margin-top:8px;">${other.slice(0, 8).map(row)}</div></details>` : null}
+      <div style="margin-top:14px;"><span class="pan-btn grad sm" onClick=${function () { C.sendMessage({ kind: "ask", text: "我在学「" + kp.title + "」(" + (p.discName || "") + "),请围绕它推荐/生成 2-3 篇课外拓展讲解(有趣、和课内相关但不在大纲里)。", context: { discId: p.did, kp: kp.id } }).then(function () { app.go("messages"); }); }}>✉️ 让导师围绕这节推荐拓展</span></div>
+    </div>`;
+  }
+
   function QuizRun(p) {
     var app = useApp();
     var r0 = useState({ i: 0, answered: null, fill: "", fillOk: false, lastOk: false, correct: 0, earned: 0, wrong: 0, reviewed: {}, items: [] });
@@ -1502,7 +1620,7 @@
           <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${run.wrong ? "错 " + run.wrong + " 题,已进错题本" : "全对,漂亮!"} · 成绩已保存,下次进来可直接回顾</div>
           ${p.kp ? html`<div style="margin-bottom:16px;">${(mkd || C.isMastered(p.kp))
             ? html`<span class="pan-pill" style="background:#EFF1E0;color:#6E7A4F;font-weight:700;">✓ 这个知识点已掌握</span>`
-            : html`<span class="pan-btn terra" onClick=${function () { var kc = C.catalogById(p.kp); C.setMastery(p.kp, true, { title: kc ? kc.title : "", subject: kc ? ((SUBJECTS[kc.subject] || {}).name || kc.subject) : "", disc: kc ? kc.discipline : "", difficulty: 2 }); app.checkAch(); setMkd(true); }}>✓ 把这个知识点标记为已掌握</span>`}</div>` : null}
+            : html`<span class="pan-btn terra" onClick=${function () { var kc = C.catalogById(p.kp); C.setMastery(p.kp, true, { title: kc ? kc.title : "", subject: kc ? ((SUBJECTS[kc.subject] || {}).name || kc.subject) : "", disc: kc ? kc.discipline : "", difficulty: 2 }); app.checkAch(); setMkd(true); }}>✓ 标记为已掌握</span>`}</div>` : null}
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><span class="pan-btn ink" onClick=${p.onClose || function () { app.go("home"); }}>完成</span><span class="pan-btn ghost" onClick=${function () { app.go("reviews"); }}>导师点评</span><span class="pan-btn ghost" onClick=${function () { app.go("wrongbook"); }}>错题本</span></div></div>
         ${html`<${QuizReview} items=${run.items} />`}
       </div>`;
