@@ -14,12 +14,16 @@
  *  退出码：有 ERROR → 1，否则 0。WARN/INFO 不影响退出码。
  * ============================================================= */
 const path = require("path");
+const fs = require("fs");
 const DATA = path.join(__dirname, "..", "data");
 
 global.window = {};
-for (const f of ["model.js", "disciplines.js", "disciplines.intl.js", "programs.js", "skeleton.js", "catalog.js"]) {
+for (const f of ["model.js", "disciplines.js", "disciplines.intl.js", "programs.js", "skeleton.js", "skeleton.syllabi.js", "catalog.js"]) {
   require(path.join(DATA, f));
 }
+// 知识卡片(docs/card-system.md):data/cards.*.js 全部加载
+const CARD_FILES = fs.readdirSync(DATA).filter((n) => /^cards\.[a-z0-9_-]+\.js$/.test(n)).sort();
+for (const f of CARD_FILES) require(path.join(DATA, f));
 const W = global.window;
 const PROFILES = W.STUDY_PROFILES || {};
 const SUBJECTS = W.STUDY_SUBJECTS || {};
@@ -29,6 +33,7 @@ const INTL = W.STUDY_DISCIPLINES_INTL || [];
 const PROGRAMS = W.STUDY_PROGRAMS || {};
 const SKELETON = W.STUDY_SKELETON || [];
 const CATALOG = W.STUDY_CATALOG || [];
+const CARDS = W.STUDY_CARDS || [];
 
 const errors = [], warns = [], infos = [];
 const E = (m) => errors.push(m);
@@ -71,23 +76,29 @@ for (const c of CATALOG) {
 
 /* ---------- skeleton：ref 悬空 + ref 与块的 profile/subject 一致 + discipline 合法 ---------- */
 const refTargets = new Set();
+const ptsBySubScope = new Map();   // "subject|scope" → Set(kpKey = ref||title),供卡片挂接校验
 let pointCount = 0, doneCount = 0;
 for (const blk of SKELETON) {
-  if (!okProfile(blk.profile)) E(`skeleton: 块 profile "${blk.profile}" 未定义`);
+  const shared = blk.profile === undefined && blk.track === undefined;   // 共享大纲(初高中/高考)无 profile,合法
+  if (!shared && !okProfile(blk.profile)) E(`skeleton: 块 profile "${blk.profile}" 未定义`);
   if (!okSubject(blk.subject)) E(`skeleton: 块 subject "${blk.subject}" 未定义`);
-  if (!okScope(blk.scope)) E(`skeleton: 块 scope "${blk.scope}" 未定义 (${blk.profile}/${blk.subject})`);
-  if (blk.discipline && !allDiscIds.has(blk.discipline)) E(`skeleton: 块 discipline "${blk.discipline}" 不在学科索引 (${blk.profile}/${blk.subject})`);
+  if (blk.scope !== undefined && !okScope(blk.scope)) E(`skeleton: 块 scope "${blk.scope}" 未定义 (${blk.profile || "共享"}/${blk.subject})`);
+  if (blk.discipline && !allDiscIds.has(blk.discipline)) E(`skeleton: 块 discipline "${blk.discipline}" 不在学科索引 (${blk.profile || "共享"}/${blk.subject})`);
+  const ssKey = `${blk.subject}|${blk.scope || ""}`;
+  if (!ptsBySubScope.has(ssKey)) ptsBySubScope.set(ssKey, new Set());
+  const ssSet = ptsBySubScope.get(ssKey);
   for (const topic of blk.topics || []) {
     for (const pt of topic.points || []) {
       pointCount++;
+      ssSet.add(pt.ref || pt.title);
       if (pt.ref) {
         refTargets.add(pt.ref);
         const t = catById.get(pt.ref);
         if (!t) {
-          E(`skeleton: 悬空 ref "${pt.ref}"（${blk.profile}/${blk.subject} · ${pt.title}）→ catalog 里没有`);
+          E(`skeleton: 悬空 ref "${pt.ref}"（${blk.profile || "共享"}/${blk.subject} · ${pt.title}）→ catalog 里没有`);
         } else {
           doneCount++;
-          if (t.profile !== blk.profile) Wn(`skeleton: ref "${pt.ref}" 的 profile(${t.profile}) ≠ 大纲块(${blk.profile})`);
+          if (!shared && t.profile !== blk.profile) Wn(`skeleton: ref "${pt.ref}" 的 profile(${t.profile}) ≠ 大纲块(${blk.profile})`);
           if (t.subject !== blk.subject) Wn(`skeleton: ref "${pt.ref}" 的 subject(${t.subject}) ≠ 大纲块(${blk.subject})`);
         }
       } else {
@@ -98,6 +109,48 @@ for (const blk of SKELETON) {
     }
   }
 }
+
+/* ---------- 知识卡片（data/cards.*.js，规格 docs/card-system.md） ---------- */
+const CARD_MODES = new Set(["learn", "drill", "task"]);
+const cardByKp = new Map();
+let drillCards = 0;
+for (const c of CARDS) {
+  const where = `card "${c.kp || c.title || "?"}"`;
+  if (!c.kp) { E(`cards: 有卡片缺 kp（title=${c.title || "?"}）`); continue; }
+  if (cardByKp.has(c.kp)) E(`${where}: 重复卡片（同 kp 已存在）`);
+  cardByKp.set(c.kp, c);
+  for (const f of ["title", "subject", "mode", "hook", "body", "minutes", "difficulty", "date", "by"]) {
+    if (c[f] === undefined || c[f] === null || c[f] === "") E(`${where}: 缺必填字段 "${f}"`);
+  }
+  if (!okSubject(c.subject)) E(`${where}: subject "${c.subject}" 未定义`);
+  if (c.scope != null && !okScope(c.scope)) E(`${where}: scope "${c.scope}" 未定义`);
+  if (!CARD_MODES.has(c.mode)) E(`${where}: mode "${c.mode}" 非法（learn/drill/task）`);
+  if (c.mode === "task" && !c.task) E(`${where}: mode=task 必须给 task 行动指引`);
+  if (c.mode === "drill") drillCards++;
+  if (!Array.isArray(c.body) || !c.body.length || c.body.length > 6) E(`${where}: body 应为 1-6 段的字符串数组`);
+  if (Array.isArray(c.body)) {
+    const total = c.body.join("").length;
+    if (total < 80) Wn(`${where}: body 总字数 ${total} 偏少（建议 200-500）`);
+    if (total > 900) Wn(`${where}: body 总字数 ${total} 偏多（卡片要几分钟读完，深内容放 deepDive）`);
+  }
+  for (const f of ["hook", "example", "pitfall", "mnemonic", "task"]) {
+    if (c[f] && /<[a-z][^>]*>/i.test(c[f])) E(`${where}: 字段 "${f}" 含 HTML 标签（卡片是纯数据，只允许 **加粗** 与 \`代码\`）`);
+  }
+  (Array.isArray(c.body) ? c.body : []).forEach((p, i) => { if (/<[a-z][^>]*>/i.test(p)) E(`${where}: body[${i}] 含 HTML 标签`); });
+  if (c.minutes != null && (!Number.isFinite(c.minutes) || c.minutes < 1 || c.minutes > 10)) E(`${where}: minutes "${c.minutes}" 非法（1-10）`);
+  if (c.difficulty != null && ![1, 2, 3].includes(c.difficulty)) E(`${where}: difficulty "${c.difficulty}" 非法（1/2/3）`);
+  if (c.deepDive && !fs.existsSync(path.join(__dirname, "..", c.deepDive))) E(`${where}: deepDive "${c.deepDive}" 文件不存在`);
+  // kp 挂接:catalog id,或同 subject(+scope) 大纲块里的考点标题
+  if (!catById.has(c.kp)) {
+    const ss = ptsBySubScope.get(`${c.subject}|${c.scope || ""}`);
+    if (!ss || !ss.has(c.kp)) {
+      let hint = "";
+      for (const [k, set] of ptsBySubScope) if (set.has(c.kp)) { hint = `（在 "${k}" 大纲里有同名考点，检查 subject/scope 是否写错）`; break; }
+      E(`${where}: kp 悬空 —— 不是 catalog id，也不在 ${c.subject}|${c.scope || ""} 的大纲考点里${hint}`);
+    }
+  }
+}
+if (drillCards) I(`drill 卡 ${drillCards} 张：配题在 PG 题库，本脚本不查库 —— 跑 python3 tools/import_questions.py --coverage 查每张卡是否 ≥3 题。`);
 
 /* ---------- disciplines（两库） ---------- */
 function checkDisc(list, label) {
@@ -148,6 +201,7 @@ const cov = pointCount ? Math.round((doneCount / pointCount) * 100) : 0;
 console.log(`\n📊 概览：profile ${Object.keys(PROFILES).length} · subject ${Object.keys(SUBJECTS).length} · scope ${Object.keys(SCOPES).length}`);
 console.log(`   学科：国内 ${cnIds.size} · 国际 ${intlIds.size}（条目 id，去重合计 ${allDiscIds.size}）`);
 console.log(`   catalog ${CATALOG.length} 页 · skeleton 考点 ${pointCount}（含 ref/done ${doneCount}）· 覆盖度 ${cov}%`);
+console.log(`   知识卡片 ${CARDS.length} 张（${CARD_FILES.join(", ") || "无文件"}）`);
 console.log(`   培养方案：${Object.keys(PROGRAMS).length} 个学科挂了 ${progCount} 条`);
 
 const dump = (arr, icon, name) => { if (arr.length) { console.log(`\n${icon} ${name} (${arr.length})`); arr.forEach((m) => console.log("   - " + m)); } };

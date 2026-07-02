@@ -34,9 +34,11 @@
 - **我的课程**(course):**无 `disc` 先进「课程表」**(`CourseList`:把「学科×范围」平铺成课程卡,按学习者范围过滤[见 `courseScopeOK`/`userPrefScopes`],按学科 tab 筛选;同一学科可多门课)→ 点卡进单课(大纲/讲解/笔记 + 标记掌握)。
 - **习题测试**(quiz)+ **单词专项**(vocab.js):quiz 列表可搜索/科目筛选/分组/显示历史最好%;单词训练=词库(JLPT/TOEFL/单词本)→ 单词卡 → 3 关全对才通过 → Leitner 记忆曲线;答对/通过得分。词库 `words.*.js` 懒加载。
 - **笔记**(notes)/**愿望清单**(wishlist)/**积分·等级·成就**(points,按掌握/答对计,不按时长)/**数据分析中心**(analytics,多维+全员总览)。
+- **今日复习**(review,assets/review.js):知识点 SRS —— 「标记掌握」的考点自动进 Leitner 循环(`user_state.kpsrs`,1/2/4/8/16/30 天),到期出卡片翻面自评(记得/模糊/忘了),drill 卡附带抽 1 题;首页有到期横幅,聚合单词到期数。⚠️ 与「导师点评」(reviews)是两个屏,key 别混。
 
 ## 四、怎么填内容(懒加载)
 
+- ★★ **知识卡片管线(2026-07-02 起内容主力)**:考点 → 几分钟一张的卡片(`data/cards.<科目>.js`,纯数据)+ PG 题库配题 + SRS 复习(review 屏)。**规格 = `docs/card-system.md`,操作 = `skills/README.md` 四个 skill(outline→cards→questions→chapter),按里面的门禁走**。长讲解页降级为「深入阅读」层,新内容优先做卡片,不再默认写 HTML 页。
 - 学科一句话说明:`data/disc_notes.js`;名校培养方案:`data/programs.js`(`{school,program?,year?,tag,note?,url?}`);考点大纲:`data/skeleton.js`(绑定 profile)+ `data/skeleton.syllabi.js`(共享,按 subject|scope);讲解页:`subjects/<科目>/<名>.html` + `data/catalog.js` 记录,skeleton 考点写 `ref` 回链;二级方向校订:`data/disc_sub_overrides.js`;现实学科资源:`data/disc_resources.js`;词库:`words.*.js`(脚本生成勿手改)。
 - ★批量填内容前后跑 `node tools/validate.js`(挡 ref 悬空/重复 id/形状非法)。
 - ★**内容级批量操作建议逐条做 + 校验,不要正则盲改**。

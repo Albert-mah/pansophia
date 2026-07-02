@@ -35,10 +35,11 @@
   window.AppCtx = Ctx;
   window.html = html; // 供 screens.js 共用
 
-  var SCREENS = ["home", "explore", "discipline", "plan", "course", "library", "quiz", "vocab", "notes", "wishlist", "points", "analytics", "users", "messages", "practice", "wrongbook", "reviews"];
+  var SCREENS = ["home", "explore", "discipline", "plan", "course", "library", "quiz", "vocab", "notes", "wishlist", "points", "analytics", "users", "messages", "practice", "wrongbook", "reviews", "review"];
   var SUBLABELS = { library: "课本库", reviews: "导师点评", notes: "笔记 · 收藏", analytics: "数据中心", messages: "给导师留言", users: "用户管理" };
   var NAV = [
     { key: "home", label: "首页" },
+    { key: "review", label: "今日复习" },
     { key: "explore", label: "学科探索", caret: true },
     { key: "course", label: "我的课程" },
     { key: "plan", label: "学习计划" },

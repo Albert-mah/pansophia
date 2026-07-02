@@ -15,6 +15,7 @@ window.Core = (function () {
   var PROGRAMS = window.STUDY_PROGRAMS || {};
   var SKELETON = window.STUDY_SKELETON || [];
   var CATALOG = window.STUDY_CATALOG || [];
+  var CARDS = window.STUDY_CARDS || [];
   var HEAT_COLORS = ["#F1E7D4", "#E7C99B", "#D29A4E", "#B6532F"];
   var SLOTS = ["上午", "下午", "晚上"];
   var DIFF_MIN = { 1: 25, 2: 40, 3: 60 };   // 难度→预估分钟
@@ -254,7 +255,75 @@ window.Core = (function () {
     if (isMastered(ref)) return "mastered";
     var qz = kpQuiz(ref); if (qz && qz.answered) return "practiced";
     var k = catalogById(ref); if (k && lessonRead(k.path)) return "read";
+    if (cardForKp(ref) && lessonRead("card:" + ref)) return "read";   // 卡片式考点:读过卡片也算 read
     return "todo";
+  }
+
+  /* =========================================================
+   *  知识卡片(data/cards.*.js)+ 知识点 SRS(Leitner,与单词训练同曲线)
+   *  规格:docs/card-system.md。卡片主键 = kpKey(ref 或考点标题)。
+   * ========================================================= */
+  var _cardIdx = null;
+  function cardForKp(kp) {
+    if (!kp) return null;
+    if (!_cardIdx) {
+      _cardIdx = {};
+      CARDS.forEach(function (c) {
+        if (c.kp && !_cardIdx[c.kp]) _cardIdx[c.kp] = c;
+        if (c.title && !_cardIdx[c.title]) _cardIdx[c.title] = c;   // kp=catalog id 时标题也可反查
+      });
+    }
+    return _cardIdx[kp] || null;
+  }
+  var KP_BOX_DAYS = [0, 1, 2, 4, 8, 16, 30];
+  function kpSrs() { return store("kpsrs", {}); }
+  // 入队:首次掌握时 box=1(明天到期)。已在队里不动。
+  function srsEnroll(kp) {
+    if (!kp) return;
+    var m = kpSrs(); if (m[kp]) return;
+    m = Object.assign({}, m); m[kp] = { box: 1, due: Date.now() + 864e5, ts: Date.now() };
+    save("kpsrs", m);
+  }
+  // 评分:2 记得 → 升盒;1 模糊 → 降一盒(最低 1);0 忘了 → 回 0 盒(当天重现,建议重学)
+  function srsGrade(kp, grade) {
+    var m = Object.assign({}, kpSrs()), st = Object.assign({ box: 1 }, m[kp]);
+    st.box = grade === 2 ? Math.min(KP_BOX_DAYS.length - 1, (st.box || 1) + 1)
+           : grade === 1 ? Math.max(1, (st.box || 1) - 1) : 0;
+    st.due = Date.now() + KP_BOX_DAYS[st.box] * 864e5; st.ts = Date.now();
+    m[kp] = st; save("kpsrs", m);
+    if (grade === 2) award(2, "复习记得 · " + String(kp).slice(0, 16), "srs:" + kp + ":" + Date.now());
+    return st;
+  }
+  // 到期知识点(旧→新),带考点信息(标题/学科,从掌握记录或卡片/目录反查)
+  function dueKps() {
+    var m = kpSrs(), pr = progress(), now = Date.now(), out = [];
+    Object.keys(m).forEach(function (k) {
+      if ((m[k].due || 0) > now) return;
+      var meta = pr[k] || {}, card = cardForKp(k), cat = catalogById(k);
+      out.push({ kp: k, box: m[k].box || 0, due: m[k].due || 0,
+        title: (cat && cat.title) || (card && card.title) || meta.title || k,
+        subject: (card && card.subject) || (cat && cat.subject) || meta.subject || "",
+        card: card, cat: cat });
+    });
+    out.sort(function (a, b) { return a.due - b.due; });
+    return out;
+  }
+  function srsCounts() { var m = kpSrs(), now = Date.now(), due = 0, all = 0; Object.keys(m).forEach(function (k) { all++; if ((m[k].due || 0) <= now) due++; }); return { due: due, all: all }; }
+  // 补录:把已掌握但没进复习循环的考点入队(到期日错开在未来 3 天,避免第一天堆爆)
+  function srsBackfill() {
+    var pr = progress(), m = Object.assign({}, kpSrs()), i = 0, n = 0;
+    Object.keys(pr).forEach(function (k) {
+      if (m[k]) return;
+      m[k] = { box: 1, due: Date.now() + (i % 3) * 864e5, ts: Date.now() }; i++; n++;
+    });
+    if (n) save("kpsrs", m);
+    return n;
+  }
+  // 单词到期数(vocab.js 的 SRS 状态,只读汇总给首页/复习屏)
+  function vocabDueCount() {
+    var v = store("vocab", {}) || {}, now = Date.now(), n = 0;
+    Object.keys(v).forEach(function (k) { if ((v[k].due || 0) <= now) n++; });
+    return n;
   }
   // 最近打开的讲解(去重,新→旧),供首页「继续 / 最近」
   function recentLessons(limit) {
@@ -462,6 +531,7 @@ window.Core = (function () {
         logEvent({ kind: "master", subject: meta.subject || "", label: meta.title || ref });
         var val = knowledgeValue({ difficulty: meta.difficulty || 2, depth: meta.depth || 1, scarcity: 1 });
         award(val, "掌握知识点 · " + (meta.title || ref), "kp:" + ref);
+        srsEnroll(ref);   // 进入抗遗忘复习循环(明天首次到期)
         return { mastered: true, value: val };
       }
     } else if (pr[ref]) { delete pr[ref]; save("progress", pr); return { mastered: false }; }
@@ -562,7 +632,10 @@ window.Core = (function () {
   }
   function coverage(entry) {
     var done = 0, total = 0;
-    (entry.topics || []).forEach(function (t) { (t.points || []).forEach(function (p) { total++; if (p.ref ? catalogById(p.ref) : p.status === "done") done++; }); });
+    (entry.topics || []).forEach(function (t) { (t.points || []).forEach(function (p) {
+      total++; var k = p.ref || p.title;
+      if (p.status === "done" || (p.ref && catalogById(p.ref)) || cardForKp(k)) done++;   // 讲解页或知识卡片都算"已填"
+    }); });
     return { done: done, total: total, pct: total ? Math.round(done / total * 100) : 0 };
   }
   function categoryProgress() {
@@ -1002,6 +1075,7 @@ window.Core = (function () {
     points: points, wishlist: wishlist, notes: notes, events: events, progress: progress, plan: plan, schedule: schedule, goals: goals,
     recordQuiz: recordQuiz, kpQuiz: kpQuiz, saveQuizRun: saveQuizRun, quizRunFor: quizRunFor,
     lessonRead: lessonRead, kpState: kpState, recentLessons: recentLessons, catalogByPath: catalogByPath, catalogForDiscipline: catalogForDiscipline,
+    cardForKp: cardForKp, kpSrs: kpSrs, srsEnroll: srsEnroll, srsGrade: srsGrade, dueKps: dueKps, srsCounts: srsCounts, srsBackfill: srsBackfill, vocabDueCount: vocabDueCount,
     logEvent: logEvent, award: award,
     LEVELS: LEVELS, levelOf: levelOf, knowledgeValue: knowledgeValue,
     ACHIEVEMENTS: ACHIEVEMENTS, evalAchievements: evalAchievements, checkAchievements: checkAchievements,

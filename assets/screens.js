@@ -65,6 +65,17 @@
         ${StatCard("本周练习", weekCount, "次", "近 7 天活动")}
       </div>
 
+      ${(function () {
+        var srsN = C.srsCounts().due, vN = C.vocabDueCount();
+        if (!srsN && !vN) return null;
+        return html`<div style="background:#33291E;color:#F2E8D6;border-radius:16px;padding:16px 22px;margin-bottom:22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <span style="font-size:22px;">🃏</span>
+          <div style="flex:1;min-width:200px;font-size:14px;line-height:1.5;"><b>今日复习到期:</b>${srsN ? html`知识卡 <b style="color:#E8B06A;">${srsN}</b> 张` : null}${srsN && vN ? " · " : ""}${vN ? html`单词 <b style="color:#E8B06A;">${vN}</b> 个` : null}<span style="opacity:.75;"> —— 几分钟就能刷完,别让记忆溜走</span></div>
+          ${srsN ? html`<span class="pan-btn pill" style="background:#B6532F;color:#fff;" onClick=${function () { app.go("review"); }}>▸ 刷卡片</span>` : null}
+          ${vN ? html`<span class="pan-btn pill" style="background:rgba(255,255,255,.14);color:#F2E8D6;" onClick=${function () { app.go("vocab"); }}>背单词</span>` : null}
+        </div>`;
+      })()}
+
       <div class="pan-home-main" style="display:grid;grid-template-columns:1.62fr 1fr;gap:22px;">
         <div style="display:flex;flex-direction:column;gap:22px;">
           ${cont ? html`<div class="pan-home-hero" style="background:linear-gradient(118deg,#B6532F,#C8852E);color:#fff;border-radius:20px;padding:26px 28px;display:flex;align-items:center;gap:26px;">
@@ -644,8 +655,8 @@
     var kt0 = useState(mem.tab || "learn"); var kpTab = kt0[0], setKpTab = kt0[1];   // 考点小 App 的 tab:learn 学 / drill 练 / digest 结 / extend 拓展
     function selKp(ref) { setSel(ref); setKpTab("learn"); setMnav(null); _courseMem[did] = { ref: ref, tab: "learn" }; }   // 换考点回到「学」
     useEffect(function () { if (did) C.materialsFor(did).then(setMats); }, [did]);
-    // 点选带讲解的考点 → 记一次「读讲解」事件(achStats 按 path 去重,支持「读讲解」类成就)
-    useEffect(function () { if (selRef) { var k = C.catalogById(selRef); if (k && k.path) C.logEvent({ kind: "lesson", path: k.path, label: k.title }); } }, [selRef]);
+    // 点选带讲解的考点 → 记一次「读讲解」事件(achStats 按 path 去重,支持「读讲解」类成就);卡片式考点记 card:<kp>
+    useEffect(function () { if (selRef) { var k = C.catalogById(selRef); if (k && k.path) C.logEvent({ kind: "lesson", path: k.path, label: k.title }); else if (C.cardForKp(selRef)) C.logEvent({ kind: "lesson", path: "card:" + selRef, label: selRef }); } }, [selRef]);
     function loadLib() { if (did) C.libList(did).then(function (items) { var m = {}; (items || []).forEach(function (it) { m[it.url] = it; }); setLibMap(m); }); }
     useEffect(function () { loadLib(); }, [did]);
     function openReader(itId) { setReader({ loading: true }); C.libItem(itId).then(function (it) { setReader(it || { error: true }); }); }
@@ -712,8 +723,9 @@
     function goTab(k) { setKpTab(k); _courseMem[did] = { ref: mref, tab: k }; }
 
     var center;
-    if (sel && sel.kp) {
-      var lp = sel.kp;
+    var mcard = mref ? C.cardForKp(mref) : null;   // 知识卡片(docs/card-system.md):无讲解页时是正文,有讲解页时是"一分钟版"
+    if (sel && (sel.kp || mcard)) {
+      var lp = sel.kp || { id: mref, title: sel.p.title, path: null, difficulty: (mcard && mcard.difficulty) || 2 };
       var lqz = C.kpQuiz(lp.id);
       var lnotes = C.notes().filter(function (n) { return n.kp === lp.id; }).length;
       var KPTABS = [
@@ -726,9 +738,13 @@
       if (kpTab === "drill") body = html`<div class="pan-kp-body"><${KpPracticePanel} did=${did} scope=${entry.scope} kp=${lp} subject=${sc.name} /></div>`;
       else if (kpTab === "digest") body = html`<div class="pan-kp-body"><${KpSummaryPanel} kp=${lp} did=${did} scope=${entry.scope} subject=${sc.name} onDrill=${function () { goTab("drill"); }} /></div>`;
       else if (kpTab === "extend") body = html`<div class="pan-kp-body"><${KpExtendPanel} kp=${lp} did=${did} discName=${(d && d.name) || sc.name} sylIds=${sylIds} onPick=${pickKp} /></div>`;
+      else if (!lp.path) body = html`<div class="pan-kp-body"><div class="pan-article" style="max-width:none;">
+        ${html`<${window.CardArticle} card=${mcard} />`}
+        <div style="margin-top:18px;padding-top:12px;border-top:1px dashed #EBDEC8;font-size:12.5px;color:#9a8a6f;">这节是卡片式微课(约 ${mcard.minutes || 3} 分钟)。想要更长的图文讲解?<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { C.sendMessage({ kind: "wish", text: "请给「" + lp.title + "」写一篇完整讲解页(现有卡片基础上加深)。", context: { discId: did, scope: entry.scope, kp: lp.id } }).then(function () { app.go("messages"); }); }}> ✉️ 请导师补一篇</span></div>
+      </div></div>`;
       else body = app.lessonOpen
         ? html`<div class="pan-lesson-embed" style="min-height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13.5px;">正在全屏查看这篇讲解…</div>`
-        : html`<${window.LessonEmbed} path=${lp.path} />`;
+        : html`<div>${mcard ? html`<details class="pan-card-mini" style="margin:0 0 12px;border:1px solid #E4C29B;border-radius:12px;background:#FBF6EC;padding:10px 16px;"><summary style="cursor:pointer;font-size:13px;font-weight:700;color:#a86a00;">⚡ 一分钟版(赶时间先看这个)</summary><div style="padding-top:10px;">${html`<${window.CardArticle} card=${mcard} />`}</div></details>` : null}<${window.LessonEmbed} path=${lp.path} /></div>`;
       center = html`<div class="pan-lesson-inline">
         <div class="pan-lesson-inbar">
           <div style="min-width:0;flex:1;">
@@ -736,7 +752,7 @@
             <div style="font-family:var(--serif);font-size:17px;font-weight:700;color:#33291E;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${lp.title}</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-width:0;">
-            ${kpTab === "learn" ? html`<span class="pan-btn ghost sm" onClick=${function () { app.openLesson(lp.path, lp.title); }} title="全屏查看">⛶ 全屏</span>
+            ${kpTab === "learn" && lp.path ? html`<span class="pan-btn ghost sm" onClick=${function () { app.openLesson(lp.path, lp.title); }} title="全屏查看">⛶ 全屏</span>
             <a class="pan-btn ghost sm" href=${lp.path} target="_blank" rel="noopener" title="新标签打开 / 分享">↗ 分享</a>` : null}
             ${masterBtn()}
           </div>
@@ -797,14 +813,17 @@
         ${(entry.topics || []).map(function (t, ti) {
           return html`<div key=${ti}><div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#bbab8c;text-transform:uppercase;margin:14px 0 8px;">${t.title}</div>
             ${(t.points || []).map(function (p, pi) {
+              var pkey = p.ref || p.title;
               var kp = p.ref ? C.catalogById(p.ref) : null; var isSel = sel && sel.p === p;
-              var stt = p.ref ? C.kpState(p.ref) : "todo";   // 统一 4 态:todo/read/practiced/mastered
-              var qz = (stt === "practiced" && p.ref) ? C.kpQuiz(p.ref) : null;
+              var pcard = kp ? null : C.cardForKp(pkey);
+              var stt = C.kpState(pkey);   // 统一 4 态:todo/read/practiced/mastered(卡片式考点也按 kpKey 走)
+              var qz = (stt === "practiced") ? C.kpQuiz(pkey) : null;
               var SB = { todo: { ic: "○", c: "#c9b99c", lb: "" }, read: { ic: "📖", c: "#2c5fb3", lb: "读过" }, practiced: { ic: "✎", c: "#C8852E", lb: qz ? "练 " + qz.correct + "/" + qz.answered : "练过" }, mastered: { ic: "✓", c: "#6E7A4F", lb: "已掌握" } }[stt];
-              var lead = html`<span style=${"flex-shrink:0;width:16px;text-align:center;color:" + (kp ? SB.c : "#d8cbb3") + ";"}>${kp ? SB.ic : "○"}</span>`;
+              var hasContent = !!(kp || pcard);
+              var lead = html`<span style=${"flex-shrink:0;width:16px;text-align:center;color:" + (hasContent || stt !== "todo" ? SB.c : "#d8cbb3") + ";"}>${hasContent ? (stt === "todo" && pcard ? "🃏" : SB.ic) : "○"}</span>`;
               var chip = SB.lb ? html`<span style=${"margin-left:auto;flex-shrink:0;font-size:10.5px;font-weight:700;white-space:nowrap;color:" + (isSel ? "#E8B06A" : SB.c) + ";"}>${SB.lb}</span>` : null;
               if (isSel) return html`<div key=${pi} style="display:flex;gap:10px;align-items:center;padding:11px 9px;border-radius:8px;font-size:13.5px;font-weight:600;background:#33291E;color:#F2E8D6;"><span>▸</span> <span style="flex:1;min-width:0;">${p.title}</span>${chip}</div>`;
-              return html`<div key=${pi} class="pan-row" onClick=${function () { selKp(p.ref || p.title); }} style=${"display:flex;gap:10px;align-items:center;padding:9px 8px;font-size:13px;cursor:pointer;" + (kp ? "" : "color:#7A6E5E;")}>${lead} <span style="flex:1;min-width:0;">${p.title}</span>${chip}</div>`;
+              return html`<div key=${pi} class="pan-row" onClick=${function () { selKp(p.ref || p.title); }} style=${"display:flex;gap:10px;align-items:center;padding:9px 8px;font-size:13px;cursor:pointer;" + (hasContent ? "" : "color:#7A6E5E;")}>${lead} <span style="flex:1;min-width:0;">${p.title}</span>${chip}</div>`;
             })}</div>`;
         })}
       </div>
@@ -1469,12 +1488,14 @@
     var i0 = useState(_kpIntroCache[ke && ke.path] || null); var intro = i0[0], setIntro = i0[1];
     useEffect(function () { if (ke && ke.path) fetchKpIntro(ke.path).then(setIntro); }, [ke && ke.path]);
     if (!ke) return null;
+    var kcard = C.cardForKp(ke.id);   // 卡片式考点(无讲解页):归纳用卡片的 hook / 一句话记忆
     var rel = (ke.related || []).map(function (id) { return C.catalogById(id); }).filter(Boolean);
     return html`<div style="margin-top:16px;border:1px solid #EEE3CF;border-radius:14px;padding:16px 18px;background:#fff;">
       <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:6px;">${props.heading || "📖 这道题考的知识点"}</div>
       <div style="font-family:var(--serif);font-size:16.5px;font-weight:700;margin-bottom:7px;">${ke.title}</div>
-      <div style="font-size:13.5px;color:#3a3023;line-height:1.78;margin-bottom:13px;">${intro || ke.summary || ""}</div>
-      <span class="pan-btn ink sm" onClick=${function () { app.openLesson(ke.path, ke.title); }}>📖 打开完整讲解 →</span>
+      <div style="font-size:13.5px;color:#3a3023;line-height:1.78;margin-bottom:13px;">${intro || ke.summary || (kcard && kcard.hook) || ""}</div>
+      ${kcard && kcard.mnemonic ? html`<div style="font-size:12.5px;color:#a86a00;background:#FBF4E6;border-radius:9px;padding:8px 12px;margin-bottom:12px;">💡 ${kcard.mnemonic}</div>` : null}
+      ${ke.path ? html`<span class="pan-btn ink sm" onClick=${function () { app.openLesson(ke.path, ke.title); }}>📖 打开完整讲解 →</span>` : null}
       ${rel.length ? html`<div style="margin-top:13px;padding-top:11px;border-top:1px solid #F4ECDC;">
         <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;margin-bottom:7px;">🔗 关联知识点(点开看)</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">${rel.map(function (r, i) { return html`<span key=${i} onClick=${function () { app.openLesson(r.path, r.title); }} style="cursor:pointer;font-size:12.5px;font-weight:600;color:#2c5fb3;background:#eaf1fb;border-radius:999px;padding:5px 12px;">${r.title} →</span>`; })}</div>

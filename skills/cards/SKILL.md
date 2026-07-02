@@ -1,0 +1,57 @@
+# skill:cards — 拆卡 + 写卡(管线核心)
+
+把一个章节(topic)的考点逐个做成知识卡片。卡片 = 用户几分钟就能学会/复习一次的最小单元。
+schema 权威定义:`docs/card-system.md` §二。**金标准样例(写之前必读)**:
+
+- `data/cards.math.js` — 3 张 drill 卡:从零建卡(考点没有讲解页)的标准密度和口吻
+- `data/cards.chinese.js` — task 卡:不出题、给行动指引的写法
+- `data/cards.english.js` — 考点已有讲解页(kp = catalog id)时的写法
+
+## 步骤
+
+### 1. 圈定范围
+
+输入 = subject + scope + 章节名(topic title)。
+打开 `data/skeleton.syllabi.js` 找到该块,列出这个 topic 下所有 points。
+
+### 2. 逐考点判定(先全部判完再动笔)
+
+| 判定 | mode | 依据 |
+|------|------|------|
+| 有明确对错、能出选择/填空 | `drill` | 计算、语法、事实、规则类 |
+| 认识/理解为主,出题牵强 | `learn` | 概念综述、鉴赏、方法概览 |
+| 要动手交付一个东西 | `task` | 写作、观察记录、读书、项目 |
+
+拿不准就 `learn`(宁可不出题,不出烂题)。
+
+### 3. 确定 kp(卡片主键,错了整张卡白写)
+
+- 考点有 `ref: "xxx"` → kp = 那个 ref(catalog id)。
+- 考点没有 ref → **kp = 考点 title 原文,逐字符复制**(包括标点、括号的全半角)。
+  从 skeleton 文件里复制粘贴,不要手敲。
+
+### 4. 写卡
+
+写进 `data/cards.<subject>.js` 的数组里(文件已建好,只追加)。每张卡:
+
+- `hook` ≤40 字:一句能勾起回忆的话(SRS 复习时用户只看它回想全部内容)。
+- `body` 2-4 段、合计 200-500 字:讲**是什么 → 怎么用 → 怎么不掉坑**。
+  口吻按学段(小学活泼、初中直白、高中严谨)。允许 `**加粗**` 和 `` `代码/算式` ``,
+  **禁止任何 HTML 标签**(validate 会拒)。
+- `example`:一个具体的、带数字/句子的例子(drill 卡必给)。
+- `pitfall`:该考点**最高频的一个**错误(它同时是出题的错误选项来源)。
+- `mnemonic`:一句顺口的话。
+- `task` 卡:task 字段写清 做什么+产出什么+怎么算完成(对照 cards.chinese.js)。
+- `date` 写今天,`by` 写你的标识(如 `codex` / `haiku`)。
+
+### 5. 校验 + 交棒
+
+1. `node tools/validate.js` → 必须全绿(查 kp 悬空/重复/字段/HTML)。
+2. drill 卡记下 kp 清单 → 跑 `skills/questions/SKILL.md` 配题(同一批做完)。
+3. 汇报:章节名、卡片数(按 mode 分)、validate 结尾三行、待配题的 kp 清单。
+
+## 禁止
+
+- 一张卡塞多个考点,或把 body 写成千字文(深内容属于讲解页,不属于卡片)。
+- 编造 kp、改考点标题、动 `assets/` `index.html`。
+- 卡片内容整段抄教材,或出现真实人名/隐私。
