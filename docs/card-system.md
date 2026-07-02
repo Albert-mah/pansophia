@@ -77,6 +77,18 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
   不同考法就不同 group(或不写 group)。
 - 每道题必有 `explain`。来源标识写进 `source`。
 
+## 四·五、积分防刷(2026-07-02 加固)
+
+- **一次性账本**:`core.awardOnce(key, delta, reason)`,同一 key 一生只发一次分,
+  记在 `user_state.awarded`。key 约定:`kp:<ref>`(掌握)/ `q:<PG题id>`(答对题)/
+  `q:set:<套卷id>#<题号>`(静态套卷)/ `quizset:<套卷id>`(套卷全对)。
+  重复做题、取消掌握再标,都**不再重复给分**(答题记录/错题本照常)。
+- **掌握门禁** `core.masteryGate(ref)`:drill 卡须配套题答 ≥3 道且(按每题最近一次)全对;
+  learn/task 卡须小点全部「懂了」;无卡有题按题目门;无卡无题须读过讲解。
+  `setMastery` 内部强制执行,所有入口(课程页/练习完成页/日历任务联动)统一受限,
+  被拦时返回 `{blocked, reason}`,任务联动降级为待办 +5 分。
+- 时间门控的奖励保留原样(SRS 复习记得 +2、单词通过 +8):到期机制天然限速,不构成刷分回路。
+
 ## 五、校验与门禁
 
 - `node tools/validate.js` — 卡片规则:kp 能在大纲/目录中唯一定位、mode 合法、必填字段、

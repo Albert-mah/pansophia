@@ -141,9 +141,9 @@
     function onSaveDetail(id, patch) {
       var t = getTask(id) || {};
       var awarded = t.awarded;
-      if (patch.done && !t.done && !t.awarded) {     // 首次完成 → 给分 / 联动掌握
-        if (t.ref) { C.setMastery(t.ref, true, { title: t.title, subject: t.subject, disc: t.discId }); }
-        else { C.award(5, "完成任务 · " + (patch.title || t.title), "task:" + id); C.logEvent({ kind: "task", subject: t.subject || "", label: patch.title || t.title }); }
+      if (patch.done && !t.done && !t.awarded) {     // 首次完成 → 给分 / 联动掌握(掌握有门禁,没达标就只给待办分)
+        var linked = t.ref ? C.setMastery(t.ref, true, { title: t.title, subject: t.subject, disc: t.discId }) : null;
+        if (!t.ref || (linked && linked.blocked)) { C.award(5, "完成任务 · " + (patch.title || t.title), "task:" + id); C.logEvent({ kind: "task", subject: t.subject || "", label: patch.title || t.title }); }
         awarded = true;
       }
       updateTask(id, Object.assign({}, patch, { awarded: awarded }));

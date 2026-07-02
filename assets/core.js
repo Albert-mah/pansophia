@@ -361,6 +361,40 @@ window.Core = (function () {
     if (p.ledger.length > 200) p.ledger = p.ledger.slice(0, 200);
     save("points", p);
   }
+  // 一次性给分(防刷):同一 key(如 kp:xxx / q:123)一生只发一次,发过记入 awarded KV。
+  // ledger 只留 200 条不能当去重依据,所以单独记账。返回 true=真发了分。
+  function awardOnce(key, delta, reason) {
+    var m = store("awarded", {}) || {};
+    if (m[key]) return false;
+    m = Object.assign({}, m); m[key] = Date.now(); save("awarded", m);
+    award(delta, reason, key);
+    return true;
+  }
+  // 掌握门禁(防"随手标掌握"白拿分/乱标):按内容形态给达标条件,不满足不允许标。
+  //   drill 卡 → 配套题至少答 3 道且(按每题最近一次)全对
+  //   learn/task 卡 → 卡片小点全部「懂了」
+  //   无卡但有做题记录 → 同题目门槛;无卡无题 → 至少读过讲解/卡片
+  function masteryGate(ref) {
+    var card = cardForKp(ref), qz = kpQuiz(ref);
+    if (card && card.mode === "drill") {
+      if (!qz || qz.answered < 3) return { ok: false, reason: "先在「练」里做配套题(至少 3 道)再标掌握" };
+      if (qz.correct < qz.answered) return { ok: false, reason: "还有 " + (qz.answered - qz.correct) + " 道题最近一次是答错的,改对再标掌握" };
+      return { ok: true };
+    }
+    if (card) {
+      var n = (card.body || []).length, got = Object.keys(cardPtSeen(ref)).length;
+      if (got < n) return { ok: false, reason: "把每个小点看懂并点「懂了」(还差 " + (n - got) + " 个)" };
+      return { ok: true };
+    }
+    if (qz) {
+      if (qz.answered >= 3 && qz.correct === qz.answered) return { ok: true };
+      if (qz.correct < qz.answered) return { ok: false, reason: "还有答错的题,改对后再标掌握" };
+      return { ok: false, reason: "先做配套题(至少 3 道)再标掌握" };
+    }
+    var k = catalogById(ref);
+    if (k && k.path && !lessonRead(k.path)) return { ok: false, reason: "先读完这篇讲解再标掌握" };
+    return { ok: true };
+  }
 
   /* =========================================================
    *  等级 + 成就
@@ -535,13 +569,15 @@ window.Core = (function () {
     var pr = Object.assign({}, progress());
     if (on) {
       if (!pr[ref]) {
+        var gate = masteryGate(ref);
+        if (!gate.ok) return { mastered: false, blocked: true, reason: gate.reason };
         pr[ref] = { ts: Date.now(), mastery: 1, title: meta.title || "", subject: meta.subject || "", disc: meta.disc || "" };
         save("progress", pr);
         logEvent({ kind: "master", subject: meta.subject || "", label: meta.title || ref });
         var val = knowledgeValue({ difficulty: meta.difficulty || 2, depth: meta.depth || 1, scarcity: 1 });
-        award(val, "掌握知识点 · " + (meta.title || ref), "kp:" + ref);
+        var given = awardOnce("kp:" + ref, val, "掌握知识点 · " + (meta.title || ref));   // 取消再标不重复给分
         srsEnroll(ref);   // 进入抗遗忘复习循环(明天首次到期)
-        return { mastered: true, value: val };
+        return { mastered: true, value: given ? val : 0 };
       }
     } else if (pr[ref]) { delete pr[ref]; save("progress", pr); return { mastered: false }; }
     return { mastered: !!pr[ref] };
@@ -852,9 +888,9 @@ window.Core = (function () {
     var a = tasks().slice(), t = a.filter(function (x) { return x.id === id; })[0]; if (!t) return;
     t.done = !t.done;
     if (t.done && !t.awarded) {
-      if (t.ref) setMastery(t.ref, true, { title: t.title, subject: t.subject, disc: t.discId });
-      else { award(5, "完成待办 · " + (t.title || ""), "task:" + id + ":" + Date.now()); logEvent({ kind: "task", subject: t.subject || "", label: t.title || "" }); }
-      t.awarded = true;
+      var linked = t.ref ? setMastery(t.ref, true, { title: t.title, subject: t.subject, disc: t.discId }) : null;
+      if (!t.ref || (linked && linked.blocked)) { award(5, "完成待办 · " + (t.title || ""), "task:" + id); logEvent({ kind: "task", subject: t.subject || "", label: t.title || "" }); }
+      t.awarded = true;   // 挂考点但没过掌握门禁 → 给待办分,掌握留给课程页达标后再标
     }
     saveTasks(a);
   }
@@ -1086,7 +1122,7 @@ window.Core = (function () {
     lessonRead: lessonRead, kpState: kpState, recentLessons: recentLessons, catalogByPath: catalogByPath, catalogForDiscipline: catalogForDiscipline,
     cardForKp: cardForKp, kpSrs: kpSrs, srsEnroll: srsEnroll, srsGrade: srsGrade, dueKps: dueKps, srsCounts: srsCounts, srsBackfill: srsBackfill, vocabDueCount: vocabDueCount,
     cardPtSeen: cardPtSeen, toggleCardPt: toggleCardPt,
-    logEvent: logEvent, award: award,
+    logEvent: logEvent, award: award, awardOnce: awardOnce, masteryGate: masteryGate,
     LEVELS: LEVELS, levelOf: levelOf, knowledgeValue: knowledgeValue,
     ACHIEVEMENTS: ACHIEVEMENTS, evalAchievements: evalAchievements, checkAchievements: checkAchievements,
     setMastery: setMastery, isMastered: isMastered,

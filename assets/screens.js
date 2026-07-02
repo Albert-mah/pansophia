@@ -715,7 +715,10 @@
     var mref = sel ? (sel.p.ref || sel.p.title) : null;
     var mMastered = mref ? C.isMastered(mref) : false;
     function masterBtn() {
-      return html`<span class=${"pan-btn pill " + (mMastered ? "ghost" : "terra")} onClick=${function () { C.setMastery(mref, !mMastered, { title: sel.p.title, subject: sc.name, disc: did, difficulty: (sel.kp && sel.kp.difficulty) || 2 }); app.checkAch(); }}>${mMastered ? "✓ 已掌握" : "✓ 标记掌握"}</span>`;
+      if (mMastered) return html`<span class="pan-btn pill ghost" onClick=${function () { C.setMastery(mref, false); app.refresh(); }}>✓ 已掌握</span>`;
+      var gate = mref ? C.masteryGate(mref) : { ok: false };
+      if (!gate.ok) return html`<span class="pan-btn pill ghost" style="opacity:.7;" title=${gate.reason || ""} onClick=${function () { window.alert(gate.reason || "还没达到掌握条件"); }}>🔒 标记掌握</span>`;
+      return html`<span class="pan-btn pill terra" onClick=${function () { var r = C.setMastery(mref, true, { title: sel.p.title, subject: sc.name, disc: did, difficulty: (sel.kp && sel.kp.difficulty) || 2 }); if (r && r.blocked) window.alert(r.reason); else app.checkAch(); }}>✓ 标记掌握</span>`;
     }
     // 大纲里全部考点 id(拓展 tab 用来算「课外」内容;关联点选时判断在不在课内)
     var sylIds = allPts.map(function (x) { return x.p.ref; }).filter(Boolean);
@@ -1018,12 +1021,12 @@
     function start(setId) { var set = (window.QUIZ_BANK || []).filter(function (q) { return q.id === setId; })[0]; if (!set) return; setRun({ set: set, qIndex: 0, answered: null, correct: 0, earned: 0, wrong: [], fillVal: "", fillOk: false, lastOk: false }); }
     function answerChoice(i) { if (run.answered != null) return; var q = run.set.questions[run.qIndex]; var ok = i === q.answer; settle(q, ok); setRun(Object.assign({}, run, { answered: i, lastOk: ok })); }
     function submitFill() { if (run.answered != null) return; var q = run.set.questions[run.qIndex]; var val = (run.fillVal || "").trim().toLowerCase().replace(/[.。]$/, ""); var ok = (q.answer || []).some(function (a) { return String(a).trim().toLowerCase() === val; }); settle(q, ok); setRun(Object.assign({}, run, { answered: 1, fillOk: ok, lastOk: ok })); }
-    function settle(q, ok) { if (ok) { run.correct++; run.earned += qValue(q); C.award(qValue(q), "答对「" + run.set.title + "」第 " + (run.qIndex + 1) + " 题", run.set.id); app.refresh(); } else { run.wrong.push({ set: run.set.id, q: q.q }); } }
+    function settle(q, ok) { if (ok) { run.correct++; var got = C.awardOnce("q:set:" + run.set.id + "#" + run.qIndex, qValue(q), "答对「" + run.set.title + "」第 " + (run.qIndex + 1) + " 题") ? qValue(q) : 0; run.earned += got; app.refresh(); } else { run.wrong.push({ set: run.set.id, q: q.q }); } }
     function next() {
       var ni = run.qIndex + 1;
       if (ni >= run.set.questions.length) {
         C.logEvent({ kind: "quiz", subject: run.set.subject, label: run.set.title, correct: run.correct, total: run.set.questions.length });
-        if (run.correct === run.set.questions.length) C.award(25, "测验「" + run.set.title + "」全对", run.set.id);
+        if (run.correct === run.set.questions.length) C.awardOnce("quizset:" + run.set.id, 25, "测验「" + run.set.title + "」全对");
         if (run.wrong.length) { var nt = C.notes(); run.wrong.forEach(function (w) { nt.unshift({ title: "错题:" + w.q.slice(0, 20), body: w.q, subject: "★ 错题本", ts: Date.now() }); }); C.save("notes", nt); }
         app.checkAch();
       }
@@ -1548,7 +1551,7 @@
         <div style="font-size:32px;">${savedAcc >= 80 ? "🎉" : savedAcc >= 60 ? "👍" : "💪"}</div>
         <div style="flex:1;min-width:140px;"><div style="font-family:var(--serif);font-size:18px;font-weight:700;">上次 ${saved.correct}/${saved.total} · ${savedAcc}%</div><div style="font-size:12.5px;color:#9a8a6f;">${relTime(saved.ts)}${saved.earned ? " · 获得 ⬡ " + saved.earned : ""} · 下面逐题回顾</div></div>
         ${C.isMastered(kpId) ? html`<span class="pan-pill" style="background:#EFF1E0;color:#6E7A4F;font-weight:700;">✓ 已掌握</span>`
-          : html`<span class="pan-btn terra sm" onClick=${function () { C.setMastery(kpId, true, { title: p.kp.title, subject: p.subject || "", disc: p.did, difficulty: p.kp.difficulty || 2 }); app.checkAch(); }}>✓ 标记已掌握</span>`}
+          : html`<span class="pan-btn terra sm" onClick=${function () { var r = C.setMastery(kpId, true, { title: p.kp.title, subject: p.subject || "", disc: p.did, difficulty: p.kp.difficulty || 2 }); if (r && r.blocked) window.alert(r.reason); else app.checkAch(); }}>✓ 标记已掌握</span>`}
         <span class="pan-btn ink" onClick=${function () { setRedo(true); }}>🔄 重新练</span>
       </div>
       ${html`<${QuizReview} items=${saved.items} />`}
@@ -1633,10 +1636,10 @@
     var run = r0[0], setRun = r0[1];
     var qs = p.questions || [], q = qs[run.i];
     function val(qq) { return 2 + (qq.difficulty || 2); }
-    function settle(qq, ok) { C.recordAnswer({ questionId: qq.qid, kp: qq.kp, correct: ok, examId: p.examId }); C.recordQuiz({ qid: qq.qid, kp: qq.kp, correct: ok }); if (ok) C.award(val(qq), "答对练习 · " + String(qq.q || "").slice(0, 16), "q:" + qq.qid + ":" + Date.now()); }
+    function settle(qq, ok) { C.recordAnswer({ questionId: qq.qid, kp: qq.kp, correct: ok, examId: p.examId }); C.recordQuiz({ qid: qq.qid, kp: qq.kp, correct: ok }); if (ok && C.awardOnce("q:" + qq.qid, val(qq), "答对练习 · " + String(qq.q || "").slice(0, 16))) return val(qq); return 0; }
     function logItem(qq, chosen, ok) { return { q: qq.q, type: qq.type, options: qq.options || [], answer: qq.answer, explain: qq.explain || "", kp: qq.kp || null, chosen: chosen, correct: ok }; }
-    function choose(idx) { if (run.answered != null) return; var ok = idx === q.answer; settle(q, ok); setRun(Object.assign({}, run, { answered: idx, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1), items: run.items.concat([logItem(q, idx, ok)]) })); }
-    function submitFill() { if (run.answered != null) return; var v = (run.fill || "").trim().toLowerCase().replace(/[.。]$/, ""); var ok = (q.answer || []).some(function (a) { return String(a).trim().toLowerCase() === v; }); settle(q, ok); setRun(Object.assign({}, run, { answered: 1, fillOk: ok, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + (ok ? val(q) : 0), wrong: run.wrong + (ok ? 0 : 1), items: run.items.concat([logItem(q, run.fill, ok)]) })); }
+    function choose(idx) { if (run.answered != null) return; var ok = idx === q.answer; var got = settle(q, ok); setRun(Object.assign({}, run, { answered: idx, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + got, wrong: run.wrong + (ok ? 0 : 1), items: run.items.concat([logItem(q, idx, ok)]) })); }
+    function submitFill() { if (run.answered != null) return; var v = (run.fill || "").trim().toLowerCase().replace(/[.。]$/, ""); var ok = (q.answer || []).some(function (a) { return String(a).trim().toLowerCase() === v; }); var got = settle(q, ok); setRun(Object.assign({}, run, { answered: 1, fillOk: ok, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + got, wrong: run.wrong + (ok ? 0 : 1), items: run.items.concat([logItem(q, run.fill, ok)]) })); }
     function reqReview() { if (run.answered == null || (run.reviewed || {})[run.i]) return; var chosen = q.type === "fill" ? (run.fill || "") : ((q.options || [])[run.answered]); var rv = Object.assign({}, run.reviewed); rv[run.i] = "pending"; setRun(Object.assign({}, run, { reviewed: rv })); C.requestReview({ questionId: q.qid, kp: q.kp, subject: q.subject, stem: q.q, options: q.options, answer: q.answer, chosen: chosen, correct: run.lastOk, explain: q.explain }); }
     function next() { if (run.i + 1 >= qs.length) { C.logEvent({ kind: "quiz", subject: p.subject || "", label: p.title || "练习", correct: run.correct, total: qs.length }); if (p.runKey) C.saveQuizRun(p.runKey, { ts: Date.now(), correct: run.correct, total: qs.length, earned: run.earned, title: p.title, items: run.items }); app.checkAch(); if (p.onDone) p.onDone({ correct: run.correct, total: qs.length, acc: qs.length ? Math.round(run.correct / qs.length * 100) : 0 }); } setRun(Object.assign({}, run, { i: run.i + 1, answered: null, fill: "", fillOk: false, lastOk: false })); }
     if (!qs.length) return html`<div class="pan-empty">没有题目。</div>`;
@@ -1649,7 +1652,7 @@
           <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${run.wrong ? "错 " + run.wrong + " 题,已进错题本" : "全对,漂亮!"} · 成绩已保存,下次进来可直接回顾</div>
           ${p.kp ? html`<div style="margin-bottom:16px;">${(mkd || C.isMastered(p.kp))
             ? html`<span class="pan-pill" style="background:#EFF1E0;color:#6E7A4F;font-weight:700;">✓ 这个知识点已掌握</span>`
-            : html`<span class="pan-btn terra" onClick=${function () { var kc = C.catalogById(p.kp); C.setMastery(p.kp, true, { title: kc ? kc.title : "", subject: kc ? ((SUBJECTS[kc.subject] || {}).name || kc.subject) : "", disc: kc ? kc.discipline : "", difficulty: 2 }); app.checkAch(); setMkd(true); }}>✓ 标记为已掌握</span>`}</div>` : null}
+            : html`<span class="pan-btn terra" onClick=${function () { var kc = C.catalogById(p.kp); var r = C.setMastery(p.kp, true, { title: kc ? kc.title : "", subject: kc ? ((SUBJECTS[kc.subject] || {}).name || kc.subject) : "", disc: kc ? kc.discipline : "", difficulty: 2 }); if (r && r.blocked) window.alert(r.reason); else { app.checkAch(); setMkd(true); } }}>✓ 标记为已掌握</span>`}</div>` : null}
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><span class="pan-btn ink" onClick=${p.onClose || function () { app.go("home"); }}>完成</span><span class="pan-btn ghost" onClick=${function () { app.go("reviews"); }}>导师点评</span><span class="pan-btn ghost" onClick=${function () { app.go("wrongbook"); }}>错题本</span></div></div>
         ${html`<${QuizReview} items=${run.items} />`}
       </div>`;

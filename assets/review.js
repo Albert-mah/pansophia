@@ -134,7 +134,7 @@
     function settle(chosen, ok) {
       C.recordAnswer({ questionId: q.id, kp: q.kp, correct: ok });
       C.recordQuiz({ qid: q.id, kp: q.kp, correct: ok });
-      if (ok) C.award(2 + (q.difficulty || 2), "复习答对 · " + String(q.stem || "").slice(0, 16), "q:" + q.id + ":" + Date.now());
+      if (ok) C.awardOnce("q:" + q.id, 2 + (q.difficulty || 2), "复习答对 · " + String(q.stem || "").slice(0, 16));   // 每题一生只给一次分
       setAns({ chosen: chosen, ok: ok });
     }
     var right = q.type === "fill" ? (q.answer || []).join(" / ") : (q.options || [])[q.answer];
