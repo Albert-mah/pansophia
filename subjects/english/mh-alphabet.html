@@ -119,6 +119,11 @@
           <span class="card-count" data-count></span>
           <button type="button" class="btn primary" data-next>下一个 →</button>
         </div>
+        <div class="card-nav" style="margin-top:8px;">
+          <button type="button" class="btn" data-say-letter>🔊 读字母</button>
+          <button type="button" class="btn" data-say-word>🔊 读例词</button>
+          <span style="font-size:12px;color:#889;">真人发音,点了就能听</span>
+        </div>
       </div>
 
       <!-- 练习二:挑出含某个音的词 -->
@@ -211,6 +216,21 @@
 
   <script>
   (function(){
+    /* ---------- 发音:有道词典真人音,失败回退浏览器 TTS(必须用户点击触发) ---------- */
+    function mhAlphaSpeak(text){
+      text = String(text || '').trim(); if(!text) return;
+      function tts(){
+        try{ var sy = window.speechSynthesis; if(!sy) return; sy.cancel();
+          var u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = 0.85; sy.speak(u);
+        }catch(e){}
+      }
+      try{
+        var a = new Audio('https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(text) + '&type=2');
+        a.onerror = tts;
+        var p = a.play(); if(p && p.catch) p.catch(tts);
+      }catch(e){ tts(); }
+    }
+
     /* ---------- 数据:26 个字母 ---------- */
     var L = [
       ['A','/eɪ/','/æ/','apple 苹果'],
@@ -268,6 +288,10 @@
       var next = document.querySelector('[data-next]');
       if(prev) prev.addEventListener('click', function(){ idx = (idx + 25) % 26; show(); });
       if(next) next.addEventListener('click', function(){ idx = (idx + 1) % 26; show(); });
+      var sayL = document.querySelector('[data-say-letter]');
+      var sayW = document.querySelector('[data-say-word]');
+      if(sayL) sayL.addEventListener('click', function(){ mhAlphaSpeak(L[idx][0]); });
+      if(sayW) sayW.addEventListener('click', function(){ mhAlphaSpeak((L[idx][3] || '').split(' ')[0]); });
       show();
     }
 
@@ -288,6 +312,9 @@
       var nextBtn = document.querySelector('[data-q-next]');
       var qi = 0, right = 0, done = 0, answered = false;
 
+      targetEl.style.cursor = 'pointer';
+      targetEl.title = '点一下听这个音的例词';
+      targetEl.addEventListener('click', function(){ var m = /像 ([a-zA-Z]+)/.exec(Q[qi].sound); if(m) mhAlphaSpeak(m[1]); });
       function paint(){
         var q = Q[qi];
         answered = false;
@@ -311,6 +338,7 @@
         if(answered) return;
         answered = true; done++;
         var q = Q[qi];
+        mhAlphaSpeak(q.opts[i]);   // 点哪个词就读哪个词,边听边认音
         var btns = optsBox.querySelectorAll('button');
         for(var k=0;k<btns.length;k++){ btns[k].disabled = true; }
         if(i === q.ans){

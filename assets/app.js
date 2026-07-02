@@ -448,7 +448,8 @@
       var text = sel ? String(sel).trim() : "";
       if (!text || text.length > 600) { hide(); return; }
       var n = sel.anchorNode, el = n && (n.nodeType === 1 ? n : n.parentElement);
-      var box = el && el.closest ? el.closest(".pan-lesson-embed") : null;
+      // 讲解正文 + 知识卡片(一分钟版/卡片正文/学练结面板/复习屏面板)都支持选中工具条
+      var box = el && el.closest ? el.closest(".pan-lesson-embed, .pan-card-mini, .pan-kp-body, .pan-article, .pan-panel") : null;
       if (!box) { hide(); return; }
       var rect; try { rect = sel.getRangeAt(0).getBoundingClientRect(); } catch (e) { return; }
       if (!rect || (!rect.width && !rect.height)) { hide(); return; }
@@ -467,6 +468,12 @@
       }));
       if (text.length <= 240 && /[a-zA-Z]/.test(text)) bar.appendChild(mkBtn("🔊 朗读", "#B6532F", function () {
         var s = window.getSelection && String(window.getSelection()).trim(); if (s) C.speak(s, "en");
+      }));
+      bar.appendChild(mkBtn("📋 复制", "#6E7A4F", function (b) {
+        var s = window.getSelection && String(window.getSelection()).trim(); if (!s) return;
+        function okFb() { b.textContent = "✓ 已复制"; setTimeout(hide, 800); }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(s).then(okFb).catch(function () { try { document.execCommand("copy"); okFb(); } catch (e) {} });
+        else { try { document.execCommand("copy"); okFb(); } catch (e) {} }
       }));
       document.body.appendChild(bar);
       var w = bar.offsetWidth || 90;
