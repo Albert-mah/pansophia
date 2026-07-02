@@ -19,6 +19,36 @@
   </div>
 
   <article class="page">
+    <style>
+    /* 本页专属样式:全部 .ucd- 前缀,注入 App 后不污染全站 */
+    .ucd-vs { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 0; }
+    @media (max-width:640px){ .ucd-vs { grid-template-columns:1fr; } }
+    .ucd-col { border-radius:12px; padding:12px 14px; border:1px solid var(--border); background:var(--surface); }
+    .ucd-col.ucd-bad { border-color:rgba(226,82,74,.4); background:rgba(226,82,74,.05); }
+    .ucd-col.ucd-good { border-color:rgba(39,174,96,.4); background:rgba(39,174,96,.06); }
+    .ucd-col .ucd-col-t { font-weight:700; font-size:.92rem; margin-bottom:8px; }
+    .ucd-col p { margin:8px 0 0; font-size:.85rem; color:var(--text-soft); line-height:1.6; }
+    .ucd-bar-row { display:flex; align-items:center; gap:8px; font-size:.8rem; margin:5px 0; color:var(--text-soft); }
+    .ucd-bar-row .ucd-lbl { width:62px; flex-shrink:0; color:var(--text-faint); }
+    .ucd-bar-row .ucd-track { flex:1; background:var(--bg); border-radius:7px; height:13px; overflow:hidden; }
+    .ucd-bar-row .ucd-bar { height:100%; border-radius:7px; }
+    .ucd-bar-row b { flex-shrink:0; min-width:52px; text-align:right; }
+    .ucd-flow { display:flex; flex-wrap:wrap; gap:6px; align-items:stretch; margin:14px 0; }
+    .ucd-step { flex:1; min-width:128px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:.83rem; line-height:1.55; color:var(--text-soft); }
+    .ucd-step b { display:block; color:var(--text); font-size:.88rem; margin-bottom:3px; }
+    .ucd-arr { align-self:center; color:var(--text-faint); font-weight:700; flex-shrink:0; }
+    .ucd-loop { flex-basis:100%; text-align:center; font-size:.82rem; color:var(--accent); font-weight:700; padding-top:4px; }
+    .ucd-more { margin:14px 0; border:1px dashed var(--border); border-radius:10px; padding:10px 14px; background:var(--surface); }
+    .ucd-more summary { cursor:pointer; font-weight:700; color:var(--text-soft); font-size:.92rem; }
+    .ucd-more[open] summary { margin-bottom:8px; }
+    .ucd-more p { font-size:.9rem; line-height:1.7; margin:6px 0; }
+    .ucd-loadbar { display:flex; height:36px; border-radius:10px; overflow:hidden; border:1px solid var(--border); background:var(--bg); }
+    .ucd-seg { display:flex; align-items:center; justify-content:center; color:#fff; font-size:.78rem; font-weight:700; transition:width .25s; overflow:hidden; white-space:nowrap; }
+    .ucd-qitem { border:1px solid var(--border); border-radius:10px; padding:10px 13px; margin-top:9px; background:var(--surface); font-size:.9rem; line-height:1.6; }
+    .ucd-qbtns { display:flex; gap:8px; margin-top:8px; }
+    .ucd-qbtn { border:1.5px solid var(--border); background:var(--bg); color:var(--text-soft); border-radius:999px; padding:6px 16px; font-size:.85rem; font-weight:700; cursor:pointer; }
+    .ucd-qwhy { margin-top:8px; font-size:.82rem; color:var(--text-soft); line-height:1.6; display:none; }
+    </style>
     <header class="page-header">
       <div class="kicker" data-kicker></div>
       <h1>用户中心设计与认知负荷</h1>
@@ -33,6 +63,23 @@
       <p style="margin:6px 0">换个做法：默认把 5 个真正每次都变的字段放在最前面（供应商、商品、数量、批次、到货日期），其余 23 个收进“更多信息”折叠区，常填的供应商和仓位还能记住上次的值。同一个业务、同一批数据，<u>管理员的“脑力账单”却差了好几倍</u>。这中间的差距，就是这一页要拆给你看的东西。</p>
     </div>
 
+    <div class="ucd-vs">
+      <div class="ucd-col ucd-bad">
+        <div class="ucd-col-t">⚠️ 功能清单式：一屏全摊开</div>
+        <div class="ucd-bar-row"><span class="ucd-lbl">首屏字段</span><div class="ucd-track"><div class="ucd-bar" style="width:100%;background:#e2524a"></div></div><b>28 个</b></div>
+        <div class="ucd-bar-row"><span class="ucd-lbl">每单耗时</span><div class="ucd-track"><div class="ucd-bar" style="width:100%;background:#e2524a"></div></div><b>~3 分钟</b></div>
+        <div class="ucd-bar-row"><span class="ucd-lbl">脑力占用</span><div class="ucd-track"><div class="ucd-bar" style="width:92%;background:#e2524a"></div></div><b>快满了</b></div>
+        <p>眼睛逐个扫、脑子记着填到哪、一半字段不知道该填什么。</p>
+      </div>
+      <div class="ucd-col ucd-good">
+        <div class="ucd-col-t">✅ 任务式：5 个常变字段 + 折叠</div>
+        <div class="ucd-bar-row"><span class="ucd-lbl">首屏字段</span><div class="ucd-track"><div class="ucd-bar" style="width:18%;background:#27ae60"></div></div><b>5 个</b></div>
+        <div class="ucd-bar-row"><span class="ucd-lbl">每单耗时</span><div class="ucd-track"><div class="ucd-bar" style="width:17%;background:#27ae60"></div></div><b>~30 秒</b></div>
+        <div class="ucd-bar-row"><span class="ucd-lbl">脑力占用</span><div class="ucd-track"><div class="ucd-bar" style="width:25%;background:#27ae60"></div></div><b>很轻松</b></div>
+        <p>常用值有默认、其余收进「更多信息」，一眼端住整张表单。</p>
+      </div>
+    </div>
+
     <div class="box key">
       <div class="box-title">🔑 一句话抓住它</div>
       <p style="margin:6px 0"><b>UCD</b> 是流程：始终围着“用户在什么情境下、要完成什么任务”转，而不是围着功能列表转。<b>认知负荷</b>是结果度量：用户为了用你的界面，得动多少脑子。其中有一部分负荷是<u>设计造成的、纯属多余的</u>——好设计的核心动作，就是把这部分砍掉。</p>
@@ -41,6 +88,16 @@
     <h2>1. 什么是用户中心设计（UCD）</h2>
     <p>用户中心设计的本质，是把设计的“主语”换掉。功能视角的句子是：“<b>我</b>要做一个批量导出功能、一个审批流、一个多条件筛选。”用户视角的句子是：“<b>财务</b>每月末要把上月已收款的订单导出对账，<b>她</b>用的是一台分辨率不高的办公电脑，还经常被电话打断。”——后者立刻带出了一堆约束：导出要能记住上次的筛选条件、要能中断后接着来、列不能多到一屏放不下。这些都是“功能视角”想不到的。</p>
     <p>所以 UCD 不是某个具体技巧，而是一个<b>循环</b>。国际标准（ISO 9241-210）把它拆成四个环节，做后台时同样适用：</p>
+    <div class="ucd-flow">
+      <div class="ucd-step"><b>① 理解用户与情境</b>谁在用？赶货时手忙脚乱，还是月底安静核对？</div>
+      <div class="ucd-arr">→</div>
+      <div class="ucd-step"><b>② 明确需求</b>写成可检验的任务目标，不是“做个管理页”。</div>
+      <div class="ucd-arr">→</div>
+      <div class="ucd-step"><b>③ 设计方案</b>这时才画界面，每个决定都答得出“帮谁快在哪”。</div>
+      <div class="ucd-arr">→</div>
+      <div class="ucd-step"><b>④ 评估迭代</b>看真实用户在哪卡住、填错、来回翻。</div>
+      <div class="ucd-loop">↺ 发现问题回到 ①，转着圈改——而不是一次画完就交付</div>
+    </div>
     <div class="box">
       <p style="margin:6px 0"><b>① 理解用户与情境</b> — 谁来用？仓管、财务还是老板？在什么场景下用：赶着出货时手忙脚乱地录单，还是月底安静地核对？设备、网络、被打断的频率都算情境。</p>
       <p style="margin:6px 0"><b>② 明确需求</b> — 把“他要完成的任务”写成具体目标，而不是“做个管理页面”。例如：“仓管能在 30 秒内录完一张到货单，且不需要记住任何编号。”</p>
@@ -64,12 +121,43 @@
       <p style="margin:6px 0">用户的总脑力 = 内在 + 外在 + 相关，而工作记忆的容量是固定的。外在负荷占得越多，留给“真正理解业务”的相关负荷就越少。所以好设计的动作非常明确：<b>把外在负荷压到最低</b>，把省下来的容量还给用户去完成真正的任务。每次你想往界面加东西，先问一句：“这是在帮用户完成任务，还是只是又给他一笔外在负荷？”</p>
     </div>
 
+    <div class="lab">
+      <div class="lab-title">🧮 脑力账单模拟器：外在负荷挤掉了什么</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">下面这条就是用户的工作记忆，容量固定 10 格。<b>内在负荷</b>由业务定死（占 4 格），你来拖<b>外在负荷</b>——字段乱、术语怪、来回横跳都会让它变大。看它把绿色的<b>相关负荷</b>（真正理解业务的那部分）挤到只剩多少，再看什么时候彻底爆掉。</p>
+      <div class="control" style="margin-top:12px">
+        <label style="width:auto;font-weight:700;color:var(--text-soft);font-size:.9rem">外在负荷</label>
+        <input id="ucd-ex" type="range" min="0" max="8" step="1" value="2" aria-label="外在负荷格数">
+        <span class="val"><span id="ucd-exv">2</span> 格</span>
+      </div>
+      <div class="ucd-loadbar" style="margin-top:12px">
+        <div class="ucd-seg" id="ucd-seg-in" style="background:#6a7fb8">内在 4</div>
+        <div class="ucd-seg" id="ucd-seg-ex" style="background:#e67e22">外在 2</div>
+        <div class="ucd-seg" id="ucd-seg-ge" style="background:#27ae60">相关 4</div>
+        <div class="ucd-seg" id="ucd-seg-ov" style="background:#e2524a;display:none">溢出!</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-faint);margin-top:5px"><span>0</span><span>工作记忆容量 10 格</span></div>
+      <div id="ucd-load-verdict" style="margin-top:14px; padding:12px 15px; background:var(--bg); border-radius:10px; font-size:.92rem; line-height:1.7"></div>
+    </div>
+
+    <details class="ucd-more">
+      <summary>展开：三笔负荷分不清？三个边界案例帮你练手</summary>
+      <p><b>案例一：入库单要选“税率”。</b>用户不懂税率所以填得慢——这是内在负荷（业务本身要懂），砍不掉；但如果系统明明知道供应商默认税率却不带出来，逼用户每次去查，那多出来的部分就是外在负荷。</p>
+      <p><b>案例二：新员工第一周录单很慢。</b>他在建立“采购单→入库单→库存”的心智模型，这是相关负荷，是<u>好事</u>；此时该给引导和示例（喂给相关负荷），而不是把流程简化到他永远学不会全貌。</p>
+      <p><b>案例三：老手也天天骂系统。</b>老手心智模型早建好了（相关负荷≈0），内在负荷也熟了，他骂的那部分几乎全是外在负荷——所以“老用户的抱怨”是定位外在负荷最准的探测器。</p>
+    </details>
+
     <h2>3. 米勒法则 7±2 与「识别优于回忆」</h2>
     <p>1956 年心理学家米勒在《神奇的数字 7±2》里提出：人的工作记忆一次大约只能<b>同时抓住 7 个左右（5 到 9 个）信息块</b>。这是个经典的经验值（现代研究认为有效容量可能更接近 4 个），重点不在精确数字，而在那个直觉：<b>一组东西一旦超过七八个，人就没法“一眼端在脑子里”了</b>，得分批扫、来回找、容易漏。</p>
     <div class="box example">
       <div class="box-title">📋 后台里的 7±2</div>
       <p style="margin:6px 0">一个顶部工具栏塞了 15 个图标按钮，用户没法一次记住它们都是干嘛的，只能用一个找一个。一个下拉里有 40 个选项不分组，用户得从头滚到尾。一张表横着摆 20 列，眼睛永远在找“我要看的那一列在哪”。这些都是同一个病：<u>把超过工作记忆容量的东西一股脑摊开</u>。</p>
     </div>
+    <details class="ucd-more">
+      <summary>展开：到底是 7±2 还是 4±1？这个数字现在还能用吗</summary>
+      <p>米勒 1956 年给的 7±2 是对“信息块（chunk）”的估计；2001 年 Cowan 的综述认为，不靠复述和技巧时，纯工作记忆更接近 <b>4±1 个块</b>。数字变小了，但结论反而更狠了：<b>别指望用户能同时端住很多东西</b>。</p>
+      <p>另一个常被忽略的点：容量按“块”算，而<b>分组能造块</b>。13 个不分组的按钮是 13 块；分成“单据操作 / 审批 / 输出”三组后，用户先记 3 个组，再在组内找——这就是为什么<u>同样多的功能，分组之后明显不头疼了</u>。菜单分组、字段分区、表格列分左右冻结，全是在造块。</p>
+    </details>
+
     <p>第二条原则配套使用：<b>识别优于回忆（Recognition over Recall）</b>。让用户“认出来”远比让他“想起来”省力。下拉、菜单、自动补全、最近使用列表——都是把选项摆出来让他<b>选</b>，而不是让他凭空<b>记</b>住一个编码再敲进去。</p>
     <div class="box warn">
       <div class="box-title">⚠️ 逼用户“回忆”的典型后台设计</div>
@@ -110,6 +198,12 @@
     <h3>④ 术语与反馈：说用户的话</h3>
     <div class="box">
       <p style="margin:6px 0">字段标签用业务词不用数据库字段名（是“客户名称”不是 <code>cust_nm</code>）；报错说清“哪错了、怎么改”（“收款金额不能大于订单总额”而不是 <code>validation failed: amount</code>）。<b>每一处看不懂，都是一笔外在负荷</b>，逼用户停下来猜。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎯 小测：这是「识别」还是逼人「回忆」？</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">6 个后台常见做法，逐个判断它让用户走的是省力的「识别」，还是费脑的「回忆」。判完立刻给讲解。得分：<b id="ucd-q-score">0</b> / 6</p>
+      <div id="ucd-quiz"></div>
     </div>
 
     <div class="lab">
@@ -267,6 +361,86 @@
 
     // 初始：默认 7 项
     setCurrent(7);
+  })();
+  </script>
+
+  <script>
+  // 🧮 脑力账单模拟器:容量 10 格 = 内在 4 + 外在(可拖) + 相关(被挤剩的);超 10 显示溢出
+  (function(){
+    var slider = document.getElementById('ucd-ex');
+    var exv = document.getElementById('ucd-exv');
+    var segIn = document.getElementById('ucd-seg-in');
+    var segEx = document.getElementById('ucd-seg-ex');
+    var segGe = document.getElementById('ucd-seg-ge');
+    var segOv = document.getElementById('ucd-seg-ov');
+    var verdict = document.getElementById('ucd-load-verdict');
+    if(!slider || !segIn || !verdict) return;
+    var CAP = 10, INTR = 4;
+    function render(){
+      var ex = +slider.value;
+      var used = INTR + ex;
+      var ge = Math.max(0, CAP - used);
+      var ov = Math.max(0, used - CAP);
+      if(exv) exv.textContent = ex;
+      segIn.style.width = (INTR / CAP * 100) + '%';
+      segEx.style.width = (Math.min(ex, CAP - INTR) / CAP * 100) + '%';
+      segEx.textContent = '外在 ' + ex;
+      segGe.style.width = (ge / CAP * 100) + '%';
+      segGe.textContent = ge ? ('相关 ' + ge) : '';
+      segGe.style.display = ge ? 'flex' : 'none';
+      segOv.style.display = ov ? 'flex' : 'none';
+      if(ov){ segOv.style.width = '14%'; segOv.textContent = '+' + ov + ' 溢出'; }
+      if(ex <= 2){
+        verdict.innerHTML = '<b style="color:#1f7a44">✅ 界面几乎不添乱</b><span style="color:var(--text-soft)"> —— 相关负荷还有 ' + ge + ' 格,用户有余力真正理解业务、越用越熟。这就是「好设计感觉不到设计」的状态。</span>';
+      } else if(ge > 0){
+        verdict.innerHTML = '<b style="color:#c87f0a">⚠️ 界面开始抢脑子</b><span style="color:var(--text-soft)"> —— 外在负荷吃掉 ' + ex + ' 格,留给理解业务的只剩 ' + ge + ' 格。用户能干活,但学得慢、容易烦,「会用但说不清为什么」多半卡在这。</span>';
+      } else {
+        verdict.innerHTML = '<b style="color:#c0392b">🚨 过载</b><span style="color:var(--text-soft)"> —— 内在+外在已到/超过容量,相关负荷被挤成 0:用户只能机械照抄操作,永远建立不起对系统的理解,还开始出错、放弃。' + (ov ? '溢出的 ' + ov + ' 格就是错单、漏填和那句「这系统太难用」。' : '') + '</span>';
+      }
+    }
+    slider.addEventListener('input', render);
+    render();
+  })();
+  </script>
+
+  <script>
+  // 🎯 识别 vs 回忆 判断小测:点选判对错 + 计分 + 逐题讲解
+  (function(){
+    var host = document.getElementById('ucd-quiz');
+    var scoreEl = document.getElementById('ucd-q-score');
+    if(!host) return;
+    var ITEMS = [
+      { t: '仓库字段是个下拉,直接选「北京中心仓」', a: 'r', why: '选项摆在眼前挑,不用记编号 —— 典型的识别。' },
+      { t: '仓库字段是文本框,要求手输编号「WH-0037」', a: 'c', why: '用户得先在脑子里(或小本本上)存着编号 —— 回忆,该改成下拉/联想。' },
+      { t: '状态列直接显示文字「已发货」', a: 'r', why: '看见即懂,不需要任何换算 —— 识别。' },
+      { t: '筛选时要知道「状态 3 = 已发货」才能填 3', a: 'c', why: '把「码表」塞进用户脑子里 —— 回忆,界面应该替他翻译。' },
+      { t: '客户输入框敲两个字就联想出全名供点选', a: 'r', why: '用户只要认出对的那个 —— 识别(自动补全是识别的经典形态)。' },
+      { t: '每次进列表页,筛选条件都被清空,要重新设一遍', a: 'c', why: '逼用户回忆「我上次是怎么筛的」 —— 记住上次状态,把记忆还给界面。' }
+    ];
+    var score = 0;
+    ITEMS.forEach(function(it, idx){
+      var box = document.createElement('div'); box.className = 'ucd-qitem';
+      var q = document.createElement('div'); q.innerHTML = '<b>' + (idx + 1) + '.</b> ' + it.t; box.appendChild(q);
+      var btns = document.createElement('div'); btns.className = 'ucd-qbtns';
+      var why = document.createElement('div'); why.className = 'ucd-qwhy';
+      function mk(label, key){
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'ucd-qbtn'; b.textContent = label;
+        b.addEventListener('click', function(){
+          if(box.dataset.done) return; box.dataset.done = '1';
+          var ok = key === it.a;
+          if(ok){ score++; if(scoreEl) scoreEl.textContent = score; }
+          b.style.borderColor = ok ? '#27ae60' : '#e2524a';
+          b.style.background = ok ? 'rgba(39,174,96,.12)' : 'rgba(226,82,74,.12)';
+          b.style.color = ok ? '#1f7a44' : '#c0392b';
+          why.style.display = 'block';
+          why.innerHTML = (ok ? '<b style="color:#1f7a44">✓ 对!</b> ' : '<b style="color:#c0392b">✗ 是「' + (it.a === 'r' ? '识别' : '回忆') + '」。</b> ') + it.why;
+        });
+        return b;
+      }
+      btns.appendChild(mk('👀 识别(省力)', 'r'));
+      btns.appendChild(mk('🧠 回忆(费脑)', 'c'));
+      box.appendChild(btns); box.appendChild(why); host.appendChild(box);
+    });
   })();
   </script>
 </body>

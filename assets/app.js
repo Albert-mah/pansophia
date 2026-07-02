@@ -308,6 +308,7 @@
   // 把讲解正文注入容器 + 重新执行其组件脚本(innerHTML 不会自动跑 <script>)。一次只挂一篇,id 不冲突。
   function mountLesson(container, path) {
     if (!container) return;
+    container.setAttribute("data-path", path);   // 选中收藏要反查这段正文属于哪一节
     container.innerHTML = '<div class="pan-lesson-loading">载入讲解…</div>';
     fetchLessonDoc(path).then(function (L) {
       container.innerHTML = L.markup;
@@ -430,27 +431,46 @@
     if (ReactDOM.createRoot) ReactDOM.createRoot(root).render(html`<${App} />`);
     else ReactDOM.render(html`<${App} />`, root);
   }
-  // 讲解正文里选中英文 → 冒出「🔊 朗读」浮动按钮(注入后正文在同一 DOM,全局初始化一次;只在讲解容器内生效)
-  function initLessonSpeak() {
-    var btn = null;
-    function hide() { if (btn) { btn.remove(); btn = null; } }
+  // 讲解正文里选中文字 → 浮出小工具条:⭐ 收藏(摘录进笔记,自动挂到本节)+ 🔊 朗读(选的是英文才出现)
+  function initLessonSelTools() {
+    var bar = null;
+    function hide() { if (bar) { bar.remove(); bar = null; } }
+    function mkBtn(label, bg, onClick) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = label;
+      b.style.cssText = "border:0;border-radius:999px;background:" + bg + ";color:#fff;font-size:13px;font-weight:700;padding:7px 13px;cursor:pointer;white-space:nowrap;";
+      b.addEventListener("mousedown", function (e) { e.preventDefault(); });   // 别把选区点没了
+      b.addEventListener("click", function (e) { e.stopPropagation(); onClick(b); });
+      return b;
+    }
     function place() {
       var sel = window.getSelection && window.getSelection();
       var text = sel ? String(sel).trim() : "";
-      if (!text || text.length > 240 || !/[a-zA-Z]/.test(text)) { hide(); return; }
+      if (!text || text.length > 600) { hide(); return; }
       var n = sel.anchorNode, el = n && (n.nodeType === 1 ? n : n.parentElement);
-      if (!el || !el.closest || !el.closest(".pan-lesson-embed")) { hide(); return; }
+      var box = el && el.closest ? el.closest(".pan-lesson-embed") : null;
+      if (!box) { hide(); return; }
       var rect; try { rect = sel.getRangeAt(0).getBoundingClientRect(); } catch (e) { return; }
       if (!rect || (!rect.width && !rect.height)) { hide(); return; }
-      if (!btn) {
-        btn = document.createElement("button"); btn.type = "button"; btn.textContent = "🔊 朗读";
-        btn.style.cssText = "position:fixed;z-index:99999;border:0;border-radius:999px;background:#B6532F;color:#fff;font-size:13px;font-weight:700;padding:7px 14px;box-shadow:0 4px 14px rgba(60,40,20,.35);cursor:pointer;";
-        btn.addEventListener("mousedown", function (e) { e.preventDefault(); });
-        btn.addEventListener("click", function (e) { e.stopPropagation(); var s = window.getSelection && String(window.getSelection()).trim(); if (s) C.speak(s, "en"); });
-        document.body.appendChild(btn);
-      }
-      btn.style.top = Math.max(6, rect.top - 42) + "px";
-      btn.style.left = Math.max(6, rect.left + rect.width / 2 - 38) + "px";
+      hide();
+      var path = box.getAttribute("data-path");
+      bar = document.createElement("div");
+      bar.style.cssText = "position:fixed;z-index:99999;display:flex;gap:6px;box-shadow:0 4px 14px rgba(60,40,20,.35);border-radius:999px;";
+      bar.appendChild(mkBtn("⭐ 收藏", "#C8852E", function (b) {
+        var s = window.getSelection && String(window.getSelection()).trim(); if (!s) return;
+        var k = path ? C.catalogByPath(path) : null;
+        var nt = C.notes().slice();
+        nt.unshift({ title: "摘录 · " + (k ? k.title : "讲解"), body: s, subject: "★ 摘录", kp: k ? k.id : null, starred: true, ts: Date.now() });
+        C.save("notes", nt);
+        b.textContent = "✓ 已收藏"; b.style.background = "#6E7A4F";
+        setTimeout(hide, 900);
+      }));
+      if (text.length <= 240 && /[a-zA-Z]/.test(text)) bar.appendChild(mkBtn("🔊 朗读", "#B6532F", function () {
+        var s = window.getSelection && String(window.getSelection()).trim(); if (s) C.speak(s, "en");
+      }));
+      document.body.appendChild(bar);
+      var w = bar.offsetWidth || 90;
+      bar.style.top = Math.max(6, rect.top - 44) + "px";
+      bar.style.left = Math.min(Math.max(6, rect.left + rect.width / 2 - w / 2), window.innerWidth - w - 6) + "px";
     }
     document.addEventListener("mouseup", function () { setTimeout(place, 10); });
     document.addEventListener("touchend", function () { setTimeout(place, 10); });
@@ -459,5 +479,5 @@
   }
   if (document.readyState !== "loading") boot();
   else document.addEventListener("DOMContentLoaded", boot);
-  initLessonSpeak();
+  initLessonSelTools();
 })();
