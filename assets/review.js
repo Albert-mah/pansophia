@@ -44,9 +44,10 @@
     var sn0 = useState(C.cardPtSeen(kp)); var seen = sn0[0], setSeen = sn0[1];
     var hv0 = useState(null); var hov = hv0[0], setHov = hv0[1];      // {kind:'pt'|'q', i}
     var q0 = useState(null); var qs = q0[0], setQs = q0[1];           // 配套题(懒取,只为点条与预览)
+    var op0 = useState(!props.collapsible); var open = op0[0], setOpen = op0[1];   // collapsible:点条/hook 常驻,正文可折叠
     var refs = useRef({});
     useEffect(function () {
-      setSeen(C.cardPtSeen(kp)); setHov(null); setQs(null);
+      setSeen(C.cardPtSeen(kp)); setHov(null); setQs(null); setOpen(!props.collapsible);
       var dead = false;
       C.questionsFor({ kp: [kp], limit: 12 }).then(function (rows) { if (!dead) setQs(rows || []); });
       return function () { dead = true; };
@@ -54,7 +55,10 @@
     var gotN = pts.filter(function (_, i) { return seen[i]; }).length;
     var qstat = C.quizStat();
     function togglePt(i) { setSeen(Object.assign({}, C.toggleCardPt(kp, i))); }
-    function jumpPt(i) { var el = refs.current["p" + i]; if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    function jumpPt(i) {
+      if (!open) { setOpen(true); setTimeout(function () { var el = refs.current["p" + i]; if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "center" }); }, 150); return; }
+      var el = refs.current["p" + i]; if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
     function dotStyle(fill, color, border) {
       return "width:13px;height:13px;border-radius:50%;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800;line-height:1;" +
         (fill ? "background:" + color + ";color:#fff;border:1.5px solid " + color + ";" : "background:transparent;color:" + color + ";border:1.5px solid " + (border || color) + ";");
@@ -99,7 +103,8 @@
           <span style="color:#bbab8c;margin-left:6px;">(${preview.hint})</span></div>` : null}
       </div>
       ${card.hook ? html`<div style="font-family:var(--serif);font-size:16px;font-weight:700;color:#B6532F;line-height:1.5;margin-bottom:12px;">${mdSpan(card.hook)}</div>` : null}
-      ${pts.map(function (pt, i) {
+      ${!open ? html`<div onClick=${function () { setOpen(true); }} style="cursor:pointer;text-align:center;border:1.5px dashed #E4C29B;border-radius:10px;padding:9px;font-size:12.5px;font-weight:700;color:#a86a00;background:rgba(255,255,255,.5);">▾ 展开一分钟版全文(${pts.length} 个小点${gotN ? " · 已懂 " + gotN : ""})</div>` : null}
+      ${open ? pts.map(function (pt, i) {
         var got = !!seen[i];
         return html`<div key=${i} ref=${function (el) { refs.current["p" + i] = el; }} style="margin:0 0 14px;">
           <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:3px;">
@@ -108,11 +113,12 @@
           </div>
           <p style="font-size:14px;line-height:1.85;color:#3a3023;margin:0;">${mdSpan(pt.p)}</p>
         </div>`;
-      })}
-      ${boxRow("🧪", "举个例子", card.example, "#F4F6EC", "#C9D2A8")}
-      ${boxRow("⚠️", "最容易踩的坑", card.pitfall, "#FBF0E6", "#E4C29B")}
-      ${boxRow("💡", "一句话记住", card.mnemonic, "#FBF6EC", "#D8C9A8")}
-      ${card.mode === "task" ? boxRow("🛠", "动手做(完成了就来标掌握)", card.task, "#FBF4E6", "#E0C084") : null}
+      }) : null}
+      ${open ? boxRow("🧪", "举个例子", card.example, "#F4F6EC", "#C9D2A8") : null}
+      ${open ? boxRow("⚠️", "最容易踩的坑", card.pitfall, "#FBF0E6", "#E4C29B") : null}
+      ${open ? boxRow("💡", "一句话记住", card.mnemonic, "#FBF6EC", "#D8C9A8") : null}
+      ${open && card.mode === "task" ? boxRow("🛠", "动手做(完成了就来标掌握)", card.task, "#FBF4E6", "#E0C084") : null}
+      ${open && props.collapsible ? html`<div onClick=${function () { setOpen(false); }} style="cursor:pointer;text-align:center;margin-top:12px;font-size:12px;font-weight:700;color:#bbab8c;">▴ 收起一分钟版</div>` : null}
     </div>`;
   }
   window.CardArticle = CardArticle;

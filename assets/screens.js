@@ -747,7 +747,10 @@
       </div></div>`;
       else body = app.lessonOpen
         ? html`<div class="pan-lesson-embed" style="min-height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13.5px;">正在全屏查看这篇讲解…</div>`
-        : html`<div>${mcard ? html`<details class="pan-card-mini" style="margin:0 0 12px;border:1px solid #E4C29B;border-radius:12px;background:#FBF6EC;padding:10px 16px;"><summary style="cursor:pointer;font-size:13px;font-weight:700;color:#a86a00;">⚡ 一分钟版(赶时间先看这个)</summary><div style="padding-top:10px;">${html`<${window.CardArticle} card=${mcard} onDrill=${function () { goTab("drill"); }} />`}</div></details>` : null}<${window.LessonEmbed} path=${lp.path} /></div>`;
+        : html`<div>${mcard ? html`<div class="pan-card-mini" style="margin:0 0 12px;border:1px solid #E4C29B;border-radius:12px;background:#FBF6EC;padding:13px 16px;">
+            <div style="font-size:12px;font-weight:800;color:#a86a00;letter-spacing:.03em;margin-bottom:9px;">⚡ 一分钟版 · 小点进度</div>
+            ${html`<${window.CardArticle} card=${mcard} collapsible=${true} onDrill=${function () { goTab("drill"); }} />`}
+          </div>` : null}<${window.LessonEmbed} path=${lp.path} /></div>`;
       center = html`<div class="pan-lesson-inline">
         <div class="pan-lesson-inbar">
           <div style="min-width:0;flex:1;">
