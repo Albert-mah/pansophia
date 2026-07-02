@@ -127,16 +127,27 @@ for (const c of CARDS) {
   if (!CARD_MODES.has(c.mode)) E(`${where}: mode "${c.mode}" 非法（learn/drill/task）`);
   if (c.mode === "task" && !c.task) E(`${where}: mode=task 必须给 task 行动指引`);
   if (c.mode === "drill") drillCards++;
-  if (!Array.isArray(c.body) || !c.body.length || c.body.length > 6) E(`${where}: body 应为 1-6 段的字符串数组`);
+  if (!Array.isArray(c.body) || !c.body.length || c.body.length > 6) E(`${where}: body 应为 1-6 个小点的数组`);
   if (Array.isArray(c.body)) {
-    const total = c.body.join("").length;
+    let total = 0;
+    c.body.forEach((b, i) => {
+      if (typeof b === "string") { total += b.length; Wn(`${where}: body[${i}] 是无标题字符串（旧形状）——推荐 {t:"小标题", p:"段落"} 小点形状`); }
+      else if (b && typeof b === "object") {
+        if (!b.t || !b.p) E(`${where}: body[${i}] 小点缺 t(标题) 或 p(段落)`);
+        if (b.t && b.t.length > 16) Wn(`${where}: body[${i}] 小标题 ${b.t.length} 字偏长（建议 4-12 字）`);
+        total += (b.p || "").length;
+      } else E(`${where}: body[${i}] 形状非法（应为 {t,p} 或字符串）`);
+    });
     if (total < 80) Wn(`${where}: body 总字数 ${total} 偏少（建议 200-500）`);
     if (total > 900) Wn(`${where}: body 总字数 ${total} 偏多（卡片要几分钟读完，深内容放 deepDive）`);
   }
   for (const f of ["hook", "example", "pitfall", "mnemonic", "task"]) {
     if (c[f] && /<[a-z][^>]*>/i.test(c[f])) E(`${where}: 字段 "${f}" 含 HTML 标签（卡片是纯数据，只允许 **加粗** 与 \`代码\`）`);
   }
-  (Array.isArray(c.body) ? c.body : []).forEach((p, i) => { if (/<[a-z][^>]*>/i.test(p)) E(`${where}: body[${i}] 含 HTML 标签`); });
+  (Array.isArray(c.body) ? c.body : []).forEach((b, i) => {
+    const texts = typeof b === "string" ? [b] : b && typeof b === "object" ? [b.t, b.p] : [];
+    texts.forEach((s) => { if (s && /<[a-z][^>]*>/i.test(s)) E(`${where}: body[${i}] 含 HTML 标签`); });
+  });
   if (c.minutes != null && (!Number.isFinite(c.minutes) || c.minutes < 1 || c.minutes > 10)) E(`${where}: minutes "${c.minutes}" 非法（1-10）`);
   if (c.difficulty != null && ![1, 2, 3].includes(c.difficulty)) E(`${where}: difficulty "${c.difficulty}" 非法（1/2/3）`);
   if (c.deepDive && !fs.existsSync(path.join(__dirname, "..", c.deepDive))) E(`${where}: deepDive "${c.deepDive}" 文件不存在`);

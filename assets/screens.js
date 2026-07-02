@@ -739,12 +739,12 @@
       else if (kpTab === "digest") body = html`<div class="pan-kp-body"><${KpSummaryPanel} kp=${lp} did=${did} scope=${entry.scope} subject=${sc.name} onDrill=${function () { goTab("drill"); }} /></div>`;
       else if (kpTab === "extend") body = html`<div class="pan-kp-body"><${KpExtendPanel} kp=${lp} did=${did} discName=${(d && d.name) || sc.name} sylIds=${sylIds} onPick=${pickKp} /></div>`;
       else if (!lp.path) body = html`<div class="pan-kp-body"><div class="pan-article" style="max-width:none;">
-        ${html`<${window.CardArticle} card=${mcard} />`}
+        ${html`<${window.CardArticle} card=${mcard} onDrill=${function () { goTab("drill"); }} />`}
         <div style="margin-top:18px;padding-top:12px;border-top:1px dashed #EBDEC8;font-size:12.5px;color:#9a8a6f;">这节是卡片式微课(约 ${mcard.minutes || 3} 分钟)。想要更长的图文讲解?<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { C.sendMessage({ kind: "wish", text: "请给「" + lp.title + "」写一篇完整讲解页(现有卡片基础上加深)。", context: { discId: did, scope: entry.scope, kp: lp.id } }).then(function () { app.go("messages"); }); }}> ✉️ 请导师补一篇</span></div>
       </div></div>`;
       else body = app.lessonOpen
         ? html`<div class="pan-lesson-embed" style="min-height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13.5px;">正在全屏查看这篇讲解…</div>`
-        : html`<div>${mcard ? html`<details class="pan-card-mini" style="margin:0 0 12px;border:1px solid #E4C29B;border-radius:12px;background:#FBF6EC;padding:10px 16px;"><summary style="cursor:pointer;font-size:13px;font-weight:700;color:#a86a00;">⚡ 一分钟版(赶时间先看这个)</summary><div style="padding-top:10px;">${html`<${window.CardArticle} card=${mcard} />`}</div></details>` : null}<${window.LessonEmbed} path=${lp.path} /></div>`;
+        : html`<div>${mcard ? html`<details class="pan-card-mini" style="margin:0 0 12px;border:1px solid #E4C29B;border-radius:12px;background:#FBF6EC;padding:10px 16px;"><summary style="cursor:pointer;font-size:13px;font-weight:700;color:#a86a00;">⚡ 一分钟版(赶时间先看这个)</summary><div style="padding-top:10px;">${html`<${window.CardArticle} card=${mcard} onDrill=${function () { goTab("drill"); }} />`}</div></details>` : null}<${window.LessonEmbed} path=${lp.path} /></div>`;
       center = html`<div class="pan-lesson-inline">
         <div class="pan-lesson-inbar">
           <div style="min-width:0;flex:1;">

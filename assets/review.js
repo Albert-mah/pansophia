@@ -10,7 +10,7 @@
  * ============================================================= */
 (function () {
   var React = window.React, html = window.html, C = window.Core;
-  var useState = React.useState, useEffect = React.useEffect;
+  var useState = React.useState, useEffect = React.useEffect, useRef = React.useRef;
   function useApp() { return React.useContext(window.AppCtx); }
 
   var SESSION_N = 20;   // 一次复习最多张数(几分钟一场,碎片时间友好)
@@ -33,17 +33,82 @@
       <div style="font-size:11px;font-weight:700;letter-spacing:.05em;color:#8a7a62;margin-bottom:4px;">${icon} ${label}</div>
       <div style="font-size:13.5px;line-height:1.75;color:#3a3023;">${mdSpan(text)}</div></div>`;
   }
+  // 卡片正文 v2:body 支持「小点」({t:标题, p:段落};纯字符串兼容为无题小点)。
+  // 顶部进度点条:每个小点一个圆点(懂了→实心)+ 每道配套题一个圆点(对✓/错✗/未做○);
+  // 划过出预览(标题+摘要),点小点圆点滚到对应段落,点题圆点走 props.onDrill(如课程页切「练」)。
   function CardArticle(props) {
     var card = props.card; if (!card) return null;
     var m = MODE_LB[card.mode] || MODE_LB.learn;
+    var kp = card.kp;
+    var pts = (card.body || []).map(function (b, i) { return (typeof b === "string") ? { t: "要点 " + (i + 1), p: b } : b; });
+    var sn0 = useState(C.cardPtSeen(kp)); var seen = sn0[0], setSeen = sn0[1];
+    var hv0 = useState(null); var hov = hv0[0], setHov = hv0[1];      // {kind:'pt'|'q', i}
+    var q0 = useState(null); var qs = q0[0], setQs = q0[1];           // 配套题(懒取,只为点条与预览)
+    var refs = useRef({});
+    useEffect(function () {
+      setSeen(C.cardPtSeen(kp)); setHov(null); setQs(null);
+      var dead = false;
+      C.questionsFor({ kp: [kp], limit: 12 }).then(function (rows) { if (!dead) setQs(rows || []); });
+      return function () { dead = true; };
+    }, [kp]);
+    var gotN = pts.filter(function (_, i) { return seen[i]; }).length;
+    var qstat = C.quizStat();
+    function togglePt(i) { setSeen(Object.assign({}, C.toggleCardPt(kp, i))); }
+    function jumpPt(i) { var el = refs.current["p" + i]; if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    function dotStyle(fill, color, border) {
+      return "width:13px;height:13px;border-radius:50%;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800;line-height:1;" +
+        (fill ? "background:" + color + ";color:#fff;border:1.5px solid " + color + ";" : "background:transparent;color:" + color + ";border:1.5px solid " + (border || color) + ";");
+    }
+    var preview = null;
+    if (hov && hov.kind === "pt" && pts[hov.i]) {
+      var hp = pts[hov.i];
+      preview = { title: (seen[hov.i] ? "● " : "○ ") + hp.t, text: hp.p.replace(/\*\*|`/g, "").slice(0, 84) + (hp.p.length > 84 ? "…" : ""), hint: "点圆点跳到这一小节" };
+    } else if (hov && hov.kind === "q" && qs && qs[hov.i]) {
+      var hq = qs[hov.i], hst = qstat[String(hq.id)];
+      preview = { title: (hst ? (hst.ok ? "✓ 已答对" : "✗ 上次答错") : "○ 还没做") + " · 配套题 " + (hov.i + 1),
+        text: String(hq.stem || "").slice(0, 84), hint: props.onDrill ? "点圆点去练这题" : "在课程页「练」里可做" };
+    }
     return html`<div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
         <span class="pan-pill" style=${"color:" + m[1] + ";background:" + m[2] + ";font-weight:700;"}>${m[0]}</span>
         ${card.minutes ? html`<span class="pan-pill" style="color:#8a7a62;background:#F4EAD8;">⏱ 约 ${card.minutes} 分钟</span>` : null}
+        <span class="pan-pill" style="color:#6E7A4F;background:#EFF1E0;">小点 ${gotN}/${pts.length}</span>
         ${props.chips || null}
       </div>
-      ${card.hook ? html`<div style="font-family:var(--serif);font-size:16px;font-weight:700;color:#B6532F;line-height:1.5;margin-bottom:10px;">${mdSpan(card.hook)}</div>` : null}
-      ${(card.body || []).map(function (p, i) { return html`<p key=${i} style="font-size:14px;line-height:1.85;color:#3a3023;margin:0 0 11px;">${mdSpan(p)}</p>`; })}
+      <div style="margin:0 0 14px;" onMouseLeave=${function () { setHov(null); }}>
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+          <span style="font-size:10.5px;font-weight:700;color:#bbab8c;letter-spacing:.04em;">知识点</span>
+          ${pts.map(function (pt, i) {
+            var on = !!seen[i];
+            return html`<span key=${"p" + i} title=${pt.t} style=${dotStyle(on, "#6E7A4F", "#b8c49a")}
+              onMouseEnter=${function () { setHov({ kind: "pt", i: i }); }}
+              onClick=${function () { setHov({ kind: "pt", i: i }); jumpPt(i); }}>${on ? "✓" : ""}</span>`;
+          })}
+          ${qs && qs.length ? html`<span style="width:1px;height:12px;background:#EBDEC8;margin:0 2px;"></span>
+          <span style="font-size:10.5px;font-weight:700;color:#bbab8c;letter-spacing:.04em;">习题</span>
+          ${qs.map(function (q, i) {
+            var st = qstat[String(q.id)];
+            var color = st ? (st.ok ? "#6E7A4F" : "#B6532F") : "#C8852E";
+            return html`<span key=${"q" + i} style=${dotStyle(!!st, color, "#dcc9a4")}
+              onMouseEnter=${function () { setHov({ kind: "q", i: i }); }}
+              onClick=${function () { setHov({ kind: "q", i: i }); if (props.onDrill) props.onDrill(); }}>${st ? (st.ok ? "✓" : "✗") : ""}</span>`;
+          })}` : null}
+        </div>
+        ${preview ? html`<div style="margin-top:8px;background:#FBF6EC;border:1px solid #EEE3CF;border-radius:10px;padding:9px 13px;font-size:12.5px;line-height:1.6;">
+          <b style="color:#5a4e3c;">${preview.title}</b><span style="color:#7A6E5E;"> — ${preview.text}</span>
+          <span style="color:#bbab8c;margin-left:6px;">(${preview.hint})</span></div>` : null}
+      </div>
+      ${card.hook ? html`<div style="font-family:var(--serif);font-size:16px;font-weight:700;color:#B6532F;line-height:1.5;margin-bottom:12px;">${mdSpan(card.hook)}</div>` : null}
+      ${pts.map(function (pt, i) {
+        var got = !!seen[i];
+        return html`<div key=${i} ref=${function (el) { refs.current["p" + i] = el; }} style="margin:0 0 14px;">
+          <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:3px;">
+            <span style=${"font-size:12.5px;font-weight:800;letter-spacing:.02em;color:" + (got ? "#6E7A4F" : "#a86a00") + ";"}>${got ? "●" : "○"} ${pt.t}</span>
+            <span onClick=${function () { togglePt(i); }} style=${"cursor:pointer;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 10px;" + (got ? "background:#EFF1E0;color:#6E7A4F;" : "background:#F4EAD8;color:#9a8a6f;")}>${got ? "✓ 懂了" : "懂了就点"}</span>
+          </div>
+          <p style="font-size:14px;line-height:1.85;color:#3a3023;margin:0;">${mdSpan(pt.p)}</p>
+        </div>`;
+      })}
       ${boxRow("🧪", "举个例子", card.example, "#F4F6EC", "#C9D2A8")}
       ${boxRow("⚠️", "最容易踩的坑", card.pitfall, "#FBF0E6", "#E4C29B")}
       ${boxRow("💡", "一句话记住", card.mnemonic, "#FBF6EC", "#D8C9A8")}

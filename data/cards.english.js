@@ -11,10 +11,10 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
     mode: "drill",
     hook: "看到 yesterday / last… / ago,动词就要变过去式",
     body: [
-      "一般过去时表示**过去发生、已经结束**的事。信号词:yesterday、last night / last week、two days ago、just now。",
-      "规则变化四条:直接 +ed(play → played);以 e 结尾只 +d(like → liked);辅音字母+y 结尾变 y 为 i 再 +ed(study → studied);重读闭音节双写末尾字母(stop → stopped)。",
-      "不规则动词只能一个个记:go → went、have → had、see → saw、eat → ate、read → read(拼写不变,读音变 /red/)。",
-      "否定和疑问交给 did:didn't + **动词原形**;Did you…? 里动词也用原形 —— did 已经替你表示「过去」了,动词不用再变。"
+      { t: "什么时候用", p: "一般过去时表示**过去发生、已经结束**的事。信号词:yesterday、last night / last week、two days ago、just now。" },
+      { t: "规则变化四条", p: "直接 +ed(play → played);以 e 结尾只 +d(like → liked);辅音字母+y 结尾变 y 为 i 再 +ed(study → studied);重读闭音节双写末尾字母(stop → stopped)。" },
+      { t: "不规则动词", p: "只能一个个记:go → went、have → had、see → saw、eat → ate、read → read(拼写不变,读音变 /red/)。" },
+      { t: "did 的用法", p: "否定和疑问交给 did:didn't + **动词原形**;Did you…? 里动词也用原形 —— did 已经替你表示「过去」了,动词不用再变。" }
     ],
     example: "Did you went to school? ❌ → Did you **go** to school? ✔ did 一出场,动词就变回原形。",
     pitfall: "did 和动词过去式同时出现是最高频错误:She didn't went ❌ → She didn't go ✔。",
@@ -29,10 +29,10 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
     mode: "drill",
     hook: "两者比,加 than;单音节 +er,长词用 more,不能两个一起加",
     body: [
-      "比较级用来比**两个**人或物,句型是 A + be/动词 + 比较级 + **than** + B。四条变形规则:一般 `+er`(tall→taller);以 e 结尾只 `+r`(nice→nicer);辅音字母+y 结尾变 y 为 i 再 `+ier`(happy→happier);重读闭音节双写尾字母再 `+er`(big→bigger、hot→hotter)。",
-      "音节多、比较长的形容词不加 er,前面直接放 **more**:difficult→more difficult、interesting→more interesting、beautiful→more beautiful。",
-      "不规则的没有规律,只能硬记:good/well→better,bad→worse,many/much→more,little→less,far→farther/further。",
-      "小升初最爱挖的坑:more 和 er 不能同时出现(more taller ❌);双写字母别漏(bigger 不是 biger);比较两者 than 千万别丢;想加强语气用 much/a lot/even + 比较级,不能用 very。"
+      { t: "句型与变形四规则", p: "比较级用来比**两个**人或物,句型是 A + be/动词 + 比较级 + **than** + B。四条变形规则:一般 `+er`(tall→taller);以 e 结尾只 `+r`(nice→nicer);辅音字母+y 结尾变 y 为 i 再 `+ier`(happy→happier);重读闭音节双写尾字母再 `+er`(big→bigger、hot→hotter)。" },
+      { t: "长词用 more", p: "音节多、比较长的形容词不加 er,前面直接放 **more**:difficult→more difficult、interesting→more interesting、beautiful→more beautiful。" },
+      { t: "不规则比较级", p: "没有规律,只能硬记:good/well→better,bad→worse,many/much→more,little→less,far→farther/further。" },
+      { t: "最爱挖的坑", p: "more 和 er 不能同时出现(more taller ❌);双写字母别漏(bigger 不是 biger);比较两者 than 千万别丢;想加强语气用 much/a lot/even + 比较级,不能用 very。" }
     ],
     example: "Tom is more tall than Jim. ❌ → Tom is **taller** than Jim. ✔ tall 是单音节词,直接 +er,不能再加 more。",
     pitfall: "more 和 er 从不同台:more taller ❌,只能留一个说法。双写字母也常漏,big 要写成 bigger,不是 biger。",
@@ -47,10 +47,10 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
     mode: "drill",
     hook: "我用 am,你用 are,is 跟着他她它;有 be 就别再叠别的动词",
     body: [
-      "be 动词就是 **am / is / are**(现在)和 **was / were**(过去),接近“是”的意思,必须跟主语一致:I 用 am;he / she / it / 单数名词用 is;you / we / they / 复数名词用 are。",
-      "变过去式:am、is → was;are → were。否定句在 be 后面直接加 not(isn't / aren't / wasn't / weren't);一般疑问句把 be 动词提到句首,比如 You are… → Are you…?",
-      "there be(有……)句型里,be 的单复数看**后面紧跟的名词**:There is a cat…、There are two cats…、There is some water…(不可数名词按单数算)。",
-      "小升初最爱挖的坑:一句话里已经有 be 动词,后面就不能再加实义动词的第三人称形式:She is likes music ❌,要写成 She likes music ✔ 或 She is a music fan ✔。"
+      { t: "主语配 be", p: "be 动词就是 **am / is / are**(现在)和 **was / were**(过去),接近“是”的意思,必须跟主语一致:I 用 am;he / she / it / 单数名词用 is;you / we / they / 复数名词用 are。" },
+      { t: "过去式·否定·疑问", p: "变过去式:am、is → was;are → were。否定句在 be 后面直接加 not(isn't / aren't / wasn't / weren't);一般疑问句把 be 动词提到句首,比如 You are… → Are you…?" },
+      { t: "there be 句型", p: "there be(有……)句型里,be 的单复数看**后面紧跟的名词**:There is a cat…、There are two cats…、There is some water…(不可数名词按单数算)。" },
+      { t: "别叠加动词", p: "一句话里已经有 be 动词,后面就不能再加实义动词的第三人称形式:She is likes music ❌,要写成 She likes music ✔ 或 She is a music fan ✔。" }
     ],
     example: "There ___ some books on the desk. 空格该填 are,因为 books 是复数,不是 is。",
     pitfall: "be 动词和实义动词同时做谓语是最高频错误:She is likes cats ❌ → She likes cats ✔ / She is a cat lover ✔,二选一,别叠加。",
@@ -65,10 +65,10 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
     mode: "drill",
     hook: "能数用 a/an 加 s;不能数别加 a 别加 s,数量找量词借“容器”",
     body: [
-      "可数名词能一个一个数,前面能加 **a/an**(a book、an apple),变多个要加 **s/es**(books、boxes)。不可数名词数不清(水、米饭、知识、天气这些),**没有复数形式**,前面不能加 a/an,也不能直接加 s。",
-      "常见不可数名词:water(水)、rice(米饭)、milk(牛奶)、bread(面包)、money(钱)、homework(作业)、weather(天气)、news(新闻)。它们默认当**单数**看待,be 动词用 is/was。",
-      "想表达不可数名词的数量,要靠**量词短语**:a glass of water(一杯水)、a piece of bread(一片面包)、two bowls of rice(两碗米饭)——变多的是量词本身(glasses、pieces、bowls),不是后面的名词。",
-      "有些词看着不可数其实要分情况:fruit 通常不可数(some fruit),但具体一种水果 an apple / a banana 是可数的;paper 做“纸”不可数,做“试卷/论文”时可数(a paper)。"
+      { t: "怎么区分", p: "可数名词能一个一个数,前面能加 **a/an**(a book、an apple),变多个要加 **s/es**(books、boxes)。不可数名词数不清(水、米饭、知识、天气这些),**没有复数形式**,前面不能加 a/an,也不能直接加 s。" },
+      { t: "常见不可数词", p: "water(水)、rice(米饭)、milk(牛奶)、bread(面包)、money(钱)、homework(作业)、weather(天气)、news(新闻)。它们默认当**单数**看待,be 动词用 is/was。" },
+      { t: "量词短语表数量", p: "想表达不可数名词的数量,要靠**量词短语**:a glass of water(一杯水)、a piece of bread(一片面包)、two bowls of rice(两碗米饭)——变多的是量词本身(glasses、pieces、bowls),不是后面的名词。" },
+      { t: "分情况的词", p: "有些词看着不可数其实要分情况:fruit 通常不可数(some fruit),但具体一种水果 an apple / a banana 是可数的;paper 做“纸”不可数,做“试卷/论文”时可数(a paper)。" }
     ],
     example: "How much rice do we have? 问不可数名词的数量用 how much,不能说 how many rice。",
     pitfall: "给不可数名词加 s 或前面加 a/an 是最常见错误:a rice ❌、two moneys ❌ —— 不可数名词永远不加 s,数量要靠 a piece of / a bowl of 这种量词短语。",
@@ -83,10 +83,10 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
     mode: "drill",
     hook: "主格站主语位,宾格站宾语位;物主代词后面有名词用 my 类,没名词用 mine 类",
     body: [
-      "人称代词分**主格**(做主语)和**宾格**(做宾语):I/you/he/she/it/we/they 是主格,me/you/him/her/it/us/them 是宾格。做主语用主格,动词后、介词后用宾格:She likes **him**,不能说 She likes he。",
-      "物主代词也分两种:**形容词性**(my/your/his/her/its/our/their)后面必须**跟名词**,相当于形容词,比如 my book;**名词性**(mine/yours/his/hers/its/ours/theirs)后面**不跟名词**,单独顶替“名词”,比如 This book is mine。",
-      "对照记:I—me—my—mine;you—you—your—yours;he—him—his—his;she—her—her—hers;we—us—our—ours;they—them—their—theirs。he 和 she 的形容词性物主代词长得像宾格(his、her),最容易搞混。",
-      "常见考法:填空选 my 还是 mine 看后面**有没有名词跟着**——有名词选 my book,没名词选 mine。介词 to/with/for 后面的代词一律用宾格:give it **to me**,不是 to I。"
+      { t: "主格与宾格", p: "人称代词分**主格**(做主语)和**宾格**(做宾语):I/you/he/she/it/we/they 是主格,me/you/him/her/it/us/them 是宾格。做主语用主格,动词后、介词后用宾格:She likes **him**,不能说 She likes he。" },
+      { t: "两种物主代词", p: "**形容词性**(my/your/his/her/its/our/their)后面必须**跟名词**,相当于形容词,比如 my book;**名词性**(mine/yours/his/hers/its/ours/theirs)后面**不跟名词**,单独顶替“名词”,比如 This book is mine。" },
+      { t: "对照表", p: "I—me—my—mine;you—you—your—yours;he—him—his—his;she—her—her—hers;we—us—our—ours;they—them—their—theirs。he 和 she 的形容词性物主代词长得像宾格(his、her),最容易搞混。" },
+      { t: "常见考法", p: "填空选 my 还是 mine 看后面**有没有名词跟着**——有名词选 my book,没名词选 mine。介词 to/with/for 后面的代词一律用宾格:give it **to me**,不是 to I。" }
     ],
     example: "This is not my pen. ___ is on the desk. 空格该填 **Mine**(名词性物主代词,后面不跟名词,单独代替“我的笔”)。",
     pitfall: "形容词性和名词性物主代词混用是最常见错误:This is mine book ❌(mine 后面不能跟名词)→ This is **my** book ✔ 或 This book is **mine** ✔。",

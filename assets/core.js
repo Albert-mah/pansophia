@@ -319,6 +319,15 @@ window.Core = (function () {
     if (n) save("kpsrs", m);
     return n;
   }
+  // 卡片小点进度(cardpts KV):{ [kp]: { [小点idx]: ts } },「懂了」逐点打卡
+  function cardPtSeen(kp) { return (store("cardpts", {}) || {})[kp] || {}; }
+  function toggleCardPt(kp, i) {
+    var all = Object.assign({}, store("cardpts", {}));
+    var m = Object.assign({}, all[kp] || {});
+    if (m[i]) delete m[i]; else m[i] = Date.now();
+    all[kp] = m; save("cardpts", all);
+    return m;
+  }
   // 单词到期数(vocab.js 的 SRS 状态,只读汇总给首页/复习屏)
   function vocabDueCount() {
     var v = store("vocab", {}) || {}, now = Date.now(), n = 0;
@@ -1076,6 +1085,7 @@ window.Core = (function () {
     recordQuiz: recordQuiz, kpQuiz: kpQuiz, saveQuizRun: saveQuizRun, quizRunFor: quizRunFor,
     lessonRead: lessonRead, kpState: kpState, recentLessons: recentLessons, catalogByPath: catalogByPath, catalogForDiscipline: catalogForDiscipline,
     cardForKp: cardForKp, kpSrs: kpSrs, srsEnroll: srsEnroll, srsGrade: srsGrade, dueKps: dueKps, srsCounts: srsCounts, srsBackfill: srsBackfill, vocabDueCount: vocabDueCount,
+    cardPtSeen: cardPtSeen, toggleCardPt: toggleCardPt,
     logEvent: logEvent, award: award,
     LEVELS: LEVELS, levelOf: levelOf, knowledgeValue: knowledgeValue,
     ACHIEVEMENTS: ACHIEVEMENTS, evalAchievements: evalAchievements, checkAchievements: checkAchievements,
