@@ -750,7 +750,7 @@
         : html`<div>${mcard ? html`<div class="pan-card-mini" style="margin:0 0 12px;border:1px solid #E4C29B;border-radius:12px;background:#FBF6EC;padding:13px 16px;">
             <div style="font-size:12px;font-weight:800;color:#a86a00;letter-spacing:.03em;margin-bottom:9px;">⚡ 一分钟版 · 小点进度</div>
             ${html`<${window.CardArticle} card=${mcard} collapsible=${true} onDrill=${function () { goTab("drill"); }} />`}
-          </div>` : null}<${window.LessonEmbed} path=${lp.path} /></div>`;
+          </div>` : null}<${window.LessonEmbed} path=${lp.path} onDrill=${function () { goTab("drill"); }} /></div>`;
       center = html`<div class="pan-lesson-inline">
         <div class="pan-lesson-inbar">
           <div style="min-width:0;flex:1;">

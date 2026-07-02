@@ -167,6 +167,7 @@ def init_db():
                     created_at timestamptz NOT NULL DEFAULT now());""")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_questions_kp ON questions(kp);")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_questions_subj ON questions(subject, scope, edition);")
+            cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS point text;")   # 题目挂卡片小点(小节级关联)
             # 答题记录:驱动错题本 / 掌握 / 自适应选题
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS answers(
@@ -713,7 +714,7 @@ class Handler(SimpleHTTPRequestHandler):
         if subject: where.append("subject=%s"); args.append(subject)
         if scope: where.append("scope=%s"); args.append(scope)
         if edition: where.append("edition=%s"); args.append(edition)
-        sql = "SELECT id,kp,subject,scope,edition,type,difficulty,variant_of,stem,options,answer,explain,source FROM questions"
+        sql = "SELECT id,kp,subject,scope,edition,type,difficulty,variant_of,stem,options,answer,explain,source,point FROM questions"
         if where: sql += " WHERE " + " AND ".join(where)
         sql += " ORDER BY id LIMIT %s"; args.append(limit)
         try:
@@ -736,12 +737,13 @@ class Handler(SimpleHTTPRequestHandler):
             conn = pg()
             with conn, conn.cursor() as cur:
                 for it in items[:500]:
-                    cur.execute("""INSERT INTO questions(kp,subject,scope,edition,type,difficulty,variant_of,stem,options,answer,explain,source)
-                        VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
+                    cur.execute("""INSERT INTO questions(kp,subject,scope,edition,type,difficulty,variant_of,stem,options,answer,explain,source,point)
+                        VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
                         (it.get("kp"), it.get("subject"), it.get("scope"), it.get("edition"),
                          it.get("type") or "choice", int(it.get("difficulty") or 2), it.get("variant_of"),
                          str(it.get("stem") or "")[:4000], json.dumps(it.get("options") or [], ensure_ascii=False),
-                         json.dumps(it.get("answer"), ensure_ascii=False), str(it.get("explain") or "")[:4000], it.get("source") or "manual"))
+                         json.dumps(it.get("answer"), ensure_ascii=False), str(it.get("explain") or "")[:4000], it.get("source") or "manual",
+                         (str(it.get("point"))[:80] if it.get("point") else None)))
                     ids.append(cur.fetchone()[0])
             conn.close()
             return self._json(200, {"ok": True, "ids": ids})

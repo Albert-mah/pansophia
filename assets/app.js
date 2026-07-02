@@ -306,8 +306,76 @@
     s.onload = function () { try { if (window.MathJax.typesetPromise) window.MathJax.typesetPromise([container]); } catch (e) {} };
     document.head.appendChild(s);
   }
+  // 通用「知识点小节导航」:解析正文 h2 小节 → 圆点条(读过实心/未读空心)+ 习题圆点;
+  // 点小节圆点滚到对应小节,滚到哪节自动记 secseen;全部讲解页(课程内嵌+全屏)自动生效。
+  function buildSectionNav(container, path, opts) {
+    var art = container.querySelector("article.page"); if (!art) return;
+    var h2s = Array.prototype.slice.call(art.querySelectorAll("h2"));
+    if (h2s.length < 2) return;
+    var kpRec = C.catalogByPath(path), kp = kpRec ? kpRec.id : null;
+    var seen = C.secSeen(path);
+    var clean = function (s) { return String(s || "").replace(/^\s*[0-9①-⑨]{1,2}\s*[.·、|︱/]?\s*/, "").trim().slice(0, 30); };
+    var nav = document.createElement("div");
+    nav.style.cssText = "position:sticky;top:-1px;z-index:30;background:rgba(255,253,248,.96);backdrop-filter:blur(4px);border:1px solid #EEE3CF;border-radius:12px;padding:10px 14px;margin:0 0 16px;";
+    var row = document.createElement("div");
+    row.style.cssText = "display:flex;align-items:center;gap:7px;flex-wrap:wrap;";
+    var prev = document.createElement("div");
+    prev.style.cssText = "display:none;margin-top:7px;font-size:12.5px;line-height:1.6;color:#7A6E5E;";
+    function label(txt) { var s = document.createElement("span"); s.textContent = txt; s.style.cssText = "font-size:10.5px;font-weight:700;color:#bbab8c;letter-spacing:.04em;"; return s; }
+    function dot(filled, color, border, mark) {
+      var d = document.createElement("span");
+      d.style.cssText = "width:13px;height:13px;border-radius:50%;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800;line-height:1;" +
+        (filled ? "background:" + color + ";color:#fff;border:1.5px solid " + color + ";" : "background:transparent;color:" + color + ";border:1.5px solid " + border + ";");
+      d.textContent = filled ? (mark || "✓") : "";
+      return d;
+    }
+    function showPrev(htmlTxt) { prev.innerHTML = htmlTxt; prev.style.display = "block"; }
+    nav.addEventListener("mouseleave", function () { prev.style.display = "none"; });
+    row.appendChild(label("知识点小节"));
+    var secDots = [];
+    h2s.forEach(function (h, i) {
+      var t = clean(h.textContent);
+      var d = dot(!!seen[i], "#6E7A4F", "#b8c49a");
+      d.title = t;
+      d.addEventListener("mouseenter", function () { showPrev("<b style='color:#5a4e3c;'>" + (seen[i] ? "● " : "○ ") + C.esc(t) + "</b> — 第 " + (i + 1) + "/" + h2s.length + " 小节 <span style='color:#bbab8c;'>(点圆点跳过去,读到自动点亮)</span>"); });
+      d.addEventListener("click", function () { try { h.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { h.scrollIntoView(); } });
+      secDots.push(d); row.appendChild(d);
+    });
+    // 滚到某小节 → 自动记读过(IntersectionObserver;不支持就算了,点圆点也会触发滚动)
+    try {
+      var io = new IntersectionObserver(function (ents) {
+        ents.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          var i = h2s.indexOf(en.target); if (i < 0) return;
+          seen = C.markSecSeen(path, i);
+          var d = secDots[i]; d.textContent = "✓";
+          d.style.background = "#6E7A4F"; d.style.color = "#fff"; d.style.border = "1.5px solid #6E7A4F";
+        });
+      }, { rootMargin: "0px 0px -55% 0px" });
+      h2s.forEach(function (h) { io.observe(h); });
+    } catch (e) {}
+    // 习题圆点(该考点的 PG 配套题,异步补上;答对✓绿/答错✗红/未做空心)
+    if (kp) C.questionsFor({ kp: [kp], limit: 12 }).then(function (qs) {
+      if (!qs || !qs.length) return;
+      var divider = document.createElement("span"); divider.style.cssText = "width:1px;height:12px;background:#EBDEC8;margin:0 2px;";
+      row.appendChild(divider); row.appendChild(label("习题"));
+      var qstat = C.quizStat();
+      qs.forEach(function (q, i) {
+        var st = qstat[String(q.id)];
+        var color = st ? (st.ok ? "#6E7A4F" : "#B6532F") : "#C8852E";
+        var d = dot(!!st, color, "#dcc9a4", st && !st.ok ? "✗" : "✓");
+        d.addEventListener("mouseenter", function () { showPrev("<b style='color:#5a4e3c;'>" + (st ? (st.ok ? "✓ 已答对" : "✗ 上次答错") : "○ 还没做") + " · 配套题 " + (i + 1) + "</b> — " + C.esc(String(q.stem || "").slice(0, 60)) + " <span style='color:#bbab8c;'>(" + (opts && opts.onDrill ? "点圆点去练" : "去课程页「练」里做") + ")</span>"); });
+        d.addEventListener("click", function () { if (opts && opts.onDrill) opts.onDrill(); });
+        row.appendChild(d);
+      });
+    });
+    nav.appendChild(row); nav.appendChild(prev);
+    var hd = art.querySelector(".page-header");
+    if (hd && hd.parentNode === art) art.insertBefore(nav, hd.nextSibling);
+    else art.insertBefore(nav, art.firstChild);
+  }
   // 把讲解正文注入容器 + 重新执行其组件脚本(innerHTML 不会自动跑 <script>)。一次只挂一篇,id 不冲突。
-  function mountLesson(container, path) {
+  function mountLesson(container, path, opts) {
     if (!container) return;
     container.setAttribute("data-path", path);   // 选中收藏要反查这段正文属于哪一节
     container.innerHTML = '<div class="pan-lesson-loading">载入讲解…</div>';
@@ -315,6 +383,7 @@
       container.innerHTML = L.markup;
       L.styles.forEach(function (css) { try { var st = document.createElement("style"); st.textContent = css; container.appendChild(st); } catch (e) {} });
       L.scripts.forEach(function (code) { try { var sc = document.createElement("script"); sc.textContent = code; container.appendChild(sc); } catch (e) {} });
+      try { buildSectionNav(container, path, opts); } catch (e) {}
       if (L.needsMath) typesetMath(container);
     }).catch(function () {
       container.innerHTML = '<div class="pan-lesson-loading">讲解载入失败,<a href="' + path + '" target="_blank" rel="noopener">在新标签打开 ↗</a></div>';
@@ -323,7 +392,7 @@
   // 内嵌讲解容器(课程中间栏 + 全屏浮层复用);expose 给 screens.js
   function LessonEmbed(props) {
     var ref = useRef(null);
-    useEffect(function () { if (props.path && ref.current) mountLesson(ref.current, props.path); }, [props.path]);
+    useEffect(function () { if (props.path && ref.current) mountLesson(ref.current, props.path, { onDrill: props.onDrill || null }); }, [props.path]);
     return html`<div class="pan-lesson-embed" ref=${ref}></div>`;
   }
   window.LessonEmbed = LessonEmbed;

@@ -319,6 +319,15 @@ window.Core = (function () {
     if (n) save("kpsrs", m);
     return n;
   }
+  // 讲解页小节阅读进度(secseen KV):{ [path]: { [h2小节idx]: ts } },滚到该节自动记
+  function secSeen(path) { return (store("secseen", {}) || {})[path] || {}; }
+  function markSecSeen(path, i) {
+    var all = Object.assign({}, store("secseen", {}));
+    var m = Object.assign({}, all[path] || {});
+    if (m[i]) return m;
+    m[i] = Date.now(); all[path] = m; save("secseen", all);
+    return m;
+  }
   // 卡片小点进度(cardpts KV):{ [kp]: { [小点idx]: ts } },「懂了」逐点打卡
   function cardPtSeen(kp) { return (store("cardpts", {}) || {})[kp] || {}; }
   function toggleCardPt(kp, i) {
@@ -1121,7 +1130,7 @@ window.Core = (function () {
     recordQuiz: recordQuiz, kpQuiz: kpQuiz, quizStat: quizStat, saveQuizRun: saveQuizRun, quizRunFor: quizRunFor,
     lessonRead: lessonRead, kpState: kpState, recentLessons: recentLessons, catalogByPath: catalogByPath, catalogForDiscipline: catalogForDiscipline,
     cardForKp: cardForKp, kpSrs: kpSrs, srsEnroll: srsEnroll, srsGrade: srsGrade, dueKps: dueKps, srsCounts: srsCounts, srsBackfill: srsBackfill, vocabDueCount: vocabDueCount,
-    cardPtSeen: cardPtSeen, toggleCardPt: toggleCardPt,
+    cardPtSeen: cardPtSeen, toggleCardPt: toggleCardPt, secSeen: secSeen, markSecSeen: markSecSeen,
     logEvent: logEvent, award: award, awardOnce: awardOnce, masteryGate: masteryGate,
     LEVELS: LEVELS, levelOf: levelOf, knowledgeValue: knowledgeValue,
     ACHIEVEMENTS: ACHIEVEMENTS, evalAchievements: evalAchievements, checkAchievements: checkAchievements,

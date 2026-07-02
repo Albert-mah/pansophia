@@ -68,8 +68,12 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
 { "kp": "有理数及其运算", "subject": "math", "scope": "chuzhong",
   "type": "choice|fill", "difficulty": 2, "variant_of": "组id或null",
   "stem": "题干", "options": ["A","B","C","D"], "answer": 1,
-  "explain": "解析(必填)", "source": "skills/questions@claude" }
+  "explain": "解析(必填)", "source": "skills/questions@claude",
+  "point": "加减法规则" }
 ```
+
+- `point`(可选,推荐):这道题考的是卡片里哪个**小点**(逐字符抄小点的 `t`)。
+  现在只做数据积累,后续前端按小节挂题、小节内出题都靠它。新题一律带上。
 
 - `choice`:options 3-5 项,answer 是正确项下标;`fill`:answer 是可接受答案字符串数组。
 - **变体组**:同一考法换数值/情境的题,在 JSON 里写相同的 `"group": "任意标签"`,
