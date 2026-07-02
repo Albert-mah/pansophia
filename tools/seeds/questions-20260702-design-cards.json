@@ -1,0 +1,348 @@
+[
+  {
+    "kp": "design-ucd-cognitive-load", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-ucd-recognition",
+    "stem": "后台配置页要让用户设置默认时区,哪种做法最符合「识别优于回忆」?",
+    "options": [
+      "提供带搜索的时区下拉,让用户从列表里选",
+      "让用户手动输入时区代码(如 UTC+8)",
+      "让用户凭记忆填上次设置的值",
+      "在帮助文档里列出所有时区代码供查阅"
+    ],
+    "answer": 0,
+    "explain": "识别优于回忆:把候选项摆出来让人「认」,比让人凭空「记」再手输更省脑力、更少出错。下拉选择是识别,手输代码是回忆。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-ucd-cognitive-load", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-ucd-recognition",
+    "stem": "新建工单时要指定负责人,下面哪种设计最符合「识别优于回忆」?",
+    "options": [
+      "从成员下拉列表里选(显示姓名和头像)",
+      "让用户输入负责人的员工工号",
+      "让用户手写负责人的姓名全称",
+      "让用户先去通讯录页抄工号再回来填"
+    ],
+    "answer": 0,
+    "explain": "同理:提供可辨认的成员列表让人选(识别),优于让人记住并手输工号或姓名(回忆)。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-norman-principles", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-norman-feedback",
+    "stem": "用户点「删除」后,列表中该行立刻消失并短暂显示「已删除」。这最直接体现诺曼五要素中的哪一个?",
+    "options": ["反馈", "约束", "映射", "示能"],
+    "answer": 0,
+    "explain": "反馈=每个动作都要有即时回应。行消失加「已删除」提示,就是对删除动作的即时反馈,让用户确认操作已生效。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-norman-principles", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-norman-feedback",
+    "stem": "点「导出」后按钮变成「导出中…」,完成时自动下载文件。这体现的是诺曼五要素里的?",
+    "options": ["反馈", "可见性", "约束", "映射"],
+    "answer": 0,
+    "explain": "从「导出中…」到完成下载,是对用户动作的即时回应,属于反馈——它让用户知道系统正在处理、何时完成。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-nng-heuristics", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-nng-user-control",
+    "stem": "后台系统没有任何「撤销」或「返回上一步」,一旦点错只能从头重来。最该补上的是 NN/g 十大原则中的哪一条?",
+    "options": ["用户控制与自由", "美观与极简", "帮助文档", "灵活高效"],
+    "answer": 0,
+    "explain": "用户控制与自由=给用户后悔药和退出口(撤销、返回)。缺了它,误操作无法挽回,是该原则的典型违反。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-nng-heuristics", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-nng-user-control",
+    "stem": "一个弹窗打开后没有关闭按钮、点遮罩也关不掉,用户被困在里面。这违反了 NN/g 哪条原则?",
+    "options": ["用户控制与自由", "一致与标准", "系统状态可见", "错误预防"],
+    "answer": 0,
+    "explain": "用户需要随时能「退出」当前状态。无法关闭的弹窗剥夺了退出口,违反用户控制与自由。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-error-prevention", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-error-slip-mistake",
+    "stem": "用户本想删除 A 记录,手一滑点到了相邻 B 记录的删除按钮。这属于哪类错误?",
+    "options": ["失误(slip)", "错误(mistake)", "系统故障", "数据错误"],
+    "answer": 0,
+    "explain": "失误(slip):目标是对的(想删记录),但执行层手滑点错了对象。对策是防呆(拉开按钮间距、可撤销),而非纠正判断。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-error-prevention", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-error-slip-mistake",
+    "stem": "用户以为「归档」就等于「永久删除」,于是特意点归档想彻底清掉数据。这属于哪类错误?",
+    "options": ["错误(mistake)", "失误(slip)", "系统 bug", "网络错误"],
+    "answer": 0,
+    "explain": "错误(mistake):判断或心智模型本身错了(误解了「归档」的含义),动作执行得很准。对策是澄清措辞、给正确反馈,而非单纯防手滑。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-interview-observe", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-interview-leading",
+    "stem": "做用户访谈时,下面哪个是应当避免的「诱导式」问题?",
+    "options": [
+      "你是不是也觉得这个审批流程太慢了?",
+      "能说说你上次走审批的经历吗?",
+      "你平时怎么处理被退回的单子?",
+      "到这一步时你当时在想什么?"
+    ],
+    "answer": 0,
+    "explain": "诱导式问题把预设答案塞进提问(「是不是也觉得…太慢」),用户容易迎合。其余三个是开放式,让用户自己讲经历。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-interview-observe", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-interview-leading",
+    "stem": "下面哪种问法会「把答案塞给用户」,访谈中应避免?",
+    "options": [
+      "这个新功能很方便吧,你以后会常用吧?",
+      "你上次是怎么完成对账的?",
+      "这中间遇到过什么麻烦?",
+      "能演示一遍你平时的做法吗?"
+    ],
+    "answer": 0,
+    "explain": "「很方便吧、会常用吧」是双重诱导,得到的是附和而非事实。开放式提问(怎么做、遇到什么麻烦)才问得出真实流程。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-usability-test", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-usability-task-not-steps",
+    "stem": "组织可用性测试时,给受测用户的任务应该怎么描述?",
+    "options": [
+      "把这张请假单提交给主管审批",
+      "点右上角的蓝色按钮,选主管,再点提交",
+      "先看我演示一遍,然后照着做",
+      "你觉得这个页面哪里做得好看?"
+    ],
+    "answer": 0,
+    "explain": "给「任务目标」不给「操作步骤」。一旦告诉用户点哪个按钮,就等于把答案喂给他,测不出界面本身是否好用。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-usability-test", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-usability-task-not-steps",
+    "stem": "要测试新建订单流程,下面哪种任务表述最合适?",
+    "options": [
+      "帮一位客户下一个含 3 件商品的订单",
+      "打开新建页,填这几个字段,然后点保存",
+      "请评价这个页面哪里需要改进",
+      "照着这份操作手册一步步做"
+    ],
+    "answer": 0,
+    "explain": "同理:描述真实目标(下一个 3 件商品的订单),让用户自己找路径;给步骤或手册都会掩盖真实的可用性问题。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-nav-ia", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-ia-naming",
+    "stem": "后台里同一批客户数据,菜单叫「客户」、按钮叫「会员」、报表标题叫「用户」。最该怎么改?",
+    "options": [
+      "全站统一用同一个名称",
+      "各页面按各自习惯叫,能点到就行",
+      "在帮助文档里说明三者是一回事",
+      "给每个名字配不同图标来区分"
+    ],
+    "answer": 0,
+    "explain": "同一功能或对象全站只用一个名字(命名一致)。否则用户要反复确认「这几个是不是一回事」,徒增认知负荷。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-nav-ia", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-ia-naming",
+    "stem": "一个功能在导航里叫「工单」、详情页标题叫「报修单」、通知里叫「服务请求」,用户很困惑。根本解法是?",
+    "options": [
+      "三处统一成同一个名称",
+      "维持现状,反正都能找到入口",
+      "给三个名字各配一段说明",
+      "让用户自己记住它们的对应关系"
+    ],
+    "answer": 0,
+    "explain": "命名不一致让用户无法把不同页面的信息对应起来。统一命名是根本解,而不是靠说明或让用户去记。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-search-filter", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-search-as-you-type",
+    "stem": "后台一个上千条的客户列表,顶部搜索框最好的行为是?",
+    "options": [
+      "边输入边实时收窄结果,并显示「找到 N 条」",
+      "必须点「搜索」按钮才出结果",
+      "搜索后跳转到一个新页面展示结果",
+      "只支持输入完整全称的精确匹配"
+    ],
+    "answer": 0,
+    "explain": "search-as-you-type(边打边出)加实时结果数,让用户即时得到反馈、快速逼近目标;要点按钮或跳页都增加了操作和等待。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-search-filter", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-search-as-you-type",
+    "stem": "用户在订单搜索框里输入关键词,体验最好的设计是?",
+    "options": [
+      "边输入边过滤,并实时更新结果数量",
+      "输完回车,若无结果只显示一片空白",
+      "输入几秒后弹窗提示「请点击搜索按钮」",
+      "一开始搜索就自动清空已选的筛选条件"
+    ],
+    "answer": 0,
+    "explain": "即时过滤加结果计数最省力;无结果的空白、强制点按钮、以及搜索时清空筛选,都是常见的糟糕反馈。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-form-design", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-form-ask-less",
+    "stem": "设计新建订单表单,下面哪个最符合「能不问就不问」?",
+    "options": [
+      "下单时间自动填当前时间,用户无需手填",
+      "让用户手动输入当前日期和时间",
+      "把所有可选字段一律设为必填",
+      "要求用户重复输入两遍手机号"
+    ],
+    "answer": 0,
+    "explain": "能由系统自动带出的信息(当前时间)就别问用户。多问、把选填改必填、重复输入都在增加负担和放弃率。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-form-design", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-form-ask-less",
+    "stem": "一个内部审批表单,下面哪种做法最省用户力气?",
+    "options": [
+      "「申请人」默认填当前登录人,允许修改",
+      "每次都让用户从全员列表里找自己",
+      "让用户手动输入自己的部门编码",
+      "把「部门」设为必填却不提供默认值"
+    ],
+    "answer": 0,
+    "explain": "登录人、所属部门这类系统已知的信息应自动带出并允许修改(合理默认值),而不是让用户重复提供。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-four-states", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-error-state",
+    "stem": "表单提交失败时,好的「错误态」应该怎么做?",
+    "options": [
+      "说清哪里错、为什么、怎么改,并保留用户已填内容",
+      "只弹出「操作失败」四个字",
+      "清空整个表单,让用户重新填",
+      "直接跳回列表页,不给任何提示"
+    ],
+    "answer": 0,
+    "explain": "错误态三要素:哪里错、为什么、怎么办;并且必须保留已填内容。笼统报错、清空表单、静默跳走都是反例。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-four-states", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-error-state",
+    "stem": "列表数据加载失败(如网络异常)时,该区域最好显示什么?",
+    "options": [
+      "「加载失败,点此重试」并简要说明原因",
+      "一直转圈,不给任何结果",
+      "一片空白,像没有数据一样",
+      "继续显示上次的旧数据且不提示已过期"
+    ],
+    "answer": 0,
+    "explain": "错误态要让用户知道出错了、为何出错、并给重试入口。无限转圈、空白、或悄悄显示过期数据都会误导用户。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-table-batch", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-batch-danger",
+    "stem": "表格支持批量删除,一次删掉几十条。体验和安全都最好的是?",
+    "options": [
+      "删除后给出「已删除 N 条,可撤销」的提示",
+      "每勾选一行就弹一次确认框",
+      "直接永久删除,不给任何提示",
+      "删除后立刻跳转到其它页面"
+    ],
+    "answer": 0,
+    "explain": "高频且批量的危险操作,用「可撤销」比反复确认更顺手也更安全;永久删除无提示、频繁确认、删完跳走都不可取。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-table-batch", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-batch-danger",
+    "stem": "关于后台「批量删除」按钮的摆放,最安全的做法是?",
+    "options": [
+      "和常用操作分开放置、加确认或提供撤销",
+      "紧挨「导出」按钮、样式也做得一模一样",
+      "放在每一行最显眼的位置方便点击",
+      "做成页面默认高亮的主按钮"
+    ],
+    "answer": 0,
+    "explain": "危险操作要防呆:与常用按钮拉开距离、样式区分、加保护(确认或撤销),避免手滑误触。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-wizard-modal-drawer", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-container-modal",
+    "stem": "下面哪种情况最适合使用「弹窗(Modal)」?",
+    "options": [
+      "删除前的一次性简短确认",
+      "包含十几个字段的多步配置",
+      "边看列表边编辑其中一条",
+      "展示一篇需要长时间滚动的说明"
+    ],
+    "answer": 0,
+    "explain": "弹窗适合短、聚焦、必须打断的事(如确认)。多步配置该用向导,边看边改该用抽屉,长文档不该塞进弹窗。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-wizard-modal-drawer", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-container-modal",
+    "stem": "以下哪个场景用「弹窗(Modal)」最合适?",
+    "options": [
+      "一个「确定要退出登录吗」的短确认",
+      "新员工五步入职引导流程",
+      "在不离开列表的前提下快速改一条备注",
+      "一份需要来回滚动查看的长报表"
+    ],
+    "answer": 0,
+    "explain": "短确认正是弹窗的主场;五步流程用向导、保留列表上下文的小编辑用抽屉、长报表用整页,都不该用弹窗。",
+    "source": "skills/questions@opus"
+  },
+
+  {
+    "kp": "design-pattern-reuse", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-pattern-when-invent",
+    "stem": "你想让后台的「删除」交互更有新意,自己发明了一套全新手势。更稳妥的做法是?",
+    "options": [
+      "沿用用户已熟悉的标准删除模式(如可撤销删除)",
+      "坚持用新手势,显得更有设计感",
+      "保留新手势,再配一段教学动画",
+      "只在部分页面用新手势、其它页面用旧的"
+    ],
+    "answer": 0,
+    "explain": "后台里一致性优先于个人创意。标准模式用户已会用,自创会增加学习成本;混用更破坏一致性。",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "design-pattern-reuse", "subject": "design", "scope": "general",
+    "type": "choice", "difficulty": 2, "group": "design-pattern-when-invent",
+    "stem": "什么情况下才「值得」自创一套非标准交互?",
+    "options": [
+      "标准模式确实解决不了这个特定问题,且验证过新做法更好",
+      "只是觉得标准模式不够酷",
+      "单纯想和竞品做出差异",
+      "设计师个人比较偏好新做法"
+    ],
+    "answer": 0,
+    "explain": "自创的门槛很高:必须是标准模式真的无法满足需求、且经验证新做法确实更优。为了酷、差异化或个人偏好都不够。",
+    "source": "skills/questions@opus"
+  }
+]
