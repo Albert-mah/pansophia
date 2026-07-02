@@ -1515,6 +1515,13 @@
     useEffect(function () { setRedo(false); setQs(null); C.questionsFor({ kp: [kpId], scope: p.scope || null, limit: 30 }).then(function (rows) { setQs(rows.map(normQ)); }); }, [kpId, p.scope]);
     var saved = !redo ? C.quizRunFor(runKey) : null;
     var savedAcc = saved && saved.total ? Math.round(saved.correct / saved.total * 100) : 0;
+    // 两个粒度都要有入口:本节小练之外,整课混合练(各节抽题)和模拟试卷(每考点一题,≥80% 过校验)
+    var footer = html`<div style="margin-top:18px;padding-top:14px;border-top:1px dashed #EBDEC8;display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:#9a8a6f;">
+      <span>本节题库 ${qs == null ? "…" : qs.length} 道</span>
+      <span class="pan-btn ghost sm" onClick=${function () { app.go("practice", { disc: p.did, scope: p.scope }); }}>🎲 整课混合练</span>
+      <span class="pan-btn ghost sm" onClick=${function () { app.go("practice", { disc: p.did, scope: p.scope, mode: "exam" }); }}>🧪 模拟试卷</span>
+      <span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { C.sendMessage({ kind: "ask", text: "「" + p.kp.title + "」的配套题太少了,请再出 5-8 道(kp 挂 " + kpId + ",变式多样、带解析)。", context: { discId: p.did, scope: p.scope, kp: kpId } }).then(function () { app.go("messages"); }); }}>✉️ 给这节加题</span>
+    </div>`;
     if (saved) return html`<div>
       <div class="pan-panel" style="padding:20px 22px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
         <div style="font-size:32px;">${savedAcc >= 80 ? "🎉" : savedAcc >= 60 ? "👍" : "💪"}</div>
@@ -1524,11 +1531,12 @@
         <span class="pan-btn ink" onClick=${function () { setRedo(true); }}>🔄 重新练</span>
       </div>
       ${html`<${QuizReview} items=${saved.items} />`}
+      ${footer}
     </div>`;
     if (qs == null) return html`<div class="pan-empty">加载题目中…</div>`;
-    if (!qs.length) return html`<div class="pan-empty">「${p.kp.title}」还没有配套题。<br/>
-      <span class="pan-btn grad" style="margin-top:14px;" onClick=${function () { C.sendMessage({ kind: "ask", text: "请给知识点「" + p.kp.title + "」出一套配套练习题(kp 挂 " + kpId + ")。", context: { discId: p.did, scope: p.scope, kp: kpId } }).then(function () { app.go("messages"); }); }}>✉️ 请导师出题</span></div>`;
-    return html`<${QuizRun} questions=${qs} title=${p.kp.title + " · 练习"} subject=${p.subject} runKey=${runKey} kp=${kpId} onClose=${function () { setRedo(false); }} />`;
+    if (!qs.length) return html`<div><div class="pan-empty">「${p.kp.title}」还没有配套题。<br/>
+      <span class="pan-btn grad" style="margin-top:14px;" onClick=${function () { C.sendMessage({ kind: "ask", text: "请给知识点「" + p.kp.title + "」出一套配套练习题(kp 挂 " + kpId + ")。", context: { discId: p.did, scope: p.scope, kp: kpId } }).then(function () { app.go("messages"); }); }}>✉️ 请导师出题</span></div>${footer}</div>`;
+    return html`<div><${QuizRun} questions=${qs} title=${p.kp.title + " · 练习"} subject=${p.subject} runKey=${runKey} kp=${kpId} onClose=${function () { setRedo(false); }} />${footer}</div>`;
   }
 
   // 📝 结·笔记:学习档案 + 知识点归纳 + 这节的笔记 + 这节的错题 —— 反馈闭环收在本节里
