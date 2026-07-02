@@ -93,5 +93,41 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
     mnemonic: "主格站主语位,宾格站宾语位;物主代词后面有名词用 my 类,没名词用 mine 类。",
     minutes: 3, difficulty: 1,
     date: "2026-07-02", by: "sonnet"
+  },
+  {
+    kp: "mh-en-future-tense",
+    title: "一般将来时（will + 动词原形）",
+    subject: "english", scope: "jijiao-6b",
+    mode: "drill",
+    hook: "tomorrow/next…一出现,will + 动词原形,别忘否定是 won't",
+    body: [
+      { t: "什么时候用 will", p: "句子里出现 tomorrow、next week / next year、this summer、soon、in the future 这些**将来时间词**,就用 **will + 动词原形**。will 不随人称变化,I / you / he / she / we / they 后面都用 will。" },
+      { t: "否定与疑问句", p: "否定:will 后加 not,缩写成 **won't** + 动词原形,I won't go。一般疑问句把 **Will** 提到句首:Will you come? — Yes, I will. / No, I won't。" },
+      { t: "缩写与 be 将来式", p: "常见缩写:I will→I'll、he will→he'll、will not→won't。be 动词的将来式是 **will be**,不能写成 will is / will am:I will be 11 next year。" },
+      { t: "will 与 going to", p: "两个都能说将来,小升初先记住:will 常用来说临时决定或预测(I think it will rain);**be going to** 常用来说事先计划好的事(We are going to visit grandma)。能认出 be going to 就够了,重点还是 will + 动词原形。" }
+    ],
+    example: "Tomorrow I will goes to the zoo. ❌ → Tomorrow I will **go** to the zoo. ✔ will 后面一定接动词原形,不能加 s。",
+    pitfall: "will 后面加了三单 s 或改成过去式是最高频错误:He will goes ❌ / He will went ❌ → He will **go** ✔,will 已经表示将来,动词永远用原形。",
+    mnemonic: "will 一出场,动词就原形;tomorrow、next 一出现,先想到 will。",
+    minutes: 3, difficulty: 2,
+    date: "2026-07-02", by: "sonnet"
+  },
+  {
+    kp: "mh-en-present-continuous",
+    title: "现在进行时（be + 动词-ing）",
+    subject: "english", scope: "jijiao-6b",
+    mode: "drill",
+    hook: "Look!/Listen!/now 一出现,be + 动词-ing,别漏了 be",
+    body: [
+      { t: "be + doing 结构", p: "现在进行时 = **am / is / are + 动词-ing**,表示此刻正在做的事。主语配 be:I 用 am,he / she / it 用 is,you / we / they 用 are。She **is running**。" },
+      { t: "信号词", p: "看到 **Look!、Listen!、now、right now、at the moment** 这些词,就要想到现在进行时,句子里常常没有别的提示。" },
+      { t: "-ing 拼写四规则", p: "一般直接 +ing(play→playing);不发音的 e 结尾去 e 再 +ing(make→making);重读闭音节双写尾字母再 +ing(run→running、sit→sitting);ie 结尾变 y 再 +ing(lie→lying)。" },
+      { t: "和一般现在时的区分", p: "一般现在时说**习惯或事实**(I go to school every day);现在进行时说**此刻正在做**(I am going to school now)。like / know / want 这类状态动词一般不用进行时:I am liking it ❌ → I like it ✔。" }
+    ],
+    example: "The cat sleeping on the sofa. ❌ → The cat **is** sleeping on the sofa. ✔ 动词 -ing 前面的 be 动词不能丢。",
+    pitfall: "-ing 前漏掉 be 动词是最高频错误:She dancing ❌ → She **is** dancing ✔;重读闭音节忘记双写也常见:runing ❌ → running ✔。",
+    mnemonic: "看见 Look!/Listen!/now,be + doing 别偷懒;双写规则记牢,run 要变 running 不是 runing。",
+    minutes: 3, difficulty: 2,
+    date: "2026-07-02", by: "sonnet"
   }
 ]);
