@@ -48,13 +48,18 @@
     var refs = useRef({});
     useEffect(function () {
       setSeen(C.cardPtSeen(kp)); setHov(null); setQs(null); setOpen(!props.collapsible);
+      if (props.noDots) { setQs([]); return; }   // 刷题内嵌等场景:不要点条,也不用拉题
       var dead = false;
-      C.questionsFor({ kp: [kp], limit: 12 }).then(function (rows) { if (!dead) setQs(rows || []); });
+      C.questionsFor({ kp: [kp], limit: 12 }).then(function (rows) { if (!dead) setQs((rows || []).filter(function (r) { return r.scope !== "extra"; })); });
       return function () { dead = true; };
     }, [kp]);
     var gotN = pts.filter(function (_, i) { return seen[i]; }).length;
     var qstat = C.quizStat();
-    function togglePt(i) { setSeen(Object.assign({}, C.toggleCardPt(kp, i))); }
+    function togglePt(i) {
+      var m = C.toggleCardPt(kp, i);
+      if (m[i]) C.awardOnce("pt:" + kp + "#" + i, 1, "学到 · " + ((pts[i] && pts[i].t) || "小点"));   // 基本分:每个小点首次「懂了」+1
+      setSeen(Object.assign({}, m));
+    }
     function jumpPt(i) {
       if (!open) { setOpen(true); setTimeout(function () { var el = refs.current["p" + i]; if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "center" }); }, 150); return; }
       var el = refs.current["p" + i]; if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -79,7 +84,7 @@
         <span class="pan-pill" style="color:#6E7A4F;background:#EFF1E0;">小点 ${gotN}/${pts.length}</span>
         ${props.chips || null}
       </div>
-      <div style="margin:0 0 14px;" onMouseLeave=${function () { setHov(null); }}>
+      ${props.noDots ? null : html`<div style="margin:0 0 14px;" onMouseLeave=${function () { setHov(null); }}>
         <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
           <span style="font-size:10.5px;font-weight:700;color:#bbab8c;letter-spacing:.04em;">知识点</span>
           ${pts.map(function (pt, i) {
@@ -101,7 +106,7 @@
         ${preview ? html`<div style="margin-top:8px;background:#FBF6EC;border:1px solid #EEE3CF;border-radius:10px;padding:9px 13px;font-size:12.5px;line-height:1.6;">
           <b style="color:#5a4e3c;">${preview.title}</b><span style="color:#7A6E5E;"> — ${preview.text}</span>
           <span style="color:#bbab8c;margin-left:6px;">(${preview.hint})</span></div>` : null}
-      </div>
+      </div>`}
       ${card.hook ? html`<div style="font-family:var(--serif);font-size:16px;font-weight:700;color:#B6532F;line-height:1.5;margin-bottom:12px;">${mdSpan(card.hook)}</div>` : null}
       ${!open ? html`<div onClick=${function () { setOpen(true); }} style="cursor:pointer;text-align:center;border:1.5px dashed #E4C29B;border-radius:10px;padding:9px;font-size:12.5px;font-weight:700;color:#a86a00;background:rgba(255,255,255,.5);">▾ 展开一分钟版全文(${pts.length} 个小点${gotN ? " · 已懂 " + gotN : ""})</div>` : null}
       ${open ? pts.map(function (pt, i) {
@@ -131,6 +136,7 @@
     useEffect(function () {
       setQ(null); setAns(null); setFill("");
       C.questionsFor({ kp: [p.kp], limit: 20 }).then(function (rows) {
+        rows = (rows || []).filter(function (r) { return r.scope !== "extra"; });   // 复习抽题不抽课外题
         if (!rows.length) { setQ(false); return; }
         setQ(rows[Math.floor(Math.random() * rows.length)]);
       });

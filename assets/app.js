@@ -356,7 +356,8 @@
     } catch (e) {}
     // 习题圆点(该考点的 PG 配套题,异步补上;答对✓绿/答错✗红/未做空心)
     if (kp) C.questionsFor({ kp: [kp], limit: 12 }).then(function (qs) {
-      if (!qs || !qs.length) return;
+      qs = (qs || []).filter(function (q) { return q.scope !== "extra"; });   // 课外题不进小节导航圆点
+      if (!qs.length) return;
       var divider = document.createElement("span"); divider.style.cssText = "width:1px;height:12px;background:#EBDEC8;margin:0 2px;";
       row.appendChild(divider); row.appendChild(label("习题"));
       var qstat = C.quizStat();

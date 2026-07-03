@@ -1,0 +1,35 @@
+[
+  { "kp": "mh-en-alphabet", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "alpha-name-vs-sound", "point": "字母名与字母音",
+    "stem": "拼读单词 cat 时,开头的 c 应该用哪个音?", "options": ["/k/(字母音)", "/siː/(字母名)", "/tʃ/", "/s/"], "answer": 0,
+    "explain": "拼单词用字母音:c 在 cat 里发 /k/。/siː/ 是它的字母名,只在读字母表或缩写时用。", "source": "seed@claude" },
+  { "kp": "mh-en-alphabet", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "alpha-name-vs-sound", "point": "字母名与字母音",
+    "stem": "读缩写 CD 的时候,用的是字母的什么?", "options": ["字母名(see-dee)", "字母音", "拼读连音", "随便哪个"], "answer": 0,
+    "explain": "缩写逐个读字母名:CD 读 see-dee。拼单词才用字母音。", "source": "seed@claude" },
+
+  { "kp": "mh-en-alphabet", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "vowel-short-sound", "point": "五个元音的短音",
+    "stem": "bed 里的 e 发什么音?", "options": ["/e/", "/iː/", "/æ/", "/ʌ/"], "answer": 0,
+    "explain": "bed 的 e 发短音 /e/,和 red、pen 一样。", "source": "seed@claude" },
+  { "kp": "mh-en-alphabet", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "vowel-short-sound", "point": "五个元音的短音",
+    "stem": "cup 里的 u 发什么音?", "options": ["/ʌ/", "/uː/", "/ɒ/", "/e/"], "answer": 0,
+    "explain": "cup 的 u 发短音 /ʌ/,和 bus、sun 一样。", "source": "seed@claude" },
+  { "kp": "mh-en-alphabet", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2, "point": "五个元音的短音",
+    "stem": "下面哪个词的元音发短音 /ɪ/?", "options": ["sit", "site", "seat", "set"], "answer": 0,
+    "explain": "sit 的 i 发短音 /ɪ/;site 发 /aɪ/,seat 发 /iː/,set 发 /e/。", "source": "seed@claude" },
+
+  { "kp": "mh-en-alphabet", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "digraph-sounds", "point": "常见字母组合",
+    "stem": "chair 开头的字母组合 ch 发什么音?", "options": ["/tʃ/", "/ʃ/", "/k/", "/θ/"], "answer": 0,
+    "explain": "ch 发 /tʃ/,像打喷嚏前的“吃”:chair、China、lunch。", "source": "seed@claude" },
+  { "kp": "mh-en-alphabet", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "digraph-sounds", "point": "常见字母组合",
+    "stem": "duck 结尾的字母组合 ck 发什么音?", "options": ["/k/", "/s/", "/tʃ/", "/kk/(读两次)"], "answer": 0,
+    "explain": "-ck 只发一个 /k/:duck、back、clock。两个字母一个音,不读两次。", "source": "seed@claude" },
+
+  { "kp": "mh-en-alphabet", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "blend-three-steps", "point": "拼读三步法",
+    "stem": "用自然拼读读出 dog,正确的做法是?", "options": ["/d/-/ɒ/-/g/ 连起来读", "读字母名 dee-oh-gee", "先把字母表背一遍", "看着像什么就猜什么"], "answer": 0,
+    "explain": "拼读三步:配字母音 → 连读 → 检查。dog = /d/+/ɒ/+/g/ → /dɒg/。", "source": "seed@claude" },
+  { "kp": "mh-en-alphabet", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "blend-three-steps", "point": "拼读三步法",
+    "stem": "用自然拼读读出 sun,正确的做法是?", "options": ["/s/-/ʌ/-/n/ 连起来读", "读字母名 es-you-en", "直接跳过", "读成中文“太阳”"], "answer": 0,
+    "explain": "sun = /s/+/ʌ/+/n/ → /sʌn/,逐音连读就出来了。", "source": "seed@claude" },
+  { "kp": "mh-en-alphabet", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2, "point": "拼读三步法",
+    "stem": "said 按拼读规则拼不出来,应该怎么办?", "options": ["当“视觉词”整个记住", "硬拼 s-a-i-d 的字母音", "永远跳过不学", "把它读成 sad"], "answer": 0,
+    "explain": "拼读规则覆盖不了的不规则词叫视觉词(sight words),像 said、the、one,直接整词记住。", "source": "seed@claude" }
+]

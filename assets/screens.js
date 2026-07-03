@@ -1474,7 +1474,7 @@
   /* =========================================================
    *  刷题闭环:知识点练习(PG 题库)+ 错题本(答题写库,错题自动收集)
    * ========================================================= */
-  function normQ(r) { return { qid: r.id, kp: r.kp, type: r.type || "choice", q: r.stem, options: r.options || [], answer: r.answer, explain: r.explain, subject: r.subject, difficulty: r.difficulty || 2 }; }
+  function normQ(r) { return { qid: r.id, kp: r.kp, type: r.type || "choice", q: r.stem, options: r.options || [], answer: r.answer, explain: r.explain, subject: r.subject, difficulty: r.difficulty || 2, point: r.point || null, scope: r.scope || null }; }
 
   // 知识点卡:从讲解页正文抓「开头的通俗解释」(比 catalog 的晦涩 summary 详细可读),缓存
   var _kpIntroCache = {};
@@ -1539,7 +1539,7 @@
     var runKey = p.did + "|" + (p.scope || "") + "|practice|" + kpId;
     var q0 = useState(null); var qs = q0[0], setQs = q0[1];
     var rd0 = useState(false); var redo = rd0[0], setRedo = rd0[1];
-    useEffect(function () { setRedo(false); setQs(null); C.questionsFor({ kp: [kpId], scope: p.scope || null, limit: 30 }).then(function (rows) { setQs(rows.map(normQ)); }); }, [kpId, p.scope]);
+    useEffect(function () { setRedo(false); setQs(null); C.questionsFor({ kp: [kpId], scope: p.scope || null, limit: 30 }).then(function (rows) { setQs(rows.filter(function (r) { return r.scope !== "extra"; }).map(normQ)); }); }, [kpId, p.scope]);   // 课外题(scope=extra)不进课内练习
     var saved = !redo ? C.quizRunFor(runKey) : null;
     var savedAcc = saved && saved.total ? Math.round(saved.correct / saved.total * 100) : 0;
     // 两个粒度都要有入口:本节小练之外,整课混合练(各节抽题)和模拟试卷(每考点一题,≥80% 过校验)
@@ -1679,8 +1679,16 @@
         <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;">${html`<${Pill} text=${q.type === "fill" ? "填空" : "单选"} color="#6E7A4F" />`}<span class="pan-pill" style="color:#C8852E;background:#FBF4E6;font-weight:700;margin-left:auto;">⬡ ${val(q)}</span></div>
         <h1 style="font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.45;margin:0 0 22px;">${q.q}</h1>
         <div style="display:flex;flex-direction:column;gap:12px;">${optsEl}</div>
-        ${run.answered != null && q.explain ? html`<div style="background:#FBF4E6;border-radius:14px;padding:18px 20px;margin-top:22px;"><div style="font-size:13px;font-weight:700;color:#6E7A4F;margin-bottom:6px;">${run.lastOk ? "✓ 答对了" : "✗ 解析"}</div><div style="font-size:14px;line-height:1.7;color:#3a3023;">${q.explain}</div></div>` : null}
-        ${run.answered != null && C.catalogForKp(q.kp) ? html`<${KpCard} kp=${C.catalogForKp(q.kp)} app=${app} />` : null}
+        ${run.answered != null && q.explain ? html`<div style="background:#FBF4E6;border-radius:14px;padding:18px 20px;margin-top:22px;"><div style="font-size:13px;font-weight:700;color:#6E7A4F;margin-bottom:6px;">${run.lastOk ? "✓ 答对了" : "✗ 解析"}${q.point ? html`<span style="font-weight:600;color:#a86a00;"> · 考的是「${q.point}」</span>` : ""}</div><div style="font-size:14px;line-height:1.7;color:#3a3023;">${q.explain}</div></div>` : null}
+        ${run.answered != null ? (function () {
+          var kc = C.catalogForKp(q.kp);
+          if (kc) return html`<${KpCard} kp=${kc} app=${app} />`;
+          var card = q.kp ? C.cardForKp(q.kp) : null;   // 卡片式考点:刷题时随时展开知识卡(折叠不打断节奏)
+          if (!card) return null;
+          return html`<div style="margin-top:16px;border:1px solid #EEE3CF;border-radius:14px;padding:14px 18px;background:#fff;">
+            <div style="font-size:11.5px;color:#9a8a6f;font-weight:700;letter-spacing:.04em;margin-bottom:8px;">📖 这道题考的知识卡</div>
+            <${window.CardArticle} card=${card} noDots=${true} collapsible=${true} /></div>`;
+        })() : null}
         ${run.answered != null ? html`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;">${(run.reviewed || {})[run.i] ? html`<span class="pan-pill" style="background:#FBF4E6;color:#C8852E;font-weight:700;">⏳ 待点评 · 已申请导师点评</span><span style="font-size:12px;color:#9a8a6f;">做完后到「导师点评」让 AI 批改 →</span>` : html`<span class="pan-btn ghost" onClick=${reqReview}>🎓 申请 AI 导师点评</span>`}</div>` : null}
         ${run.answered != null ? html`<div style="display:flex;justify-content:flex-end;margin-top:22px;"><span class="pan-btn ink" onClick=${next}>${run.i + 1 >= qs.length ? "查看结果 →" : "下一题 →"}</span></div>` : null}
       </div></div>`;
@@ -1699,7 +1707,7 @@
       if (!d) { setQs([]); return; }
       var opt = kpParam ? { kp: [kpParam], scope: scope || null, limit: 30 } : { subject: d.subject, scope: scope || null, limit: isExam ? 300 : 20 };
       C.questionsFor(opt).then(function (rows) {
-        var list = rows.map(normQ);
+        var list = rows.filter(function (r) { return r.scope !== "extra"; }).map(normQ);   // 课外题不进混合练/模拟卷
         if (isExam) {   // 组卷:每个知识点取一题,覆盖全部,打乱
           var byKp = {}, order = [];
           list.forEach(function (q) { var k = q.kp || ("_" + q.qid); if (!byKp[k]) { byKp[k] = q; order.push(k); } });

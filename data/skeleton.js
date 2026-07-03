@@ -123,6 +123,8 @@ window.STUDY_SKELETON = [
   {
     profile: "mahuan", subject: "english", scope: "jijiao-6b",
     topics: [
+      { title: "词汇 · 拼读", points: [
+        { title: "26个字母与自然拼读", ref: "mh-en-alphabet" } ] },
       { title: "语法 · 时态", points: [
         { title: "一般过去时", ref: "mh-en-past-tense" },
         { title: "一般将来时(will)", ref: "mh-en-future-tense" },

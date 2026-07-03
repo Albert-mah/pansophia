@@ -118,7 +118,7 @@ def do_coverage(min_n):
     gaps = []
     for kp in kps:
         r = api("/api/questions?kp=%s&limit=50" % urllib.request.quote(kp))
-        cnt = len(r.get("questions") or [])
+        cnt = len([q for q in (r.get("questions") or []) if q.get("scope") != "extra"])   # 课外题不算配题达标
         mark = "✓" if cnt >= min_n else "✗"
         print(" %s %-40s %d 题" % (mark, kp, cnt))
         if cnt < min_n: gaps.append(kp)

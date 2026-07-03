@@ -5,6 +5,24 @@
  * ============================================================= */
 window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
   {
+    kp: "mh-en-alphabet",
+    title: "26个字母与自然拼读入门",
+    subject: "english", scope: "jijiao-6b",
+    mode: "drill",
+    hook: "认字母用名字,拼单词用声音;讲解页里每个字母都能点着听",
+    body: [
+      { t: "字母名与字母音", p: "每个字母有两个身份:**字母名**(读字母表时的名字,如 A 读 /eɪ/)和**字母音**(在单词里发的音,如 apple 里的 a 发 /æ/)。拼读单词靠**字母音**,读缩写才用字母名:`CD` 逐个读字母名,`cat` 要拼字母音。" },
+      { t: "五个元音的短音", p: "a e i o u 五个元音最常见的短音:**a /æ/**(cat)、**e /e/**(bed)、**i /ɪ/**(sit)、**o /ɒ/**(box)、**u /ʌ/**(cup)。把这五个短音听熟,大部分三字母单词就能自己拼出来。" },
+      { t: "常见字母组合", p: "两个字母搭伙只发一个音:**sh /ʃ/**(fish)、**ch /tʃ/**(chair)、**th**(this / thank 的咬舌音)、**-ck /k/**(duck)。看到这些组合别拆开一个一个读。" },
+      { t: "拼读三步法", p: "碰到生词:① 从左到右给每个字母(或组合)配上**字母音**;② 把音**连**起来:`c-a-t → cat`;③ 连出来读一读,对不对得上意思。拼不出来的怪词(如 said)就是**视觉词**,直接整个记。" }
+    ],
+    example: "拼 dog:d /d/ + o /ɒ/ + g /g/ → 连读 /dɒg/。注意用的是字母音,不是字母名 dee-oh-gee。",
+    pitfall: "用**字母名**去拼单词是最常见错误:把 cat 读成 see-ay-tee 永远拼不出来 —— 单词里用**字母音**。",
+    mnemonic: "认字母用名字,拼单词用声音;五个短元音:cat bed sit box cup。",
+    minutes: 3, difficulty: 1,
+    date: "2026-07-03", by: "claude"
+  },
+  {
     kp: "mh-en-past-tense",
     title: "一般过去时（动词过去式）",
     subject: "english", scope: "xiaoxue",
