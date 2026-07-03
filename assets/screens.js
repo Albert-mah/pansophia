@@ -1668,7 +1668,8 @@
       optsEl = (q.options || []).map(function (o, i) {
         var cls = "pan-opt", mark = "", mc = "#6E7A4F";
         if (run.answered != null) { if (i === q.answer) { cls += " right"; mark = "✓"; } else if (i === run.answered) { cls += " wrong"; mark = "✕"; mc = "#B6532F"; } }
-        return html`<div key=${i} class=${cls} onClick=${run.answered == null ? function () { choose(i); } : null}><div class="k">${String.fromCharCode(65 + i)}</div><div class="tx">${o}</div><div style=${"font-size:18px;color:" + mc + ";"}>${mark}</div></div>`;
+        var spk = (q.subject === "english" && window.speakableWord && window.speakableWord(o)) ? html`<span title="听发音" onClick=${function (e) { e.stopPropagation(); C.speak(o, "en"); }} style="cursor:pointer;font-size:15px;flex-shrink:0;opacity:.75;">🔊</span>` : null;
+        return html`<div key=${i} class=${cls} onClick=${run.answered == null ? function () { choose(i); } : null}><div class="k">${String.fromCharCode(65 + i)}</div><div class="tx">${o}</div>${spk}<div style=${"font-size:18px;color:" + mc + ";"}>${mark}</div></div>`;
       });
     }
     var scn = (SUBJECTS[q.subject] || {}).name || q.subject || "";
@@ -1677,9 +1678,9 @@
       <div class="pan-bar" style="height:7px;margin-bottom:20px;"><i style=${"width:" + Math.round(run.i / qs.length * 100) + "%;background:#C8852E;"}></i></div>
       <div class="pan-panel" style="padding:30px 32px;">
         <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;">${html`<${Pill} text=${q.type === "fill" ? "填空" : "单选"} color="#6E7A4F" />`}<span class="pan-pill" style="color:#C8852E;background:#FBF4E6;font-weight:700;margin-left:auto;">⬡ ${val(q)}</span></div>
-        <h1 style="font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.45;margin:0 0 22px;">${q.q}</h1>
+        <h1 style="font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.45;margin:0 0 22px;">${q.subject === "english" && window.SpeakableText ? html`<${window.SpeakableText} text=${q.q} />` : q.q}</h1>
         <div style="display:flex;flex-direction:column;gap:12px;">${optsEl}</div>
-        ${run.answered != null && q.explain ? html`<div style="background:#FBF4E6;border-radius:14px;padding:18px 20px;margin-top:22px;"><div style="font-size:13px;font-weight:700;color:#6E7A4F;margin-bottom:6px;">${run.lastOk ? "✓ 答对了" : "✗ 解析"}${q.point ? html`<span style="font-weight:600;color:#a86a00;"> · 考的是「${q.point}」</span>` : ""}</div><div style="font-size:14px;line-height:1.7;color:#3a3023;">${q.explain}</div></div>` : null}
+        ${run.answered != null && q.explain ? html`<div style="background:#FBF4E6;border-radius:14px;padding:18px 20px;margin-top:22px;"><div style="font-size:13px;font-weight:700;color:#6E7A4F;margin-bottom:6px;">${run.lastOk ? "✓ 答对了" : "✗ 解析"}${q.point ? html`<span style="font-weight:600;color:#a86a00;"> · 考的是「${q.point}」</span>` : ""}</div><div style="font-size:14px;line-height:1.7;color:#3a3023;">${q.subject === "english" && window.SpeakableText ? html`<${window.SpeakableText} text=${q.explain} />` : q.explain}</div></div>` : null}
         ${run.answered != null ? (function () {
           var kc = C.catalogForKp(q.kp);
           if (kc) return html`<${KpCard} kp=${kc} app=${app} />`;

@@ -15,23 +15,23 @@
 
   var SESSION_N = 20;   // 一次复习最多张数(几分钟一场,碎片时间友好)
 
-  /* ---------- 极简行内标记:**加粗** 与 `代码` ---------- */
-  function mdSpan(s) {
+  /* ---------- 极简行内标记:**加粗** 与 `代码`;en=true 时英文词句可点读 ---------- */
+  function mdSpan(s, en) {
     var parts = String(s == null ? "" : s).split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
     return parts.map(function (p, i) {
-      if (/^\*\*[^*]+\*\*$/.test(p)) return html`<b key=${i}>${p.slice(2, -2)}</b>`;
+      if (/^\*\*[^*]+\*\*$/.test(p)) return html`<b key=${i}>${en ? html`<${SpeakableText} text=${p.slice(2, -2)} />` : p.slice(2, -2)}</b>`;
       if (/^`[^`]+`$/.test(p)) return html`<code key=${i} style="background:#F4EAD8;border-radius:5px;padding:1px 6px;font-size:.92em;">${p.slice(1, -1)}</code>`;
-      return p;
+      return en ? html`<${SpeakableText} key=${i} text=${p} />` : p;
     });
   }
 
   /* ---------- 卡片正文(课程屏 + 复习屏共用) ---------- */
   var MODE_LB = { learn: ["🌿 认识", "#2c5fb3", "#eaf1fb"], drill: ["✍️ 精练", "#B6532F", "#f9ece5"], task: ["🛠 实践", "#a86a00", "#FBF4E6"] };
-  function boxRow(icon, label, text, bg, bd) {
+  function boxRow(icon, label, text, bg, bd, en) {
     if (!text) return null;
     return html`<div style=${"margin-top:12px;border:1px solid " + bd + ";border-left:4px solid " + bd + ";border-radius:11px;padding:12px 15px;background:" + bg + ";"}>
       <div style="font-size:11px;font-weight:700;letter-spacing:.05em;color:#8a7a62;margin-bottom:4px;">${icon} ${label}</div>
-      <div style="font-size:13.5px;line-height:1.75;color:#3a3023;">${mdSpan(text)}</div></div>`;
+      <div style="font-size:13.5px;line-height:1.75;color:#3a3023;">${mdSpan(text, en)}</div></div>`;
   }
   // 卡片正文 v2:body 支持「小点」({t:标题, p:段落};纯字符串兼容为无题小点)。
   // 顶部进度点条:每个小点一个圆点(懂了→实心)+ 每道配套题一个圆点(对✓/错✗/未做○);
@@ -40,6 +40,7 @@
     var card = props.card; if (!card) return null;
     var m = MODE_LB[card.mode] || MODE_LB.learn;
     var kp = card.kp;
+    var en = card.subject === "english";   // 英语卡:正文英文词句点一下就发音
     var pts = (card.body || []).map(function (b, i) { return (typeof b === "string") ? { t: "要点 " + (i + 1), p: b } : b; });
     var sn0 = useState(C.cardPtSeen(kp)); var seen = sn0[0], setSeen = sn0[1];
     var hv0 = useState(null); var hov = hv0[0], setHov = hv0[1];      // {kind:'pt'|'q', i}
@@ -107,7 +108,7 @@
           <b style="color:#5a4e3c;">${preview.title}</b><span style="color:#7A6E5E;"> — ${preview.text}</span>
           <span style="color:#bbab8c;margin-left:6px;">(${preview.hint})</span></div>` : null}
       </div>`}
-      ${card.hook ? html`<div style="font-family:var(--serif);font-size:16px;font-weight:700;color:#B6532F;line-height:1.5;margin-bottom:12px;">${mdSpan(card.hook)}</div>` : null}
+      ${card.hook ? html`<div style="font-family:var(--serif);font-size:16px;font-weight:700;color:#B6532F;line-height:1.5;margin-bottom:12px;">${mdSpan(card.hook, en)}</div>` : null}
       ${!open ? html`<div onClick=${function () { setOpen(true); }} style="cursor:pointer;text-align:center;border:1.5px dashed #E4C29B;border-radius:10px;padding:9px;font-size:12.5px;font-weight:700;color:#a86a00;background:rgba(255,255,255,.5);">▾ 展开一分钟版全文(${pts.length} 个小点${gotN ? " · 已懂 " + gotN : ""})</div>` : null}
       ${open ? pts.map(function (pt, i) {
         var got = !!seen[i];
@@ -116,17 +117,30 @@
             <span style=${"font-size:12.5px;font-weight:800;letter-spacing:.02em;color:" + (got ? "#6E7A4F" : "#a86a00") + ";"}>${got ? "●" : "○"} ${pt.t}</span>
             <span onClick=${function () { togglePt(i); }} style=${"cursor:pointer;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 10px;" + (got ? "background:#EFF1E0;color:#6E7A4F;" : "background:#F4EAD8;color:#9a8a6f;")}>${got ? "✓ 懂了" : "懂了就点"}</span>
           </div>
-          <p style="font-size:14px;line-height:1.85;color:#3a3023;margin:0;">${mdSpan(pt.p)}</p>
+          <p style="font-size:14px;line-height:1.85;color:#3a3023;margin:0;">${mdSpan(pt.p, en)}</p>
         </div>`;
       }) : null}
-      ${open ? boxRow("🧪", "举个例子", card.example, "#F4F6EC", "#C9D2A8") : null}
-      ${open ? boxRow("⚠️", "最容易踩的坑", card.pitfall, "#FBF0E6", "#E4C29B") : null}
-      ${open ? boxRow("💡", "一句话记住", card.mnemonic, "#FBF6EC", "#D8C9A8") : null}
-      ${open && card.mode === "task" ? boxRow("🛠", "动手做(完成了就来标掌握)", card.task, "#FBF4E6", "#E0C084") : null}
+      ${open ? boxRow("🧪", "举个例子", card.example, "#F4F6EC", "#C9D2A8", en) : null}
+      ${open ? boxRow("⚠️", "最容易踩的坑", card.pitfall, "#FBF0E6", "#E4C29B", en) : null}
+      ${open ? boxRow("💡", "一句话记住", card.mnemonic, "#FBF6EC", "#D8C9A8", en) : null}
+      ${open && card.mode === "task" ? boxRow("🛠", "动手做(完成了就来标掌握)", card.task, "#FBF4E6", "#E0C084", en) : null}
       ${open && props.collapsible ? html`<div onClick=${function () { setOpen(false); }} style="cursor:pointer;text-align:center;margin-top:12px;font-size:12px;font-weight:700;color:#bbab8c;">▴ 收起一分钟版</div>` : null}
     </div>`;
   }
   window.CardArticle = CardArticle;
+
+  /* ---------- 英文点读:文本里的英文词/短语,点一下就发音(有道真人音→TTS 兜底) ---------- */
+  function SpeakableText(props) {
+    var parts = String(props.text == null ? "" : props.text).split(/([A-Za-z][A-Za-z'’-]*(?:[ ][A-Za-z][A-Za-z'’-]*)*)/g);
+    return parts.map(function (p, i) {
+      if (i % 2 === 1) return html`<span key=${i} title="点一下听发音" onClick=${function (e) { e.stopPropagation(); C.speak(p, "en"); }} style="cursor:pointer;border-bottom:1.5px dotted #C8852E;">${p}</span>`;
+      return p;
+    });
+  }
+  window.SpeakableText = SpeakableText;
+  // 纯英文单词/短语才配整体喇叭(音标符号 /k/ 之类不配,读出来是字母名会误导)
+  function speakableWord(s) { return /^[A-Za-z][A-Za-z '’.,!?-]*$/.test(String(s || "").trim()); }
+  window.speakableWord = speakableWord;
 
   /* ---------- 抽一题(复习屏内嵌小练,单题) ---------- */
   function MiniDrill(p) {
@@ -152,7 +166,7 @@
     var right = q.type === "fill" ? (q.answer || []).join(" / ") : (q.options || [])[q.answer];
     return html`<div style="margin-top:14px;border:1px solid #EEE3CF;border-radius:12px;padding:14px 16px;background:#fff;">
       <div style="font-size:11.5px;font-weight:700;color:#9a8a6f;margin-bottom:8px;">✍️ 顺手练一题</div>
-      <div style="font-size:14px;font-weight:600;line-height:1.6;margin-bottom:10px;">${q.stem}</div>
+      <div style="font-size:14px;font-weight:600;line-height:1.6;margin-bottom:10px;">${q.subject === "english" ? html`<${SpeakableText} text=${q.stem} />` : q.stem}</div>
       ${q.type === "fill"
         ? (ans ? null : html`<div style="display:flex;gap:8px;flex-wrap:wrap;">
             <input value=${fill} onInput=${function (e) { setFill(e.target.value); }} placeholder="填答案…" style="flex:1;min-width:120px;border:1.5px solid #D8C9A8;border-radius:9px;padding:8px 12px;font-size:14px;background:#FBF9F3;"
@@ -161,11 +175,12 @@
         : html`<div style="display:flex;flex-direction:column;gap:7px;">${(q.options || []).map(function (op, i) {
             var st = "border:1.5px solid #EBDEC8;background:#fff;";
             if (ans) { if (i === q.answer) st = "border:1.5px solid #6E7A4F;background:#EFF1E0;"; else if (i === ans.chosen && !ans.ok) st = "border:1.5px solid #B6532F;background:#f9ece5;"; }
-            return html`<div key=${i} onClick=${function () { if (!ans) settle(i, i === q.answer); }} style=${"border-radius:10px;padding:9px 13px;font-size:13.5px;cursor:pointer;" + st}>${op}</div>`;
+            var spk = (q.subject === "english" && speakableWord(op)) ? html`<span title="听发音" onClick=${function (e) { e.stopPropagation(); C.speak(op, "en"); }} style="cursor:pointer;font-size:14px;margin-left:8px;opacity:.75;">🔊</span>` : null;
+            return html`<div key=${i} onClick=${function () { if (!ans) settle(i, i === q.answer); }} style=${"display:flex;align-items:center;justify-content:space-between;border-radius:10px;padding:9px 13px;font-size:13.5px;cursor:pointer;" + st}><span>${op}</span>${spk}</div>`;
           })}</div>`}
       ${ans ? html`<div style="margin-top:10px;font-size:13px;line-height:1.7;">
         <div style=${"font-weight:700;color:" + (ans.ok ? "#6E7A4F" : "#B6532F") + ";"}>${ans.ok ? "✓ 答对了" : "✗ 不对"}${ans.ok ? "" : html`<span style="color:#3f8a52;font-weight:600;"> · 正确答案:${right}</span>`}</div>
-        ${q.explain ? html`<div style="color:#7A6E5E;margin-top:6px;background:#FBF4E6;border-radius:9px;padding:8px 12px;">${q.explain}</div>` : null}</div>` : null}
+        ${q.explain ? html`<div style="color:#7A6E5E;margin-top:6px;background:#FBF4E6;border-radius:9px;padding:8px 12px;">${q.subject === "english" ? html`<${SpeakableText} text=${q.explain} />` : q.explain}</div>` : null}</div>` : null}
     </div>`;
   }
 
