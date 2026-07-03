@@ -141,6 +141,9 @@
   // 纯英文单词/短语才配整体喇叭(音标符号 /k/ 之类不配,读出来是字母名会误导)
   function speakableWord(s) { return /^[A-Za-z][A-Za-z '’.,!?-]*$/.test(String(s || "").trim()); }
   window.speakableWord = speakableWord;
+  // 日文短语(含假名/汉字,无中文标点长句)可整体朗读
+  function speakableJa(s) { s = String(s || "").trim(); return s.length <= 40 && /[぀-ヿ]/.test(s); }
+  window.speakableJa = speakableJa;
 
   /* ---------- 抽一题(复习屏内嵌小练,单题) ---------- */
   function MiniDrill(p) {

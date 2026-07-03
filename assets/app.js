@@ -536,8 +536,9 @@
         b.textContent = "✓ 已收藏"; b.style.background = "#6E7A4F";
         setTimeout(hide, 900);
       }));
-      if (text.length <= 240 && /[a-zA-Z]/.test(text)) bar.appendChild(mkBtn("🔊 朗读", "#B6532F", function () {
-        var s = window.getSelection && String(window.getSelection()).trim(); if (s) C.speak(s, "en");
+      var hasJa = /[぀-ヿ]/.test(text);   // 含假名 → 日语朗读;否则含英文 → 英语朗读
+      if (text.length <= 240 && (hasJa || /[a-zA-Z]/.test(text))) bar.appendChild(mkBtn("🔊 朗读", "#B6532F", function () {
+        var s = window.getSelection && String(window.getSelection()).trim(); if (s) C.speak(s, hasJa ? "ja" : "en");
       }));
       bar.appendChild(mkBtn("📋 复制", "#6E7A4F", function (b) {
         var s = window.getSelection && String(window.getSelection()).trim(); if (!s) return;

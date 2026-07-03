@@ -13,16 +13,17 @@
   function useApp() { return React.useContext(window.AppCtx); }
 
   var BOX_DAYS = [0, 1, 2, 4, 8, 16, 30];     // Leitner 记忆曲线(天)
-  var SESSION_N = 12;
-  var VER = "20260629i";
+  var SESSION_N = 20;                          // 一组上限(复习优先,新词受每日配额约束)
+  var VER = "20260703c";
 
   /* ---------- 词库懒加载 ---------- */
-  function banksLoaded() { return !!(window.WORD_BANK_JA && window.WORD_BANK_EN); }
+  function banksLoaded() { return !!(window.WORD_BANK_JA && window.WORD_BANK_EN && window.WORD_BANK_EN_SCHOOL); }
   function ensureBanks(cb) {
     if (banksLoaded()) { cb(); return; }
     var need = [];
     if (!window.WORD_BANK_JA) need.push("data/words.ja.js");
     if (!window.WORD_BANK_EN) need.push("data/words.en.js");
+    if (!window.WORD_BANK_EN_SCHOOL) need.push("data/words.en.school.js");
     var n = need.length; if (!n) { cb(); return; }
     need.forEach(function (src) {
       var s = document.createElement("script"); s.src = src + "?v=" + VER;
@@ -33,7 +34,7 @@
   }
 
   /* ---------- 词库列表(按 scope 归并 + 单词本) ---------- */
-  var SCOPE_NAME = { "jlpt-n5": "日语 JLPT N5", "jlpt-n4": "日语 JLPT N4", "jlpt-n3": "日语 JLPT N3", "jlpt-n2": "日语 JLPT N2", "jlpt-n1": "日语 JLPT N1", "toefl": "英语 TOEFL" };
+  var SCOPE_NAME = { "jlpt-n5": "日语 JLPT N5", "jlpt-n4": "日语 JLPT N4", "jlpt-n3": "日语 JLPT N3", "jlpt-n2": "日语 JLPT N2", "jlpt-n1": "日语 JLPT N1", "toefl": "英语 TOEFL", "chuzhong": "英语 · 初中(中考)", "gaozhong": "英语 · 高中(高考)" };
   function bankList() {
     var out = [];
     function collect(arr, lang) {
@@ -45,8 +46,15 @@
     }
     collect(window.WORD_BANK_JA, "ja");
     collect(window.WORD_BANK_EN, "en");
+    collect(window.WORD_BANK_EN_SCHOOL, "en");
     return out;
   }
+  /* ---------- 每日新词配额 + 今日计数 ---------- */
+  function vocabCfg() { return Object.assign({ daily: 20, rd: 0 }, C.store("vocabcfg", {})); }
+  function saveCfg(patch) { C.save("vocabcfg", Object.assign(vocabCfg(), patch)); }
+  function todayStr() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+  function newToday() { var t = C.store("vocabday", {}) || {}; return t.d === todayStr() ? (t.n || 0) : 0; }
+  function bumpNewToday() { C.save("vocabday", { d: todayStr(), n: newToday() + 1 }); }
   function wordbook() { return C.store("wordbook", []); }
   function inWordbook(w) { return wordbook().some(function (x) { return x.lang === w.lang && x.term === w.term; }); }
   function toggleWordbook(w) {
@@ -58,20 +66,36 @@
   /* ---------- SRS ---------- */
   function vocabState() { return C.store("vocab", {}); }
   function keyOf(w) { return w.lang + "|" + w.term; }
-  function buildQueue(bank) {
-    var v = vocabState(), now = Date.now(), due = [], fresh = [];
-    bank.words.forEach(function (w) { var st = v[keyOf(w)]; if (!st) fresh.push(w); else if ((st.due || 0) <= now) due.push({ w: w, due: st.due || 0 }); });
+  // 词库三池:due(到期复习,永远优先)/ fresh(没学过)/ passed(已会,可重刷)
+  function bankPools(bank) {
+    var v = vocabState(), now = Date.now(), due = [], fresh = [], passed = [];
+    bank.words.forEach(function (w) {
+      var st = v[keyOf(w)];
+      if (!st) fresh.push(w);
+      else if ((st.due || 0) <= now) due.push({ w: w, due: st.due || 0 });
+      else if (st.passed) passed.push(w);
+    });
     due.sort(function (a, b) { return a.due - b.due; });
-    var q = due.map(function (x) { return x.w; }).concat(shuffle(fresh));
-    return q.slice(0, SESSION_N);
+    return { due: due.map(function (x) { return x.w; }), fresh: fresh, passed: passed };
   }
-  function gradeWord(w, passed) {
+  // 常规组:到期复习优先 + 新词(受今日剩余配额约束);extra=追加新词数;redrill=重刷已会
+  function buildQueue(bank, mode, n) {
+    var p = bankPools(bank);
+    if (mode === "extra") return shuffle(p.fresh).slice(0, Math.max(1, n || 0));
+    if (mode === "redrill") return shuffle(p.passed).slice(0, Math.max(1, n || 0));
+    var left = Math.max(0, vocabCfg().daily - newToday());
+    return p.due.concat(shuffle(p.fresh).slice(0, left)).slice(0, SESSION_N);
+  }
+  function gradeWord(w, passed, redrill) {
     var v = Object.assign({}, vocabState()), k = keyOf(w), st = v[k] || { box: 0, correct: 0 };
+    var isNew = !v[k];
+    if (redrill && passed) return;   // 重刷通过:不动记忆曲线(到期节奏不被打乱)
     if (passed) { st.box = Math.min(BOX_DAYS.length - 1, (st.box || 0) + 1); st.passed = true; st.correct = (st.correct || 0) + 1; }
-    else { st.box = Math.max(0, (st.box || 0) - 1); }
+    else { st.box = Math.max(0, (st.box || 0) - 1); }   // 重刷答错也降盒:忘了就提前复习
     st.due = Date.now() + BOX_DAYS[st.box] * 864e5;
     st.term = w.term; st.gloss = w.gloss; st.reading = w.reading || ""; st.lang = w.lang; st.ts = Date.now();
     v[k] = st; C.save("vocab", v);
+    if (isNew) bumpNewToday();   // 首次接触的词计入今日新词
   }
 
   /* ---------- 习题生成 ---------- */
@@ -106,6 +130,9 @@
     var app = useApp();
     var r0 = useState(banksLoaded()); var ready = r0[0], setReady = r0[1];
     var s0 = useState(null); var sess = s0[0], setSess = s0[1];
+    var pk0 = useState(null); var pick = pk0[0], setPick = pk0[1];      // 选中展开操作面板的词库
+    var ex0 = useState("10"); var exN = ex0[0], setExN = ex0[1];        // 追加新词数量输入
+    var rr0 = useState("10"); var rdN = rr0[0], setRdN = rr0[1];        // 重刷数量输入
     var spellRef = useRef(null);
     useEffect(function () { if (!ready) ensureBanks(function () { setReady(true); }); }, []);
 
@@ -114,23 +141,39 @@
     /* ----- 选词库 ----- */
     if (!sess) {
       var banks = bankList(), wb = wordbook(), v = vocabState();
+      var cfg = vocabCfg(), usedToday = newToday(), leftToday = Math.max(0, cfg.daily - usedToday);
       function progressOf(b) { var p = 0, dueN = 0, now = Date.now(); b.words.forEach(function (w) { var st = v[keyOf(w)]; if (st && st.passed) p++; if (st && (st.due || 0) <= now) dueN++; }); return { passed: p, due: dueN, total: b.words.length }; }
-      function start(b) { if (!b.words.length) return; setSess(newSession(b)); }
+      function start(b, mode, n) { var q = buildQueue(b, mode || "normal", n); if (!q.length) return; setSess(newSession(b, mode || "normal", q)); }
+      function clampN(val, max) { var n = parseInt(val, 10); if (!(n > 0)) n = 1; return Math.min(n, max); }
+      function numIn(val, setVal) { return html`<input type="number" min="1" value=${val} onClick=${function (e) { e.stopPropagation(); }} onInput=${function (e) { setVal(e.target.value); }} style="width:58px;border:1.5px solid #D8C9A8;border-radius:8px;padding:4px 8px;font-size:13px;background:#FFFDF8;" />`; }
       return html`<div class="pan-screen narrow">
         ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "习题测试", go: "quiz" }, { t: "单词专项" }]} />`}
         <h1 class="pan-page-h">单词专项训练 <span class="en">/ Vocabulary</span></h1>
-        <p class="pan-page-sub">单词卡 + 配套习题,按记忆曲线安排复习。每个词要连过<strong>看词选义 → 看义选词 → 读音/拼写</strong>三关才算掌握,答对得积分。任意词可收进单词本反复练。</p>
+        <p class="pan-page-sub">单词卡 + 三关习题,按记忆曲线安排复习。点词库卡片选模式:常规(复习+今日新词)、追加新词、重刷已会。</p>
+        <div class="pan-panel" style="padding:13px 18px;margin-bottom:16px;display:flex;gap:8px 18px;align-items:center;flex-wrap:wrap;font-size:13.5px;">
+          <span>📅 今日新词 <b style="color:${leftToday ? "#B6532F" : "#6E7A4F"};">${usedToday}</b> / ${cfg.daily}</span>
+          <span style="display:flex;align-items:center;gap:6px;">每日配额 ${numIn(String(cfg.daily), function (val) { var n = parseInt(val, 10); if (n >= 5 && n <= 100) saveCfg({ daily: n }); })} <span style="color:#9a8a6f;font-size:12px;">(5-100,复习不占额)</span></span>
+        </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;">
           ${html`<div class="pan-card pan-panel" style=${"cursor:pointer;border-left:4px solid #C8852E;" + (wb.length ? "" : "opacity:.6;")} onClick=${function () { if (wb.length) start({ id: "wb", name: "我的单词本", lang: "mix", words: wb }); }}>
             <div style="font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;">📒 我的单词本</div>
             <div style="font-size:13px;color:#7A6E5E;margin-bottom:8px;">收藏的词,集中突破</div>
             <div style="font-size:12px;color:#9a8a6f;">${wb.length} 个词${wb.length ? "" : " · 训练中点♡收藏"}</div></div>`}
           ${banks.map(function (b) {
-            var pr = progressOf(b);
-            return html`<div key=${b.id} class="pan-card pan-panel" style="cursor:pointer;" onClick=${function () { start(b); }}>
+            var pr = progressOf(b), on = pick === b.id;
+            return html`<div key=${b.id} class="pan-card pan-panel" style=${"cursor:pointer;" + (on ? "box-shadow:0 0 0 2px #C8852E;" : "")} onClick=${function () { setPick(on ? null : b.id); }}>
               <div style="font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;">${b.name}</div>
               <div style="font-size:12px;color:#9a8a6f;margin-bottom:8px;">${b.total} 词 · 已掌握 ${pr.passed}${pr.due ? " · 待复习 " + pr.due : ""}</div>
-              ${html`<${BarW} pct=${Math.round(pr.passed / b.total * 100)} />`}</div>`;
+              ${html`<${BarW} pct=${Math.round(pr.passed / b.total * 100)} />`}
+              ${on ? (function () {
+                var pl = bankPools(b);
+                var normalNew = Math.min(leftToday, pl.fresh.length);
+                return html`<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #EBDEC8;display:flex;flex-direction:column;gap:9px;" onClick=${function (e) { e.stopPropagation(); }}>
+                  <span class="pan-btn terra sm" onClick=${function () { start(b, "normal"); }}>▸ 开始:复习 ${Math.min(pl.due.length, 20)}${normalNew ? " + 新词 " + normalNew : ""}${(!pl.due.length && !normalNew) ? "(今天没任务了)" : ""}</span>
+                  <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:#5a4e3c;flex-wrap:wrap;">＋ 追加新词 ${numIn(exN, setExN)} <span class="pan-btn ghost sm" onClick=${function () { if (pl.fresh.length) start(b, "extra", clampN(exN, pl.fresh.length)); }}>练 →</span><span style="color:#bbab8c;font-size:11.5px;">上限 ${pl.fresh.length}(题库封顶)</span></div>
+                  <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:#5a4e3c;flex-wrap:wrap;">🔁 重刷已会 ${numIn(rdN, setRdN)} <span class="pan-btn ghost sm" onClick=${function () { if (pl.passed.length) start(b, "redrill", clampN(rdN, pl.passed.length)); }}>刷 →</span><span style="color:#bbab8c;font-size:11.5px;">上限 ${pl.passed.length} · 每过 3 个 +1 分</span></div>
+                </div>`;
+              })() : null}</div>`;
           })}
         </div></div>`;
     }
@@ -143,7 +186,7 @@
         <div style="font-size:40px;margin-bottom:10px;">${sess.passed >= sess.queue.length * 0.7 ? "🎉" : "💪"}</div>
         <h1 style="font-family:var(--serif);font-size:26px;margin:0 0 6px;">通过 ${sess.passed} / ${sess.queue.length} 个词</h1>
         <div style="color:#9a8a6f;margin-bottom:6px;">本组获得 ⬡ ${sess.earned} 积分</div>
-        <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">没过的词已排进记忆曲线,过几天再练更牢</div>
+        <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${sess.mode === "redrill" ? "重刷模式:每通过 3 个 +1 分,复习计划不受影响(答错的会提前复习)" : "没过的词已排进记忆曲线,过几天再练更牢"}</div>
         <div style="display:flex;gap:10px;justify-content:center;"><span class="pan-btn ink" onClick=${function () { setSess(null); }}>再选一组</span><span class="pan-btn ghost" onClick=${function () { app.go("quiz"); }}>回习题</span></div></div></div>`;
     }
 
@@ -208,7 +251,10 @@
       settle(s, ok); setSess(s);
     }
     function settle(s, ok) {
-      if (ok) { s.wordCorrect = (s.wordCorrect || 0) + 1; s.earned += 2; C.award(2, "单词答对 · " + w.term, "vocab"); }
+      if (ok) {
+        s.wordCorrect = (s.wordCorrect || 0) + 1;
+        if (s.mode !== "redrill") { s.earned += 2; C.award(2, "单词答对 · " + w.term, "vocab"); }   // 重刷不给答对分(防刷)
+      }
     }
     function nextStep() {
       var s = Object.assign({}, sess);
@@ -218,8 +264,14 @@
       }
       // 本词结束:三关全过=通过
       var passed = s.lastOk && s.round >= 2 && s.wordCorrect >= 3;
-      gradeWord(w, passed);
-      if (passed) { s.passed++; s.earned += 8; C.award(8, "通过单词 · " + w.term, "vocab:" + keyOf(w)); }
+      gradeWord(w, passed, s.mode === "redrill");
+      if (passed) {
+        s.passed++;
+        if (s.mode === "redrill") {           // 重刷:每通过 3 个 +1 分(累计计数跨场次)
+          var rd = (vocabCfg().rd || 0) + 1; saveCfg({ rd: rd });
+          if (rd % 3 === 0) { s.earned += 1; C.award(1, "重刷单词 ×3 · " + w.term, "vocab-rd"); }
+        } else { s.earned += 8; C.award(8, "通过单词 · " + w.term, "vocab:" + keyOf(w)); }
+      }
       advance(s);
     }
     function advance(s) {
@@ -234,9 +286,10 @@
   }
 
   function BarW(p) { return html`<div class="pan-bar" style="height:6px;"><i style=${"width:" + Math.max(2, p.pct) + "%;background:#6E7A4F;"}></i></div>`; }
-  function newSession(b) {
-    var q = buildQueue(b);
-    return { bankId: b.id, bankName: b.name, lang: b.lang, pool: b.words, queue: q, i: 0, step: "card", revealed: false, conf: null, exes: null, round: 0, picked: null, answered: false, lastOk: false, spellVal: "", wordCorrect: 0, passed: 0, earned: 0 };
+  function newSession(b, mode, queue) {
+    var q = queue || buildQueue(b, mode || "normal");
+    var suffix = mode === "extra" ? " · 追加新词" : mode === "redrill" ? " · 重刷" : "";
+    return { bankId: b.id, bankName: b.name + suffix, mode: mode || "normal", lang: b.lang, pool: b.words, queue: q, i: 0, step: "card", revealed: false, conf: null, exes: null, round: 0, picked: null, answered: false, lastOk: false, spellVal: "", wordCorrect: 0, passed: 0, earned: 0 };
   }
   function toEx(s, setSess) {
     var w = s.queue[s.i];

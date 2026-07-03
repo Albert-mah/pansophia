@@ -119,6 +119,43 @@ window.STUDY_SKELETON = [
     ]
   },
 
+  /* ---- 日语 · 初级下(N4 衔接,ma-huan 自学路线;前 2 章已有卡,其余待管线填) ---- */
+  {
+    profile: "ma-huan", subject: "japanese", discipline: "foreign-lit", scope: "jlpt-n4", dir: "日语 · 初级下",
+    topics: [
+      { title: "て形の世界", points: [
+        { title: "て形的变形规则", status: "todo" },
+        { title: "ています:正在做与状态", status: "todo" },
+        { title: "てください与てもいいです", status: "todo" },
+        { title: "てはいけません:禁止", status: "todo" },
+        { title: "てから:动作的先后", status: "todo" } ] },
+      { title: "た形与经验", points: [
+        { title: "た形的变形规则", status: "todo" },
+        { title: "たことがあります:经验", status: "todo" },
+        { title: "たり…たりします:列举", status: "todo" },
+        { title: "たほうがいいです:建议", status: "todo" } ] },
+      { title: "ない形与义务", points: [
+        { title: "ない形的变形规则", status: "todo" },
+        { title: "ないでください:请不要", status: "todo" },
+        { title: "なければなりません:必须", status: "todo" },
+        { title: "なくてもいいです:不必", status: "todo" } ] },
+      { title: "辞书形·可能·意向", points: [
+        { title: "辞书形与ことができます", status: "todo" },
+        { title: "可能形:食べられます", status: "todo" },
+        { title: "意向形与つもり:打算", status: "todo" },
+        { title: "前に与あとで:时间关系", status: "todo" } ] },
+      { title: "条件与假定", points: [
+        { title: "と:一…就…", status: "todo" },
+        { title: "たら:要是…的话", status: "todo" },
+        { title: "ば与なら:条件的分工", status: "todo" } ] },
+      { title: "授受与文体", points: [
+        { title: "あげます·もらいます·くれます", status: "todo" },
+        { title: "てあげる·てもらう·てくれる", status: "todo" },
+        { title: "普通体与ます体:文体切换", status: "todo" },
+        { title: "尊敬語与謙譲語入门", status: "todo" } ] }
+    ]
+  },
+
   /* ========== Jiahuan（mahuan）· 英语（已填语法点 + 待填） ========== */
   {
     profile: "mahuan", subject: "english", scope: "jijiao-6b",

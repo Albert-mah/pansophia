@@ -1668,7 +1668,8 @@
       optsEl = (q.options || []).map(function (o, i) {
         var cls = "pan-opt", mark = "", mc = "#6E7A4F";
         if (run.answered != null) { if (i === q.answer) { cls += " right"; mark = "✓"; } else if (i === run.answered) { cls += " wrong"; mark = "✕"; mc = "#B6532F"; } }
-        var spk = (q.subject === "english" && window.speakableWord && window.speakableWord(o)) ? html`<span title="听发音" onClick=${function (e) { e.stopPropagation(); C.speak(o, "en"); }} style="cursor:pointer;font-size:15px;flex-shrink:0;opacity:.75;">🔊</span>` : null;
+        var spkLang = (q.subject === "english" && window.speakableWord && window.speakableWord(o)) ? "en" : (q.subject === "japanese" && window.speakableJa && window.speakableJa(o)) ? "ja" : null;
+        var spk = spkLang ? html`<span title="听发音" onClick=${function (e) { e.stopPropagation(); C.speak(o, spkLang); }} style="cursor:pointer;font-size:15px;flex-shrink:0;opacity:.75;">🔊</span>` : null;
         return html`<div key=${i} class=${cls} onClick=${run.answered == null ? function () { choose(i); } : null}><div class="k">${String.fromCharCode(65 + i)}</div><div class="tx">${o}</div>${spk}<div style=${"font-size:18px;color:" + mc + ";"}>${mark}</div></div>`;
       });
     }
