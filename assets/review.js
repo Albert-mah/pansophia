@@ -58,7 +58,7 @@
     var qstat = C.quizStat();
     function togglePt(i) {
       var m = C.toggleCardPt(kp, i);
-      if (m[i]) C.awardOnce("pt:" + kp + "#" + i, 1, "学到 · " + ((pts[i] && pts[i].t) || "小点"));   // 基本分:每个小点首次「懂了」+1
+      if (m[i]) C.awardOnce("pt:" + kp + "#" + i, 1, "学到 · " + ((pts[i] && pts[i].t) || "小点"), kp);   // 基本分:每个小点首次「懂了」+1
       setSeen(Object.assign({}, m));
     }
     function jumpPt(i) {
@@ -163,7 +163,7 @@
     function settle(chosen, ok) {
       C.recordAnswer({ questionId: q.id, kp: q.kp, correct: ok });
       C.recordQuiz({ qid: q.id, kp: q.kp, correct: ok });
-      if (ok) C.awardOnce("q:" + q.id, 2 + (q.difficulty || 2), "复习答对 · " + String(q.stem || "").slice(0, 16));   // 每题一生只给一次分
+      if (ok) C.awardOnce("q:" + q.id, 2 + (q.difficulty || 2), "复习答对 · " + String(q.stem || "").slice(0, 16), q.kp || null);   // 每题一生只给一次分
       setAns({ chosen: chosen, ok: ok });
     }
     var right = q.type === "fill" ? (q.answer || []).join(" / ") : (q.options || [])[q.answer];

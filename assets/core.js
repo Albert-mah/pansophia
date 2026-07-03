@@ -372,13 +372,18 @@ window.Core = (function () {
   }
   // 一次性给分(防刷):同一 key(如 kp:xxx / q:123)一生只发一次,发过记入 awarded KV。
   // ledger 只留 200 条不能当去重依据,所以单独记账。返回 true=真发了分。
-  function awardOnce(key, delta, reason) {
+  function awardOnce(key, delta, reason, kpRef) {
     var m = store("awarded", {}) || {};
     if (m[key]) return false;
     m = Object.assign({}, m); m[key] = Date.now(); save("awarded", m);
     award(delta, reason, key);
+    if (kpRef) {   // 按考点归集(kppts):课程页/首页汇总"这门课赚了多少分"
+      var t = Object.assign({}, store("kppts", {}));
+      t[kpRef] = (t[kpRef] || 0) + delta; save("kppts", t);
+    }
     return true;
   }
+  function kpPoints() { return store("kppts", {}); }
   // 掌握门禁(防"随手标掌握"白拿分/乱标):按内容形态给达标条件,不满足不允许标。
   //   drill 卡 → 配套题至少答 3 道且(按每题最近一次)全对
   //   learn/task 卡 → 卡片小点全部「懂了」
@@ -584,7 +589,7 @@ window.Core = (function () {
         save("progress", pr);
         logEvent({ kind: "master", subject: meta.subject || "", label: meta.title || ref });
         var val = knowledgeValue({ difficulty: meta.difficulty || 2, depth: meta.depth || 1, scarcity: 1 });
-        var given = awardOnce("kp:" + ref, val, "掌握知识点 · " + (meta.title || ref));   // 取消再标不重复给分
+        var given = awardOnce("kp:" + ref, val, "掌握知识点 · " + (meta.title || ref), ref);   // 取消再标不重复给分
         srsEnroll(ref);   // 进入抗遗忘复习循环(明天首次到期)
         return { mastered: true, value: given ? val : 0 };
       }
@@ -1072,12 +1077,18 @@ window.Core = (function () {
       var dd = disciplineById(id) || { name: id }, cat = categoryOf(id) || {};
       var sk = skeletonForDiscipline(id), entry = null;
       sk.forEach(function (e) { if ((e.scope || null) === scope) entry = e; });
-      var pts = 0, mas = 0, les = 0;
-      if (entry) (entry.topics || []).forEach(function (t) { (t.points || []).forEach(function (p) { pts++; if (isMastered(p.ref || p.title)) mas++; if (p.ref && catalogById(p.ref)) les++; }); });
+      var pts = 0, mas = 0, les = 0, earned = 0, dueN = 0, kpp = kpPoints(), srs = kpSrs(), now = Date.now();
+      if (entry) (entry.topics || []).forEach(function (t) { (t.points || []).forEach(function (p) {
+        pts++; var key = p.ref || p.title;
+        if (isMastered(key)) mas++;
+        if (p.ref && catalogById(p.ref)) les++;
+        earned += kpp[key] || 0;
+        if (srs[key] && (srs[key].due || 0) <= now) dueN++;
+      }); });
       // 二级方向(如 外国语言文学 → 英语 / 新概念英语):大纲显式 dir 优先,否则取 subject 名(仅当与一级学科名明显不同才标)
       var _dn = dd.name || "", _sj = (entry && entry.subject && SUBJECTS[entry.subject]) ? SUBJECTS[entry.subject].name : "";
       var dir = (entry && entry.dir) ? entry.dir : ((_sj && _sj !== _dn && _dn.indexOf(_sj) < 0 && _sj.indexOf(_dn) < 0) ? _sj : "");
-      return { discId: id, discName: dd.name, dir: dir, scope: scope, scopeName: (SCOPES[scope] || {}).name || scope || "", subject: entry ? entry.subject : null, color: cat.color || "#C8852E", total: pts, mastered: mas, pct: pts ? Math.round(mas / pts * 100) : 0, lessons: les, textbook: courseTextbook(id, scope), verified: courseVerified(id, scope) };
+      return { discId: id, discName: dd.name, dir: dir, scope: scope, scopeName: (SCOPES[scope] || {}).name || scope || "", subject: entry ? entry.subject : null, color: cat.color || "#C8852E", total: pts, mastered: mas, pct: pts ? Math.round(mas / pts * 100) : 0, lessons: les, earned: earned, dueN: dueN, textbook: courseTextbook(id, scope), verified: courseVerified(id, scope) };
     });
   }
   // 最终试卷校验过的记录(user_state.verified,键 discId|scope)
@@ -1131,7 +1142,7 @@ window.Core = (function () {
     lessonRead: lessonRead, kpState: kpState, recentLessons: recentLessons, catalogByPath: catalogByPath, catalogForDiscipline: catalogForDiscipline,
     cardForKp: cardForKp, kpSrs: kpSrs, srsEnroll: srsEnroll, srsGrade: srsGrade, dueKps: dueKps, srsCounts: srsCounts, srsBackfill: srsBackfill, vocabDueCount: vocabDueCount,
     cardPtSeen: cardPtSeen, toggleCardPt: toggleCardPt, secSeen: secSeen, markSecSeen: markSecSeen,
-    logEvent: logEvent, award: award, awardOnce: awardOnce, masteryGate: masteryGate,
+    logEvent: logEvent, award: award, awardOnce: awardOnce, kpPoints: kpPoints, masteryGate: masteryGate,
     LEVELS: LEVELS, levelOf: levelOf, knowledgeValue: knowledgeValue,
     ACHIEVEMENTS: ACHIEVEMENTS, evalAchievements: evalAchievements, checkAchievements: checkAchievements,
     setMastery: setMastery, isMastered: isMastered,

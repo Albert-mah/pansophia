@@ -50,24 +50,12 @@
         <p style="font-size:14.5px;color:#8a7a62;margin:0;">今天也离"无所不知"更近一步 · One step closer to knowing everything</p>
       </div>
 
-      <div class="pan-panel" onClick=${function () { app.go("analytics"); }} title="点击进入数据中心" style="cursor:pointer;padding:12px 20px;margin-bottom:22px;display:flex;gap:8px 22px;align-items:center;flex-wrap:wrap;font-size:13.5px;color:#5a4e3c;">
-        <span>🔥 连续 <b style="color:#B6532F;">${st.streak}</b> 天</span>
-        <span>⬡ 积分 <b style="color:#C8852E;">${C.points().balance || 0}</b></span>
-        <span>✓ 掌握 <b style="color:#6E7A4F;">${Object.keys(C.progress()).length}</b> 个知识点</span>
-        <span>🎯 正确率 <b style="color:#6E7A4F;">${st.accuracy == null ? "—" : st.accuracy + "%"}</b></span>
-        <span style="margin-left:auto;color:#B6532F;font-weight:700;">📊 数据中心 · 全部记录与积分明细 →</span>
+      <div class="pan-panel" onClick=${function () { app.go("analytics"); }} title="点击进入数据中心" style="cursor:pointer;padding:11px 18px;margin-bottom:22px;display:flex;gap:8px 20px;align-items:center;flex-wrap:wrap;font-size:13.5px;color:#5a4e3c;">
+        <span title="连续学习天数" style="display:inline-flex;align-items:center;gap:4px;background:#FBF0E6;border-radius:999px;padding:4px 12px;"><span style="font-size:15px;">🔥</span><b style="color:#B6532F;">${st.streak}</b></span>
+        <span>✓ 掌握 <b style="color:#6E7A4F;">${Object.keys(C.progress()).length}</b></span>
+        <span>🎯 <b style="color:#6E7A4F;">${st.accuracy == null ? "—" : st.accuracy + "%"}</b></span>
+        <span style="margin-left:auto;color:#B6532F;font-weight:700;">📊 数据中心 →</span>
       </div>
-
-      ${(function () {
-        var srsN = C.srsCounts().due, vN = C.vocabDueCount();
-        if (!srsN && !vN) return null;
-        return html`<div style="background:#33291E;color:#F2E8D6;border-radius:16px;padding:16px 22px;margin-bottom:22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-          <span style="font-size:22px;">🃏</span>
-          <div style="flex:1;min-width:200px;font-size:14px;line-height:1.5;"><b>今日复习到期:</b>${srsN ? html`知识卡 <b style="color:#E8B06A;">${srsN}</b> 张` : null}${srsN && vN ? " · " : ""}${vN ? html`单词 <b style="color:#E8B06A;">${vN}</b> 个` : null}<span style="opacity:.75;"> —— 几分钟就能刷完,别让记忆溜走</span></div>
-          ${srsN ? html`<span class="pan-btn pill" style="background:#B6532F;color:#fff;" onClick=${function () { app.go("review"); }}>▸ 刷卡片</span>` : null}
-          ${vN ? html`<span class="pan-btn pill" style="background:rgba(255,255,255,.14);color:#F2E8D6;" onClick=${function () { app.go("vocab"); }}>背单词</span>` : null}
-        </div>`;
-      })()}
 
       <div class="pan-home-main" style="display:grid;grid-template-columns:1.62fr 1fr;gap:22px;">
         <div style="display:flex;flex-direction:column;gap:22px;">
@@ -79,7 +67,16 @@
               <div style="font-size:13.5px;opacity:.9;margin-bottom:18px;">去「学科探索」挑一门加入我的空间,马上开始。</div>
               <span class="pan-btn pill" style="background:#fff;color:#B6532F;" onClick=${function () { app.go("explore"); }}>＋ 探索学科</span></div>`;
             var accs = C.accuracyBySubject();
+            var srsN = C.srsCounts().due, vN = C.vocabDueCount();
             return html`<div class="pan-panel"><div class="pan-sec-h"><h2>进行中的课程</h2><span class="more" onClick=${function () { app.go("course"); }}>全部 / 选课 / 规划 →</span></div>
+              ${(srsN || vN) ? html`<div style="background:#33291E;color:#F2E8D6;border-radius:12px;padding:11px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13.5px;">
+                <b>📌 今天要刷</b>
+                ${srsN ? html`<span>知识卡 <b style="color:#E8B06A;">${srsN}</b> 张</span>` : null}
+                ${vN ? html`<span>单词 <b style="color:#E8B06A;">${vN}</b> 个</span>` : null}
+                <span style="margin-left:auto;display:flex;gap:8px;">
+                  ${srsN ? html`<span class="pan-btn pill sm" style="background:#B6532F;color:#fff;" onClick=${function () { app.go("review"); }}>▸ 刷卡片</span>` : null}
+                  ${vN ? html`<span class="pan-btn pill sm" style="background:rgba(255,255,255,.14);color:#F2E8D6;" onClick=${function () { app.go("vocab"); }}>背单词</span>` : null}
+                </span></div>` : null}
               <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:12px;">
               ${courses.map(function (c, i) {
                 var sName = (SUBJECTS[c.subject] || {}).name || "";
@@ -89,10 +86,12 @@
                     <span style="font-family:var(--serif);font-size:15.5px;font-weight:700;">${c.discName}</span>
                     ${c.dir ? html`<span style=${"font-size:11.5px;font-weight:700;color:" + c.color + ";"}>${c.dir}</span>` : null}
                     ${c.scopeName ? html`<span style="font-size:11px;color:#9a8a6f;">${c.scopeName}</span>` : null}
+                    ${c.dueN ? html`<span title="到期待复习" style="font-size:10.5px;font-weight:800;color:#fff;background:#B6532F;border-radius:999px;padding:2px 8px;">🃏 ${c.dueN}</span>` : null}
                   </div>
                   ${html`<${Bar} pct=${c.pct} color=${c.color} />`}
-                  <div style="display:flex;gap:10px;margin-top:8px;font-size:12px;color:#8a7a62;flex-wrap:wrap;align-items:center;">
-                    <span>掌握 <b style="color:#6E7A4F;">${c.mastered}</b>/${c.total} · ${c.pct}%</span>
+                  <div style="display:flex;gap:9px;margin-top:8px;font-size:12px;color:#8a7a62;flex-wrap:wrap;align-items:center;">
+                    <span>掌握 <b style="color:#6E7A4F;">${c.mastered}</b>/${c.total}</span>
+                    <span title="这门课已获得的积分" style="color:#C8852E;font-weight:700;">⬡ ${c.earned}</span>
                     ${acc ? html`<span title="该科答题正确率">🎯 ${acc.pct}%</span>` : null}
                     <span style="margin-left:auto;color:#B6532F;font-weight:700;">▸ 上课</span>
                   </div></div>`;
@@ -1629,7 +1628,7 @@
     var run = r0[0], setRun = r0[1];
     var qs = p.questions || [], q = qs[run.i];
     function val(qq) { return 2 + (qq.difficulty || 2); }
-    function settle(qq, ok) { C.recordAnswer({ questionId: qq.qid, kp: qq.kp, correct: ok, examId: p.examId }); C.recordQuiz({ qid: qq.qid, kp: qq.kp, correct: ok }); if (ok && C.awardOnce("q:" + qq.qid, val(qq), "答对练习 · " + String(qq.q || "").slice(0, 16))) return val(qq); return 0; }
+    function settle(qq, ok) { C.recordAnswer({ questionId: qq.qid, kp: qq.kp, correct: ok, examId: p.examId }); C.recordQuiz({ qid: qq.qid, kp: qq.kp, correct: ok }); if (ok && C.awardOnce("q:" + qq.qid, val(qq), "答对练习 · " + String(qq.q || "").slice(0, 16), qq.kp || null)) return val(qq); return 0; }
     function logItem(qq, chosen, ok) { return { q: qq.q, type: qq.type, options: qq.options || [], answer: qq.answer, explain: qq.explain || "", kp: qq.kp || null, chosen: chosen, correct: ok }; }
     function choose(idx) { if (run.answered != null) return; var ok = idx === q.answer; var got = settle(q, ok); setRun(Object.assign({}, run, { answered: idx, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + got, wrong: run.wrong + (ok ? 0 : 1), items: run.items.concat([logItem(q, idx, ok)]) })); }
     function submitFill() { if (run.answered != null) return; var v = (run.fill || "").trim().toLowerCase().replace(/[.。]$/, ""); var ok = (q.answer || []).some(function (a) { return String(a).trim().toLowerCase() === v; }); var got = settle(q, ok); setRun(Object.assign({}, run, { answered: 1, fillOk: ok, lastOk: ok, correct: run.correct + (ok ? 1 : 0), earned: run.earned + got, wrong: run.wrong + (ok ? 0 : 1), items: run.items.concat([logItem(q, run.fill, ok)]) })); }
