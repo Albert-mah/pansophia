@@ -26,9 +26,15 @@ JSON 契约:`docs/card-system.md` §四。种子样例:`tools/seeds/questions-20
    group → variant_of 由脚本自动回填)。
 5. 验收:`python3 tools/import_questions.py --coverage` → 所有 drill 卡 ≥3 题、退出码 0。
 
+## 灌错了怎么修
+
+发现已导入的题有错(答案错/选项重复/考法废):
+`curl -X POST http://127.0.0.1:8790/api/questions/delete -H "Content-Type: application/json" -H "X-Write-Token: <token>" -d '{"id": <题id>}'`
+删掉后把修正版走正规 import 重灌,并同步改 seed 文件保持一致。token 读 ~/.studyhub/config.json。
+
 ## 禁止
 
-- 直连 PG 写题(必须走脚本/API)。
+- **任何情况下都不许直连 PG**(写题/删题都走 API;删除端点已有,没有借口)。
 - 无 kp 入题、explain 留空、选项里有两个可争议的正确项。
 - 同一考法重复灌题(查重那步不许跳)。
 

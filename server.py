@@ -363,6 +363,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_cache()
         if p.path == "/api/questions":
             return self.api_questions_post()
+        if p.path == "/api/questions/delete":
+            return self.api_questions_delete()
         if p.path == "/api/answer":
             return self.api_answer_post()
         if p.path == "/api/materials":
@@ -747,6 +749,22 @@ class Handler(SimpleHTTPRequestHandler):
                     ids.append(cur.fetchone()[0])
             conn.close()
             return self._json(200, {"ok": True, "ids": ids})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_questions_delete(self):
+        # 删除指定 id 的题(灌错修正用;agent 不应直连 PG)。answers 里的引用保留(历史作答不动)。
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        d = self._read_json()
+        qid = d.get("id") if isinstance(d, dict) else None
+        if not isinstance(qid, int): return self._json(400, {"ok": False, "error": "need int id"})
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("DELETE FROM questions WHERE id=%s", (qid,))
+                n = cur.rowcount
+            conn.close()
+            return self._json(200, {"ok": True, "deleted": n})
         except Exception as e:
             return self._json(500, {"ok": False, "error": str(e)})
 
