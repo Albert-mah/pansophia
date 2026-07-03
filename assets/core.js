@@ -1077,7 +1077,7 @@ window.Core = (function () {
       // 二级方向(如 外国语言文学 → 英语 / 新概念英语):大纲显式 dir 优先,否则取 subject 名(仅当与一级学科名明显不同才标)
       var _dn = dd.name || "", _sj = (entry && entry.subject && SUBJECTS[entry.subject]) ? SUBJECTS[entry.subject].name : "";
       var dir = (entry && entry.dir) ? entry.dir : ((_sj && _sj !== _dn && _dn.indexOf(_sj) < 0 && _sj.indexOf(_dn) < 0) ? _sj : "");
-      return { discId: id, discName: dd.name, dir: dir, scope: scope, scopeName: (SCOPES[scope] || {}).name || scope || "", color: cat.color || "#C8852E", total: pts, mastered: mas, pct: pts ? Math.round(mas / pts * 100) : 0, lessons: les, textbook: courseTextbook(id, scope), verified: courseVerified(id, scope) };
+      return { discId: id, discName: dd.name, dir: dir, scope: scope, scopeName: (SCOPES[scope] || {}).name || scope || "", subject: entry ? entry.subject : null, color: cat.color || "#C8852E", total: pts, mastered: mas, pct: pts ? Math.round(mas / pts * 100) : 0, lessons: les, textbook: courseTextbook(id, scope), verified: courseVerified(id, scope) };
     });
   }
   // 最终试卷校验过的记录(user_state.verified,键 discId|scope)

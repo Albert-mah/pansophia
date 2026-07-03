@@ -35,34 +35,27 @@
    * ========================================================= */
   function HomeScreen() {
     var app = useApp();
-    var u = C.user(), st = C.stats(), heat = C.heatmap();
-    var weekCount = C.events().filter(function (e) { return Date.now() - (e.ts || 0) < 7 * 864e5; }).length;
-    var skel = C.skeletonForUser();
-    var cont = null;
-    for (var i = 0; i < skel.length; i++) { var cv = C.coverage(skel[i]); if (cv.total && cv.pct < 100) { cont = { e: skel[i], cv: cv }; break; } }
+    var u = C.user(), st = C.stats();
 
     // 今日待办(统一:今天的任务,主页 / 计划页 / 日历同一份 tasks)
     var todos = C.todayTasks();
     var doneN = todos.filter(function (x) { return x.done; }).length;
     function addQuickTodo() { var v = window.prompt("加一条今日待办:"); v = (v || "").trim(); if (v) { C.addTodo(v); app.refresh(); } }
 
-    var mine = C.myDiscs(), recs = C.allDisciplines().filter(function (d) { return mine.indexOf(d.id) < 0; }).slice(0, 3);
-    var wl = C.wishlist(), cp = C.categoryProgress(), nt = C.notes();
+    var wl = C.wishlist();
 
     return html`<div class="pan-screen">
-      <div class="pan-head" style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;">
-        <div><h1 style="font-family:var(--serif);font-size:32px;font-weight:700;margin:0 0 5px;">${greet()},${u.name} 👋</h1>
-        <p style="font-size:14.5px;color:#8a7a62;margin:0;">今天也离"无所不知"更近一步 · One step closer to knowing everything</p></div>
-        <div style="display:flex;gap:10px;"><span class="pan-btn ghost" onClick=${function () { app.go("explore"); }}>＋ 探索新学科</span>
-        <span class="pan-btn ink" onClick=${function () { app.go("plan"); }}>规划学习 →</span></div>
+      <div class="pan-head" style="margin-bottom:24px;">
+        <h1 style="font-family:var(--serif);font-size:32px;font-weight:700;margin:0 0 5px;">${greet()},${u.name} 👋</h1>
+        <p style="font-size:14.5px;color:#8a7a62;margin:0;">今天也离"无所不知"更近一步 · One step closer to knowing everything</p>
       </div>
 
-      <div class="pan-home-stats" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;">
-        ${StatCard("连续学习", st.streak, "天", "活跃 " + st.activeDays + " 天", true)}
-        ${StatCard("我的学科", st.enrolled, "门", "已加入我的空间")}
-        ${StatCard("习题正确率", st.accuracy == null ? "—" : st.accuracy, st.accuracy == null ? "" : "%", st.answered ? "近 " + st.answered + " 题" : "去测验解锁", false, "#6E7A4F")}
-        ${StatCard("收藏知识卡", st.cards, "", st.cards ? "持续积累" : "做题时收藏")}
-        ${StatCard("本周练习", weekCount, "次", "近 7 天活动")}
+      <div class="pan-panel" onClick=${function () { app.go("analytics"); }} title="点击进入数据中心" style="cursor:pointer;padding:12px 20px;margin-bottom:22px;display:flex;gap:8px 22px;align-items:center;flex-wrap:wrap;font-size:13.5px;color:#5a4e3c;">
+        <span>🔥 连续 <b style="color:#B6532F;">${st.streak}</b> 天</span>
+        <span>⬡ 积分 <b style="color:#C8852E;">${C.points().balance || 0}</b></span>
+        <span>✓ 掌握 <b style="color:#6E7A4F;">${Object.keys(C.progress()).length}</b> 个知识点</span>
+        <span>🎯 正确率 <b style="color:#6E7A4F;">${st.accuracy == null ? "—" : st.accuracy + "%"}</b></span>
+        <span style="margin-left:auto;color:#B6532F;font-weight:700;">📊 数据中心 · 全部记录与积分明细 →</span>
       </div>
 
       ${(function () {
@@ -78,19 +71,34 @@
 
       <div class="pan-home-main" style="display:grid;grid-template-columns:1.62fr 1fr;gap:22px;">
         <div style="display:flex;flex-direction:column;gap:22px;">
-          ${cont ? html`<div class="pan-home-hero" style="background:linear-gradient(118deg,#B6532F,#C8852E);color:#fff;border-radius:20px;padding:26px 28px;display:flex;align-items:center;gap:26px;">
-            ${html`<${Ring} pct=${cont.cv.pct} label=${cont.cv.pct + "%"} />`}
-            <div style="flex:1;"><div style="font-size:11.5px;letter-spacing:.14em;opacity:.85;margin-bottom:8px;">继续学习 · CONTINUE LEARNING</div>
-            <div style="font-family:var(--serif);font-size:23px;font-weight:600;margin-bottom:6px;">${(SUBJECTS[cont.e.subject] || {}).name || cont.e.subject}</div>
-            <div style="font-size:13px;opacity:.85;margin-bottom:18px;">${(C.SCOPES[cont.e.scope] || {}).name || cont.e.scope} · 已完成 ${cont.cv.done}/${cont.cv.total} 个考点</div>
-            <div style="display:flex;gap:10px;"><span class="pan-btn pill" style="background:#fff;color:#B6532F;" onClick=${function () { app.go("course", { disc: cont.e.discipline }); }}>▸ 继续学习</span>
-            <span class="pan-btn pill" style="background:rgba(255,255,255,.18);color:#fff;" onClick=${function () { app.go("plan"); }}>排进计划</span></div></div></div>`
-          : html`<div style="background:linear-gradient(118deg,#B6532F,#C8852E);color:#fff;border-radius:20px;padding:30px 28px;">
-            <div style="font-size:11.5px;letter-spacing:.14em;opacity:.85;margin-bottom:8px;">开始你的第一门 · GET STARTED</div>
-            <div style="font-family:var(--serif);font-size:23px;font-weight:600;margin-bottom:10px;">还没有进行中的课程</div>
-            <div style="font-size:13.5px;opacity:.9;margin-bottom:18px;">去「学科探索」挑一门加入我的空间,或直接「学习计划」排一段日程。</div>
-            <div style="display:flex;gap:10px;"><span class="pan-btn pill" style="background:#fff;color:#B6532F;" onClick=${function () { app.go("explore"); }}>＋ 探索学科</span>
-            <span class="pan-btn pill" style="background:rgba(255,255,255,.18);color:#fff;" onClick=${function () { app.go("plan"); }}>制定计划 →</span></div></div>`}
+          ${(function () {
+            var courses = C.coursesForUser();
+            if (!courses.length) return html`<div style="background:linear-gradient(118deg,#B6532F,#C8852E);color:#fff;border-radius:20px;padding:30px 28px;">
+              <div style="font-size:11.5px;letter-spacing:.14em;opacity:.85;margin-bottom:8px;">开始你的第一门 · GET STARTED</div>
+              <div style="font-family:var(--serif);font-size:23px;font-weight:600;margin-bottom:10px;">还没有进行中的课程</div>
+              <div style="font-size:13.5px;opacity:.9;margin-bottom:18px;">去「学科探索」挑一门加入我的空间,马上开始。</div>
+              <span class="pan-btn pill" style="background:#fff;color:#B6532F;" onClick=${function () { app.go("explore"); }}>＋ 探索学科</span></div>`;
+            var accs = C.accuracyBySubject();
+            return html`<div class="pan-panel"><div class="pan-sec-h"><h2>进行中的课程</h2><span class="more" onClick=${function () { app.go("course"); }}>全部 / 选课 / 规划 →</span></div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:12px;">
+              ${courses.map(function (c, i) {
+                var sName = (SUBJECTS[c.subject] || {}).name || "";
+                var acc = accs.filter(function (a) { return a.subject === sName; })[0];
+                return html`<div key=${i} class="pan-card" onClick=${function () { app.go("course", c.scope ? { disc: c.discId, scope: c.scope } : { disc: c.discId }); }} style="border:1px solid #F0E6D2;border-radius:14px;padding:14px 16px;cursor:pointer;background:#fff;">
+                  <div style="display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-bottom:8px;">
+                    <span style="font-family:var(--serif);font-size:15.5px;font-weight:700;">${c.discName}</span>
+                    ${c.dir ? html`<span style=${"font-size:11.5px;font-weight:700;color:" + c.color + ";"}>${c.dir}</span>` : null}
+                    ${c.scopeName ? html`<span style="font-size:11px;color:#9a8a6f;">${c.scopeName}</span>` : null}
+                  </div>
+                  ${html`<${Bar} pct=${c.pct} color=${c.color} />`}
+                  <div style="display:flex;gap:10px;margin-top:8px;font-size:12px;color:#8a7a62;flex-wrap:wrap;align-items:center;">
+                    <span>掌握 <b style="color:#6E7A4F;">${c.mastered}</b>/${c.total} · ${c.pct}%</span>
+                    ${acc ? html`<span title="该科答题正确率">🎯 ${acc.pct}%</span>` : null}
+                    <span style="margin-left:auto;color:#B6532F;font-weight:700;">▸ 上课</span>
+                  </div></div>`;
+              })}
+              </div></div>`;
+          })()}
 
           ${(function () {
             var rl = C.recentLessons(6);
@@ -115,23 +123,6 @@
           </div>
           <div style="margin-top:10px;display:flex;gap:10px;"><span class="pan-btn ghost sm" onClick=${addQuickTodo}>＋ 加待办</span><span class="pan-btn ghost sm" onClick=${function () { app.go("plan"); }}>去学习计划 →</span></div></div>
 
-          <div class="pan-panel"><div class="pan-sec-h"><h2>学习活跃度</h2><span style="font-size:12.5px;color:#9a8a6f;">近 26 周 · Activity</span></div>
-          <div class="pan-home-heat" style="display:grid;grid-template-columns:repeat(26,1fr);gap:4px;">
-            ${heat.map(function (c, i) { return html`<div key=${i} class="pan-cell" title=${c.day + (c.n ? " · " + c.n + " 次" : "")} style=${"aspect-ratio:1;border-radius:3px;background:" + c.color + ";"}></div>`; })}
-          </div>
-          <div style="display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:14px;font-size:11.5px;color:#9a8a6f;">少 <span style="width:12px;height:12px;border-radius:3px;background:#F1E7D4;"></span><span style="width:12px;height:12px;border-radius:3px;background:#E7C99B;"></span><span style="width:12px;height:12px;border-radius:3px;background:#D29A4E;"></span><span style="width:12px;height:12px;border-radius:3px;background:#B6532F;"></span> 多</div></div>
-
-          <div><div class="pan-sec-h"><h2>为你推荐</h2><span class="more" onClick=${function () { app.go("explore"); }}>更多 →</span></div>
-          <div class="pan-home-recs" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-            ${recs.length ? recs.map(function (d) {
-              var c = d.catColor || "#C8852E";
-              return html`<div key=${d.id} class="pan-card" onClick=${function () { app.go("discipline", { disc: d.id }); }} style="background:#fff;border:1px solid #F0E6D2;border-radius:16px;overflow:hidden;cursor:pointer;">
-                <div style=${"height:84px;background:repeating-linear-gradient(45deg," + c + "22," + c + "22 9px," + c + "11 9px," + c + "11 18px);"}></div>
-                <div style="padding:14px 16px;"><div style=${"font-size:11px;color:" + c + ";font-weight:600;margin-bottom:6px;"}>${d.catName || ""}</div>
-                <div style="font-family:var(--serif);font-size:15px;font-weight:600;line-height:1.35;margin-bottom:9px;">${d.name}</div>
-                <div style="font-size:11.5px;color:#9a8a6f;">${(d.sub || []).length} 个方向 · ${C.programsFor(d.id).length ? "🎓 有培养方案" : "可加入"}</div></div></div>`;
-            }) : html`<div class="pan-empty" style="grid-column:1/-1;">已把推荐都加入啦 🎉</div>`}
-          </div></div>
         </div>
 
         <div style="display:flex;flex-direction:column;gap:22px;">
@@ -146,13 +137,11 @@
             </div>
             <div style="margin-top:14px;font-size:12.5px;font-weight:600;color:#E8B06A;">查看愿望清单 →</div></div>
 
-          <div class="pan-panel"><h2 style="font-family:var(--serif);font-size:18px;font-weight:700;margin:0 0 18px;">各学科进度</h2>
-          <div style="display:flex;flex-direction:column;gap:15px;">
-            ${cp.length ? cp.map(function (c, i) { return html`<div key=${i}><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px;"><span>${c.name}</span><span style="color:#9a8a6f;">${c.pct}%</span></div>${html`<${Bar} pct=${c.pct} color=${c.color} />`}</div>`; }) : html`<div style="font-size:13px;color:#9a8a6f;">学起来后这里会显示各门类进度。</div>`}
-          </div></div>
-
-          <div class="pan-panel"><div class="pan-sec-h"><h2 style="font-size:18px;">最近笔记</h2><span class="more" onClick=${function () { app.go("notes"); }}>全部 →</span></div>
-          ${nt.length ? nt.slice(0, 3).map(function (n, i) { return html`<div key=${i} class="pan-row" onClick=${function () { app.go("notes"); }} style=${"padding:11px 8px;cursor:pointer;" + (i < 2 ? "border-bottom:1px solid #F4ECDC;" : "")}><div style="font-size:14px;font-weight:600;">${n.title}</div><div style="font-size:11.5px;color:#9a8a6f;margin-top:3px;">${n.subject || ""}</div></div>`; }) : html`<div style="font-size:13px;color:#9a8a6f;padding:6px 2px;">学习时收藏的卡片会出现在这里。</div>`}</div>
+          <div class="pan-card" onClick=${function () { app.go("vocab"); }} style="background:linear-gradient(135deg,#C8852E,#a86a00);color:#fff;border-radius:20px;padding:24px 26px;cursor:pointer;">
+            <div style="font-size:11.5px;letter-spacing:.14em;opacity:.85;margin-bottom:12px;">单词训练 · VOCAB</div>
+            <div style="font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.4;margin-bottom:8px;">${(function () { var n = C.vocabDueCount(); return n ? "待复习 " + n + " 个词" : "今天的新词等你刷"; })()}</div>
+            <div style="font-size:12.5px;opacity:.82;margin-bottom:16px;">三关制 + 记忆曲线 · 每日新词可调</div>
+            <div style="display:inline-block;background:#fff;color:#a86a00;padding:9px 20px;border-radius:999px;font-weight:600;font-size:13.5px;">去背单词 →</div></div>
 
           <div class="pan-card" onClick=${function () { app.go("quiz"); }} style="background:linear-gradient(135deg,#6E7A4F,#566041);color:#fff;border-radius:20px;padding:24px 26px;cursor:pointer;">
             <div style="font-size:11.5px;letter-spacing:.14em;opacity:.85;margin-bottom:12px;">今日测验 · DAILY QUIZ</div>
@@ -624,7 +613,8 @@
       ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "我的课程" }]} />`}
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
         <h1 class="pan-page-h" style="margin:0;">我的课程 <span class="en">/ My Courses</span></h1>
-        <span class="pan-btn ink" onClick=${function () { app.go("explore"); }}>＋ 选课 / 加学科</span>
+        <div style="display:flex;gap:10px;"><span class="pan-btn ghost" onClick=${function () { app.go("plan"); }}>🗓 规划学习</span>
+        <span class="pan-btn ink" onClick=${function () { app.go("explore"); }}>＋ 选课 / 加学科</span></div>
       </div>
       <p class="pan-page-sub">你按「课程」领取与管理:课程 = 学科 × 范围(同一学科可有多门,如 数学·高考、数学·本科)。点进去看 AI 导师排的考点大纲与讲解,逐个标记掌握。加新课:点右上「选课」进学科,在「考点大纲」里按范围「领取这门」。卸载只退这一门,不影响同学科其它范围。</p>
       ${courses.length ? html`<div>
