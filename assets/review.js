@@ -168,8 +168,9 @@
     }
     var right = q.type === "fill" ? (q.answer || []).join(" / ") : (q.options || [])[q.answer];
     return html`<div style="margin-top:14px;border:1px solid #EEE3CF;border-radius:12px;padding:14px 16px;background:#fff;">
-      <div style="font-size:11.5px;font-weight:700;color:#9a8a6f;margin-bottom:8px;">✍️ 顺手练一题</div>
-      <div style="font-size:14px;font-weight:600;line-height:1.6;margin-bottom:10px;">${q.subject === "english" ? html`<${SpeakableText} text=${q.stem} />` : q.stem}</div>
+      <div style="font-size:11.5px;font-weight:700;color:#9a8a6f;margin-bottom:8px;">${q.type === "listen" ? "🎧 听音练一题" : "✍️ 顺手练一题"}</div>
+      <div style="font-size:14px;font-weight:600;line-height:1.6;margin-bottom:10px;">${q.type !== "listen" && q.subject === "english" ? html`<${SpeakableText} text=${q.stem} />` : q.stem}</div>
+      ${q.type === "listen" ? html`<div style="margin-bottom:10px;"><span class="pan-btn terra sm" onClick=${function () { C.speak(q.audio || (q.options || [])[q.answer] || "", q.subject === "japanese" ? "ja" : "en"); }}>▶ 播放音频</span></div>` : null}
       ${q.type === "fill"
         ? (ans ? null : html`<div style="display:flex;gap:8px;flex-wrap:wrap;">
             <input value=${fill} onInput=${function (e) { setFill(e.target.value); }} placeholder="填答案…" style="flex:1;min-width:120px;border:1.5px solid #D8C9A8;border-radius:9px;padding:8px 12px;font-size:14px;background:#FBF9F3;"
@@ -178,7 +179,9 @@
         : html`<div style="display:flex;flex-direction:column;gap:7px;">${(q.options || []).map(function (op, i) {
             var st = "border:1.5px solid #EBDEC8;background:#fff;";
             if (ans) { if (i === q.answer) st = "border:1.5px solid #6E7A4F;background:#EFF1E0;"; else if (i === ans.chosen && !ans.ok) st = "border:1.5px solid #B6532F;background:#f9ece5;"; }
-            var spk = (q.subject === "english" && speakableWord(op)) ? html`<span title="听发音" onClick=${function (e) { e.stopPropagation(); C.speak(op, "en"); }} style="cursor:pointer;font-size:14px;margin-left:8px;opacity:.75;">🔊</span>` : null;
+            var spkL = (q.subject === "english" && speakableWord(op)) ? "en" : (q.subject === "japanese" && speakableJa(op)) ? "ja" : null;
+            if (q.type === "listen" && !ans) spkL = null;   // 听音题作答前不给逐项试听
+            var spk = spkL ? html`<span title="听发音" onClick=${function (e) { e.stopPropagation(); C.speak(op, spkL); }} style="cursor:pointer;font-size:14px;margin-left:8px;opacity:.75;">🔊</span>` : null;
             return html`<div key=${i} onClick=${function () { if (!ans) settle(i, i === q.answer); }} style=${"display:flex;align-items:center;justify-content:space-between;border-radius:10px;padding:9px 13px;font-size:13.5px;cursor:pointer;" + st}><span>${op}</span>${spk}</div>`;
           })}</div>`}
       ${ans ? html`<div style="margin-top:10px;font-size:13px;line-height:1.7;">

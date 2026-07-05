@@ -55,13 +55,18 @@ def check(items):
         for f in ("kp", "subject", "type", "stem", "answer", "explain"):
             if not q.get(f) and q.get(f) != 0: errs.append("%s: 缺必填字段 %s" % (w, f))
         t = q.get("type")
-        if t not in ("choice", "fill"): errs.append("%s: type 应为 choice|fill(现在是 %r)" % (w, t))
-        if t == "choice":
+        if t not in ("choice", "fill", "listen"): errs.append("%s: type 应为 choice|fill|listen(现在是 %r)" % (w, t))
+        if t in ("choice", "listen"):
             ops = q.get("options")
             if not isinstance(ops, list) or not (3 <= len(ops) <= 5):
-                errs.append(w + ": choice 的 options 应为 3-5 项数组")
+                errs.append(w + ": %s 的 options 应为 3-5 项数组" % t)
             elif not isinstance(q.get("answer"), int) or not (0 <= q["answer"] < len(ops)):
-                errs.append(w + ": choice 的 answer 应为 options 下标(int)")
+                errs.append(w + ": %s 的 answer 应为 options 下标(int)" % t)
+        if t == "listen":
+            if q.get("subject") not in ("english", "japanese"):
+                errs.append(w + ": listen 题型只支持 english/japanese")
+            if q.get("audio") is not None and not isinstance(q.get("audio"), str):
+                errs.append(w + ": audio 应为字符串(要朗读的文本,缺省=正确选项)")
         if t == "fill":
             a = q.get("answer")
             if not isinstance(a, list) or not a or not all(isinstance(x, str) and x.strip() for x in a):

@@ -75,7 +75,10 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
 - `point`(可选,推荐):这道题考的是卡片里哪个**小点**(逐字符抄小点的 `t`)。
   现在只做数据积累,后续前端按小节挂题、小节内出题都靠它。新题一律带上。
 
-- `choice`:options 3-5 项,answer 是正确项下标;`fill`:answer 是可接受答案字符串数组。
+- `choice`:options 3-5 项,answer 是正确项下标;`fill`:answer 是可接受答案字符串数组;
+  `listen`(听音选词,**仅 english/japanese**):形同 choice,前端出「▶ 播放音频」按钮
+  (有道真人音),播 `audio` 字段文本(缺省=正确选项);作答前选项不可试听。
+  判断题就是 2 选项的 choice,不另设题型。
 - **变体组**:同一考法换数值/情境的题,在 JSON 里写相同的 `"group": "任意标签"`,
   导入脚本自动把组内第一题作为组头、其余题的 `variant_of` 回填为组头的数据库 id。
   不同考法就不同 group(或不写 group)。
