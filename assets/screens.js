@@ -629,6 +629,14 @@
 
   // 每门课记住「选中的考点 + 小 App tab」:app.refresh/checkAch 会按 tick 整屏重挂载,不缓存就丢状态(存笔记/标掌握后跳回第一节)
   var _courseMem = {};
+  // 卡片 deepDive:整章长讲解页(含交互演示)回挂,默认收起、点开才加载(docs/card-system.md)
+  function DeepDiveBlock(p) {
+    var o0 = useState(false); var open = o0[0], setOpen = o0[1];
+    return html`<div style="margin-top:18px;border-top:1px dashed #EBDEC8;padding-top:12px;">
+      <span class="pan-btn ghost sm" onClick=${function () { setOpen(!open); }}>${open ? "▾ 收起完整讲解页" : "📖 深入阅读:完整讲解页(含交互演示)"}</span>
+      ${open ? html`<div style="margin-top:12px;"><${window.LessonEmbed} path=${p.path} onDrill=${p.onDrill} /></div>` : null}
+    </div>`;
+  }
   function CourseScreen() {
     var app = useApp();
     var did = app.params.disc;
@@ -732,7 +740,8 @@
       else if (kpTab === "extend") body = html`<div class="pan-kp-body"><${KpExtendPanel} kp=${lp} did=${did} discName=${(d && d.name) || sc.name} sylIds=${sylIds} onPick=${pickKp} /></div>`;
       else if (!lp.path) body = html`<div class="pan-kp-body"><div class="pan-article" style="max-width:none;">
         ${html`<${window.CardArticle} card=${mcard} onDrill=${function () { goTab("drill"); }} />`}
-        <div style="margin-top:18px;padding-top:12px;border-top:1px dashed #EBDEC8;font-size:12.5px;color:#9a8a6f;">这节是卡片式微课(约 ${mcard.minutes || 3} 分钟)。想要更长的图文讲解?<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { C.sendMessage({ kind: "wish", text: "请给「" + lp.title + "」写一篇完整讲解页(现有卡片基础上加深)。", context: { discId: did, scope: entry.scope, kp: lp.id } }).then(function () { app.go("messages"); }); }}> ✉️ 请导师补一篇</span></div>
+        ${mcard.deepDive ? html`<${DeepDiveBlock} path=${mcard.deepDive} onDrill=${function () { goTab("drill"); }} />` : null}
+        <div style="margin-top:18px;padding-top:12px;border-top:1px dashed #EBDEC8;font-size:12.5px;color:#9a8a6f;">这节是卡片式微课(约 ${mcard.minutes || 3} 分钟)。${mcard.deepDive ? "" : "想要更长的图文讲解?"}<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { C.sendMessage({ kind: "wish", text: "请给「" + lp.title + "」写一篇完整讲解页(现有卡片基础上加深)。", context: { discId: did, scope: entry.scope, kp: lp.id } }).then(function () { app.go("messages"); }); }}> ✉️ 请导师补一篇</span></div>
       </div></div>`;
       else body = app.lessonOpen
         ? html`<div class="pan-lesson-embed" style="min-height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13.5px;">正在全屏查看这篇讲解…</div>`

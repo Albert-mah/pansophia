@@ -893,13 +893,13 @@ window.STUDY_SKELETON = (window.STUDY_SKELETON || []).concat([
       {"title":"函数模型及其应用","status":"todo"}
     ] },
     { title: "导数及其应用", points: [
-      {"title":"导数的概念与几何意义","ref":"math-derivatives"},
-      {"title":"基本初等函数的导数公式与运算法则","ref":"math-derivatives"},
-      {"title":"复合函数的导数","ref":"math-derivatives"},
-      {"title":"利用导数研究函数的单调性","ref":"math-derivatives"},
-      {"title":"利用导数求函数的极值与最值","ref":"math-derivatives"},
-      {"title":"导数在不等式证明中的应用","ref":"math-derivatives"},
-      {"title":"导数在函数零点(方程根)问题中的应用","ref":"math-derivatives"}
+      {"title":"导数的概念与几何意义"},
+      {"title":"基本初等函数的导数公式与运算法则"},
+      {"title":"复合函数的导数"},
+      {"title":"利用导数研究函数的单调性"},
+      {"title":"利用导数求函数的极值与最值"},
+      {"title":"导数在不等式证明中的应用"},
+      {"title":"导数在函数零点(方程根)问题中的应用"}
     ] },
     { title: "三角函数与解三角形", points: [
       {"title":"任意角、弧度制与三角函数定义","status":"todo"},
