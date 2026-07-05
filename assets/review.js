@@ -148,10 +148,8 @@
   /* ---------- 抽一题(复习屏内嵌小练,单题) ---------- */
   function MiniDrill(p) {
     var q0 = useState(null); var q = q0[0], setQ = q0[1];       // null 加载中 / false 无题
-    var a0 = useState(null); var ans = a0[0], setAns = a0[1];   // {chosen, ok}
-    var f0 = useState(""); var fill = f0[0], setFill = f0[1];
     useEffect(function () {
-      setQ(null); setAns(null); setFill("");
+      setQ(null);
       C.questionsFor({ kp: [p.kp], limit: 20 }).then(function (rows) {
         rows = (rows || []).filter(function (r) { return r.scope !== "extra"; });   // 复习抽题不抽课外题
         if (!rows.length) { setQ(false); return; }
@@ -160,15 +158,22 @@
     }, [p.kp]);
     if (q == null) return html`<div style="font-size:12.5px;color:#9a8a6f;padding:8px 0;">出题中…</div>`;
     if (q === false) return html`<div style="font-size:12.5px;color:#9a8a6f;padding:8px 0;">这个考点还没配题。</div>`;
+    return html`<${MiniDrillQ} q=${q} key=${q.id} />`;
+  }
+  // 单题渲染:复习屏抽题 + 课文交互复习题内嵌复用;q 由外部给定,答对走同一套一次性积分
+  function MiniDrillQ(p) {
+    var q = p.q;
+    var a0 = useState(null); var ans = a0[0], setAns = a0[1];   // {chosen, ok}
+    var f0 = useState(""); var fill = f0[0], setFill = f0[1];
     function settle(chosen, ok) {
       C.recordAnswer({ questionId: q.id, kp: q.kp, correct: ok });
       C.recordQuiz({ qid: q.id, kp: q.kp, correct: ok });
-      if (ok) C.awardOnce("q:" + q.id, 2 + (q.difficulty || 2), "复习答对 · " + String(q.stem || "").slice(0, 16), q.kp || null);   // 每题一生只给一次分
+      if (ok) C.awardOnce("q:" + q.id, 2 + (q.difficulty || 2), (p.why || "复习答对") + " · " + String(q.stem || "").slice(0, 16), q.kp || null);   // 每题一生只给一次分
       setAns({ chosen: chosen, ok: ok });
     }
     var right = q.type === "fill" ? (q.answer || []).join(" / ") : (q.options || [])[q.answer];
     return html`<div style="margin-top:14px;border:1px solid #EEE3CF;border-radius:12px;padding:14px 16px;background:#fff;">
-      <div style="font-size:11.5px;font-weight:700;color:#9a8a6f;margin-bottom:8px;">${q.type === "listen" ? "🎧 听音练一题" : "✍️ 顺手练一题"}</div>
+      <div style="font-size:11.5px;font-weight:700;color:#9a8a6f;margin-bottom:8px;">${p.tag || (q.type === "listen" ? "🎧 听音练一题" : "✍️ 顺手练一题")}</div>
       <div style="font-size:14px;font-weight:600;line-height:1.6;margin-bottom:10px;">${q.type !== "listen" && q.subject === "english" ? html`<${SpeakableText} text=${q.stem} />` : q.stem}</div>
       ${q.type === "listen" ? html`<div style="margin-bottom:10px;"><span class="pan-btn terra sm" onClick=${function () { C.speak(q.audio || (q.options || [])[q.answer] || "", q.subject === "japanese" ? "ja" : "en"); }}>▶ 播放音频</span></div>` : null}
       ${q.type === "fill"
@@ -189,6 +194,7 @@
         ${q.explain ? html`<div style="color:#7A6E5E;margin-top:6px;background:#FBF4E6;border-radius:9px;padding:8px 12px;">${q.subject === "english" ? html`<${SpeakableText} text=${q.explain} />` : q.explain}</div>` : null}</div>` : null}
     </div>`;
   }
+  window.MiniDrillQ = MiniDrillQ;
 
   /* ---------- 复习屏 ---------- */
   function ReviewScreen() {

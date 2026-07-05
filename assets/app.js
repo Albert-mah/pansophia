@@ -356,7 +356,7 @@
     } catch (e) {}
     // 习题圆点(该考点的 PG 配套题,异步补上;答对✓绿/答错✗红/未做空心)
     if (kp) C.questionsFor({ kp: [kp], limit: 12 }).then(function (qs) {
-      qs = (qs || []).filter(function (q) { return q.scope !== "extra"; });   // 课外题不进小节导航圆点
+      qs = (qs || []).filter(function (q) { return q.scope !== "extra" && !q.lab; });   // 课外题/交互复习题不进小节导航圆点
       if (!qs.length) return;
       var divider = document.createElement("span"); divider.style.cssText = "width:1px;height:12px;background:#EBDEC8;margin:0 2px;";
       row.appendChild(divider); row.appendChild(label("习题"));
@@ -375,6 +375,36 @@
     if (hd && hd.parentNode === art) art.insertBefore(nav, hd.nextSibling);
     else art.insertBefore(nav, art.firstChild);
   }
+  // 课文交互复习题:题库里带 lab 字段(= 交互 .lab-title 原文)的题,内嵌到对应交互块正下方。
+  // 玩完交互顺手答一题确认看懂了;答对走 MiniDrillQ 里同一套一次性积分,不新增刷分口。
+  function injectLabQuizzes(container, path) {
+    var kpRec = C.catalogByPath(path); if (!kpRec) return;
+    var labs = Array.prototype.slice.call(container.querySelectorAll(".lab"));
+    if (!labs.length) return;
+    C.questionsFor({ kp: [kpRec.id], limit: 40 }).then(function (qs) {
+      qs = (qs || []).filter(function (q) { return q.lab; });
+      if (!qs.length || !window.MiniDrillQ) return;
+      var norm = function (x) { return String(x || "").replace(/\s+/g, ""); };
+      qs.forEach(function (q) {
+        var ql = norm(q.lab); if (!ql) return;
+        var hit = null;
+        labs.forEach(function (el) {
+          if (hit) return;
+          var t = el.querySelector(".lab-title"); if (!t) return;
+          var tt = norm(t.textContent);
+          if (tt === ql || tt.indexOf(ql) >= 0 || ql.indexOf(tt) >= 0) hit = el;
+        });
+        if (!hit || !hit.parentNode) return;
+        var mount = document.createElement("div");
+        mount.className = "pan-lab-quiz";
+        hit.parentNode.insertBefore(mount, hit.nextSibling);
+        try {
+          var el = html`<${window.MiniDrillQ} q=${q} tag="🎮 玩明白了?检验一下这个交互想说什么" why="课文交互答对" />`;
+          if (ReactDOM.createRoot) ReactDOM.createRoot(mount).render(el); else ReactDOM.render(el, mount);
+        } catch (e) {}
+      });
+    });
+  }
   // 把讲解正文注入容器 + 重新执行其组件脚本(innerHTML 不会自动跑 <script>)。一次只挂一篇,id 不冲突。
   function mountLesson(container, path, opts) {
     if (!container) return;
@@ -385,6 +415,7 @@
       L.styles.forEach(function (css) { try { var st = document.createElement("style"); st.textContent = css; container.appendChild(st); } catch (e) {} });
       L.scripts.forEach(function (code) { try { var sc = document.createElement("script"); sc.textContent = code; container.appendChild(sc); } catch (e) {} });
       try { buildSectionNav(container, path, opts); } catch (e) {}
+      try { injectLabQuizzes(container, path); } catch (e) {}
       if (L.needsMath) typesetMath(container);
     }).catch(function () {
       container.innerHTML = '<div class="pan-lesson-loading">讲解载入失败,<a href="' + path + '" target="_blank" rel="noopener">在新标签打开 ↗</a></div>';

@@ -71,6 +71,8 @@ def check(items):
             a = q.get("answer")
             if not isinstance(a, list) or not a or not all(isinstance(x, str) and x.strip() for x in a):
                 errs.append(w + ": fill 的 answer 应为非空字符串数组")
+        if q.get("lab") is not None and (not isinstance(q.get("lab"), str) or not q["lab"].strip()):
+            errs.append(w + ": lab 应为非空字符串(课文交互 .lab-title 原文)")
         d = q.get("difficulty", 2)
         if d not in (1, 2, 3): errs.append(w + ": difficulty 应为 1/2/3")
         if len(str(q.get("stem") or "")) > 2000: errs.append(w + ": stem 过长")
