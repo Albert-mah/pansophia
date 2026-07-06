@@ -86,12 +86,16 @@
     var left = Math.max(0, vocabCfg().daily - newToday());
     return p.due.concat(shuffle(p.fresh).slice(0, left)).slice(0, SESSION_N);
   }
-  function gradeWord(w, passed, redrill) {
+  function gradeWord(w, passed, redrill, hadErr) {
     var v = Object.assign({}, vocabState()), k = keyOf(w), st = v[k] || { box: 0, correct: 0 };
     var isNew = !v[k];
-    if (redrill && passed) return;   // 重刷通过:不动记忆曲线(到期节奏不被打乱)
-    if (passed) { st.box = Math.min(BOX_DAYS.length - 1, (st.box || 0) + 1); st.passed = true; st.correct = (st.correct || 0) + 1; }
-    else { st.box = Math.max(0, (st.box || 0) - 1); }   // 重刷答错也降盒:忘了就提前复习
+    if (redrill && passed && !hadErr) return;   // 重刷干净通过:不动记忆曲线(到期节奏不被打乱)
+    if (passed && !hadErr) { st.box = Math.min(BOX_DAYS.length - 1, (st.box || 0) + 1); st.passed = true; st.correct = (st.correct || 0) + 1; }
+    else if (passed) {   // 通过但中途错过:盒不前进(重刷则降盒),很快再见面
+      if (redrill) st.box = Math.max(0, (st.box || 0) - 1);
+      st.passed = true; st.correct = (st.correct || 0) + 1;
+    }
+    else { st.box = Math.max(0, (st.box || 0) - 1); }
     st.due = Date.now() + BOX_DAYS[st.box] * 864e5;
     st.term = w.term; st.gloss = w.gloss; st.reading = w.reading || ""; st.lang = w.lang; st.ts = Date.now();
     v[k] = st; C.save("vocab", v);
@@ -179,14 +183,14 @@
     }
 
     /* ----- 训练中 ----- */
-    var w = sess.queue[sess.i];
-    var pct = Math.round(sess.i / sess.queue.length * 100);
+    var it = sess.items[0], w = it && it.w;
+    var pct = Math.round(sess.passed / Math.max(1, sess.total) * 100);
     if (sess.step === "done") {
       return html`<div class="pan-screen narrow"><div class="pan-panel" style="text-align:center;padding:40px;">
-        <div style="font-size:40px;margin-bottom:10px;">${sess.passed >= sess.queue.length * 0.7 ? "🎉" : "💪"}</div>
-        <h1 style="font-family:var(--serif);font-size:26px;margin:0 0 6px;">通过 ${sess.passed} / ${sess.queue.length} 个词</h1>
+        <div style="font-size:40px;margin-bottom:10px;">${sess.passed >= sess.total * 0.7 ? "🎉" : "💪"}</div>
+        <h1 style="font-family:var(--serif);font-size:26px;margin:0 0 6px;">通过 ${sess.passed} / ${sess.total} 个词</h1>
         <div style="color:#9a8a6f;margin-bottom:6px;">本组获得 ⬡ ${sess.earned} 积分</div>
-        <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${sess.mode === "redrill" ? "重刷模式:每通过 3 个 +1 分,复习计划不受影响(答错的会提前复习)" : "没过的词已排进记忆曲线,过几天再练更牢"}</div>
+        <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${sess.mode === "redrill" ? "重刷模式:每通过 3 个 +1 分(有答错的会提前复习)" : "每个词都连过两轮 + 终审才算数;中途退出的词不计,明天照常到期"}</div>
         <div style="display:flex;gap:10px;justify-content:center;"><span class="pan-btn ink" onClick=${function () { setSess(null); }}>再选一组</span><span class="pan-btn ghost" onClick=${function () { app.go("quiz"); }}>回习题</span></div></div></div>`;
     }
 
@@ -209,7 +213,7 @@
         <div style="margin-top:18px;">${favBtn()}</div></div>`;
     } else { // ex
       var ex = sess.exes[sess.round], ans = sess.answered;
-      var head = html`<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;"><span class="pan-pill" style="color:#B6532F;background:#FAE9E2;">第 ${sess.round + 1}/3 关 · ${ex.type}</span><span style="font-size:12px;color:#9a8a6f;">${sess.wordCorrect} 关已过</span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;">${ex.spell && canSay(w) ? html`<span class="pan-btn ghost sm pill" title="听写:点这里听单词" onClick=${function () { C.speak(w.term, w.lang); }}>🔊 听写</span>` : sayBtn(w)}${favBtn()}</span></div>`;
+      var head = html`<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;"><span class="pan-pill" style="color:#B6532F;background:#FAE9E2;">${sess.items[0].reps > 0 ? "🏁 终审 · " + ex.type : "第 " + (sess.round + 1) + "/2 关 · " + ex.type}</span><span style="font-size:12px;color:#9a8a6f;">${sess.items[0].reps > 0 ? "答对这题才算通过" : (sess.items[0].err ? "回炉中 · 两关全对进终审" : "两关全对进终审")}</span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;">${ex.spell && canSay(w) ? html`<span class="pan-btn ghost sm pill" title="听写:点这里听单词" onClick=${function () { C.speak(w.term, w.lang); }}>🔊 听写</span>` : sayBtn(w)}${favBtn()}</span></div>`;
       var prompt = html`<div style="font-size:12.5px;color:#9a8a6f;margin-bottom:6px;">${ex.q}</div><h1 style="font-family:var(--serif);font-size:${ex.prompt.length > 14 ? "20" : "30"}px;font-weight:600;line-height:1.4;margin:0 0 22px;">${ex.prompt}</h1>`;
       var input;
       if (ex.spell) {
@@ -224,14 +228,14 @@
       }
       body = html`<div class="pan-panel" style="padding:30px 32px;">${head}${prompt}${input}
         ${ans ? html`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:22px;">
-          <span style="font-size:13px;font-weight:700;color:${sess.lastOk ? "#6E7A4F" : "#B6532F"};">${sess.lastOk ? "✓ 答对" : "✗ 答错,这个词稍后再练"}</span>
-          <span class="pan-btn ink" onClick=${nextStep}>${sess.i + 1 >= sess.queue.length && (!sess.lastOk || sess.round >= 2) ? "完成 →" : (sess.lastOk && sess.round < 2 ? "下一关 →" : "下一个 →")}</span></div>` : null}</div>`;
+          <span style="font-size:13px;font-weight:700;color:${sess.lastOk ? "#6E7A4F" : "#B6532F"};">${sess.lastOk ? "✓ 答对" : "✗ 答错,回炉 —— 这个词要重新连过两轮"}</span>
+          <span class="pan-btn ink" onClick=${nextStep}>${sess.lastOk && sess.round + 1 < sess.exes.length ? "下一关 →" : (sess.lastOk && sess.items[0].reps > 0 && sess.items.length === 1 ? "完成 →" : "继续 →")}</span></div>` : null}</div>`;
     }
 
     return html`<div class="pan-screen narrow">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div class="pan-crumb" style="margin:0;"><span class="lnk" onClick=${function () { setSess(null); }}>单词专项</span> › ${sess.bankName}</div>
-        <div style="font-size:13px;color:#9a8a6f;">第 <b style="color:#33291E;">${sess.i + 1}</b> / ${sess.queue.length} 词 · 通过 ${sess.passed}</div></div>
+        <div style="font-size:13px;color:#9a8a6f;">通过 <b style="color:#33291E;">${sess.passed}</b> / ${sess.total} 词 · 队列还剩 ${sess.items.length}</div></div>
       <div class="pan-bar" style="height:7px;margin-bottom:22px;"><i style=${"width:" + pct + "%;background:#C8852E;"}></i></div>${body}</div>`;
 
     /* ----- 会话逻辑 ----- */
@@ -251,37 +255,43 @@
       settle(s, ok); setSess(s);
     }
     function settle(s, ok) {
-      if (ok) {
-        s.wordCorrect = (s.wordCorrect || 0) + 1;
-        if (s.mode !== "redrill") { s.earned += 2; C.award(2, "单词答对 · " + w.term, "vocab"); }   // 重刷不给答对分(防刷)
-      }
+      if (ok && s.mode !== "redrill") { s.earned += 2; C.award(2, "单词答对 · " + w.term, "vocab"); }   // 重刷不给答对分(防刷)
     }
     function nextStep() {
       var s = Object.assign({}, sess);
-      if (s.lastOk && s.round < 2) {          // 过关,进下一关
+      var cur = s.items[0];
+      if (s.lastOk && s.round + 1 < s.exes.length) {   // 本轮还有下一关
         s.round++; s.answered = false; s.picked = null; s.lastOk = false; s.spellVal = "";
         setSess(s); return;
       }
-      // 本词结束:三关全过=通过
-      var passed = s.lastOk && s.round >= 2 && s.wordCorrect >= 3;
-      gradeWord(w, passed, s.mode === "redrill");
-      if (passed) {
-        s.passed++;
-        if (s.mode === "redrill") {           // 重刷:每通过 3 个 +1 分(累计计数跨场次)
-          var rd = (vocabCfg().rd || 0) + 1; saveCfg({ rd: rd });
-          if (rd % 3 === 0) { s.earned += 1; C.award(1, "重刷单词 ×3 · " + w.term, "vocab-rd"); }
-        } else { s.earned += 8; C.award(8, "通过单词 · " + w.term, "vocab:" + keyOf(w)); }
+      // 本轮结束:全对 → reps+1;终审过 → 真通过;任何错 → 清零回炉排队尾
+      s.items = s.items.slice(); s.items.shift();
+      if (s.lastOk) {
+        cur.reps++;
+        if (cur.reps >= 2) {
+          gradeWord(w, true, s.mode === "redrill", cur.err);
+          s.passed++;
+          if (s.mode === "redrill") {           // 重刷:每通过 3 个 +1 分(累计计数跨场次)
+            var rd = (vocabCfg().rd || 0) + 1; saveCfg({ rd: rd });
+            if (rd % 3 === 0) { s.earned += 1; C.award(1, "重刷单词 ×3 · " + w.term, "vocab-rd"); }
+          } else { s.earned += 8; C.award(8, "通过单词 · " + w.term, "vocab:" + keyOf(w)); }
+        } else {
+          s.items.push(cur);                    // 第一轮全过 → 押后终审(隔几个词再见)
+        }
+      } else {
+        cur.err = true; cur.reps = 0;           // 答错:清零回炉,重新连过两轮
+        s.items.push(cur);
       }
-      advance(s);
-    }
-    function advance(s) {
-      if (s.i + 1 >= s.queue.length) {
-        C.logEvent({ kind: "vocab", subject: w.lang === "ja" ? "japanese" : "english", label: s.bankName, correct: s.passed, total: s.queue.length });
+      if (!s.items.length) {
+        C.logEvent({ kind: "vocab", subject: w.lang === "ja" ? "japanese" : "english", label: s.bankName, correct: s.passed, total: s.total });
         app.checkAch();
         s.step = "done"; setSess(s); return;
       }
-      s.i++; s.step = "card"; s.revealed = false; s.conf = null; s.round = 0; s.answered = false; s.picked = null; s.lastOk = false; s.spellVal = ""; s.wordCorrect = 0; s.exes = null;
-      setSess(s);
+      // 下一个词:没见过的先看卡;回炉/终审的直接进题
+      var nx = s.items[0];
+      s.round = 0; s.answered = false; s.picked = null; s.lastOk = false; s.spellVal = ""; s.exes = null; s.revealed = false; s.conf = null;
+      if (!nx.seen) { s.step = "card"; setSess(s); }
+      else { toEx(s, setSess); }
     }
   }
 
@@ -289,12 +299,17 @@
   function newSession(b, mode, queue) {
     var q = queue || buildQueue(b, mode || "normal");
     var suffix = mode === "extra" ? " · 追加新词" : mode === "redrill" ? " · 重刷" : "";
-    return { bankId: b.id, bankName: b.name + suffix, mode: mode || "normal", lang: b.lang, pool: b.words, queue: q, i: 0, step: "card", revealed: false, conf: null, exes: null, round: 0, picked: null, answered: false, lastOk: false, spellVal: "", wordCorrect: 0, passed: 0, earned: 0 };
+    // 知米式回炉队列:每词要连过两轮(任何一错清零回炉),第二轮=终审「看词选义(英选汉)」
+    return { bankId: b.id, bankName: b.name + suffix, mode: mode || "normal", lang: b.lang, pool: b.words,
+      items: q.map(function (x) { return { w: x, reps: 0, err: false, seen: false }; }), total: q.length,
+      step: "card", revealed: false, conf: null, exes: null, round: 0, picked: null, answered: false, lastOk: false, spellVal: "", passed: 0, earned: 0 };
   }
   function toEx(s, setSess) {
-    var w = s.queue[s.i];
+    var it = s.items[0], w = it.w;
+    it.seen = true;
     s = Object.assign({}, s, { step: "ex", round: 0, answered: false, picked: null, lastOk: false, spellVal: "", revealed: false });
-    s.exes = [makeExercise(w, s.pool, 0), makeExercise(w, s.pool, 1), makeExercise(w, s.pool, 2)];
+    // 第一轮:看义选词 + 拼写/读音;第二轮(终审):看词选义 —— 英语认出汉语意思才算真会
+    s.exes = it.reps === 0 ? [makeExercise(w, s.pool, 1), makeExercise(w, s.pool, 2)] : [makeExercise(w, s.pool, 0)];
     setSess(s);
   }
 
