@@ -37,9 +37,13 @@ JSON 契约:`docs/card-system.md` §四。种子样例:`tools/seeds/questions-20
 
 ## 灌错了怎么修
 
-发现已导入的题有错(答案错/选项重复/考法废):
-`curl -X POST http://127.0.0.1:8790/api/questions/delete -H "Content-Type: application/json" -H "X-Write-Token: <token>" -d '{"id": <题id>}'`
-删掉后把修正版走正规 import 重灌,并同步改 seed 文件保持一致。token 读 ~/.studyhub/config.json。
+- **挂载信息错**(kp/scope/point/lab 挂错,题本身没问题)→ 用 update,**保留题 id**(作答记录、变体组链都挂在 id 上,不许删了重灌):
+  `curl -X POST http://127.0.0.1:8790/api/questions/update -H "Content-Type: application/json" -H "X-Write-Token: <token>" -d '{"id": <题id>, "kp": "...", "scope": "..."}'`
+- **题本身废了**(答案错/选项重复/考法废)→ 删掉重灌:
+  `curl -X POST http://127.0.0.1:8790/api/questions/delete -H "Content-Type: application/json" -H "X-Write-Token: <token>" -d '{"id": <题id>}'`
+  修正版走正规 import。
+- 两种情况都要**同步改 seed 文件**保持一致。token 读 ~/.studyhub/config.json。
+- ⚠️ scope 必须 = 课程(skeleton 块)的 scope,kp 必须 = 考点的 kpKey(**有 ref 用 ref**,别用考点标题)——挂错的题在课程练习里会被 scope 过滤,等于白灌(2026-07-06 修过 52 道)。
 
 ## 禁止
 

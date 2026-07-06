@@ -367,6 +367,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.api_questions_post()
         if p.path == "/api/questions/delete":
             return self.api_questions_delete()
+        if p.path == "/api/questions/update":
+            return self.api_questions_update()
         if p.path == "/api/answer":
             return self.api_answer_post()
         if p.path == "/api/materials":
@@ -769,6 +771,29 @@ class Handler(SimpleHTTPRequestHandler):
                 n = cur.rowcount
             conn.close()
             return self._json(200, {"ok": True, "deleted": n})
+        except Exception as e:
+            return self._json(500, {"ok": False, "error": str(e)})
+
+    def api_questions_update(self):
+        # 修正指定 id 的题(改 kp/scope 等挂载信息;保留 id,作答记录/变体组链不断)。字段白名单,不许改题干内容以外乱写。
+        if not self._auth_write(): return self._json(401, {"ok": False, "error": "bad token"})
+        d = self._read_json()
+        qid = d.get("id") if isinstance(d, dict) else None
+        if not isinstance(qid, int): return self._json(400, {"ok": False, "error": "need int id"})
+        ALLOWED = ("kp", "scope", "edition", "difficulty", "point", "explain", "source", "lab", "audio", "stem")
+        sets, args = [], []
+        for f in ALLOWED:
+            if f in d:
+                sets.append(f + "=%s"); args.append(d[f] if d[f] != "" else None)
+        if not sets: return self._json(400, {"ok": False, "error": "no allowed fields"})
+        args.append(qid)
+        try:
+            conn = pg()
+            with conn, conn.cursor() as cur:
+                cur.execute("UPDATE questions SET " + ",".join(sets) + " WHERE id=%s", tuple(args))
+                n = cur.rowcount
+            conn.close()
+            return self._json(200, {"ok": True, "updated": n})
         except Exception as e:
             return self._json(500, {"ok": False, "error": str(e)})
 

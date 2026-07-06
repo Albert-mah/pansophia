@@ -1,27 +1,142 @@
 [
-  { "kp": "mh-en-future-tense", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "future-base-verb-form",
-    "stem": "He will ___ his homework after dinner.", "options": ["does", "did", "do", "doing"], "answer": 2,
-    "explain": "will 后面用动词原形,do 不加 s、不变成 does / did / doing。", "source": "skills/questions@sonnet" },
-  { "kp": "mh-en-future-tense", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "future-base-verb-form",
-    "stem": "They will ___ to the party next Saturday.", "options": ["comes", "came", "come", "coming"], "answer": 2,
-    "explain": "will 后面永远接动词原形,come 不加 s 也不用过去式 came。", "source": "skills/questions@sonnet" },
-  { "kp": "mh-en-future-tense", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1,
-    "stem": "I ___ tell your secret. Don't worry!", "options": ["won't", "wasn't", "doesn't", "didn't"], "answer": 0,
-    "explain": "won't = will not,表示将来的否定,后面接动词原形 tell。", "source": "skills/questions@sonnet" },
-  { "kp": "mh-en-future-tense", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2,
-    "stem": "___ you help me with my English homework tonight?", "options": ["Will", "Do", "Are", "Did"], "answer": 0,
-    "explain": "tonight 表将来,一般疑问句把 Will 提到句首:Will you help me…?", "source": "skills/questions@sonnet" },
-
-  { "kp": "mh-en-present-continuous", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2, "group": "cont-ing-double-consonant",
-    "stem": "The boy is ___ (run) in the park.", "options": ["runing", "running", "runnning", "runed"], "answer": 1,
-    "explain": "run 是重读闭音节(辅元辅),双写尾字母 n 再加 ing,running 才对。", "source": "skills/questions@sonnet" },
-  { "kp": "mh-en-present-continuous", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2, "group": "cont-ing-double-consonant",
-    "stem": "My dog is ___ (sit) under the tree.", "options": ["siting", "sitting", "sittting", "sitted"], "answer": 1,
-    "explain": "sit 也是重读闭音节,双写尾字母 t 再加 ing,sitting 才对。", "source": "skills/questions@sonnet" },
-  { "kp": "mh-en-present-continuous", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1,
-    "stem": "He ___ doing his homework now. He is playing games.", "options": ["isn't", "doesn't", "didn't", "don't"], "answer": 0,
-    "explain": "现在进行时的否定是 be + not + doing,he 对应 is,所以是 isn't。", "source": "skills/questions@sonnet" },
-  { "kp": "mh-en-present-continuous", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2,
-    "stem": "I ___ this song very much.", "options": ["am liking", "like", "liked", "is liking"], "answer": 1,
-    "explain": "like 是状态动词,一般不用进行时,要用一般现在时 like,不能说 am liking。", "source": "skills/questions@sonnet" }
+ {
+  "kp": "mh-en-future-tense",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "group": "future-base-verb-form",
+  "stem": "He will ___ his homework after dinner.",
+  "options": [
+   "does",
+   "did",
+   "do",
+   "doing"
+  ],
+  "answer": 2,
+  "explain": "will 后面用动词原形,do 不加 s、不变成 does / did / doing。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-future-tense",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "group": "future-base-verb-form",
+  "stem": "They will ___ to the party next Saturday.",
+  "options": [
+   "comes",
+   "came",
+   "come",
+   "coming"
+  ],
+  "answer": 2,
+  "explain": "will 后面永远接动词原形,come 不加 s 也不用过去式 came。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-future-tense",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "stem": "I ___ tell your secret. Don't worry!",
+  "options": [
+   "won't",
+   "wasn't",
+   "doesn't",
+   "didn't"
+  ],
+  "answer": 0,
+  "explain": "won't = will not,表示将来的否定,后面接动词原形 tell。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-future-tense",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "stem": "___ you help me with my English homework tonight?",
+  "options": [
+   "Will",
+   "Do",
+   "Are",
+   "Did"
+  ],
+  "answer": 0,
+  "explain": "tonight 表将来,一般疑问句把 Will 提到句首:Will you help me…?",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-present-continuous",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "cont-ing-double-consonant",
+  "stem": "The boy is ___ (run) in the park.",
+  "options": [
+   "runing",
+   "running",
+   "runnning",
+   "runed"
+  ],
+  "answer": 1,
+  "explain": "run 是重读闭音节(辅元辅),双写尾字母 n 再加 ing,running 才对。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-present-continuous",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "cont-ing-double-consonant",
+  "stem": "My dog is ___ (sit) under the tree.",
+  "options": [
+   "siting",
+   "sitting",
+   "sittting",
+   "sitted"
+  ],
+  "answer": 1,
+  "explain": "sit 也是重读闭音节,双写尾字母 t 再加 ing,sitting 才对。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-present-continuous",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "stem": "He ___ doing his homework now. He is playing games.",
+  "options": [
+   "isn't",
+   "doesn't",
+   "didn't",
+   "don't"
+  ],
+  "answer": 0,
+  "explain": "现在进行时的否定是 be + not + doing,he 对应 is,所以是 isn't。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-present-continuous",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "stem": "I ___ this song very much.",
+  "options": [
+   "am liking",
+   "like",
+   "liked",
+   "is liking"
+  ],
+  "answer": 1,
+  "explain": "like 是状态动词,一般不用进行时,要用一般现在时 like,不能说 am liking。",
+  "source": "skills/questions@sonnet"
+ }
 ]

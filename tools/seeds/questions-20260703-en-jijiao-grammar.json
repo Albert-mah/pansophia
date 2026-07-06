@@ -1,47 +1,249 @@
 [
-  { "kp": "mh-en-comparatives", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2, "group": "cmp-irregular",
-    "stem": "The weather today is ___ than yesterday. (bad)", "options": ["worse", "more bad", "badder", "most bad"], "answer": 0,
-    "explain": "bad 的比较级是不规则的 worse,没有 badder 这种写法,也不能加 more。", "source": "skills/questions@sonnet" },
-  { "kp": "mh-en-comparatives", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2, "group": "cmp-irregular",
-    "stem": "My grades this term are ___ than last term. (good)", "options": ["better", "more good", "gooder", "best"], "answer": 0,
-    "explain": "good/well 的比较级固定是 better,没有 gooder 这种写法,best 是最高级不是比较级。", "source": "skills/questions@sonnet" },
-  { "kp": "mh-en-comparatives", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2,
-    "stem": "Lily is ___ than her sister. (happy)", "options": ["happier", "more happier", "happyer", "most happy"], "answer": 0,
-    "explain": "happy 是辅音字母 + y 结尾,变 y 为 i 再加 er → happier;more happier 把 more 和 er 叠在一起是错的,most happy 是最高级不是比较级。", "source": "skills/questions@sonnet" },
-
-  { "kp": "mh-en-be-verb", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "be-past-was-were",
-    "stem": "We ___ at the zoo yesterday.", "options": ["was", "were", "is", "are"], "answer": 1,
-    "explain": "We 是复数,be 动词的过去式用 were,不是 was。", "source": "skills/questions@sonnet" },
-  { "kp": "mh-en-be-verb", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "be-past-was-were",
-    "stem": "My father ___ very tired last night.", "options": ["was", "were", "is", "are"], "answer": 0,
-    "explain": "My father 是第三人称单数,be 动词的过去式用 was,不是 were。", "source": "skills/questions@sonnet" },
-  { "kp": "mh-en-be-verb", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2,
-    "stem": "Which sentence is correct?", "options": ["She is likes music.", "She likes music.", "She is like music.", "She are likes music."], "answer": 1,
-    "explain": "一句话里已经有 be 动词,就不能再加实义动词的第三人称形式(likes);要么用 She likes music,要么用 She is a music fan。", "source": "skills/questions@sonnet" },
-
-  { "kp": "可数与不可数名词", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2, "group": "count-quantifier",
-    "stem": "There is ___ on the table.", "options": ["a milk", "many milk", "some milk", "milks"], "answer": 2,
-    "explain": "milk 是不可数名词,不能加 a 或变复数 milks,用 some 修饰就行。", "source": "skills/questions@sonnet" },
-  { "kp": "可数与不可数名词", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2, "group": "count-quantifier",
-    "stem": "We need ___ for the soup.", "options": ["a rice", "two rices", "some rice", "many rices"], "answer": 2,
-    "explain": "rice 是不可数名词,不能说 a rice 或 rices,用 some 修饰。", "source": "skills/questions@sonnet" },
-  { "kp": "可数与不可数名词", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 2, "group": "count-quantifier",
-    "stem": "Can I have ___? I'm hungry.", "options": ["a bread", "a piece of bread", "breads", "many bread"], "answer": 1,
-    "explain": "bread 不可数,不能加 a 或变复数,要靠量词短语 a piece of bread 表示数量。", "source": "skills/questions@sonnet" },
-  { "kp": "可数与不可数名词", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1,
-    "stem": "How ___ money do you have?", "options": ["much", "many", "a lot", "few"], "answer": 0,
-    "explain": "money 是不可数名词,问数量用 how much,不能用 how many(how many 只配可数名词复数)。", "source": "skills/questions@sonnet" },
-
-  { "kp": "人称代词与物主代词", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "poss-adj-vs-noun",
-    "stem": "This is ___ pen. It's blue.", "options": ["my", "mine", "me", "I"], "answer": 0,
-    "explain": "空格后面跟着名词 pen,要用形容词性物主代词 my;mine 后面不能再跟名词。", "source": "skills/questions@sonnet" },
-  { "kp": "人称代词与物主代词", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1, "group": "poss-adj-vs-noun",
-    "stem": "This umbrella isn't mine. It's ___.", "options": ["her", "hers", "she", "herself"], "answer": 1,
-    "explain": "空格后面没有名词跟着,要用名词性物主代词 hers;her 是形容词性,后面必须跟名词。", "source": "skills/questions@sonnet" },
-  { "kp": "人称代词与物主代词", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1,
-    "stem": "Please give the book to ___.", "options": ["I", "me", "my", "mine"], "answer": 1,
-    "explain": "介词 to 后面要用宾格 me,不能用主格 I。", "source": "skills/questions@sonnet" },
-  { "kp": "人称代词与物主代词", "subject": "english", "scope": "jijiao-6b", "type": "choice", "difficulty": 1,
-    "stem": "___ and Tom are good friends.", "options": ["He", "Him", "His", "Himself"], "answer": 0,
-    "explain": "做主语要用主格 He,不能用宾格 Him。", "source": "skills/questions@sonnet" }
+ {
+  "kp": "mh-en-comparatives",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "cmp-irregular",
+  "stem": "The weather today is ___ than yesterday. (bad)",
+  "options": [
+   "worse",
+   "more bad",
+   "badder",
+   "most bad"
+  ],
+  "answer": 0,
+  "explain": "bad 的比较级是不规则的 worse,没有 badder 这种写法,也不能加 more。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-comparatives",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "cmp-irregular",
+  "stem": "My grades this term are ___ than last term. (good)",
+  "options": [
+   "better",
+   "more good",
+   "gooder",
+   "best"
+  ],
+  "answer": 0,
+  "explain": "good/well 的比较级固定是 better,没有 gooder 这种写法,best 是最高级不是比较级。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-comparatives",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "stem": "Lily is ___ than her sister. (happy)",
+  "options": [
+   "happier",
+   "more happier",
+   "happyer",
+   "most happy"
+  ],
+  "answer": 0,
+  "explain": "happy 是辅音字母 + y 结尾,变 y 为 i 再加 er → happier;more happier 把 more 和 er 叠在一起是错的,most happy 是最高级不是比较级。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-be-verb",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "group": "be-past-was-were",
+  "stem": "We ___ at the zoo yesterday.",
+  "options": [
+   "was",
+   "were",
+   "is",
+   "are"
+  ],
+  "answer": 1,
+  "explain": "We 是复数,be 动词的过去式用 were,不是 was。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-be-verb",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "group": "be-past-was-were",
+  "stem": "My father ___ very tired last night.",
+  "options": [
+   "was",
+   "were",
+   "is",
+   "are"
+  ],
+  "answer": 0,
+  "explain": "My father 是第三人称单数,be 动词的过去式用 was,不是 were。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-be-verb",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "stem": "Which sentence is correct?",
+  "options": [
+   "She is likes music.",
+   "She likes music.",
+   "She is like music.",
+   "She are likes music."
+  ],
+  "answer": 1,
+  "explain": "一句话里已经有 be 动词,就不能再加实义动词的第三人称形式(likes);要么用 She likes music,要么用 She is a music fan。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-nouns-plural",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "count-quantifier",
+  "stem": "There is ___ on the table.",
+  "options": [
+   "a milk",
+   "many milk",
+   "some milk",
+   "milks"
+  ],
+  "answer": 2,
+  "explain": "milk 是不可数名词,不能加 a 或变复数 milks,用 some 修饰就行。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-nouns-plural",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "count-quantifier",
+  "stem": "We need ___ for the soup.",
+  "options": [
+   "a rice",
+   "two rices",
+   "some rice",
+   "many rices"
+  ],
+  "answer": 2,
+  "explain": "rice 是不可数名词,不能说 a rice 或 rices,用 some 修饰。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-nouns-plural",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "count-quantifier",
+  "stem": "Can I have ___? I'm hungry.",
+  "options": [
+   "a bread",
+   "a piece of bread",
+   "breads",
+   "many bread"
+  ],
+  "answer": 1,
+  "explain": "bread 不可数,不能加 a 或变复数,要靠量词短语 a piece of bread 表示数量。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-nouns-plural",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "stem": "How ___ money do you have?",
+  "options": [
+   "much",
+   "many",
+   "a lot",
+   "few"
+  ],
+  "answer": 0,
+  "explain": "money 是不可数名词,问数量用 how much,不能用 how many(how many 只配可数名词复数)。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-pronouns",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "group": "poss-adj-vs-noun",
+  "stem": "This is ___ pen. It's blue.",
+  "options": [
+   "my",
+   "mine",
+   "me",
+   "I"
+  ],
+  "answer": 0,
+  "explain": "空格后面跟着名词 pen,要用形容词性物主代词 my;mine 后面不能再跟名词。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-pronouns",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "group": "poss-adj-vs-noun",
+  "stem": "This umbrella isn't mine. It's ___.",
+  "options": [
+   "her",
+   "hers",
+   "she",
+   "herself"
+  ],
+  "answer": 1,
+  "explain": "空格后面没有名词跟着,要用名词性物主代词 hers;her 是形容词性,后面必须跟名词。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-pronouns",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "stem": "Please give the book to ___.",
+  "options": [
+   "I",
+   "me",
+   "my",
+   "mine"
+  ],
+  "answer": 1,
+  "explain": "介词 to 后面要用宾格 me,不能用主格 I。",
+  "source": "skills/questions@sonnet"
+ },
+ {
+  "kp": "mh-en-pronouns",
+  "subject": "english",
+  "scope": "chuzhong",
+  "type": "choice",
+  "difficulty": 1,
+  "stem": "___ and Tom are good friends.",
+  "options": [
+   "He",
+   "Him",
+   "His",
+   "Himself"
+  ],
+  "answer": 0,
+  "explain": "做主语要用主格 He,不能用宾格 Him。",
+  "source": "skills/questions@sonnet"
+ }
 ]
