@@ -14,6 +14,7 @@
   function useApp() { return React.useContext(window.AppCtx); }
 
   var BOX_DAYS = [0, 1, 2, 4, 8, 16, 30];     // Leitner 记忆曲线(天)
+  var GRAD_BOX = 4;   // 「完全掌握」线:熬过 1/2/4 天三轮复习、第四次仍全对(进 8 天档)才算毕业
   var SESSION_N = 20;                          // 一组上限(复习优先,新词受每日配额约束)
   var VER = "20260703c";
 
@@ -100,7 +101,10 @@
     if (!st.newCounted) { st.newCounted = 1; if (!st.ts) bumpNewToday(); }
     if (passed) st.fam = 100;
     if (redrill && passed && !hadErr) return;   // 重刷干净通过:不动记忆曲线(到期节奏不被打乱)
-    if (passed && !hadErr) { st.box = Math.min(BOX_DAYS.length - 1, (st.box || 0) + 1); st.passed = true; st.correct = (st.correct || 0) + 1; }
+    if (passed && !hadErr) {
+      st.box = Math.min(BOX_DAYS.length - 1, (st.box || 0) + 1); st.passed = true; st.correct = (st.correct || 0) + 1;
+      if (st.box >= GRAD_BOX && !st.grad) { st.grad = 1; C.award(10, "完全掌握 · " + w.term, "vocab-grad"); }   // 毕业奖励一次性
+    }
     else if (passed) {   // 通过但中途错过:盒不前进(重刷则降盒),很快再见面
       if (redrill) st.box = Math.max(0, (st.box || 0) - 1);
       st.passed = true; st.correct = (st.correct || 0) + 1;
@@ -156,7 +160,7 @@
     if (!sess) {
       var banks = bankList(), wb = wordbook(), v = vocabState();
       var cfg = vocabCfg(), usedToday = newToday(), leftToday = Math.max(0, cfg.daily - usedToday);
-      function progressOf(b) { var p = 0, dueN = 0, learn = 0, now = Date.now(); b.words.forEach(function (w) { var st = v[keyOf(w)]; if (st && st.passed) p++; else if (st && (st.fam || 0) > 0) learn++; if (st && (st.due || 0) <= now) dueN++; }); return { passed: p, due: dueN, learning: learn, total: b.words.length }; }
+      function progressOf(b) { var p = 0, dueN = 0, learn = 0, now = Date.now(); b.words.forEach(function (w) { var st = v[keyOf(w)]; if (st && (st.grad || (st.box || 0) >= GRAD_BOX)) p++; else if (st && (st.passed || (st.fam || 0) > 0)) learn++; if (st && (st.due || 0) <= now) dueN++; }); return { passed: p, due: dueN, learning: learn, total: b.words.length }; }
       function start(b, mode, n) { var q = buildQueue(b, mode || "normal", n); if (!q.length) return; setSess(newSession(b, mode || "normal", q)); }
       function clampN(val, max) { var n = parseInt(val, 10); if (!(n > 0)) n = 1; return Math.min(n, max); }
       function numIn(val, setVal) { return html`<input type="number" min="1" value=${val} onClick=${function (e) { e.stopPropagation(); }} onInput=${function (e) { setVal(e.target.value); }} style="width:58px;border:1.5px solid #D8C9A8;border-radius:8px;padding:4px 8px;font-size:13px;background:#FFFDF8;" />`; }
@@ -177,7 +181,7 @@
             var pr = progressOf(b), on = pick === b.id;
             return html`<div key=${b.id} class="pan-card pan-panel" style=${"cursor:pointer;" + (on ? "box-shadow:0 0 0 2px #C8852E;" : "")} onClick=${function () { setPick(on ? null : b.id); }}>
               <div style="font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;">${b.name}</div>
-              <div style="font-size:12px;color:#9a8a6f;margin-bottom:8px;">${b.total} 词 · 已掌握 ${pr.passed}${pr.learning ? " · 在学 " + pr.learning : ""}${pr.due ? " · 待复习 " + pr.due : ""}</div>
+              <div style="font-size:12px;color:#9a8a6f;margin-bottom:8px;">${b.total} 词 · 完全掌握 ${pr.passed}${pr.learning ? " · 在学 " + pr.learning : ""}${pr.due ? " · 待复习 " + pr.due : ""}</div>
               ${html`<${BarW} pct=${Math.round(pr.passed / b.total * 100)} />`}
               ${on ? (function () {
                 var pl = bankPools(b);
@@ -200,7 +204,7 @@
         <div style="font-size:40px;margin-bottom:10px;">${sess.passed >= sess.total * 0.7 ? "🎉" : "💪"}</div>
         <h1 style="font-family:var(--serif);font-size:26px;margin:0 0 6px;">通过 ${sess.passed} / ${sess.total} 个词</h1>
         <div style="color:#9a8a6f;margin-bottom:6px;">本组获得 ⬡ ${sess.earned} 积分</div>
-        <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${sess.mode === "redrill" ? "重刷模式:每通过 3 个 +1 分(有答错的会提前复习)" : "答错的题会反复出现,全对才算通过;中途退出的词不计,明天照常到期"}</div>
+        <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${sess.mode === "redrill" ? "重刷模式:每通过 3 个 +1 分(有答错的会提前复习)" : "通过 ≠ 记住:明天、后天、第 4/8/16/30 天它还会回来考你,每次都要全对;熬过前四轮全对才算「完全掌握」,中途答错就原地踏步"}</div>
         <div style="display:flex;gap:10px;justify-content:center;"><span class="pan-btn ink" onClick=${function () { setSess(null); }}>再选一组</span><span class="pan-btn ghost" onClick=${function () { app.go("quiz"); }}>回习题</span></div></div></div>`;
     }
 
