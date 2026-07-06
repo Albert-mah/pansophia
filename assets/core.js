@@ -450,6 +450,20 @@ window.Core = (function () {
     var prog = progress(), mastRefs = {}, mastSubj = {}, subjSet = {};
     Object.keys(prog).forEach(function (ref) { mastRefs[ref] = 1; var k = catalogById(ref); var sj = k ? k.subject : (prog[ref] && prog[ref].subject); if (sj) { mastSubj[sj] = (mastSubj[sj] || 0) + 1; subjSet[sj] = 1; } });
     var lessons = {}; ev.forEach(function (e) { if (e.kind === "lesson" && e.path) lessons[e.path] = 1; });
+    // 按语言汇总单词训练(外语成就模板用):vocab KV 每词有 lang;vocab 事件有 subject/correct/total
+    var vst = store("vocab", {}) || {}, vLang = {};
+    Object.keys(vst).forEach(function (k) {
+      var w = vst[k] || {}, L = w.lang || "en", o = vLang[L] || (vLang[L] = { touched: 0, passed: 0, grad: 0 });
+      o.touched++; if (w.passed) o.passed++; if (w.grad || (w.box || 0) >= 4) o.grad++;
+    });
+    var vDays = {}, vPerfect = {};
+    ev.forEach(function (e) {
+      if (e.kind !== "vocab") return;
+      var L = e.subject === "japanese" ? "ja" : "en";
+      (vDays[L] = vDays[L] || {})[new Date(e.ts).toDateString()] = 1;
+      if ((e.total || 0) >= 10 && e.correct === e.total) vPerfect[L] = (vPerfect[L] || 0) + 1;
+    });
+    var vDayN = {}; Object.keys(vDays).forEach(function (L) { vDayN[L] = Object.keys(vDays[L]).length; });
     function hr(ts) { return new Date(ts).getHours(); }
     return {
       bal: bal, streak: st.streak, activeDays: st.activeDays, accuracy: st.accuracy,
@@ -462,7 +476,8 @@ window.Core = (function () {
       wishlist: wishlist().length,
       night: ev.some(function (e) { var h = hr(e.ts); return h >= 23 || h < 5; }) ? 1 : 0,
       early: ev.some(function (e) { var h = hr(e.ts); return h >= 5 && h < 7; }) ? 1 : 0,
-      mastRefs: mastRefs, mastSubj: mastSubj, subjectsMastered: Object.keys(subjSet).length, lessons: Object.keys(lessons).length
+      mastRefs: mastRefs, mastSubj: mastSubj, subjectsMastered: Object.keys(subjSet).length, lessons: Object.keys(lessons).length,
+      vocabLang: vLang, vocabDays: vDayN, vocabPerfect: vPerfect
     };
   }
   // 成就定义:val(s) 取当前值,target 达标即解锁;pts 解锁奖励分
@@ -558,6 +573,37 @@ window.Core = (function () {
     }
     ACH_EXTRA.forEach(function (a) { var cv = condVal(a.cond); ACHIEVEMENTS.push({ id: a.id, icon: a.icon, name: a.name, desc: a.desc, group: a.group, tier: a.tier, pts: a.pts, target: cv.target, val: cv.val }); });
   })();
+  // 外语成就:同一套模板按语言实例化(内容一致,整套互相复制;将来加新语言只需在 ACH_LANGS 加一行)
+  var ACH_LANGS = [{ k: "en", name: "英语" }, { k: "ja", name: "日语" }];
+  var ACH_LANG_TPL = [
+    { sid: "touch10", icon: "👋", name: "初识单词",   d: "学过 10 个{L}单词",                    tier: "bronze", pts: 10, m: "touched", target: 10 },
+    { sid: "touch100",icon: "🚶", name: "词海起航",   d: "学过 100 个{L}单词",                   tier: "bronze", pts: 15, m: "touched", target: 100 },
+    { sid: "pass50",  icon: "📗", name: "小词库",     d: "通过 50 个{L}单词",                    tier: "bronze", pts: 15, m: "passed",  target: 50 },
+    { sid: "pass200", icon: "📚", name: "词汇仓库",   d: "通过 200 个{L}单词",                   tier: "silver", pts: 30, m: "passed",  target: 200 },
+    { sid: "pass500", icon: "🏛️", name: "行走的词典", d: "通过 500 个{L}单词",                   tier: "gold",   pts: 60, m: "passed",  target: 500 },
+    { sid: "pass1000",icon: "🌋", name: "千词斩",     d: "通过 1000 个{L}单词",                  tier: "gold",   pts: 120, m: "passed", target: 1000 },
+    { sid: "grad10",  icon: "💎", name: "记牢十词",   d: "完全掌握 10 个{L}单词(熬过多天复习)",   tier: "silver", pts: 25, m: "grad",    target: 10 },
+    { sid: "grad50",  icon: "🧠", name: "过目不忘",   d: "完全掌握 50 个{L}单词",                tier: "gold",   pts: 60, m: "grad",    target: 50 },
+    { sid: "grad200", icon: "👑", name: "词汇之王",   d: "完全掌握 200 个{L}单词",               tier: "gold",   pts: 120, m: "grad",   target: 200 },
+    { sid: "perfect", icon: "🎯", name: "满堂彩",     d: "一次{L}单词训练(≥10 词)全部通过",      tier: "silver", pts: 30, m: "perfect", target: 1 },
+    { sid: "days7",   icon: "📅", name: "单词周活",   d: "累计 7 天练过{L}单词",                 tier: "silver", pts: 25, m: "days",    target: 7 },
+    { sid: "days30",  icon: "🏃", name: "单词马拉松", d: "累计 30 天练过{L}单词",                tier: "gold",   pts: 60, m: "days",    target: 30 }
+  ];
+  ACH_LANGS.forEach(function (Lg) {
+    ACH_LANG_TPL.forEach(function (t) {
+      ACHIEVEMENTS.push({
+        id: "lang-" + Lg.k + "-" + t.sid, icon: t.icon, name: t.name, desc: t.d.replace("{L}", Lg.name),
+        group: Lg.name + "单词", tier: t.tier, pts: t.pts, target: t.target,
+        val: (function (m, k) {
+          return function (s) {
+            if (m === "days") return (s.vocabDays || {})[k] || 0;
+            if (m === "perfect") return (s.vocabPerfect || {})[k] || 0;
+            return ((s.vocabLang || {})[k] || {})[m] || 0;
+          };
+        })(t.m, Lg.k)
+      });
+    });
+  });
   function evalAchievements() {
     var s = achStats(), map = store("achievements", {});
     return ACHIEVEMENTS.map(function (a) {
