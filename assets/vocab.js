@@ -1,8 +1,9 @@
 /* =============================================================
  *  万象学院 · 单词专项训练(SRS 记忆曲线)
  * -------------------------------------------------------------
- *  知米式:单词卡(认识/不熟悉/不认识)→ 3 轮习题(看词选义 / 看义选词 /
- *  看词选读音 或 拼写),三次全对才「通过」→ Leitner 盒子安排下次复习。
+ *  知米式任务队列:每词拆 3 关(看义选词 → 拼写/读音 → 终审看词选义),
+ *  队列按「词×关」穿插打乱(同词只有一关在队,顺序天然保序);答完自动
+ *  流转,答错该关追加到队尾直到答对;三关全过才「通过」→ Leitner 盒子。
  *  单词本:任意词可收藏,可作为词库选学。词库(words.ja/en.js)按需懒加载。
  *  答对/通过得积分;一次训练结束记 vocab 事件(喂活跃度/成就)。
  *  通用化:对任意词库(日语/英语/单词本)同一套流程。screen = vocab。
@@ -138,6 +139,7 @@
     var ex0 = useState("10"); var exN = ex0[0], setExN = ex0[1];        // 追加新词数量输入
     var rr0 = useState("10"); var rdN = rr0[0], setRdN = rr0[1];        // 重刷数量输入
     var spellRef = useRef(null);
+    var sessRef = useRef(null); sessRef.current = sess;
     useEffect(function () { if (!ready) ensureBanks(function () { setReady(true); }); }, []);
 
     if (!ready) return html`<div class="pan-screen narrow"><div class="pan-empty">正在加载词库(约 1MB,仅首次)…</div></div>`;
@@ -190,7 +192,7 @@
         <div style="font-size:40px;margin-bottom:10px;">${sess.passed >= sess.total * 0.7 ? "🎉" : "💪"}</div>
         <h1 style="font-family:var(--serif);font-size:26px;margin:0 0 6px;">通过 ${sess.passed} / ${sess.total} 个词</h1>
         <div style="color:#9a8a6f;margin-bottom:6px;">本组获得 ⬡ ${sess.earned} 积分</div>
-        <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${sess.mode === "redrill" ? "重刷模式:每通过 3 个 +1 分(有答错的会提前复习)" : "每个词都连过两轮 + 终审才算数;中途退出的词不计,明天照常到期"}</div>
+        <div style="color:#9a8a6f;font-size:13px;margin-bottom:22px;">${sess.mode === "redrill" ? "重刷模式:每通过 3 个 +1 分(有答错的会提前复习)" : "每个词三关全过才算数(错了会一直追着你);中途退出的词不计,明天照常到期"}</div>
         <div style="display:flex;gap:10px;justify-content:center;"><span class="pan-btn ink" onClick=${function () { setSess(null); }}>再选一组</span><span class="pan-btn ghost" onClick=${function () { app.go("quiz"); }}>回习题</span></div></div></div>`;
     }
 
@@ -213,7 +215,7 @@
         <div style="margin-top:18px;">${favBtn()}</div></div>`;
     } else { // ex
       var ex = sess.exes[sess.round], ans = sess.answered;
-      var head = html`<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;"><span class="pan-pill" style="color:#B6532F;background:#FAE9E2;">${sess.items[0].reps > 0 ? "🏁 终审 · " + ex.type : "第 " + (sess.round + 1) + "/2 关 · " + ex.type}</span><span style="font-size:12px;color:#9a8a6f;">${sess.items[0].reps > 0 ? "答对这题才算通过" : (sess.items[0].err ? "回炉中 · 两关全对进终审" : "两关全对进终审")}</span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;">${ex.spell && canSay(w) ? html`<span class="pan-btn ghost sm pill" title="听写:点这里听单词" onClick=${function () { C.speak(w.term, w.lang); }}>🔊 听写</span>` : sayBtn(w)}${favBtn()}</span></div>`;
+      var head = html`<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;"><span class="pan-pill" style="color:#B6532F;background:#FAE9E2;">${sess.items[0].stage >= 2 ? "🏁 终审 · " + ex.type : "第 " + (sess.items[0].stage + 1) + "/3 关 · " + ex.type}</span><span style="font-size:12px;color:#9a8a6f;">${sess.items[0].stage >= 2 ? "答对这题才算通过" : (sess.items[0].err ? "有错过,盒子不前进" : "三关全过才算会")}</span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;">${ex.spell && canSay(w) ? html`<span class="pan-btn ghost sm pill" title="听写:点这里听单词" onClick=${function () { C.speak(w.term, w.lang); }}>🔊 听写</span>` : sayBtn(w)}${favBtn()}</span></div>`;
       var prompt = html`<div style="font-size:12.5px;color:#9a8a6f;margin-bottom:6px;">${ex.q}</div><h1 style="font-family:var(--serif);font-size:${ex.prompt.length > 14 ? "20" : "30"}px;font-weight:600;line-height:1.4;margin:0 0 22px;">${ex.prompt}</h1>`;
       var input;
       if (ex.spell) {
@@ -228,14 +230,14 @@
       }
       body = html`<div class="pan-panel" style="padding:30px 32px;">${head}${prompt}${input}
         ${ans ? html`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:22px;">
-          <span style="font-size:13px;font-weight:700;color:${sess.lastOk ? "#6E7A4F" : "#B6532F"};">${sess.lastOk ? "✓ 答对" : "✗ 答错,回炉 —— 这个词要重新连过两轮"}</span>
-          <span class="pan-btn ink" onClick=${nextStep}>${sess.lastOk && sess.round + 1 < sess.exes.length ? "下一关 →" : (sess.lastOk && sess.items[0].reps > 0 && sess.items.length === 1 ? "完成 →" : "继续 →")}</span></div>` : null}</div>`;
+          <span style="font-size:13px;font-weight:700;color:${sess.lastOk ? "#6E7A4F" : "#B6532F"};">${sess.lastOk ? "✓ 答对" : "✗ 答错 —— 记住正确答案,这题稍后再来"}</span>
+          <span style="font-size:12px;color:#bbab8c;">自动继续…</span></div>` : null}</div>`;
     }
 
     return html`<div class="pan-screen narrow">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div class="pan-crumb" style="margin:0;"><span class="lnk" onClick=${function () { setSess(null); }}>单词专项</span> › ${sess.bankName}</div>
-        <div style="font-size:13px;color:#9a8a6f;">通过 <b style="color:#33291E;">${sess.passed}</b> / ${sess.total} 词 · 队列还剩 ${sess.items.length}</div></div>
+        <div style="font-size:13px;color:#9a8a6f;">通过 <b style="color:#33291E;">${sess.passed}</b> / ${sess.total} 词 · 队列还剩 ${sess.items.length} 题</div></div>
       <div class="pan-bar" style="height:7px;margin-bottom:22px;"><i style=${"width:" + pct + "%;background:#C8852E;"}></i></div>${body}</div>`;
 
     /* ----- 会话逻辑 ----- */
@@ -246,48 +248,49 @@
     }
     function onPick(i, ok) {
       var s = Object.assign({}, sess, { picked: i, answered: true, lastOk: ok });
-      settle(s, ok); setSess(s);
+      settle(s, ok); setSess(s); schedule(s);
     }
     function submitSpell() {
+      if (sess.answered) return;
       var val = (spellRef.current ? spellRef.current.value : sess.spellVal || "").trim().toLowerCase();
       var ok = val === String(w.term).trim().toLowerCase();
       var s = Object.assign({}, sess, { answered: true, lastOk: ok, spellVal: spellRef.current ? spellRef.current.value : sess.spellVal });
-      settle(s, ok); setSess(s);
+      settle(s, ok); setSess(s); schedule(s);
+    }
+    function schedule(s) {   // 答对短停 0.7s,答错停 2s 看清正确答案,然后自动下一题
+      setTimeout(function () {
+        var cur = sessRef.current;   // 不比对象身份(收藏等操作会克隆 state),比状态特征:仍停在已答的题上才推进
+        if (cur && cur.step === "ex" && cur.answered) nextStep(cur);
+      }, s.lastOk ? 700 : 2000);
     }
     function settle(s, ok) {
       if (ok && s.mode !== "redrill") { s.earned += 2; C.award(2, "单词答对 · " + w.term, "vocab"); }   // 重刷不给答对分(防刷)
     }
-    function nextStep() {
-      var s = Object.assign({}, sess);
-      var cur = s.items[0];
-      if (s.lastOk && s.round + 1 < s.exes.length) {   // 本轮还有下一关
-        s.round++; s.answered = false; s.picked = null; s.lastOk = false; s.spellVal = "";
-        setSess(s); return;
-      }
-      // 本轮结束:全对 → reps+1;终审过 → 真通过;任何错 → 清零回炉排队尾
+    function nextStep(prev) {
+      var s = Object.assign({}, prev);
+      var cur = s.items[0], cw = cur.w;
       s.items = s.items.slice(); s.items.shift();
       if (s.lastOk) {
-        cur.reps++;
-        if (cur.reps >= 2) {
-          gradeWord(w, true, s.mode === "redrill", cur.err);
+        if (cur.stage >= 2) {                   // 终审过 → 真通过
+          gradeWord(cw, true, s.mode === "redrill", cur.err);
           s.passed++;
           if (s.mode === "redrill") {           // 重刷:每通过 3 个 +1 分(累计计数跨场次)
             var rd = (vocabCfg().rd || 0) + 1; saveCfg({ rd: rd });
-            if (rd % 3 === 0) { s.earned += 1; C.award(1, "重刷单词 ×3 · " + w.term, "vocab-rd"); }
-          } else { s.earned += 8; C.award(8, "通过单词 · " + w.term, "vocab:" + keyOf(w)); }
+            if (rd % 3 === 0) { s.earned += 1; C.award(1, "重刷单词 ×3 · " + cw.term, "vocab-rd"); }
+          } else { s.earned += 8; C.award(8, "通过单词 · " + cw.term, "vocab:" + keyOf(cw)); }
         } else {
-          s.items.push(cur);                    // 第一轮全过 → 押后终审(隔几个词再见)
+          s.items.push({ w: cur.w, stage: cur.stage + 1, err: cur.err, seen: true });   // 下一关排队尾,与其他词穿插
         }
       } else {
-        cur.err = true; cur.reps = 0;           // 答错:清零回炉,重新连过两轮
+        cur.err = true;                         // 答错:本关原样追加队尾,答对为止
         s.items.push(cur);
       }
       if (!s.items.length) {
-        C.logEvent({ kind: "vocab", subject: w.lang === "ja" ? "japanese" : "english", label: s.bankName, correct: s.passed, total: s.total });
+        C.logEvent({ kind: "vocab", subject: cw.lang === "ja" ? "japanese" : "english", label: s.bankName, correct: s.passed, total: s.total });
         app.checkAch();
         s.step = "done"; setSess(s); return;
       }
-      // 下一个词:没见过的先看卡;回炉/终审的直接进题
+      // 下一题:没见过的词先看卡;其余直接进题
       var nx = s.items[0];
       s.round = 0; s.answered = false; s.picked = null; s.lastOk = false; s.spellVal = ""; s.exes = null; s.revealed = false; s.conf = null;
       if (!nx.seen) { s.step = "card"; setSess(s); }
@@ -299,17 +302,18 @@
   function newSession(b, mode, queue) {
     var q = queue || buildQueue(b, mode || "normal");
     var suffix = mode === "extra" ? " · 追加新词" : mode === "redrill" ? " · 重刷" : "";
-    // 知米式回炉队列:每词要连过两轮(任何一错清零回炉),第二轮=终审「看词选义(英选汉)」
+    // 任务队列:一个元素 = 词的一关(stage 0 看义选词 / 1 拼写读音 / 2 终审看词选义)。
+    // 同一词同时只有一关在队里 → 不同词自然穿插;答错本关追加队尾,答对下一关追加队尾。
     return { bankId: b.id, bankName: b.name + suffix, mode: mode || "normal", lang: b.lang, pool: b.words,
-      items: q.map(function (x) { return { w: x, reps: 0, err: false, seen: false }; }), total: q.length,
+      items: q.map(function (x) { return { w: x, stage: 0, err: false, seen: false }; }), total: q.length,
       step: "card", revealed: false, conf: null, exes: null, round: 0, picked: null, answered: false, lastOk: false, spellVal: "", passed: 0, earned: 0 };
   }
+  var STAGE_EX = [1, 2, 0];   // stage → makeExercise round:看义选词 / 拼写读音 / 终审看词选义
   function toEx(s, setSess) {
     var it = s.items[0], w = it.w;
     it.seen = true;
     s = Object.assign({}, s, { step: "ex", round: 0, answered: false, picked: null, lastOk: false, spellVal: "", revealed: false });
-    // 第一轮:看义选词 + 拼写/读音;第二轮(终审):看词选义 —— 英语认出汉语意思才算真会
-    s.exes = it.reps === 0 ? [makeExercise(w, s.pool, 1), makeExercise(w, s.pool, 2)] : [makeExercise(w, s.pool, 0)];
+    s.exes = [makeExercise(w, s.pool, STAGE_EX[it.stage])];
     setSess(s);
   }
 
