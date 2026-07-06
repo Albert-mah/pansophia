@@ -1473,6 +1473,7 @@
    *  刷题闭环:知识点练习(PG 题库)+ 错题本(答题写库,错题自动收集)
    * ========================================================= */
   function normQ(r) { return { qid: r.id, kp: r.kp, type: r.type || "choice", q: r.stem, options: r.options || [], answer: r.answer, explain: r.explain, subject: r.subject, difficulty: r.difficulty || 2, point: r.point || null, scope: r.scope || null, audio: r.audio || null }; }
+  window.normQ = normQ;
 
   // 知识点卡:从讲解页正文抓「开头的通俗解释」(比 catalog 的晦涩 summary 详细可读),缓存
   var _kpIntroCache = {};
@@ -1537,7 +1538,7 @@
     var runKey = p.did + "|" + (p.scope || "") + "|practice|" + kpId;
     var q0 = useState(null); var qs = q0[0], setQs = q0[1];
     var rd0 = useState(false); var redo = rd0[0], setRedo = rd0[1];
-    useEffect(function () { setRedo(false); setQs(null); C.questionsFor({ kp: [kpId], scope: p.scope || null, limit: 30 }).then(function (rows) { setQs(rows.filter(function (r) { return r.scope !== "extra"; }).map(normQ)); }); }, [kpId, p.scope]);   // 课外题(scope=extra)不进课内练习
+    useEffect(function () { setRedo(false); setQs(null); C.questionsFor({ kp: [kpId], scope: p.scope || null, limit: 60 }).then(function (rows) { setQs(rows.filter(function (r) { return r.scope !== "extra"; }).map(normQ)); }); }, [kpId, p.scope]);   // 课外题(scope=extra)不进课内练习
     var saved = !redo ? C.quizRunFor(runKey) : null;
     var savedAcc = saved && saved.total ? Math.round(saved.correct / saved.total * 100) : 0;
     // 两个粒度都要有入口:本节小练之外,整课混合练(各节抽题)和模拟试卷(每考点一题,≥80% 过校验)
@@ -1986,4 +1987,5 @@
   }
 
   window.Screens = { home: HomeScreen, explore: ExploreScreen, discipline: DisciplineScreen, plan: PlanScreen, course: CourseScreen, library: LibraryScreen, quiz: QuizScreen, notes: NotesScreen, wishlist: WishlistScreen, points: PointsScreen, analytics: AnalyticsScreen, users: UsersScreen, messages: MessagesScreen, practice: PracticeScreen, wrongbook: WrongbookScreen, reviews: ReviewsScreen };
+  window.QuizRun = QuizRun;
 })();

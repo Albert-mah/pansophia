@@ -405,6 +405,39 @@
       });
     });
   }
+  // 课后练习:课文末尾直接接一轮题库刷题(沉浸式:答完看解析→下一题),与「练」tab 同题库同积分。
+  // 页面里手写的静态小测保持不动;这里按需随机发 10 道,可换批重刷(积分每题一生一次,重刷不重复给)。
+  function LessonPostQuiz(p) {
+    var st = React.useState(null); var set = st[0], setSet = st[1];
+    var n = p.qs.length;
+    function deal() {
+      var a = p.qs.slice();
+      for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+      setSet(a.slice(0, 10).map(window.normQ));
+    }
+    if (!set) return html`<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="font-size:13.5px;color:#5a4e3c;"><b>📝 课后练习</b> · 这节题库共 <b>${n}</b> 道,随机来 ${Math.min(n, 10)} 道?</div>
+      <span class="pan-btn terra sm" onClick=${deal}>▸ 开始</span></div>`;
+    return html`<div>
+      <div style="font-size:12px;font-weight:800;color:#a86a00;letter-spacing:.03em;margin-bottom:10px;">📝 课后练习</div>
+      <${window.QuizRun} questions=${set} title="课后练习" subject=${p.subject} runKey=${"lesson|" + p.path} kp=${p.kpId} onClose=${function () { setSet(null); }} />
+      <div style="margin-top:10px;font-size:12.5px;color:#9a8a6f;"><span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${deal}>🎲 换一批再来</span></div>
+    </div>`;
+  }
+  function injectLessonQuiz(container, path) {
+    var art = container.querySelector("article.page"); if (!art) return;
+    var kpRec = C.catalogByPath(path); if (!kpRec) return;
+    C.questionsFor({ kp: [kpRec.id], limit: 60 }).then(function (qs) {
+      qs = (qs || []).filter(function (q) { return q.scope !== "extra" && !q.lab; });   // 课外题不进;交互题已内嵌在交互块下
+      if (!qs.length || !window.QuizRun || !window.normQ) return;
+      var mount = document.createElement("div");
+      mount.className = "pan-postquiz";
+      mount.style.cssText = "margin:26px 0 8px;border:1px solid #EEE3CF;border-radius:14px;background:#FBF8F1;padding:16px 18px;";
+      art.appendChild(mount);
+      var el = html`<${LessonPostQuiz} qs=${qs} subject=${kpRec.subject || ""} kpId=${kpRec.id} path=${path} />`;
+      try { if (ReactDOM.createRoot) ReactDOM.createRoot(mount).render(el); else ReactDOM.render(el, mount); } catch (e) {}
+    });
+  }
   // 把讲解正文注入容器 + 重新执行其组件脚本(innerHTML 不会自动跑 <script>)。一次只挂一篇,id 不冲突。
   function mountLesson(container, path, opts) {
     if (!container) return;
@@ -416,6 +449,7 @@
       L.scripts.forEach(function (code) { try { var sc = document.createElement("script"); sc.textContent = code; container.appendChild(sc); } catch (e) {} });
       try { buildSectionNav(container, path, opts); } catch (e) {}
       try { injectLabQuizzes(container, path); } catch (e) {}
+      try { injectLessonQuiz(container, path); } catch (e) {}
       if (L.needsMath) typesetMath(container);
     }).catch(function () {
       container.innerHTML = '<div class="pan-lesson-loading">讲解载入失败,<a href="' + path + '" target="_blank" rel="noopener">在新标签打开 ↗</a></div>';
