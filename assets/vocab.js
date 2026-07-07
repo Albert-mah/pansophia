@@ -310,8 +310,12 @@
       if (ok && s.mode !== "redrill") { s.earned += 2; C.award(2, "单词答对 · " + w.term, "vocab"); }   // 重刷不给答对分(防刷)
       touchWord(w, ok, s.items[0].stage);   // 词库熟悉程度实时更新
     }
-    function insertNear(arr, it) {   // 插到 2-4 题之后:同词不相邻,但一个词的三关在小窗口内完成
+    function insertNear(arr, it) {   // 过关:下一关 2-4 题后回来(同词不相邻,三关小窗口内完成)
       var at = Math.min(arr.length, 2 + Math.floor(Math.random() * 3));
+      arr.splice(at, 0, it);
+    }
+    function insertLater(arr, it) {   // 答错:稍微打乱,3-8 题后随机回来(不必急着复习)
+      var at = Math.min(arr.length, 3 + Math.floor(Math.random() * 6));
       arr.splice(at, 0, it);
     }
     function nextStep(prev) {
@@ -330,8 +334,8 @@
           insertNear(s.items, { w: cur.w, stage: cur.stage + 1, err: cur.err, seen: true });   // 下一关 2-4 题后回来
         }
       } else {
-        cur.err = true;                         // 答错:2-4 题后重来,趁纠错记忆还热,答对为止
-        insertNear(s.items, cur);
+        cur.err = true;                         // 答错:3-8 题后随机重来,答对为止
+        insertLater(s.items, cur);
       }
       if (!s.items.length) {
         C.logEvent({ kind: "vocab", subject: cw.lang === "ja" ? "japanese" : "english", label: s.bankName, correct: s.passed, total: s.total });
