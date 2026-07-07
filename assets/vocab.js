@@ -272,14 +272,14 @@
       }
       body = html`<div class="pan-panel" style="padding:30px 32px;">${head}${prompt}${input}
         ${ans ? html`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:22px;">
-          <span style="font-size:13px;font-weight:700;color:${sess.lastOk ? "#6E7A4F" : "#B6532F"};">${sess.lastOk ? "✓ 答对" : "✗ 答错 —— 记住正确答案,这题稍后再来"}</span>
+          <span style="font-size:13px;font-weight:700;color:${sess.lastOk ? "#6E7A4F" : "#B6532F"};">${sess.lastOk ? (sess.mode === "redrill" ? "✓ 答对" : (sess.items[0].stage >= 2 ? "✓ 答对 ⬡ +2 · 🎉 这个词通过,再 +8" : "✓ 答对 ⬡ +2")) : "✗ 答错 —— 记住正确答案,这题稍后再来"}</span>
           ${sess.lastOk ? html`<span style="font-size:12px;color:#bbab8c;">自动继续…</span>` : html`<span class="pan-btn ink" onClick=${function () { nextStep(sess); }}>看清了,继续 →</span>`}</div>` : null}</div>`;
     }
 
     return html`<div class="pan-screen narrow">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div class="pan-crumb" style="margin:0;"><span class="lnk" onClick=${function () { setSess(null); }}>单词专项</span> › ${sess.bankName}</div>
-        <div style="font-size:13px;color:#9a8a6f;">已答 <b style="color:#33291E;">${doneN}</b> 题 · 通过 ${sess.passed}/${sess.total} 词 · 队列剩 ${sess.items.length} 题</div></div>
+        <div style="font-size:13px;color:#9a8a6f;">已答 <b style="color:#33291E;">${doneN}</b> 题 · 通过 ${sess.passed}/${sess.total} 词 · 队列剩 ${sess.items.length} 题 · 本组 <b style="color:#a86a00;">⬡ ${sess.earned}</b></div></div>
       <div class="pan-bar" style="height:7px;margin-bottom:22px;"><i style=${"width:" + pct + "%;background:#C8852E;"}></i></div>${body}</div>`;
 
     /* ----- 会话逻辑 ----- */
@@ -310,6 +310,10 @@
       if (ok && s.mode !== "redrill") { s.earned += 2; C.award(2, "单词答对 · " + w.term, "vocab"); }   // 重刷不给答对分(防刷)
       touchWord(w, ok, s.items[0].stage);   // 词库熟悉程度实时更新
     }
+    function insertNear(arr, it) {   // 插到 2-4 题之后:同词不相邻,但一个词的三关在小窗口内完成
+      var at = Math.min(arr.length, 2 + Math.floor(Math.random() * 3));
+      arr.splice(at, 0, it);
+    }
     function nextStep(prev) {
       var s = Object.assign({}, prev);
       var cur = s.items[0], cw = cur.w;
@@ -323,11 +327,11 @@
             if (rd % 3 === 0) { s.earned += 1; C.award(1, "重刷单词 ×3 · " + cw.term, "vocab-rd"); }
           } else { s.earned += 8; C.award(8, "通过单词 · " + cw.term, "vocab:" + keyOf(cw)); }
         } else {
-          s.items.push({ w: cur.w, stage: cur.stage + 1, err: cur.err, seen: true });   // 下一关排队尾,与其他词穿插
+          insertNear(s.items, { w: cur.w, stage: cur.stage + 1, err: cur.err, seen: true });   // 下一关 2-4 题后回来
         }
       } else {
-        cur.err = true;                         // 答错:本关原样追加队尾,答对为止
-        s.items.push(cur);
+        cur.err = true;                         // 答错:2-4 题后重来,趁纠错记忆还热,答对为止
+        insertNear(s.items, cur);
       }
       if (!s.items.length) {
         C.logEvent({ kind: "vocab", subject: cw.lang === "ja" ? "japanese" : "english", label: s.bankName, correct: s.passed, total: s.total });
