@@ -81,12 +81,20 @@
     return { due: due.map(function (x) { return x.w; }), fresh: fresh, passed: passed };
   }
   // 常规组:到期复习优先 + 新词(受今日剩余配额约束);extra=追加新词数;redrill=重刷已会
+  function sessN() { var n = vocabCfg().sess; return (n >= 5 && n <= 50) ? n : SESSION_N; }
   function buildQueue(bank, mode, n) {
     var p = bankPools(bank);
     if (mode === "extra") return shuffle(p.fresh).slice(0, Math.max(1, n || 0));
     if (mode === "redrill") return shuffle(p.passed).slice(0, Math.max(1, n || 0));
     var left = Math.max(0, vocabCfg().daily - newToday());
-    return p.due.concat(shuffle(p.fresh).slice(0, left)).slice(0, SESSION_N);
+    return p.due.concat(shuffle(p.fresh).slice(0, left)).slice(0, sessN());
+  }
+  // 断点续训:把队列快照存 KV(词只存 key,恢复时从词库重建;done/空队列时清掉)
+  function saveSessSnap(s) {
+    if (!s || s.step === "done" || !s.items || !s.items.length) { C.save("vocabsess", null); return; }
+    C.save("vocabsess", { bankId: s.bankId, bankName: s.bankName, mode: s.mode, lang: s.lang,
+      passed: s.passed, total: s.total, earned: s.earned, doneN: s.doneN || 0, ts: Date.now(),
+      items: s.items.map(function (it) { return { k: keyOf(it.w), g: it.stage, e: it.err ? 1 : 0, s: it.seen ? 1 : 0 }; }) });
   }
   var FAM_STEP = [40, 70, 100];   // 各阶段答对后的熟悉度上限值(通过=100)
   function touchWord(w, ok, stage) {   // 每答一题实时更新词的熟悉度(只动 fam,不动记忆曲线)
@@ -161,7 +169,23 @@
       var banks = bankList(), wb = wordbook(), v = vocabState();
       var cfg = vocabCfg(), usedToday = newToday(), leftToday = Math.max(0, cfg.daily - usedToday);
       function progressOf(b) { var p = 0, dueN = 0, learn = 0, now = Date.now(); b.words.forEach(function (w) { var st = v[keyOf(w)]; if (st && (st.grad || (st.box || 0) >= GRAD_BOX)) p++; else if (st && (st.passed || (st.fam || 0) > 0)) learn++; if (st && (st.due || 0) <= now) dueN++; }); return { passed: p, due: dueN, learning: learn, total: b.words.length }; }
-      function start(b, mode, n) { var q = buildQueue(b, mode || "normal", n); if (!q.length) return; setSess(newSession(b, mode || "normal", q)); }
+      function start(b, mode, n) { var q = buildQueue(b, mode || "normal", n); if (!q.length) return; var ns = newSession(b, mode || "normal", q); setSess(ns); saveSessSnap(ns); }
+      var savedS = C.store("vocabsess", null), resumeBank = null;
+      if (savedS && savedS.items && savedS.items.length) {
+        resumeBank = savedS.bankId === "wb" ? { id: "wb", name: "我的单词本", lang: "mix", words: wb }
+          : banks.filter(function (b) { return b.id === savedS.bankId; })[0] || null;
+        if (resumeBank && !resumeBank.words.length) resumeBank = null;
+      }
+      function resumeSaved() {
+        var byK = {}; resumeBank.words.forEach(function (w) { byK[keyOf(w)] = w; });
+        var its = savedS.items.map(function (r) { var w = byK[r.k]; return w ? { w: w, stage: r.g || 0, err: !!r.e, seen: !!r.s } : null; }).filter(Boolean);
+        if (!its.length) { C.save("vocabsess", null); setPick(null); return; }
+        var ns = { bankId: savedS.bankId, bankName: savedS.bankName || resumeBank.name, mode: savedS.mode || "normal", lang: savedS.lang || resumeBank.lang, pool: resumeBank.words,
+          items: its, total: savedS.total || its.length, step: "card", revealed: false, conf: null, exes: null, round: 0, picked: null, answered: false, lastOk: false, spellVal: "",
+          passed: savedS.passed || 0, earned: savedS.earned || 0, doneN: savedS.doneN || 0 };
+        if (its[0].seen) { ns.step = "ex"; ns.exes = [makeExercise(its[0].w, ns.pool, STAGE_EX[its[0].stage])]; }
+        setSess(ns);
+      }
       function clampN(val, max) { var n = parseInt(val, 10); if (!(n > 0)) n = 1; return Math.min(n, max); }
       function numIn(val, setVal) { return html`<input type="number" min="1" value=${val} onClick=${function (e) { e.stopPropagation(); }} onInput=${function (e) { setVal(e.target.value); }} style="width:58px;border:1.5px solid #D8C9A8;border-radius:8px;padding:4px 8px;font-size:13px;background:#FFFDF8;" />`; }
       return html`<div class="pan-screen narrow">
@@ -171,7 +195,12 @@
         <div class="pan-panel" style="padding:13px 18px;margin-bottom:16px;display:flex;gap:8px 18px;align-items:center;flex-wrap:wrap;font-size:13.5px;">
           <span>📅 今日新词 <b style="color:${leftToday ? "#B6532F" : "#6E7A4F"};">${usedToday}</b> / ${cfg.daily}</span>
           <span style="display:flex;align-items:center;gap:6px;">每日配额 ${numIn(String(cfg.daily), function (val) { var n = parseInt(val, 10); if (n >= 5 && n <= 100) saveCfg({ daily: n }); })} <span style="color:#9a8a6f;font-size:12px;">(5-100,复习不占额)</span></span>
+          <span style="display:flex;align-items:center;gap:6px;">每组词数 ${numIn(String(cfg.sess || 20), function (val) { var n = parseInt(val, 10); if (n >= 5 && n <= 50) saveCfg({ sess: n }); })} <span style="color:#9a8a6f;font-size:12px;">(5-50)</span></span>
         </div>
+        ${resumeBank ? html`<div class="pan-panel" style="padding:13px 18px;margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-left:4px solid #C8852E;">
+          <span style="font-size:13.5px;">⏸ 上次「${savedS.bankName || resumeBank.name}」还剩 <b>${savedS.items.length}</b> 题没刷完(已通过 ${savedS.passed || 0}/${savedS.total || "?"})</span>
+          <span class="pan-btn terra sm" onClick=${resumeSaved}>▶ 继续</span>
+          <span class="pan-btn ghost sm" onClick=${function () { C.save("vocabsess", null); setPick(pick ? null : "_r"); }}>✕ 放弃</span></div>` : null}
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;">
           ${html`<div class="pan-card pan-panel" style=${"cursor:pointer;border-left:4px solid #C8852E;" + (wb.length ? "" : "opacity:.6;")} onClick=${function () { if (wb.length) start({ id: "wb", name: "我的单词本", lang: "mix", words: wb }); }}>
             <div style="font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:6px;">📒 我的单词本</div>
@@ -187,7 +216,7 @@
                 var pl = bankPools(b);
                 var normalNew = Math.min(leftToday, pl.fresh.length);
                 return html`<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #EBDEC8;display:flex;flex-direction:column;gap:9px;" onClick=${function (e) { e.stopPropagation(); }}>
-                  <span class="pan-btn terra sm" onClick=${function () { start(b, "normal"); }}>▸ 开始:复习 ${Math.min(pl.due.length, 20)}${normalNew ? " + 新词 " + normalNew : ""}${(!pl.due.length && !normalNew) ? "(今天没任务了)" : ""}</span>
+                  <span class="pan-btn terra sm" onClick=${function () { start(b, "normal"); }}>▸ 开始:复习 ${Math.min(pl.due.length, cfg.sess || 20)}${normalNew ? " + 新词 " + normalNew : ""}${(!pl.due.length && !normalNew) ? "(今天没任务了)" : ""}</span>
                   <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:#5a4e3c;flex-wrap:wrap;">＋ 追加新词 ${numIn(exN, setExN)} <span class="pan-btn ghost sm" onClick=${function () { if (pl.fresh.length) start(b, "extra", clampN(exN, pl.fresh.length)); }}>练 →</span><span style="color:#bbab8c;font-size:11.5px;">上限 ${pl.fresh.length}(题库封顶)</span></div>
                   <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:#5a4e3c;flex-wrap:wrap;">🔁 重刷已会 ${numIn(rdN, setRdN)} <span class="pan-btn ghost sm" onClick=${function () { if (pl.passed.length) start(b, "redrill", clampN(rdN, pl.passed.length)); }}>刷 →</span><span style="color:#bbab8c;font-size:11.5px;">上限 ${pl.passed.length} · 每过 3 个 +1 分</span></div>
                 </div>`;
@@ -198,7 +227,8 @@
 
     /* ----- 训练中 ----- */
     var it = sess.items[0], w = it && it.w;
-    var pct = Math.round(sess.passed / Math.max(1, sess.total) * 100);
+    var doneN = sess.doneN || 0;
+    var pct = Math.round(doneN / Math.max(1, doneN + sess.items.length) * 100);
     if (sess.step === "done") {
       return html`<div class="pan-screen narrow"><div class="pan-panel" style="text-align:center;padding:40px;">
         <div style="font-size:40px;margin-bottom:10px;">${sess.passed >= sess.total * 0.7 ? "🎉" : "💪"}</div>
@@ -227,7 +257,7 @@
         <div style="margin-top:18px;">${favBtn()}</div></div>`;
     } else { // ex
       var ex = sess.exes[sess.round], ans = sess.answered;
-      var head = html`<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;"><span class="pan-pill" style="color:#B6532F;background:#FAE9E2;">${ex.type}</span><span style="font-size:12px;color:#9a8a6f;">熟悉度 ${(vocabState()[keyOf(w)] || {}).fam || 0}%</span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;">${ex.spell && canSay(w) ? html`<span class="pan-btn ghost sm pill" title="听写:点这里听单词" onClick=${function () { C.speak(w.term, w.lang); }}>🔊 听写</span>` : sayBtn(w)}${favBtn()}</span></div>`;
+      var head = html`<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;"><span class="pan-pill" style="color:#B6532F;background:#FAE9E2;">${ex.type} · 本词第 ${sess.items[0].stage + 1}/3 关</span><span style="font-size:12px;color:#9a8a6f;">熟悉度 ${(vocabState()[keyOf(w)] || {}).fam || 0}%</span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;">${ex.spell && canSay(w) ? html`<span class="pan-btn ghost sm pill" title="听写:点这里听单词" onClick=${function () { C.speak(w.term, w.lang); }}>🔊 听写</span>` : sayBtn(w)}${favBtn()}</span></div>`;
       var prompt = html`<div style="font-size:12.5px;color:#9a8a6f;margin-bottom:6px;">${ex.q}</div><h1 style="font-family:var(--serif);font-size:${ex.prompt.length > 14 ? "20" : "30"}px;font-weight:600;line-height:1.4;margin:0 0 22px;">${ex.prompt}</h1>`;
       var input;
       if (ex.spell) {
@@ -243,13 +273,13 @@
       body = html`<div class="pan-panel" style="padding:30px 32px;">${head}${prompt}${input}
         ${ans ? html`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:22px;">
           <span style="font-size:13px;font-weight:700;color:${sess.lastOk ? "#6E7A4F" : "#B6532F"};">${sess.lastOk ? "✓ 答对" : "✗ 答错 —— 记住正确答案,这题稍后再来"}</span>
-          <span style="font-size:12px;color:#bbab8c;">自动继续…</span></div>` : null}</div>`;
+          ${sess.lastOk ? html`<span style="font-size:12px;color:#bbab8c;">自动继续…</span>` : html`<span class="pan-btn ink" onClick=${function () { nextStep(sess); }}>看清了,继续 →</span>`}</div>` : null}</div>`;
     }
 
     return html`<div class="pan-screen narrow">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div class="pan-crumb" style="margin:0;"><span class="lnk" onClick=${function () { setSess(null); }}>单词专项</span> › ${sess.bankName}</div>
-        <div style="font-size:13px;color:#9a8a6f;">通过 <b style="color:#33291E;">${sess.passed}</b> / ${sess.total} 词 · 队列还剩 ${sess.items.length} 题</div></div>
+        <div style="font-size:13px;color:#9a8a6f;">已答 <b style="color:#33291E;">${doneN}</b> 题 · 通过 ${sess.passed}/${sess.total} 词 · 队列剩 ${sess.items.length} 题</div></div>
       <div class="pan-bar" style="height:7px;margin-bottom:22px;"><i style=${"width:" + pct + "%;background:#C8852E;"}></i></div>${body}</div>`;
 
     /* ----- 会话逻辑 ----- */
@@ -260,14 +290,14 @@
     }
     function onPick(i, ok) {
       var s = Object.assign({}, sess, { picked: i, answered: true, lastOk: ok });
-      settle(s, ok); setSess(s); schedule(s);
+      settle(s, ok); setSess(s); if (ok) schedule(s);
     }
     function submitSpell() {
       if (sess.answered) return;
       var val = (spellRef.current ? spellRef.current.value : sess.spellVal || "").trim().toLowerCase();
       var ok = val === String(w.term).trim().toLowerCase();
       var s = Object.assign({}, sess, { answered: true, lastOk: ok, spellVal: spellRef.current ? spellRef.current.value : sess.spellVal });
-      settle(s, ok); setSess(s); schedule(s);
+      settle(s, ok); setSess(s); if (ok) schedule(s);
     }
     function schedule(s) {   // 答对短停 0.7s,答错停 2s 看清正确答案,然后自动下一题
       setTimeout(function () {
@@ -276,6 +306,7 @@
       }, s.lastOk ? 700 : 2000);
     }
     function settle(s, ok) {
+      s.doneN = (s.doneN || 0) + 1;
       if (ok && s.mode !== "redrill") { s.earned += 2; C.award(2, "单词答对 · " + w.term, "vocab"); }   // 重刷不给答对分(防刷)
       touchWord(w, ok, s.items[0].stage);   // 词库熟悉程度实时更新
     }
@@ -301,8 +332,9 @@
       if (!s.items.length) {
         C.logEvent({ kind: "vocab", subject: cw.lang === "ja" ? "japanese" : "english", label: s.bankName, correct: s.passed, total: s.total });
         app.checkAch();
-        s.step = "done"; setSess(s); return;
+        s.step = "done"; saveSessSnap(s); setSess(s); return;
       }
+      saveSessSnap(s);
       // 下一题:没见过的词先看卡;其余直接进题
       var nx = s.items[0];
       s.round = 0; s.answered = false; s.picked = null; s.lastOk = false; s.spellVal = ""; s.exes = null; s.revealed = false; s.conf = null;
@@ -319,7 +351,7 @@
     // 同一词同时只有一关在队里 → 不同词自然穿插;答错本关追加队尾,答对下一关追加队尾。
     return { bankId: b.id, bankName: b.name + suffix, mode: mode || "normal", lang: b.lang, pool: b.words,
       items: q.map(function (x) { return { w: x, stage: 0, err: false, seen: false }; }), total: q.length,
-      step: "card", revealed: false, conf: null, exes: null, round: 0, picked: null, answered: false, lastOk: false, spellVal: "", passed: 0, earned: 0 };
+      step: "card", revealed: false, conf: null, exes: null, round: 0, picked: null, answered: false, lastOk: false, spellVal: "", passed: 0, earned: 0, doneN: 0 };
   }
   var STAGE_EX = [1, 2, 0];   // stage → makeExercise round:看义选词 / 拼写读音 / 终审看词选义
   function toEx(s, setSess) {
