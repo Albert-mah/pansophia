@@ -73,7 +73,8 @@
     return m[w.term] || m[String(w.term).toLowerCase()] || null;
   }
   function blankOut(sen, term) {
-    var re = new RegExp("\\b" + String(term).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i");
+    var t = String(term), esc = t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    var re = new RegExp((/^\w/.test(t) ? "\\b" : "") + esc + (/\w$/.test(t) ? "\\b" : ""), "i");   // Mr. 等词尾非字母的词,尾部不加边界
     return re.test(sen) ? sen.replace(re, " ＿＿＿ ") : sen + "（＿＿＿）";
   }
 
