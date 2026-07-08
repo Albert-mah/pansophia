@@ -26,6 +26,7 @@
     if (!window.WORD_BANK_JA) need.push("data/words.ja.js");
     if (!window.WORD_BANK_EN) need.push("data/words.en.js");
     if (!window.WORD_BANK_EN_SCHOOL) need.push("data/words.en.school.js");
+    if (!window.SENTS_EN_SCHOOL) { need.push("data/sents.en.school.1.js"); need.push("data/sents.en.school.2.js"); }
     var n = need.length; if (!n) { cb(); return; }
     need.forEach(function (src) {
       var s = document.createElement("script"); s.src = src + "?v=" + VER;
@@ -63,6 +64,17 @@
     var wb = wordbook().slice(); var i = wb.findIndex(function (x) { return x.lang === w.lang && x.term === w.term; });
     if (i >= 0) wb.splice(i, 1); else wb.push({ term: w.term, gloss: w.gloss, reading: w.reading || "", lang: w.lang });
     C.save("wordbook", wb); return i < 0;
+  }
+
+  /* ---------- 例句(选词填句题型;缺句子的词自动退回看义选词) ---------- */
+  function sentFor(w) {
+    if (w.lang !== "en") return null;   // 日语例句库后续接入
+    var m = window.SENTS_EN_SCHOOL || {};
+    return m[w.term] || m[String(w.term).toLowerCase()] || null;
+  }
+  function blankOut(sen, term) {
+    var re = new RegExp("\\b" + String(term).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i");
+    return re.test(sen) ? sen.replace(re, " ＿＿＿ ") : sen + "（＿＿＿）";
   }
 
   /* ---------- SRS ---------- */
@@ -136,6 +148,12 @@
       return { type: "看词选义", prompt: w.term + (w.reading ? "  （" + w.reading + "）" : ""), q: "它的意思是?", options: shuffle([w].concat(d)).map(function (x) { return { label: x.gloss, ok: x.term === w.term }; }) };
     }
     if (round === 1) {
+      var sen = sentFor(w);
+      if (sen) {
+        var ds = sample(pool, 3, w.term);
+        return { type: "选词填句", q: "选哪个词填进句子?(点句子看中文)", prompt: blankOut(sen[0], w.term), cn: sen[1] || "",
+                 options: shuffle([w].concat(ds)).map(function (x) { return { label: x.term, ok: x.term === w.term }; }) };
+      }
       var d2 = sample(pool, 3, w.term);
       return { type: "看义选词", prompt: w.gloss, q: "哪个词是这个意思?", options: shuffle([w].concat(d2)).map(function (x) { return { label: x.term, ok: x.term === w.term }; }) };
     }
@@ -258,7 +276,11 @@
     } else { // ex
       var ex = sess.exes[sess.round], ans = sess.answered;
       var head = html`<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;"><span class="pan-pill" style="color:#B6532F;background:#FAE9E2;">${ex.type} · 本词第 ${sess.items[0].stage + 1}/3 关</span><span style="font-size:12px;color:#9a8a6f;">熟悉度 ${(vocabState()[keyOf(w)] || {}).fam || 0}%</span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;">${ex.spell && canSay(w) ? html`<span class="pan-btn ghost sm pill" title="听写:点这里听单词" onClick=${function () { C.speak(w.term, w.lang); }}>🔊 听写</span>` : sayBtn(w)}${favBtn()}</span></div>`;
-      var prompt = html`<div style="font-size:12.5px;color:#9a8a6f;margin-bottom:6px;">${ex.q}</div><h1 style="font-family:var(--serif);font-size:${ex.prompt.length > 14 ? "20" : "30"}px;font-weight:600;line-height:1.4;margin:0 0 22px;">${ex.prompt}</h1>`;
+      var prompt = html`<div style="font-size:12.5px;color:#9a8a6f;margin-bottom:6px;">${ex.q}</div>
+        <h1 style=${"font-family:var(--serif);font-size:" + (ex.prompt.length > 14 ? "20" : "30") + "px;font-weight:600;line-height:1.5;margin:0 0 " + (ex.cn ? "8" : "22") + "px;" + (ex.cn ? "cursor:pointer;" : "")}
+          title=${ex.cn ? "点一下看中文意思" : null}
+          onClick=${ex.cn ? function () { setSess(Object.assign({}, sess, { showCn: !sess.showCn })); } : null}>${ex.prompt}</h1>
+        ${ex.cn ? html`<div style="margin:0 0 18px;font-size:14px;color:#8a7a62;min-height:20px;">${(sess.showCn || ans) ? ex.cn : html`<span style="font-size:12px;color:#bbab8c;">👆 点句子显示中文</span>`}</div>` : null}`;
       var input;
       if (ex.spell) {
         var ok = ans && sess.lastOk;
