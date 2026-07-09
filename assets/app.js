@@ -82,6 +82,7 @@
           <div style=${{ flex: 1 }}></div>
           <div class="pan-search pan-hide-sm" onClick=${function () { app.go("explore"); }}><span>⌕</span> 搜索任何主题…</div>
           <div class="pan-btn ink pill" style=${{ fontWeight: 700 }} onClick=${function () { app.go("points"); }}><span style=${{ color: "#C8852E", fontSize: "14px" }}>⬡</span> ${pts.toLocaleString()}</div>
+          <span id="pan-sync-badge" style=${{ display: C.pendingWrites && C.pendingWrites() ? "" : "none", alignItems: "center", gap: "3px", fontSize: "11.5px", fontWeight: 700, color: "#fff", background: "#C8852E", borderRadius: "999px", padding: "3px 9px" }} title="有学习记录还没写回服务器,会自动重试;同步完前别清浏览器数据">⟳ ${C.pendingWrites ? C.pendingWrites() : 0}</span>
           <div class="pan-offline pan-hide-sm">🔥 ${st.streak || 0} 天</div>
           <div class="pan-avatar" title=${u.name + " · 切换用户"} onClick=${function () { app.toggleUser(); }}
             style=${{ background: "linear-gradient(135deg," + (u.color || "#C8852E") + ",#B6532F)", fontSize: /^[A-Za-z]{1,3}$/.test(u.icon || "") ? "15px" : "20px", fontWeight: 700, letterSpacing: ".5px" }}>${u.icon || C.initials(u.name)}</div>

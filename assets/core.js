@@ -44,8 +44,56 @@ window.Core = (function () {
   var _materials = [];   // 全部课本/教材(从 DB,供"自动默认课本")
 
   function apiGet(path) { return fetch(path, { headers: { "Accept": "application/json" } }).then(function (r) { return r.json(); }); }
+  /* ---- 可靠写回:每笔校验响应;失败进 localStorage 发件箱自动重试;绝不静默丢 ----
+     (2026-07-09 事故:孩子设备写回全程静默失败,几天的积分/单词进度只活在他内存里) */
+  var _outbox = [];
+  try { _outbox = JSON.parse(localStorage.getItem("studyhub.outbox") || "[]"); } catch (e) {}
+  function outboxPersist() { try { localStorage.setItem("studyhub.outbox", JSON.stringify(_outbox.slice(-400))); } catch (e) {} }
+  function pendingWrites() { return _outbox.length; }
+  function rawPostState(o) {
+    return fetch("/api/state", { method: "POST", headers: { "Content-Type": "application/json", "X-Write-Token": WRITE_TOKEN }, body: JSON.stringify({ user: o.user, name: o.name, value: o.value }) })
+      .then(function (r) { if (!r.ok) return false; return r.json().then(function (j) { return !!(j && j.ok); }).catch(function () { return false; }); })
+      .catch(function () { return false; });
+  }
+  var _flushing = false;
+  function outboxFlush() {
+    if (_flushing || !_outbox.length) { syncBadge(); return Promise.resolve(); }
+    _flushing = true;
+    function step() {
+      if (!_outbox.length) { _flushing = false; syncBadge(); return Promise.resolve(); }
+      var o = _outbox[0];
+      return rawPostState(o).then(function (ok) {
+        if (!ok) { _flushing = false; syncBadge(); return; }   // 网络还不行:留在发件箱,15s 后再试
+        _outbox.shift(); outboxPersist();
+        return step();
+      });
+    }
+    return step();
+  }
   function postState(user, name, value) {
-    return fetch("/api/state", { method: "POST", keepalive: true, headers: { "Content-Type": "application/json", "X-Write-Token": WRITE_TOKEN }, body: JSON.stringify({ user: user, name: name, value: value }) }).catch(function () { });
+    return rawPostState({ user: user, name: name, value: value }).then(function (ok) {
+      if (!ok) {   // 失败入箱:同 key 只留最新(整 KV 覆盖写,旧笔无意义)
+        _outbox = _outbox.filter(function (o) { return !(o.user === user && o.name === name); });
+        _outbox.push({ user: user, name: name, value: value, ts: Date.now() });
+        outboxPersist();
+      } else if (_outbox.length) outboxFlush();
+      syncBadge();
+    });
+  }
+  setInterval(function () { outboxFlush(); }, 15000);
+  try { window.addEventListener("online", function () { outboxFlush(); }); } catch (e) {}
+  try { window.addEventListener("pagehide", function () {   // 关页前最后一搏(keepalive 只在这里用,只发小笔)
+    _outbox.slice(0, 3).forEach(function (o) {
+      try { var b = JSON.stringify({ user: o.user, name: o.name, value: o.value }); if (b.length < 60000) fetch("/api/state", { method: "POST", keepalive: true, headers: { "Content-Type": "application/json", "X-Write-Token": WRITE_TOKEN }, body: b }); } catch (e) {}
+    });
+  }); } catch (e) {}
+  function syncBadge() {
+    try {
+      var el = document.getElementById("pan-sync-badge"); if (!el) return;
+      el.style.display = _outbox.length ? "" : "none";
+      el.textContent = "⟳ " + _outbox.length;
+      el.title = _outbox.length ? (_outbox.length + " 项学习记录还没写回服务器,会自动重试;同步完前别清浏览器数据") : "";
+    } catch (e) {}
   }
   function uploadFile(name, mime, dataB64) {
     return fetch("/api/upload", { method: "POST", headers: { "Content-Type": "application/json", "X-Write-Token": WRITE_TOKEN }, body: JSON.stringify({ user: _curKey || userKey(), name: name, mime: mime, data: dataB64 }) }).then(function (r) { return r.json(); }).catch(function () { return { ok: false }; });
@@ -81,7 +129,8 @@ window.Core = (function () {
 
   // 水合:拉用户列表 + 当前用户全部状态。app 在启动/切换用户时 await。
   function hydrate() {
-    return apiGet("/api/users").then(function (r) { if (r && r.ok && r.users && r.users.length) _users = r.users; }).catch(function () {})
+    return outboxFlush().then(function () { return null; }).catch(function () { return null; })
+      .then(function () { return apiGet("/api/users"); }).then(function (r) { if (r && r.ok && r.users && r.users.length) _users = r.users; }).catch(function () {})
       .then(function () { var k = userKey(); _curKey = k; return apiGet("/api/state?user=" + encodeURIComponent(k)); })
       .then(function (r) { _cache = (r && r.ok && r.state) ? r.state : {}; })
       .then(function () { return apiGet("/api/materials").then(function (r) { _materials = (r && r.items) || []; }).catch(function () {}); })
@@ -1181,7 +1230,7 @@ window.Core = (function () {
     courseFiles: courseFiles, addCourseFile: addCourseFile, cacheCourseFile: cacheCourseFile, deleteCourseFile: deleteCourseFile,
     uploadFile: uploadFile, fileUrl: fileUrl,
     libList: libList, libItem: libItem, cacheUrl: cacheUrl,
-    store: store, save: save, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc, uninstallCourse: uninstallCourse,
+    store: store, save: save, pendingWrites: pendingWrites, myDiscs: myDiscs, hasDisc: hasDisc, toggleDisc: toggleDisc, uninstallCourse: uninstallCourse,
     myCourses: myCourses, hasCourse: hasCourse, enrollCourse: enrollCourse, unenrollCourse: unenrollCourse, toggleCourse: toggleCourse, courseScopesOf: courseScopesOf, courseKey: courseKey,
     points: points, wishlist: wishlist, notes: notes, events: events, progress: progress, plan: plan, schedule: schedule, goals: goals,
     recordQuiz: recordQuiz, kpQuiz: kpQuiz, quizStat: quizStat, saveQuizRun: saveQuizRun, quizRunFor: quizRunFor,
