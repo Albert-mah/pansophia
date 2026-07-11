@@ -1,0 +1,837 @@
+[
+ {
+  "kp": "Workflows versus agents: choosing the right architecture",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "wf-choose", "point": "Which fits when",
+  "stem": "A team must build a feature that runs the same three fixed steps on every input — extract fields, validate them, then render a report — with no variation between runs. Which architecture fits best?",
+  "options": [
+   "A workflow, since the steps are predictable and decomposable, giving better latency, cost, and determinism",
+   "An autonomous agent, so the model decides the steps on each run",
+   "A single agent with a large tool allowlist and no defined steps",
+   "Extended thinking with a large budget and no orchestration"
+  ],
+  "answer": 0,
+  "explain": "Predictable, decomposable tasks with fixed steps fit a workflow, which is cheaper and more deterministic than an agent. An agent adds nondeterminism the fixed task does not need, an undirected agent is the same mistake, and extended thinking does not orchestrate a multi-step pipeline.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflows versus agents: choosing the right architecture",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "wf-choose", "point": "Which fits when",
+  "stem": "An engineer needs a system that debugs arbitrary failing tests, where the next action depends on what the previous step uncovered and cannot be scripted ahead of time. Which architecture fits best?",
+  "options": [
+   "An agent, since the task is open-ended and its steps cannot be predicted in advance",
+   "A prompt-chaining workflow with all steps fixed up front",
+   "A single LLM call with no tools",
+   "A routing workflow that picks one of three fixed branches"
+  ],
+  "answer": 0,
+  "explain": "Open-ended tasks whose steps cannot be predicted fit an agent that directs its own tool use. A fixed chain or a preset routing workflow cannot express steps that depend on discoveries, and a single call has no tools to investigate.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflows versus agents: choosing the right architecture",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Simplest first",
+  "stem": "Following the principle of preferring the simplest thing that works, how should architecture escalate as a task's needs grow?",
+  "options": [
+   "A single LLM call first, then a workflow, then an agent",
+   "An agent first, then a workflow, then a single call",
+   "Always start with a multi-agent system for maximum flexibility",
+   "A workflow first, then a single call, then extended thinking"
+  ],
+  "answer": 0,
+  "explain": "Prefer a single LLM call, then a workflow, then an agent, adding autonomy only when needed since it costs latency, spend, and determinism. Starting with an agent or a multi-agent system pays for complexity you may not need.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflows versus agents: choosing the right architecture",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Two definitions",
+  "stem": "What is the defining difference between a workflow and an agent?",
+  "options": [
+   "In a workflow your code decides the steps through predefined paths; in an agent the model dynamically directs its own tool use",
+   "A workflow uses tools and an agent never does",
+   "An agent is always a single LLM call while a workflow is always many",
+   "A workflow can only run locally while an agent runs in the cloud"
+  ],
+  "answer": 0,
+  "explain": "The dividing line is who decides the steps: predefined code paths (workflow) versus the model directing its own control flow (agent). Both may use tools and multiple calls, and neither is defined by where it runs.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflows versus agents: choosing the right architecture",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Workflow types",
+  "stem": "Which of the following is a recognized workflow pattern for orchestrating LLM calls?",
+  "options": [
+   "Orchestrator-workers, where a lead call splits a task and delegates subtasks",
+   "Backpropagation across the prompt tokens",
+   "Gradient routing of the attention heads",
+   "A single stateless call with no code around it"
+  ],
+  "answer": 0,
+  "explain": "Orchestrator-workers is a standard workflow pattern, alongside prompt chaining, routing, parallelization, and evaluator-optimizer. The others are not orchestration patterns — two are invented training-time terms and one is just a bare call.",
+  "source": "skills/questions@opus"
+ },
+
+ {
+  "kp": "Parallel tool calls and multi-turn tool chaining",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "ptc-match", "point": "Match results",
+  "stem": "An assistant turn emits three tool_use blocks at once. How must your code return the results?",
+  "options": [
+   "One tool_result per tool_use block, each carrying its matching tool_use_id, all in the next user message",
+   "A single combined tool_result summarizing all three, in the next assistant message",
+   "Three tool_result blocks spread one per turn over the next three messages",
+   "The results in strict call order, since the ids are ignored"
+  ],
+  "answer": 0,
+  "explain": "Return one tool_result per tool_use block, each tagged with its tool_use_id, all in the next user message; order does not matter as long as the ids match. Combining them, splitting them across turns, or relying on order instead of ids all break the pairing.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Parallel tool calls and multi-turn tool chaining",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "ptc-match", "point": "Match results",
+  "stem": "You return two tool_result blocks but swap which tool_use_id each one carries. What happens?",
+  "options": [
+   "The model associates each result with the wrong call, because results are matched to calls by tool_use_id, not by position",
+   "Nothing changes, since results are matched by their position in the array",
+   "The API rejects the turn because results must be in call order",
+   "The model reruns both tools automatically to recover"
+  ],
+  "answer": 0,
+  "explain": "Results are paired to calls by tool_use_id, so swapping ids makes the model read each result against the wrong call. Position does not determine the match, and the API does not auto-correct or rerun for you.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Parallel tool calls and multi-turn tool chaining",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Parallel calls",
+  "stem": "Three independent read-only lookups have no dependency on one another. What is the most efficient way to run them?",
+  "options": [
+   "Emit all three tool_use blocks in a single assistant turn so they run in parallel",
+   "Chain them across three turns, one lookup per turn",
+   "Merge them into one tool that cannot be reused elsewhere",
+   "Set disable_parallel_tool_use so they run one at a time"
+  ],
+  "answer": 0,
+  "explain": "Independent calls should be emitted together in one turn to parallelize and cut latency. Chaining serializes them needlessly, over-merging hurts reuse, and disabling parallel tool use is exactly the wrong move for independent reads.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Parallel tool calls and multi-turn tool chaining",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Chaining",
+  "stem": "A task must first look up a user id, then load that user's orders using the id. Why can these two calls not be parallelized?",
+  "options": [
+   "The second call depends on the first call's output, so it must be chained sequentially across turns",
+   "The API caps every turn at one tool call",
+   "Read tools can never run in parallel, only write tools can",
+   "Parallel calls are only allowed inside extended thinking"
+  ],
+  "answer": 0,
+  "explain": "Chaining is required when one tool's output feeds the next, so the order is forced by the data dependency. There is no one-call cap, reads can run in parallel when independent, and parallelism is unrelated to extended thinking.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Parallel tool calls and multi-turn tool chaining",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "When each",
+  "stem": "When is it appropriate to set disable_parallel_tool_use?",
+  "options": [
+   "When you need calls to run one at a time in strict order rather than concurrently",
+   "When you want to speed up several independent reads",
+   "Whenever extended thinking is enabled",
+   "To force the model to always call at least three tools"
+  ],
+  "answer": 0,
+  "explain": "disable_parallel_tool_use forces one call at a time, which helps when strict ordering matters. It would slow independent reads (the opposite of the goal), is not tied to extended thinking, and does not set a minimum number of calls.",
+  "source": "skills/questions@opus"
+ },
+
+ {
+  "kp": "Agent evaluation and observability",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "ae-grade", "point": "Eval methods",
+  "stem": "An agent produces open-ended written summaries that have no single correct answer. What is the most appropriate way to evaluate them at scale?",
+  "options": [
+   "An LLM-as-judge scoring each summary against a written rubric",
+   "An exact string match against one gold summary",
+   "Manually reading a couple of outputs and shipping if they look fine",
+   "Counting output tokens and passing anything under a threshold"
+  ],
+  "answer": 0,
+  "explain": "Open-ended outputs are best graded by an LLM judge against a rubric, since there is no single correct string. Exact match fails when many phrasings are valid, eyeballing a few does not scale or catch regressions, and token count is not a quality measure.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent evaluation and observability",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "ae-grade", "point": "Eval methods",
+  "stem": "An agent answers questions that each have a checkable, exact correct answer. Which grading method fits best?",
+  "options": [
+   "Code-graded checks that compare the answer against the known correct value",
+   "An LLM-as-judge with a loose rubric, since judges are always preferable",
+   "A human reviewer for every single response in production",
+   "No grading, since exact-answer tasks can be trusted"
+  ],
+  "answer": 0,
+  "explain": "Where answers are checkable, code-graded evaluation is the most reliable and cheapest. A judge adds cost and noise when an exact check exists, per-response human review does not scale, and skipping evaluation forgoes any signal.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent evaluation and observability",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Success criteria",
+  "stem": "Before building an agent, why define success criteria for each task first?",
+  "options": [
+   "Without a defined target you cannot tell whether a later change helped or hurt",
+   "Success criteria are only needed after the agent has shipped",
+   "They remove the need for any tracing or logging",
+   "They are required by the API before you can call tools"
+  ],
+  "answer": 0,
+  "explain": "Defining success up front (exact answers, rubric grades, pass rates) gives a baseline to measure changes against. They are needed before iterating, do not substitute for tracing, and are not an API prerequisite.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent evaluation and observability",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Trace the loop",
+  "stem": "An agent occasionally runs many more loop iterations than expected and costs spike. Which observability practice most directly helps you diagnose it?",
+  "options": [
+   "Logging each step's prompts, tool calls and results, stop_reason, and token usage",
+   "Lowering the temperature and hoping the loops stop",
+   "Turning off tool use entirely",
+   "Recording only the final answer, not the intermediate steps"
+  ],
+  "answer": 0,
+  "explain": "Step-level traces (prompts, tool calls and results, stop_reason, usage) show where and why the loop ran long and where cost accrued. Temperature is unrelated, disabling tools defeats the agent, and logging only the final answer hides the loop.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent evaluation and observability",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Health metrics",
+  "stem": "Which pair of signals works well as ongoing health metrics for a production agent?",
+  "options": [
+   "Tool-call error rates and loop iteration counts",
+   "The character count of the system prompt and its file size",
+   "The model's parameter count and its release date",
+   "How many emojis appear in the output"
+  ],
+  "answer": 0,
+  "explain": "Tool-call error rate and loop iteration count are practical health signals that surface trouble early. Prompt size, model metadata, and emoji counts say nothing about whether the agent is behaving correctly.",
+  "source": "skills/questions@opus"
+ },
+
+ {
+  "kp": "MCP resources, prompts, and sampling",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "mcp-sampling", "point": "Sampling",
+  "stem": "An MCP server needs to summarize data using an LLM but has no API key of its own. Which MCP capability lets it do this?",
+  "options": [
+   "Sampling — the server asks the client to run an LLM completion on its behalf",
+   "Resources — the server attaches files for the model to read",
+   "A tool call the server makes to itself",
+   "A user-invoked prompt template"
+  ],
+  "answer": 0,
+  "explain": "Sampling lets a server request an LLM completion from the client, so it can use AI without its own key, and the client (with optional human approval) stays in control. Resources attach context, servers do not call their own tools this way, and prompts are user-invoked templates.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "MCP resources, prompts, and sampling",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "mcp-sampling", "point": "Sampling",
+  "stem": "With MCP sampling, who runs the actual LLM completion and keeps control over it?",
+  "options": [
+   "The client, which the server asks to perform the completion and can gate with a human",
+   "The server, using its own separately configured API key",
+   "The tool itself, autonomously and without oversight",
+   "The user, who must type the completion by hand"
+  ],
+  "answer": 0,
+  "explain": "In sampling the client performs the completion at the server's request, keeping control and allowing a human in the loop. The server does not use its own key, the tool does not act autonomously, and the user does not write the completion manually.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "MCP resources, prompts, and sampling",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Tools",
+  "stem": "In MCP, which primitive is model-controlled — invoked when Claude decides to?",
+  "options": [
+   "Tools",
+   "Resources",
+   "Prompts",
+   "Transports"
+  ],
+  "answer": 0,
+  "explain": "Tools are model-controlled: the model decides when to call them. Resources are application-controlled context, prompts are user-controlled templates, and a transport is the connection channel, not a primitive the model invokes.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "MCP resources, prompts, and sampling",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Resources",
+  "stem": "A host application attaches the currently open file to the conversation as context. Which MCP primitive is this, and who controls it?",
+  "options": [
+   "A resource, which is application-controlled",
+   "A tool, which is model-controlled",
+   "A prompt, which is user-controlled",
+   "A sampling request, which is server-controlled"
+  ],
+  "answer": 0,
+  "explain": "Resources are application-controlled context, such as files or data the host attaches. Tools are model-controlled, prompts are user-controlled, and sampling is a server request the client fulfills — none of which match app-attached context.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "MCP resources, prompts, and sampling",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Prompts",
+  "stem": "A server exposes a reusable changelog template that the user triggers like a slash command. Which MCP primitive is this?",
+  "options": [
+   "A prompt, which is user-controlled",
+   "A tool, which is model-controlled",
+   "A resource, which is application-controlled",
+   "A transport definition"
+  ],
+  "answer": 0,
+  "explain": "Prompts are user-controlled templates surfaced like slash commands. Tools are chosen by the model, resources are attached by the application, and a transport is the connection layer, not a template.",
+  "source": "skills/questions@opus"
+ },
+
+ {
+  "kp": "Tool results engineering: size, format, pagination",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "tre-page", "point": "Paginate",
+  "stem": "A tool can return thousands of matching rows. What is the best way to shape its results for an agent?",
+  "options": [
+   "Return one page of items plus a cursor or next-page token so the model can request more",
+   "Return all thousands of rows at once so nothing is missed",
+   "Return only a count, with no items or ids",
+   "Stream the raw database dump into the context"
+  ],
+  "answer": 0,
+  "explain": "Paginating with a page plus a cursor keeps result size bounded while letting the model fetch more on demand. Returning everything floods the context, a bare count is not actionable, and dumping raw data starves the loop.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Tool results engineering: size, format, pagination",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "tre-page", "point": "Paginate",
+  "stem": "Why does a paginated tool result include a cursor or next-page token rather than just the first page?",
+  "options": [
+   "So the model can ask for the next page on demand instead of receiving the whole list at once",
+   "Because cursors encrypt the results for security",
+   "Because the API forbids returning more than one item per call",
+   "So the results are automatically sorted alphabetically"
+  ],
+  "answer": 0,
+  "explain": "A cursor lets the model continue retrieval only when it needs more, keeping context small. Cursors are not an encryption feature, there is no one-item cap, and a cursor does not sort results.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Tool results engineering: size, format, pagination",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Results cost",
+  "stem": "A single tool call returns 50K tokens of raw logs every time it runs. What is the main problem?",
+  "options": [
+   "It consumes the context budget and is resent each turn, starving the rest of the loop",
+   "It makes the model respond in the wrong language",
+   "It disables prompt caching permanently",
+   "It changes the stop_reason to max_tokens on every call"
+  ],
+  "answer": 0,
+  "explain": "Large results are appended and resent each turn, eating the context budget and crowding out reasoning room. It does not affect output language, does not permanently disable caching, and does not set the stop_reason.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Tool results engineering: size, format, pagination",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Stable ids",
+  "stem": "Why should a list-returning tool include a stable id with each item?",
+  "options": [
+   "So a follow-up call can fetch full detail for a chosen item on demand",
+   "So the model can sort the items by id length",
+   "Because ids remove any need for pagination",
+   "So the results can never be cached"
+  ],
+  "answer": 0,
+  "explain": "Stable ids let the model send a compact list first and hydrate only the items it needs via a follow-up call. Ids are not for sorting by length, do not replace pagination, and have nothing to do with disabling caching.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Tool results engineering: size, format, pagination",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Compact format",
+  "stem": "How should verbose server-side logs be handled before being returned as a tool result?",
+  "options": [
+   "Summarize or truncate them server-side and return only decision-relevant fields",
+   "Return them verbatim so the model has everything",
+   "Base64-encode the full logs to save space",
+   "Split them across ten tool calls with no summary"
+  ],
+  "answer": 0,
+  "explain": "Summarizing or truncating server-side and returning only decision-relevant fields keeps results compact. Returning everything floods context, base64 makes it larger and unreadable, and splitting raw logs across calls still dumps the same volume.",
+  "source": "skills/questions@opus"
+ },
+
+ {
+  "kp": "Subagents and custom agent types in Claude Code",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "sub-def", "point": "How to define",
+  "stem": "How do you define a custom subagent in Claude Code?",
+  "options": [
+   "A Markdown file in .claude/agents/ with frontmatter for name, description, and tools",
+   "A JSON entry inside .mcp.json at the repo root",
+   "A shell script registered as a PreToolUse hook",
+   "A block appended to the user's shell profile"
+  ],
+  "answer": 0,
+  "explain": "Subagents are Markdown files in .claude/agents/ whose frontmatter sets name, description, and tools, and Claude delegates when the description matches. They are not defined in .mcp.json, as a hook, or in a shell profile.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Subagents and custom agent types in Claude Code",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "sub-def", "point": "How to define",
+  "stem": "In a subagent definition file, what does the description field control?",
+  "options": [
+   "When Claude delegates to that subagent — it is matched against the task",
+   "The exact tokens the subagent must output",
+   "The network port the subagent listens on",
+   "The model temperature for the whole session"
+  ],
+  "answer": 0,
+  "explain": "The description is what Claude matches a task against to decide whether to delegate to the subagent. It does not fix output tokens, open a network port, or set session temperature.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Subagents and custom agent types in Claude Code",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "What they are",
+  "stem": "Which statement best describes a Claude Code subagent?",
+  "options": [
+   "A separate Claude instance with its own context window, system prompt, and tool allowlist",
+   "A second copy of the main context that shares its window",
+   "A plugin that runs inside the main agent's token budget",
+   "A cron job that restarts the CLI on a schedule"
+  ],
+  "answer": 0,
+  "explain": "A subagent is an isolated instance with its own context, prompt, and tool allowlist. It does not share the main window or token budget, and it is not a scheduler.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Subagents and custom agent types in Claude Code",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Why use them",
+  "stem": "What is a primary benefit of delegating bulky work to a subagent?",
+  "options": [
+   "Context isolation — the subagent works in its own window and returns only a summary",
+   "It guarantees the task finishes in a single tool call",
+   "It removes the need for any tool allowlist",
+   "It streams every intermediate token back into the main context"
+  ],
+  "answer": 0,
+  "explain": "Subagents isolate context: they do heavy work in their own window and hand back a summary, keeping the main context clean, plus tool scoping and parallelism. They do not guarantee one-call completion, still use an allowlist, and deliberately do not stream every token back.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Subagents and custom agent types in Claude Code",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Precedence",
+  "stem": "A project defines a subagent named reviewer in .claude/agents/, and the user has a different reviewer in their home .claude/agents/. Which one is used?",
+  "options": [
+   "The project agent — project scope overrides a user agent of the same name",
+   "The user agent — user scope always wins",
+   "Both run and their outputs are merged",
+   "Neither runs until the conflict is resolved by hand"
+  ],
+  "answer": 0,
+  "explain": "A project agent overrides a user agent of the same name, matching the settings hierarchy where project scope beats user. User scope does not win, the two are not merged, and no manual resolution is required.",
+  "source": "skills/questions@opus"
+ },
+
+ {
+  "kp": "Project MCP servers and configuration scopes",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "pmcp-prec", "point": "Precedence",
+  "stem": "The same MCP server name is configured at local, project, and user scope. Which configuration takes effect?",
+  "options": [
+   "The local one — precedence runs local over project over user",
+   "The user one, since user settings are the broadest",
+   "The project one, because it lives in git",
+   "All three are merged field by field"
+  ],
+  "answer": 0,
+  "explain": "Precedence is local over project over user, so the local definition wins. User is the broadest but lowest priority, being in git does not grant precedence, and the scopes are not field-merged.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Project MCP servers and configuration scopes",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "pmcp-prec", "point": "Precedence",
+  "stem": "Between a project-scope server and a user-scope server of the same name, which one wins?",
+  "options": [
+   "The project-scope server, since project overrides user in precedence",
+   "The user-scope server, since it applies across all projects",
+   "Whichever was configured most recently",
+   "They alternate on each session"
+  ],
+  "answer": 0,
+  "explain": "Project scope overrides user scope for the same name. Applying across projects does not raise user's priority, precedence is not decided by recency, and it does not alternate.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Project MCP servers and configuration scopes",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Three scopes",
+  "stem": "Which scope makes an MCP server private to you within a single project?",
+  "options": [
+   "Local scope",
+   "Project scope",
+   "User scope",
+   "Enterprise scope"
+  ],
+  "answer": 0,
+  "explain": "Local scope is private to you in that one project. Project scope is shared with the team, user scope spans all your projects, and MCP server scopes do not include an enterprise tier here.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Project MCP servers and configuration scopes",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Project = git",
+  "stem": "A team wants every member to get the same MCP servers automatically when they clone the repo. What should they do?",
+  "options": [
+   "Define the servers in .mcp.json checked into the repo (project scope)",
+   "Add them at user scope on the team lead's machine only",
+   "Put them in local scope in each person's project",
+   "Paste the server config into the README as text"
+  ],
+  "answer": 0,
+  "explain": "Project scope means committing .mcp.json to the repo, so everyone who clones gets the servers. User scope stays on one machine, local scope is per-person and not shared, and README text is not loaded as configuration.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Project MCP servers and configuration scopes",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Auth",
+  "stem": "How should a committed .mcp.json handle a server's API secret, and how are remote servers authenticated?",
+  "options": [
+   "Reference the secret via an environment variable, and run /mcp to authenticate remote servers over OAuth",
+   "Hard-code the secret in .mcp.json so teammates can use it",
+   "Store the secret in the README and disable OAuth",
+   "Commit the OAuth token directly into the repo"
+  ],
+  "answer": 0,
+  "explain": "Reference secrets through env vars so they stay out of git, and authenticate remote servers with OAuth via /mcp. Hard-coding secrets or committing tokens leaks them to everyone with repo access.",
+  "source": "skills/questions@opus"
+ },
+
+ {
+  "kp": "Extended thinking: budgets and when to enable",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "et-when", "point": "When to use",
+  "stem": "For which task is enabling extended thinking most worthwhile?",
+  "options": [
+   "A multi-step math proof that requires working through several cases",
+   "Looking up a customer's email address by id",
+   "Echoing back a value in uppercase",
+   "Returning a fixed greeting string"
+  ],
+  "answer": 0,
+  "explain": "Extended thinking pays off on hard, multi-step reasoning like a proof. Simple retrieval and trivial formatting gain nothing from a reasoning phase and only add cost and latency.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Extended thinking: budgets and when to enable",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "et-when", "point": "When to use",
+  "stem": "A high-volume endpoint just reformats short strings and returns them. Should extended thinking be enabled?",
+  "options": [
+   "No — for simple formatting it adds cost and latency without improving the result",
+   "Yes — thinking always improves output quality",
+   "Yes — it is required whenever tools are used",
+   "Only if the strings are shorter than ten characters"
+  ],
+  "answer": 0,
+  "explain": "Skip extended thinking for simple formatting, where the reasoning phase buys nothing. Thinking does not always help, is not required for tool use, and the decision is about task difficulty, not string length.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Extended thinking: budgets and when to enable",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "The budget",
+  "stem": "What does the budget_tokens setting control, and how is it billed?",
+  "options": [
+   "The maximum length of the thinking phase, billed as output tokens",
+   "The maximum length of the user prompt, billed as input tokens",
+   "A hard cap on tool calls per turn, billed separately",
+   "The cache TTL, billed as cache writes"
+  ],
+  "answer": 0,
+  "explain": "budget_tokens caps how long the model may think, and thinking tokens are billed as output. It does not limit the prompt, cap tool calls, or set the cache TTL.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Extended thinking: budgets and when to enable",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Preserve blocks",
+  "stem": "You are continuing a tool-use conversation whose previous turn used extended thinking. What must you do with the returned thinking blocks?",
+  "options": [
+   "Pass them back unchanged, or the model loses its own reasoning thread",
+   "Strip them out to save tokens before continuing",
+   "Rewrite them into plain user text",
+   "Move them into the system prompt"
+  ],
+  "answer": 0,
+  "explain": "Thinking blocks must be preserved intact when continuing a tool-use turn so the model keeps its reasoning thread. Stripping, rewriting, or relocating them breaks that continuity.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Extended thinking: budgets and when to enable",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "What it is",
+  "stem": "What does extended thinking add to a model's response?",
+  "options": [
+   "An explicit reasoning phase before the final answer",
+   "A second independent model that votes on the answer",
+   "Automatic retrieval from an external database",
+   "A guarantee of valid JSON output"
+  ],
+  "answer": 0,
+  "explain": "Extended thinking inserts an explicit reasoning phase before the answer. It is not a second voting model, not retrieval, and does not by itself guarantee structured output.",
+  "source": "skills/questions@opus"
+ },
+
+ {
+  "kp": "Prefill, stop sequences, and output shaping",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "ps-prefill", "point": "Prefill",
+  "stem": "You want the model's reply to be raw JSON with no preamble. How can prefilling the assistant message help?",
+  "options": [
+   "Start the assistant turn with an opening brace so the model continues straight into the JSON object",
+   "Add a system rule forbidding all punctuation",
+   "Set temperature to zero to force JSON",
+   "Increase max_tokens so the JSON fits"
+  ],
+  "answer": 0,
+  "explain": "Prefilling the assistant turn with an opening brace steers the model directly into JSON and skips preamble. Banning punctuation would break JSON, temperature does not enforce format, and raising max_tokens only affects length.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Prefill, stop sequences, and output shaping",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "ps-prefill", "point": "Prefill",
+  "stem": "How does prefilling the start of the assistant message shape the output?",
+  "options": [
+   "The model continues from the text you seed, so a starting brace or role tag locks the format",
+   "It appends your text to the very end of the reply",
+   "It replaces the system prompt for that turn",
+   "It forces the model to call a specific tool"
+  ],
+  "answer": 0,
+  "explain": "Prefill seeds the beginning of the assistant turn and the model continues from it, steering format. It is not appended at the end, does not replace the system prompt, and forcing a tool is a separate mechanism (tool_choice).",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Prefill, stop sequences, and output shaping",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Stop sequences",
+  "stem": "You configure a stop sequence and the model emits it mid-generation. What is reported?",
+  "options": [
+   "stop_reason becomes stop_sequence, and the matched sequence is reported",
+   "stop_reason becomes end_turn with no further detail",
+   "stop_reason becomes max_tokens",
+   "The request errors out with no stop_reason"
+  ],
+  "answer": 0,
+  "explain": "Hitting a stop sequence sets stop_reason to stop_sequence and reports which sequence matched. It is not end_turn (a natural finish) or max_tokens (truncation), and it does not error.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Prefill, stop sequences, and output shaping",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Thinking caveat",
+  "stem": "Extended thinking is enabled and you try to prefill the assistant message. What is the outcome?",
+  "options": [
+   "Prefill is unavailable with extended thinking, since the thinking phase must run first",
+   "Prefill overrides and disables the thinking phase",
+   "Both apply, with prefill added after thinking as normal",
+   "The prefill is moved into the thinking block automatically"
+  ],
+  "answer": 0,
+  "explain": "Prefill and extended thinking are incompatible because thinking must come before any assistant text, so you cannot pre-seed the reply. Prefill does not disable thinking, they do not combine, and the prefill is not relocated.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Prefill, stop sequences, and output shaping",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Cheap contract",
+  "stem": "Why are prefill plus stop sequences described as a cheap output contract?",
+  "options": [
+   "They shape and bound output without defining or forcing a schema-validated tool",
+   "They require a dedicated tool call for every response",
+   "They only work when extended thinking is enabled",
+   "They validate output against a JSON Schema automatically"
+  ],
+  "answer": 0,
+  "explain": "Prefill starts the shape and a stop sequence ends it, giving an output contract without the overhead of a forced, schema-validated tool. They need no tool call, do not require thinking, and do not perform schema validation themselves.",
+  "source": "skills/questions@opus"
+ },
+
+ {
+  "kp": "Token budgeting and cost engineering",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "tb-usage", "point": "The usage block",
+  "stem": "Which fields does a response's usage block report for cost accounting?",
+  "options": [
+   "input_tokens, output_tokens, cache_creation_input_tokens, and cache_read_input_tokens",
+   "Only a single total_tokens number",
+   "latency_ms and http_status",
+   "prompt_text and completion_text"
+  ],
+  "answer": 0,
+  "explain": "The usage block reports input_tokens, output_tokens, cache_creation_input_tokens, and cache_read_input_tokens. It is not a single total, and it does not carry latency, status, or the raw text.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Token budgeting and cost engineering",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "tb-usage", "point": "The usage block",
+  "stem": "You want to confirm that prompt caching is actually saving money on a request. Which usage fields tell you?",
+  "options": [
+   "cache_read_input_tokens and cache_creation_input_tokens",
+   "output_tokens alone",
+   "the model id and the request timestamp",
+   "the number of tool calls made"
+  ],
+  "answer": 0,
+  "explain": "The cache_read and cache_creation token fields show how much of the input was served from cache versus written to it. Output tokens, model metadata, and tool-call counts do not reveal cache behavior.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Token budgeting and cost engineering",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Output is dear",
+  "stem": "On most models, how do output tokens compare in cost to input tokens, and what follows?",
+  "options": [
+   "Output costs roughly five times input, so trimming generated text often saves more than trimming the prompt",
+   "Output and input cost the same, so length never matters",
+   "Input costs about five times output, so shorten the prompt first",
+   "Output is free once the prompt is cached"
+  ],
+  "answer": 0,
+  "explain": "Output tokens cost roughly 5x input on most models, so cutting what the model generates is often the bigger saving. They are not equal, input is not the dearer side, and caching does not make output free.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Token budgeting and cost engineering",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "History grows",
+  "stem": "A long chat gets more expensive each turn even though your latest message is short. Why?",
+  "options": [
+   "Each turn resends the whole history, so input grows linearly as the conversation lengthens",
+   "The model charges a flat fee that rises every hour",
+   "Output tokens double automatically over time",
+   "The context window shrinks and raises the price"
+  ],
+  "answer": 0,
+  "explain": "Every turn resends the accumulated history, so input tokens grow with conversation length — cache the stable prefix or trim old turns. There is no hourly flat fee, output does not auto-double, and the window size is fixed.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Token budgeting and cost engineering",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Right-size work",
+  "stem": "You have a simple, high-volume classification step and a rare, hard planning step. How should you assign models and batching to control cost?",
+  "options": [
+   "Run the high-volume step on a smaller Haiku-class model (batched when non-urgent), and reserve a larger model for the hard planning",
+   "Use the largest model for both to be safe",
+   "Use the smallest model for both regardless of difficulty",
+   "Batch the latency-sensitive planning and keep classification synchronous"
+  ],
+  "answer": 0,
+  "explain": "Right-size the model to the step: a small model for simple high-volume work (batched for about 50% off when non-urgent) and a big model only for genuinely hard reasoning. Using the biggest model for everything wastes money, the smallest for everything fails hard tasks, and batching is wrong for latency-sensitive work.",
+  "source": "skills/questions@opus"
+ },
+
+ {
+  "kp": "RAG versus long context: when to retrieve",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "rag-rule", "point": "Rule of thumb",
+  "stem": "A 30-page policy document is queried many times a day and rarely changes. What is the better approach?",
+  "options": [
+   "Keep it in context and cache it, since it fits comfortably and is reused often",
+   "Build a RAG pipeline with chunking, embeddings, and ranking",
+   "Re-send the full document uncached on every call",
+   "Summarize it once and discard the original entirely"
+  ],
+  "answer": 0,
+  "explain": "A small, frequently reused corpus fits in context and benefits from caching, avoiding retrieval infrastructure. RAG is overkill here, re-sending uncached wastes tokens, and discarding the source risks losing needed detail.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "RAG versus long context: when to retrieve",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "rag-rule", "point": "Rule of thumb",
+  "stem": "A knowledge base holds millions of documents that change daily. Long context or retrieval?",
+  "options": [
+   "Retrieval, because the corpus is large and dynamic and cannot fit in context per call",
+   "Long context, since stuffing everything in is always simpler",
+   "Long context with a one-hour cache on the whole corpus",
+   "Neither — send a random sample of documents each call"
+  ],
+  "answer": 0,
+  "explain": "A large, frequently changing corpus calls for retrieval, fetching only relevant chunks. It cannot fit in context, caching a daily-changing corpus wastes writes, and random sampling would miss the relevant material.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "RAG versus long context: when to retrieve",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Long context",
+  "stem": "What is a real drawback of stuffing an entire large corpus into the prompt on every call?",
+  "options": [
+   "You pay for it on every call and focus can degrade at the extremes (needle-in-a-haystack)",
+   "It permanently disables tool use",
+   "It converts the model to a smaller variant automatically",
+   "It guarantees the model ignores the system prompt"
+  ],
+  "answer": 0,
+  "explain": "Long context is simple but costs tokens each call and can lose focus at the extremes. It does not disable tools, change the model, or make it ignore the system prompt.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "RAG versus long context: when to retrieve",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Retrieval",
+  "stem": "What is the main trade-off you accept by choosing RAG over long context?",
+  "options": [
+   "Added infrastructure — chunking, embeddings, ranking — and a risk of retrieving too little context",
+   "Guaranteed higher per-call token cost than long context",
+   "The inability to ever cache anything",
+   "A hard requirement to use extended thinking"
+  ],
+  "answer": 0,
+  "explain": "RAG scales large corpora cheaply per call but adds chunking, embedding, and ranking infrastructure and can miss context. It lowers rather than raises per-call cost, does not forbid caching, and does not require extended thinking.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "RAG versus long context: when to retrieve",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Hybrid",
+  "stem": "How does a hybrid approach combine retrieval and long context effectively?",
+  "options": [
+   "Retrieve the relevant chunks, reason over them, and cache stable prefixes to avoid re-sending",
+   "Embed the entire corpus into every prompt and skip retrieval",
+   "Retrieve randomly and never cache",
+   "Replace the model's reasoning with the retriever's ranking score"
+  ],
+  "answer": 0,
+  "explain": "A hybrid retrieves relevant pieces, reasons over them, and caches stable prefixes so reused content is not re-sent or re-embedded. Embedding everything defeats retrieval, random retrieval without caching is wasteful, and a ranking score does not replace reasoning.",
+  "source": "skills/questions@opus"
+ }
+]

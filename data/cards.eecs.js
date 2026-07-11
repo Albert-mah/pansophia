@@ -309,5 +309,208 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
     mnemonic: "Backoff with jitter, obey retry-after, batch the bulk, log stop_reason and usage.",
     minutes: 3, difficulty: 3,
     date: "2026-07-11", by: "opus"
+  },
+  /* ===== Chapter 1 (cont.) · Agentic Architecture & Orchestration ===== */
+  {
+    kp: "Workflows versus agents: choosing the right architecture",
+    title: "Workflows versus agents: choosing the right architecture",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "Workflows are fixed code paths; agents self-direct. Prefer the simplest: one call, then workflow, then agent.",
+    body: [
+      { t: "Two definitions", p: "Workflows orchestrate LLM calls through predefined code paths; agents let the model dynamically direct its own tool use and control flow. The dividing line is who decides the steps — your code or the model." },
+      { t: "Workflow types", p: "Common workflows: prompt chaining, routing, parallelization, orchestrator-workers, and evaluator-optimizer. Each wires LLM calls together with code you write and can predict in advance." },
+      { t: "Simplest first", p: "Prefer the simplest thing that works: a single LLM call before a workflow, a workflow before an agent. Added autonomy buys flexibility at the cost of latency, spend, and determinism." },
+      { t: "Which fits when", p: "Agents suit open-ended tasks whose steps cannot be predicted; workflows suit predictable, decomposable tasks and give better latency, cost, and determinism." }
+    ],
+    example: "A fixed 'translate, then summarize, then format' job is a prompt-chaining workflow — the steps never change; an open-ended 'investigate this failing test and fix it' job is an agent, since the next step depends on what it finds.",
+    pitfall: "Reaching for an autonomous agent on a task whose steps are known and fixed — you pay for nondeterminism and latency you did not need, where a workflow would be cheaper and more reliable.",
+    mnemonic: "Fixed steps, workflow; unknown steps, agent; always the simplest that works.",
+    minutes: 4, difficulty: 2,
+    date: "2026-07-11", by: "opus"
+  },
+  {
+    kp: "Parallel tool calls and multi-turn tool chaining",
+    title: "Parallel tool calls and multi-turn tool chaining",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "One turn can emit many tool_use blocks; reply one tool_result per id. Parallelize independent reads, chain dependent calls.",
+    body: [
+      { t: "Parallel calls", p: "A single assistant turn can emit multiple `tool_use` blocks at once. This parallelizes independent work — several reads fired together instead of one per round trip." },
+      { t: "Match results", p: "Return one `tool_result` per `tool_use` block, each tagged with its `tool_use_id`, all in the next user message. Results may arrive in any order as long as every id is matched." },
+      { t: "Chaining", p: "Chaining is sequential: a call whose input depends on a previous call's output, spread across turns. You cannot parallelize what must run in order." },
+      { t: "When each", p: "Parallelize independent reads to cut latency; chain when one tool's output feeds the next. Setting `disable_parallel_tool_use` forces one call at a time when you need strict ordering." }
+    ],
+    example: "Fetching weather for three cities emits three get_weather tool_use blocks in one turn; the next user message returns three tool_result blocks, one per tool_use_id. But 'find the user id, then load that user' must chain — the second call needs the first's output.",
+    pitfall: "Returning tool_result blocks that do not each carry the matching tool_use_id, or splitting them across messages — the model cannot line results up with calls and the turn breaks.",
+    mnemonic: "Many calls per turn, one result per id; parallel for independent, chain for dependent.",
+    minutes: 3, difficulty: 3,
+    date: "2026-07-11", by: "opus"
+  },
+  {
+    kp: "Agent evaluation and observability",
+    title: "Agent evaluation and observability",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "Define success per task, trace every step (tools, stop_reason, tokens), regression-test changes against a small realistic eval set.",
+    body: [
+      { t: "Success criteria", p: "Define what success means per task before building: exact answers, rubric grades, or pass rates. Without a target you cannot tell whether a change helped or hurt." },
+      { t: "Trace the loop", p: "Log each step — prompts, tool calls and results, `stop_reason`, and token usage. Traces are how you debug why an agent looped, stalled, or ran up cost." },
+      { t: "Eval methods", p: "Build a small, realistic task set. Grade with code where answers are checkable; use an LLM-as-judge with a rubric for open-ended outputs. Measure, do not eyeball." },
+      { t: "Health metrics", p: "Watch tool-call error rates and loop iteration counts as health signals, and regression-test every prompt or tool change against the eval set before shipping." }
+    ],
+    example: "A coding agent is graded by running its unit tests (code-graded); a support agent's replies are scored by an LLM judge against a rubric. Both track tool-error rate and average loop iterations, and rerun the eval set on every prompt change.",
+    pitfall: "Shipping a prompt or tool tweak after checking one or two outputs by hand — with no eval set you cannot see the cases it silently regressed.",
+    mnemonic: "Set the target, trace every step, grade on a set, rerun before you ship.",
+    minutes: 3, difficulty: 2,
+    date: "2026-07-11", by: "opus"
+  },
+  /* ===== Chapter 2 (cont.) · Tool Design & MCP ===== */
+  {
+    kp: "MCP resources, prompts, and sampling",
+    title: "MCP resources, prompts, and sampling",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "Tools are model-controlled, resources app-controlled, prompts user-controlled; sampling lets a server ask the client to run an LLM.",
+    body: [
+      { t: "Tools", p: "Tools are model-controlled: Claude decides when to call them. They are the primitive for actions the model chooses to take during the loop." },
+      { t: "Resources", p: "Resources are application-controlled context — files or data the host attaches to the conversation. The application, not the model, decides what to include." },
+      { t: "Prompts", p: "Prompts are user-controlled templates, surfaced like slash commands. The user invokes one to inject a prepared instruction or workflow." },
+      { t: "Sampling", p: "Sampling lets a server ask the client to run an LLM completion, so a server can use AI without its own API key. The client stays in control and a human can approve the call." }
+    ],
+    example: "A docs MCP server exposes a search_docs tool (model calls it), attaches the current file as a resource (app-controlled), offers a '/changelog' prompt (user-invoked), and uses sampling to ask the host's model to summarize a result — with no API key of its own.",
+    pitfall: "Confusing the three primitives — assuming the model chooses resources or prompts. Only tools are model-controlled; resources are application-controlled and prompts are user-controlled.",
+    mnemonic: "Tools model-picks, resources app-attaches, prompts user-invokes, sampling borrows the client's model.",
+    minutes: 4, difficulty: 3,
+    date: "2026-07-11", by: "opus"
+  },
+  {
+    kp: "Tool results engineering: size, format, pagination",
+    title: "Tool results engineering: size, format, pagination",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "Tool results eat context — cap size, paginate with a cursor, return stable ids, keep JSON to decision-relevant fields.",
+    body: [
+      { t: "Results cost", p: "Every tool result is appended to the context and resent each turn. A tool that dumps 50K tokens starves the rest of the loop of room. Treat result size as a budget." },
+      { t: "Paginate", p: "Paginate long lists: return a page of items plus a cursor or next-page token, so the model can ask for more instead of receiving everything at once." },
+      { t: "Stable ids", p: "Return stable ids with each item so a follow-up call can fetch full detail on demand. Send a compact list first, hydrate only what the model needs." },
+      { t: "Compact format", p: "Prefer structured, compact JSON carrying only decision-relevant fields; summarize or truncate logs server-side rather than streaming raw output into context." }
+    ],
+    example: "A list_tickets tool returns 20 ticket summaries with ids and a next_cursor, not all 5,000 rows; the model then calls get_ticket(id) for the two it cares about — keeping the window small instead of dumping everything.",
+    pitfall: "Returning a huge unpaginated blob (full logs, every row) from one tool call — it floods the context, raises cost every later turn, and crowds out the model's reasoning room.",
+    mnemonic: "Cap the size, page with a cursor, ids for detail, only the fields that decide.",
+    minutes: 3, difficulty: 2,
+    date: "2026-07-11", by: "opus"
+  },
+  /* ===== Chapter 3 (cont.) · Claude Code Configuration & Workflows ===== */
+  {
+    kp: "Subagents and custom agent types in Claude Code",
+    title: "Subagents and custom agent types in Claude Code",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "Subagents are separate instances with own context, prompt, and tool allowlist, defined in .claude/agents/*.md; project overrides user.",
+    body: [
+      { t: "What they are", p: "A subagent is a separate Claude instance with its own context window, its own system prompt, and its own tool allowlist — an isolated worker the main agent hands a task to." },
+      { t: "How to define", p: "Define one as a Markdown file in `.claude/agents/` with frontmatter: `name`, `description`, and `tools`. Claude delegates to it when the task matches its description." },
+      { t: "Why use them", p: "Benefits are context isolation (the subagent returns only a summary), tool scoping (a narrow allowlist), and parallel execution across independent subtasks." },
+      { t: "Precedence", p: "A project agent in `.claude/agents/` overrides a user agent in `~/.claude/agents/` of the same name — project scope wins, matching the settings hierarchy." }
+    ],
+    example: "A .claude/agents/reviewer.md with tools Read and Grep and a description 'reviews diffs for bugs' lets Claude spin up a scoped reviewer that reads code, returns a findings summary, and never had write access — its context isolated from the main thread.",
+    pitfall: "Expecting a subagent to share the main agent's context — it runs in its own window and only its returned summary comes back. That isolation is the point, not a bug.",
+    mnemonic: "Own window, own prompt, own tools, defined in .claude/agents; project beats user.",
+    minutes: 3, difficulty: 2,
+    date: "2026-07-11", by: "opus"
+  },
+  {
+    kp: "Project MCP servers and configuration scopes",
+    title: "Project MCP servers and configuration scopes",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "MCP servers scope local, project (.mcp.json in git), or user; precedence local over project over user; /mcp authenticates remotes.",
+    body: [
+      { t: "Three scopes", p: "Claude Code registers MCP servers at three scopes: local (private to you in this project), project (shared with the team), and user (available across all your projects)." },
+      { t: "Project = git", p: "Project servers live in `.mcp.json` checked into the repo, so the whole team gets the same servers. Local stays on your machine; user follows you across projects." },
+      { t: "Precedence", p: "When the same server name is defined at more than one scope, precedence is local over project over user — the narrowest scope wins." },
+      { t: "Auth", p: "Server configs can reference environment variables so secrets stay out of git, and remote servers may need OAuth — run `/mcp` to authenticate them." }
+    ],
+    example: "A team commits .mcp.json with a shared Jira server (project scope); a developer adds a private scratch server (local scope); both reference API keys via env vars, and a remote GitHub server is authenticated once with /mcp.",
+    pitfall: "Putting a secret directly in .mcp.json and committing it — the file is in git and shared with the team. Reference an environment variable instead so the token never lands in the repo.",
+    mnemonic: "Local private, project in git, user everywhere; local beats project beats user.",
+    minutes: 3, difficulty: 2,
+    date: "2026-07-11", by: "opus"
+  },
+  /* ===== Chapter 4 (cont.) · Prompt Engineering & Structured Output ===== */
+  {
+    kp: "Extended thinking: budgets and when to enable",
+    title: "Extended thinking: budgets and when to enable",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "Extended thinking adds a reasoning phase; budget_tokens caps it, billed as output; preserve thinking blocks across tool-use turns.",
+    body: [
+      { t: "What it is", p: "Extended thinking gives the model an explicit reasoning phase before its answer. It helps on hard, multi-step problems where working through steps improves the result." },
+      { t: "The budget", p: "`budget_tokens` sets the maximum thinking length; a larger budget helps harder problems at more latency and cost. Thinking tokens are billed as output tokens." },
+      { t: "When to use", p: "Enable it for complex math, code, and analysis; skip it for simple retrieval or formatting, where the extra tokens buy nothing and just slow the response." },
+      { t: "Preserve blocks", p: "Thinking blocks are returned (and may be summarized). When continuing a tool-use turn you must pass them back unchanged, or the model loses its own reasoning thread." }
+    ],
+    example: "A hard combinatorics proof gets budget_tokens of 8000 so the model can work through cases; a 'what is this customer's email' lookup runs with thinking off — the reasoning phase would add cost and latency for nothing.",
+    pitfall: "Dropping or editing the returned thinking blocks when you continue a tool-use conversation — the model needs them intact on the next turn, and stripping them breaks its chain of reasoning.",
+    mnemonic: "Reasoning phase, budget_tokens caps it, billed as output, keep the blocks for tool turns.",
+    minutes: 3, difficulty: 3,
+    date: "2026-07-11", by: "opus"
+  },
+  {
+    kp: "Prefill, stop sequences, and output shaping",
+    title: "Prefill, stop sequences, and output shaping",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "Prefill the assistant turn to steer format; stop_sequences halt at your markers; together a cheap contract — but no prefill with thinking.",
+    body: [
+      { t: "Prefill", p: "Prefilling the start of the assistant message steers its format — begin with a brace to push toward JSON, or a tag to lock a role. The model continues from what you put there." },
+      { t: "Stop sequences", p: "`stop_sequences` end generation when a custom marker appears. `stop_reason` becomes `stop_sequence`, and the matched sequence is reported so you know which one fired." },
+      { t: "Cheap contract", p: "Prefill plus stop sequences form an output contract without tools: start the shape, cut it off at the boundary. Lighter than forcing a schema-validated tool call." },
+      { t: "Thinking caveat", p: "Prefill is unavailable with extended thinking — the thinking phase must come first, so you cannot pre-seed the assistant's reply. Reach for forced tool use there instead." }
+    ],
+    example: "To get bare JSON, prefill the assistant turn with an opening brace and set a stop_sequence at the closing brace — the model fills the object and halts, and stop_reason returns stop_sequence. With extended thinking on, this prefill trick is unavailable.",
+    pitfall: "Trying to prefill the assistant message while extended thinking is enabled — the two are incompatible, since thinking must run before any assistant text.",
+    mnemonic: "Prefill starts the shape, stop_sequence ends it; no prefill once thinking is on.",
+    minutes: 3, difficulty: 3,
+    date: "2026-07-11", by: "opus"
+  },
+  /* ===== Chapter 5 (cont.) · Context Management & Reliability ===== */
+  {
+    kp: "Token budgeting and cost engineering",
+    title: "Token budgeting and cost engineering",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "usage reports input/output and cache tokens; output ~5x input; cache or trim growing turns, batch bulk, size the model to the step.",
+    body: [
+      { t: "The usage block", p: "Every response's `usage` reports `input_tokens`, `output_tokens`, `cache_creation_input_tokens`, and `cache_read_input_tokens` — the four numbers you meter cost from." },
+      { t: "Output is dear", p: "Output tokens cost roughly five times input on most models, so trimming what the model generates often saves more than trimming the prompt." },
+      { t: "History grows", p: "Each turn resends the history, so input grows linearly as a conversation lengthens. Cache the stable prefix or trim old turns before the bill compounds." },
+      { t: "Right-size work", p: "Batch non-urgent jobs for about 50% off, use a smaller Haiku-class model for simple high-volume steps, and save the big models for genuinely hard reasoning." }
+    ],
+    example: "A high-volume classification step runs on a Haiku-class model via the Batch API (~50% off), while a hard planning step uses a larger model; the team tracks cost per task in evals and catches a prompt change that doubled output tokens.",
+    pitfall: "Optimizing only the prompt while ignoring output length and model choice — output tokens cost several times more than input, and using a big model for a trivial high-volume step wastes the most money.",
+    mnemonic: "Meter the usage block, cut output first, cache or trim history, batch and right-size the model.",
+    minutes: 3, difficulty: 2,
+    date: "2026-07-11", by: "opus"
+  },
+  {
+    kp: "RAG versus long context: when to retrieve",
+    title: "RAG versus long context: when to retrieve",
+    subject: "eecs", scope: "claude-cert",
+    mode: "drill",
+    hook: "Stuffing all context is simple but costs every call; RAG fetches only relevant chunks. Fits and reused, cache; large or dynamic, retrieve.",
+    body: [
+      { t: "Long context", p: "Putting everything in the prompt is simple and keeps full context, but you pay for it every call and focus can degrade at the extremes — the needle-in-a-haystack problem." },
+      { t: "Retrieval", p: "RAG fetches only the relevant chunks, so it scales to large corpora at lower per-call cost — at the price of infrastructure (chunking, embeddings, ranking) and the risk of missing context." },
+      { t: "Hybrid", p: "The two combine: retrieve the relevant pieces, then reason over them, and cache stable prefixes so a reused corpus is not re-embedded or re-sent needlessly." },
+      { t: "Rule of thumb", p: "If the corpus fits comfortably and is reused often, keep it in context and cache it; if it is large or changes frequently, retrieve. Match the tool to corpus size and churn." }
+    ],
+    example: "A 40-page contract asked about repeatedly fits in context and is cached; a 100,000-document knowledge base is served by RAG — retrieving the handful of relevant chunks per query instead of paying to send the whole corpus every call.",
+    pitfall: "Reaching for RAG on a small corpus that fits comfortably and is reused — you add chunking, embedding, and ranking infrastructure (and a chance to miss context) that caching plain long context would have avoided.",
+    mnemonic: "Small and reused, cache in context; large or churning, retrieve then reason.",
+    minutes: 3, difficulty: 3,
+    date: "2026-07-11", by: "opus"
   }
 ]);
