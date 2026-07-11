@@ -1,0 +1,370 @@
+[
+ {
+  "kp": "温度与温度计的使用", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1, "group": "temp-read-view",
+  "stem": "用温度计测水温,下列读数做法正确的是?",
+  "options": ["视线与液柱上表面相平", "把温度计拿出水面再读", "从上往下俯视液面", "玻璃泡碰着杯底读"],
+  "answer": 0,
+  "explain": "读数时温度计不能离开液体,视线要与液柱上表面相平;俯视偏大,玻璃泡碰底测的是杯子温度。",
+  "source": "skills/questions@opus", "point": "使用三条规矩"
+ },
+ {
+  "kp": "温度与温度计的使用", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1, "group": "temp-read-view",
+  "stem": "小明读温度计时,眼睛从上往下俯视液面,他读出的温度会?",
+  "options": ["偏大", "偏小", "正好准确", "忽大忽小"],
+  "answer": 0,
+  "explain": "俯视(从上往下斜看)读数偏大,仰视偏小,只有平视液面才准确。",
+  "source": "skills/questions@opus", "point": "使用三条规矩"
+ },
+ {
+  "kp": "温度与温度计的使用", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1,
+  "stem": "一标准大气压下,摄氏温标把冰水混合物和沸水的温度分别规定为?",
+  "options": ["0℃ 和 100℃", "0℃ 和 37℃", "4℃ 和 100℃", "−273℃ 和 100℃"],
+  "answer": 0,
+  "explain": "摄氏温标规定冰水混合物为 0℃、一标准大气压下沸水为 100℃,中间分成 100 等份。",
+  "source": "skills/questions@opus", "point": "温度与摄氏度"
+ },
+ {
+  "kp": "温度与温度计的使用", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2,
+  "stem": "关于体温计,下列说法正确的是?",
+  "options": ["有缩口,离开人体读数不变,用前要甩", "和普通温度计一样,离开就变", "不用甩就能反复使用", "玻璃泡越大量程越大"],
+  "answer": 0,
+  "explain": "体温计有缩口,离开人体后水银不退回,读数可离开身体看;但每次用前必须用力甩几下让水银回落。",
+  "source": "skills/questions@opus", "point": "体温计的特别处"
+ },
+
+ {
+  "kp": "熔化与凝固（晶体与非晶体）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "melt-temp-const",
+  "stem": "冰在熔化过程中不断吸热,它的温度会?",
+  "options": ["保持 0℃ 不变", "一直升高", "一直降低", "先升后降"],
+  "answer": 0,
+  "explain": "冰是晶体,熔化时达到熔点后吸热但温度保持不变,直到全部化成水才继续升温。",
+  "source": "skills/questions@opus", "point": "熔化吸热的过程"
+ },
+ {
+  "kp": "熔化与凝固（晶体与非晶体）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "melt-temp-const",
+  "stem": "海波(晶体)熔化时继续用酒精灯加热,温度计示数会?",
+  "options": ["保持不变", "持续上升", "持续下降", "无法确定"],
+  "answer": 0,
+  "explain": "晶体熔化过程吸热但温度保持在熔点不变,海波和冰一样,示数不变。",
+  "source": "skills/questions@opus", "point": "熔化吸热的过程"
+ },
+ {
+  "kp": "熔化与凝固（晶体与非晶体）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1,
+  "stem": "下列物质属于晶体的是?",
+  "options": ["冰", "玻璃", "松香", "蜡"],
+  "answer": 0,
+  "explain": "冰有固定熔点,是晶体;玻璃、松香、蜡都没有固定熔点,都是非晶体。",
+  "source": "skills/questions@opus", "point": "晶体与非晶体"
+ },
+ {
+  "kp": "熔化与凝固（晶体与非晶体）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1,
+  "stem": "下列现象属于凝固的是?",
+  "options": ["水结成冰", "冰化成水", "湿衣服晾干", "樟脑丸变小"],
+  "answer": 0,
+  "explain": "液态变固态是凝固(水结冰);冰化水是熔化,晾干是汽化,樟脑丸变小是升华。",
+  "source": "skills/questions@opus", "point": "熔化和凝固"
+ },
+
+ {
+  "kp": "汽化与液化（蒸发与沸腾）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1, "group": "evap-cool",
+  "stem": "夏天在地上洒水会感到凉快,主要是因为?",
+  "options": ["水蒸发吸热致冷", "水把热挡住了", "水放热", "水反射阳光"],
+  "answer": 0,
+  "explain": "蒸发要吸热,带走地面和空气的热量,所以感到凉快,这叫蒸发致冷。",
+  "source": "skills/questions@opus", "point": "蒸发"
+ },
+ {
+  "kp": "汽化与液化（蒸发与沸腾）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1, "group": "evap-cool",
+  "stem": "发烧时在皮肤上擦酒精能降温,是因为酒精?",
+  "options": ["蒸发吸热", "蒸发放热", "沸腾吸热", "液化放热"],
+  "answer": 0,
+  "explain": "酒精蒸发快、蒸发时吸热,把皮肤的热带走,所以能降温。",
+  "source": "skills/questions@opus", "point": "蒸发"
+ },
+ {
+  "kp": "汽化与液化（蒸发与沸腾）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2,
+  "stem": "水沸腾时继续加热,水的温度会?",
+  "options": ["保持沸点不变", "继续升高", "慢慢降低", "忽高忽低"],
+  "answer": 0,
+  "explain": "沸腾时液体持续吸热,但温度保持在沸点不变(一标准大气压下水为 100℃)。",
+  "source": "skills/questions@opus", "point": "沸腾"
+ },
+ {
+  "kp": "汽化与液化（蒸发与沸腾）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2,
+  "stem": "烧开水时,壶嘴上方冒出的「白气」是?",
+  "options": ["水蒸气液化成的小水珠", "水蒸气本身", "空气", "燃烧的烟"],
+  "answer": 0,
+  "explain": "高温水蒸气跑出壶嘴遇冷液化成小水珠,就是看到的白气;水蒸气本身无色,看不见。",
+  "source": "skills/questions@opus", "point": "液化的两种办法"
+ },
+
+ {
+  "kp": "升华与凝华", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1, "group": "sublim-example",
+  "stem": "衣柜里的樟脑丸放久了会变小甚至消失,这是?",
+  "options": ["升华", "熔化", "液化", "凝华"],
+  "answer": 0,
+  "explain": "樟脑丸从固态直接变成气态,是升华,升华要吸热。",
+  "source": "skills/questions@opus", "point": "升华的例子"
+ },
+ {
+  "kp": "升华与凝华", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "sublim-example",
+  "stem": "冬天冰冻的湿衣服没有化成水也能变干,这是?",
+  "options": ["升华", "先熔化后蒸发", "液化", "凝固"],
+  "answer": 0,
+  "explain": "冰(固态)不经过液态,直接变成水蒸气跑掉,是升华。",
+  "source": "skills/questions@opus", "point": "升华的例子"
+ },
+ {
+  "kp": "升华与凝华", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2,
+  "stem": "冬天早晨草叶上出现的白霜是?",
+  "options": ["水蒸气凝华成的小冰晶", "露水冻成的冰", "水凝固成的", "落下的小雪"],
+  "answer": 0,
+  "explain": "霜是水蒸气直接凝华成的小冰晶,没有经过液态,凝华要放热。",
+  "source": "skills/questions@opus", "point": "凝华的例子"
+ },
+ {
+  "kp": "升华与凝华", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1,
+  "stem": "关于升华和凝华的吸放热,正确的是?",
+  "options": ["升华吸热、凝华放热", "升华放热、凝华吸热", "都吸热", "都放热"],
+  "answer": 0,
+  "explain": "升华是固变气、要吸热;凝华是气变固、要放热,二者是一对逆过程。",
+  "source": "skills/questions@opus", "point": "升华和凝华"
+ },
+
+ {
+  "kp": "水循环与自然界的物态变化", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "weather-classify",
+  "stem": "下列现象属于液化的是?",
+  "options": ["草叶上的露", "树枝上的霜", "空中的雪", "地上的冰"],
+  "answer": 0,
+  "explain": "露是水蒸气遇冷液化成的小水珠;霜、雪是凝华,冰是凝固。",
+  "source": "skills/questions@opus", "point": "六种天气现象归类"
+ },
+ {
+  "kp": "水循环与自然界的物态变化", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "weather-classify",
+  "stem": "下列现象属于凝华的是?",
+  "options": ["窗玻璃上的冰花", "早晨的雾", "荷叶上的露", "壶口的白气"],
+  "answer": 0,
+  "explain": "冰花是水蒸气直接凝华成的小冰晶;雾、露、白气都是液化。",
+  "source": "skills/questions@opus", "point": "六种天气现象归类"
+ },
+ {
+  "kp": "水循环与自然界的物态变化", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2,
+  "stem": "关于自然界的水循环,下列说法正确的是?",
+  "options": ["地面水蒸发上天,又以雨雪落回地面", "水只会蒸发不会回来", "云是烟尘组成的", "雨是水蒸气直接下落"],
+  "answer": 0,
+  "explain": "水蒸发成水蒸气升空成云,再以雨、雪落回地面,汇入江河海洋,周而复始就是水循环。",
+  "source": "skills/questions@opus", "point": "水的循环"
+ },
+ {
+  "kp": "水循环与自然界的物态变化", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1,
+  "stem": "天上的云主要是?",
+  "options": ["水蒸气液化的小水珠或凝华的小冰晶", "水蒸气本身", "燃烧的烟", "灰尘"],
+  "answer": 0,
+  "explain": "水蒸气升到高空遇冷,液化成小水珠、或凝华成小冰晶,聚在一起就是云。",
+  "source": "skills/questions@opus", "point": "云是怎么来的"
+ },
+
+ {
+  "kp": "质量及其测量（天平的使用）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1, "group": "mass-invariant",
+  "stem": "把一块冰全部化成水,它的质量会?",
+  "options": ["不变", "变大", "变小", "无法确定"],
+  "answer": 0,
+  "explain": "质量是物体的属性,不随状态改变;冰化成水质量不变(只是体积变小了)。",
+  "source": "skills/questions@opus", "point": "质量是物体属性"
+ },
+ {
+  "kp": "质量及其测量（天平的使用）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "mass-invariant",
+  "stem": "宇航员把一个铁块从地球带到月球,铁块的质量会?",
+  "options": ["不变", "变小", "变大", "变为零"],
+  "answer": 0,
+  "explain": "质量不随位置改变,到月球质量仍不变(变的是它受到的重力)。",
+  "source": "skills/questions@opus", "point": "质量是物体属性"
+ },
+ {
+  "kp": "质量及其测量（天平的使用）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "balance-read",
+  "stem": "用天平称物体,右盘砝码是 50 g 和 20 g,游码停在 2.4 g 处,物体质量是?",
+  "options": ["72.4 g", "70 g", "67.6 g", "52.4 g"],
+  "answer": 0,
+  "explain": "左物右码,物体质量 = 砝码总质量 + 游码读数 = 50 + 20 + 2.4 = 72.4 g。",
+  "source": "skills/questions@opus", "point": "称量的规矩"
+ },
+ {
+  "kp": "质量及其测量（天平的使用）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "balance-read",
+  "stem": "天平右盘放 100 g 砝码,游码停在 3.6 g 处,物体质量为?",
+  "options": ["103.6 g", "100 g", "96.4 g", "136 g"],
+  "answer": 0,
+  "explain": "物体质量 = 砝码总质量 + 游码读数 = 100 + 3.6 = 103.6 g。",
+  "source": "skills/questions@opus", "point": "称量的规矩"
+ },
+
+ {
+  "kp": "密度的概念与公式", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "density-calc",
+  "stem": "一个物体质量 300 g、体积 100 cm³,它的密度是?",
+  "options": ["3 g/cm³", "0.3 g/cm³", "30 g/cm³", "300 g/cm³"],
+  "answer": 0,
+  "explain": "ρ = m/V = 300 ÷ 100 = 3 g/cm³。",
+  "source": "skills/questions@opus", "point": "公式与单位"
+ },
+ {
+  "kp": "密度的概念与公式", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "density-calc",
+  "stem": "一块铁质量 158 g、体积 20 cm³,它的密度是?",
+  "options": ["7.9 g/cm³", "79 g/cm³", "0.79 g/cm³", "3.16 g/cm³"],
+  "answer": 0,
+  "explain": "ρ = m/V = 158 ÷ 20 = 7.9 g/cm³,正好是铁的密度。",
+  "source": "skills/questions@opus", "point": "公式与单位"
+ },
+ {
+  "kp": "密度的概念与公式", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2,
+  "stem": "一瓶水倒掉一半后,剩下的水的密度会?",
+  "options": ["不变", "变小一半", "变大一倍", "无法确定"],
+  "answer": 0,
+  "explain": "密度是物质特性,同种物质密度不变;倒掉一半,质量和体积同时减半,ρ = m/V 不变。",
+  "source": "skills/questions@opus", "point": "密度是物质特性"
+ },
+ {
+  "kp": "密度的概念与公式", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2,
+  "stem": "水的密度是 1.0×10³ kg/m³,合多少 g/cm³?",
+  "options": ["1 g/cm³", "1000 g/cm³", "0.001 g/cm³", "100 g/cm³"],
+  "answer": 0,
+  "explain": "1 g/cm³ = 1000 kg/m³,所以 1.0×10³ kg/m³ 就等于 1 g/cm³。",
+  "source": "skills/questions@opus", "point": "公式与单位"
+ },
+
+ {
+  "kp": "密度的测量（量筒法）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "displacement",
+  "stem": "量筒装水到 40 mL,放入小石块后水面升到 65 mL,石块的体积是?",
+  "options": ["25 cm³", "65 cm³", "40 cm³", "105 cm³"],
+  "answer": 0,
+  "explain": "排水法:石块体积 = 65 − 40 = 25 mL = 25 cm³。",
+  "source": "skills/questions@opus", "point": "排水法测固体体积"
+ },
+ {
+  "kp": "密度的测量（量筒法）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "displacement",
+  "stem": "量筒里原有水 50 mL,浸入铁块后水面升到 70 mL,铁块的体积为?",
+  "options": ["20 cm³", "70 cm³", "50 cm³", "120 cm³"],
+  "answer": 0,
+  "explain": "排水法:铁块体积 = 70 − 50 = 20 mL = 20 cm³。",
+  "source": "skills/questions@opus", "point": "排水法测固体体积"
+ },
+ {
+  "kp": "密度的测量（量筒法）", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2,
+  "stem": "用量筒量液体体积,读数时视线应?",
+  "options": ["与凹液面最低处相平", "从上往下俯视", "从下往上仰视", "对着液面最高处"],
+  "answer": 0,
+  "explain": "读数视线要与凹液面的底部相平;俯视读数偏大、仰视偏小。",
+  "source": "skills/questions@opus", "point": "量筒读体积"
+ },
+ {
+  "kp": "密度的测量（量筒法）", "subject": "physics", "scope": "chuzhong",
+  "type": "fill", "difficulty": 2,
+  "stem": "一块石块质量 79 g、体积 30 cm³,它的密度是多少 g/cm³?(结果保留一位小数)",
+  "answer": ["2.6", "2.6 g/cm³", "≈2.6", "约 2.6"],
+  "explain": "ρ = m/V = 79 ÷ 30 ≈ 2.6 g/cm³。",
+  "source": "skills/questions@opus", "point": "测密度的思路"
+ },
+
+ {
+  "kp": "密度与物质鉴别", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "identify-density",
+  "stem": "一枚戒指质量 38.6 g、体积 2 cm³,已知纯金密度是 19.3 g/cm³,这枚戒指?",
+  "options": ["是纯金", "掺了假,密度偏小", "掺了假,密度偏大", "无法判断"],
+  "answer": 0,
+  "explain": "ρ = 38.6 ÷ 2 = 19.3 g/cm³,与纯金密度相同,所以是纯金。",
+  "source": "skills/questions@opus", "point": "怎么鉴别"
+ },
+ {
+  "kp": "密度与物质鉴别", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "identify-density",
+  "stem": "一块金属质量 89 g、体积 10 cm³。已知铜 8.9、铁 7.9、铝 2.7 g/cm³,它可能是?",
+  "options": ["铜", "铁", "铝", "金"],
+  "answer": 0,
+  "explain": "ρ = 89 ÷ 10 = 8.9 g/cm³,与铜的密度相同,所以可能是铜。",
+  "source": "skills/questions@opus", "point": "怎么鉴别"
+ },
+ {
+  "kp": "密度与物质鉴别", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2,
+  "stem": "「一千克铁比一千克棉花的密度大」,这句话?",
+  "options": ["对,质量相同时铁体积小,密度大", "错,一样重密度就一样", "错,棉花密度更大", "无法比较"],
+  "answer": 0,
+  "explain": "质量相同,铁的体积远小于棉花,由 ρ = m/V 铁密度大;「一样重」不等于「密度一样」。",
+  "source": "skills/questions@opus", "point": "轻重不等于密度"
+ },
+ {
+  "kp": "密度与物质鉴别", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 1,
+  "stem": "密度可以用来鉴别物质,是因为?",
+  "options": ["每种物质有自己特定的密度", "密度随质量改变", "密度随体积改变", "所有物质密度都相同"],
+  "answer": 0,
+  "explain": "密度是物质的特性,不同物质密度往往不同,测出密度再查表就能鉴别。",
+  "source": "skills/questions@opus", "point": "密度能认物质"
+ },
+
+ {
+  "kp": "密度与温度、物态变化的关系", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "ice-float",
+  "stem": "水在多少摄氏度时密度最大?",
+  "options": ["4℃", "0℃", "100℃", "−4℃"],
+  "answer": 0,
+  "explain": "水有反常膨胀,4℃ 时密度最大;温度从 4℃ 再降到 0℃,体积反而变大。",
+  "source": "skills/questions@opus", "point": "水的反常膨胀"
+ },
+ {
+  "kp": "密度与温度、物态变化的关系", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2, "group": "ice-float",
+  "stem": "装满水的玻璃瓶冻成冰后被胀裂,是因为水结冰后?",
+  "options": ["质量不变、体积变大、密度变小", "质量变大", "体积变小", "密度变大"],
+  "answer": 0,
+  "explain": "水结冰质量不变,但体积变大、密度变小(约 0.9 g/cm³),所以把瓶子胀裂。",
+  "source": "skills/questions@opus", "point": "物态变化改变密度"
+ },
+ {
+  "kp": "密度与温度、物态变化的关系", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 2,
+  "stem": "一般气体温度升高时体积膨胀、质量不变,它的密度会?",
+  "options": ["变小", "变大", "不变", "先大后小"],
+  "answer": 0,
+  "explain": "温度升高体积变大、质量不变,由 ρ = m/V 密度变小,所以热空气会上升。",
+  "source": "skills/questions@opus", "point": "温度改变密度"
+ },
+ {
+  "kp": "密度与温度、物态变化的关系", "subject": "physics", "scope": "chuzhong",
+  "type": "choice", "difficulty": 3,
+  "stem": "冬天湖水结冰时总是先从水面结起,这时冰下的水温大约是?",
+  "options": ["4℃", "0℃", "−4℃", "100℃"],
+  "answer": 0,
+  "explain": "4℃ 的水密度最大沉在底部,水面温度更低先结冰,冰下的水保持约 4℃,鱼才能存活。",
+  "source": "skills/questions@opus", "point": "水的反常膨胀"
+ }
+]

@@ -7,7 +7,7 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
   {
     kp: "mh-en-alphabet",
     title: "26个字母与自然拼读入门",
-    subject: "english", scope: "jijiao-6b",
+    subject: "english", scope: "chuzhong",
     mode: "drill",
     hook: "认字母用名字,拼单词用声音;讲解页里每个字母都能点着听",
     body: [
@@ -25,7 +25,7 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
   {
     kp: "mh-en-past-tense",
     title: "一般过去时（动词过去式）",
-    subject: "english", scope: "xiaoxue",
+    subject: "english", scope: "chuzhong",
     mode: "drill",
     hook: "看到 yesterday / last… / ago,动词就要变过去式",
     body: [
@@ -43,7 +43,7 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
   {
     kp: "mh-en-comparatives",
     title: "形容词比较级（taller / bigger / more …）",
-    subject: "english", scope: "jijiao-6b",
+    subject: "english", scope: "chuzhong",
     mode: "drill",
     hook: "两者比,加 than;单音节 +er,长词用 more,不能两个一起加",
     body: [
@@ -61,7 +61,7 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
   {
     kp: "mh-en-be-verb",
     title: "be 动词：am / is / are / was / were",
-    subject: "english", scope: "jijiao-6b",
+    subject: "english", scope: "chuzhong",
     mode: "drill",
     hook: "我用 am,你用 are,is 跟着他她它;有 be 就别再叠别的动词",
     body: [
@@ -77,9 +77,9 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
     date: "2026-07-02", by: "sonnet"
   },
   {
-    kp: "可数与不可数名词",
+    kp: "mh-en-nouns-plural",
     title: "可数与不可数名词",
-    subject: "english", scope: "jijiao-6b",
+    subject: "english", scope: "chuzhong",
     mode: "drill",
     hook: "能数用 a/an 加 s;不能数别加 a 别加 s,数量找量词借“容器”",
     body: [
@@ -95,9 +95,9 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
     date: "2026-07-02", by: "sonnet"
   },
   {
-    kp: "人称代词与物主代词",
+    kp: "mh-en-pronouns",
     title: "人称代词与物主代词",
-    subject: "english", scope: "jijiao-6b",
+    subject: "english", scope: "chuzhong",
     mode: "drill",
     hook: "主格站主语位,宾格站宾语位;物主代词后面有名词用 my 类,没名词用 mine 类",
     body: [
@@ -115,7 +115,7 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
   {
     kp: "mh-en-future-tense",
     title: "一般将来时（will + 动词原形）",
-    subject: "english", scope: "jijiao-6b",
+    subject: "english", scope: "chuzhong",
     mode: "drill",
     hook: "tomorrow/next…一出现,will + 动词原形,别忘否定是 won't",
     body: [
@@ -133,7 +133,7 @@ window.STUDY_CARDS = (window.STUDY_CARDS || []).concat([
   {
     kp: "mh-en-present-continuous",
     title: "现在进行时（be + 动词-ing）",
-    subject: "english", scope: "jijiao-6b",
+    subject: "english", scope: "chuzhong",
     mode: "drill",
     hook: "Look!/Listen!/now 一出现,be + 动词-ing,别漏了 be",
     body: [
