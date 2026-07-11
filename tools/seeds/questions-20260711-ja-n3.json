@@ -1,0 +1,2034 @@
+[
+  {
+    "kp": "被动形的变形与基本用法",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 1,
+    "group": "n3-passive-godan",
+    "stem": "五段动词「書く」的被动形是哪个?",
+    "options": [
+      "書かれる",
+      "書かせる",
+      "書ける",
+      "書いた"
+    ],
+    "answer": 0,
+    "explain": "五段 u 段→a 段+れる,書く→書かれる;書かせる是使役、書ける是可能形。",
+    "point": "三类变形",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "被动形的变形与基本用法",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-passive-godan",
+    "stem": "五段动词「読む」的被动形是哪个?",
+    "options": [
+      "読まれる",
+      "読ませる",
+      "読める",
+      "読まされる"
+    ],
+    "answer": 0,
+    "explain": "五段读む→読まれる;読ませる是使役、読める是可能、読まされる是使役被动。",
+    "point": "三类变形",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "被动形的变形与基本用法",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 1,
+    "stem": "一段动词「見る」的被动形是哪个?",
+    "options": [
+      "見られる",
+      "見れる",
+      "見させる",
+      "見られる"
+    ],
+    "answer": 0,
+    "explain": "一段去る+られる=見られる;見れる是可能形(ら抜き)。",
+    "point": "三类变形",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "被动形的变形与基本用法",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "想说『钱包被小偷偷了』,哪句对?",
+    "options": [
+      "泥棒に財布を盗まれた",
+      "泥棒が財布を盗まれた",
+      "泥棒に財布を盗まされた",
+      "泥棒を財布に盗まれた"
+    ],
+    "answer": 0,
+    "explain": "所有物被害:主语是受害的『我』,施害方泥棒に,盗む→盗まれた。",
+    "point": "基本用法",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "迷惑被动:雨に降られた",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-meiwaku",
+    "stem": "想表达『被雨淋了好惨(倒霉)』,哪句最贴切?",
+    "options": [
+      "雨に降られた",
+      "雨が降った",
+      "雨を降らせた",
+      "雨で降った"
+    ],
+    "answer": 0,
+    "explain": "迷惑被动把自己当受害者,雨に降られた才有『倒霉』;雨が降った只是客观下雨。",
+    "point": "自动词也能被动",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "迷惑被动:雨に降られた",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-meiwaku",
+    "stem": "『孩子哭闹害我没睡成』:子供__、寝られなかった,填哪个?",
+    "options": [
+      "に泣かれて",
+      "が泣いて",
+      "を泣かせて",
+      "に泣かせて"
+    ],
+    "answer": 0,
+    "explain": "自动词泣く的迷惑被动泣かれる,施害方子供に;子供に泣かれて=被孩子一哭害得没睡。",
+    "point": "自动词也能被动",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "迷惑被动:雨に降られた",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "迷惑被动和普通被动最大的不同是什么?",
+    "options": [
+      "即使自动词、动作没作用于我,只要我受害就能用",
+      "只能用他动词",
+      "主语一定是施害方",
+      "不能带に"
+    ],
+    "answer": 0,
+    "explain": "迷惑被动的关键是受害视角,自动词(降る·泣く·来る)也能用。",
+    "point": "它的特别",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "迷惑被动:雨に降られた",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『朋友突然跑来,害我没法学习』最自然的是?",
+    "options": [
+      "友達に来られて、勉強できなかった",
+      "友達に来させて、勉強できなかった",
+      "友達を来られて、勉強できなかった",
+      "友達が来られて、勉強できなかった"
+    ],
+    "answer": 0,
+    "explain": "受害视角:自动词来る→来られる,施害方友達に。",
+    "point": "自动词也能被动",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "使役形:让·叫某人做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 1,
+    "group": "n3-shieki-form",
+    "stem": "五段动词「行く」的使役形是哪个?",
+    "options": [
+      "行かせる",
+      "行かれる",
+      "行ける",
+      "行かした"
+    ],
+    "answer": 0,
+    "explain": "五段 a 段+せる=行かせる;行かれる是被动、行ける是可能。",
+    "point": "三类变形",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "使役形:让·叫某人做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-shieki-form",
+    "stem": "一段动词「食べる」的使役形是哪个?",
+    "options": [
+      "食べさせる",
+      "食べられる",
+      "食べさす",
+      "食べらせる"
+    ],
+    "answer": 0,
+    "explain": "一段去る+させる=食べさせる;食べられる是被动/可能。",
+    "point": "三类变形",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "使役形:让·叫某人做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『妈妈让孩子吃蔬菜』:母は子供__野菜を食べさせる,填哪个助词?",
+    "options": [
+      "に",
+      "を",
+      "が",
+      "で"
+    ],
+    "answer": 0,
+    "explain": "他动词句用に标受动作者(子供に),を已给了宾语野菜,不能出现两个を。",
+    "point": "を还是に",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "使役形:让·叫某人做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『老师让学生站起来』(自动词立つ)哪句对?",
+    "options": [
+      "先生は学生を立たせた",
+      "先生は学生に立たせた",
+      "先生が学生を立たれた",
+      "先生は学生を立たさせた"
+    ],
+    "answer": 0,
+    "explain": "自动词使役用を:学生を立たせる。",
+    "point": "を还是に",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "使役被动:被迫做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-shiekiukemi",
+    "stem": "五段动词「飲む」的使役被动,口语缩约形是哪个?",
+    "options": [
+      "飲まされる",
+      "飲まれる",
+      "飲ませる",
+      "飲まさせる"
+    ],
+    "answer": 0,
+    "explain": "五段使役被动飲ませられる,口语缩约〜せられる→〜される=飲まされる。",
+    "point": "怎么变(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "使役被动:被迫做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "group": "n3-shiekiukemi",
+    "stem": "す结尾五段「話す」的使役被动,哪个对?",
+    "options": [
+      "話させられる",
+      "話さされる",
+      "話される",
+      "話させる"
+    ],
+    "answer": 0,
+    "explain": "す结尾五段不能缩约,只能話させられる;話さされる是错的。",
+    "point": "怎么变(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "使役被动:被迫做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "stem": "一段动词「食べる」的使役被动,哪个对?",
+    "options": [
+      "食べさせられる",
+      "食べさされる",
+      "食べされる",
+      "食べらせられる"
+    ],
+    "answer": 0,
+    "explain": "一段不缩约,食べさせられる;食べさされる是错的。",
+    "point": "怎么变(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "使役被动:被迫做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『被部长逼着加班』哪句对?",
+    "options": [
+      "部長に残業させられた",
+      "部長が残業させた",
+      "部長を残業させられた",
+      "部長に残業させた"
+    ],
+    "answer": 0,
+    "explain": "使役被动主语是被迫者、逼迫方用に:部長に残業させられた。",
+    "point": "谁被迫谁逼",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "させてもらう:谦恭地做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-saseteitadaku",
+    "stem": "下班时对上司,最谦恭的『我先告辞了』是哪个?",
+    "options": [
+      "お先に失礼させていただきます",
+      "先に帰る",
+      "帰らせる",
+      "帰られる"
+    ],
+    "answer": 0,
+    "explain": "使役て形+いただく最谦恭:失礼させていただきます。",
+    "point": "职场高频句",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "させてもらう:谦恭地做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-saseteitadaku",
+    "stem": "『能让我看看这份资料吗』最礼貌的说法是?",
+    "options": [
+      "見させていただけますか",
+      "見てもらえますか",
+      "見せてくれますか",
+      "見られますか"
+    ],
+    "answer": 0,
+    "explain": "请求允许我做用させていただけますか;見てもらう是请你看,方向反。",
+    "point": "表面让、其实想",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "させてもらう:谦恭地做",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "させてもらう/させていただく 的核心意思是?",
+    "options": [
+      "承蒙对方允许,让我来做",
+      "我强迫对方做",
+      "对方替我做",
+      "让对方允许他自己做"
+    ],
+    "answer": 0,
+    "explain": "表面让对方使役我,实则我想做、客气地请许可。",
+    "point": "为什么需要它",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "そうだ(様態):看起来要",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-soutai",
+    "stem": "样态『看样子要下雨』,动词「降る」接そう该怎么变?",
+    "options": [
+      "降りそう",
+      "降るそう",
+      "降ったそう",
+      "降れそう"
+    ],
+    "answer": 0,
+    "explain": "样态接ます形(连用形)降り+そう;降るそう是伝聞『听说』。",
+    "point": "接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "そうだ(様態):看起来要",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-soutai",
+    "stem": "い形容词「おいしい」的样态そう是哪个?",
+    "options": [
+      "おいしそう",
+      "おいしいそう",
+      "おいしくそう",
+      "おいしいだそう"
+    ],
+    "answer": 0,
+    "explain": "い形去い+そう=おいしそう;おいしいそう是伝聞。",
+    "point": "接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "そうだ(様態):看起来要",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "stem": "「いい」和「ない」的样态そう,哪组对?",
+    "options": [
+      "良さそう・なさそう",
+      "いそう・なそう",
+      "いいそう・ないそう",
+      "よそう・なそう"
+    ],
+    "answer": 0,
+    "explain": "两个特例插さ:いい→良さそう、ない→なさそう。",
+    "point": "接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "そうだ(様態):看起来要",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『看着好像不会下雨』(样态否定)哪个对?",
+    "options": [
+      "降りそうにない",
+      "降るそうにない",
+      "降りそう",
+      "降らないそう"
+    ],
+    "answer": 0,
+    "explain": "样态否定用〜そうにない(降りそうにない)或降らなさそう;降らないそう是伝聞否定『听说不下』。",
+    "point": "看着像·看着不像",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "そうだ(伝聞):听说",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-denbun",
+    "stem": "『听说明天下雨』哪句对?",
+    "options": [
+      "明日は雨が降るそうだ",
+      "明日は雨が降りそうだ",
+      "明日は雨が降れそうだ",
+      "明日は雨が降るらしそうだ"
+    ],
+    "answer": 0,
+    "explain": "伝聞接普通形降る+そうだ;降りそうだ是样态『眼看要下』。",
+    "point": "接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "そうだ(伝聞):听说",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-denbun",
+    "stem": "な形『听说他很精神』(元気だ)的伝聞是哪个?",
+    "options": [
+      "元気だそうだ",
+      "元気そうだ",
+      "元気なそうだ",
+      "元気のそうだ"
+    ],
+    "answer": 0,
+    "explain": "伝聞时な形留だ:元気だそうだ;元気そうだ是样态。",
+    "point": "接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "そうだ(伝聞):听说",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 1,
+    "stem": "伝聞そうだ 表明消息来源时常搭配哪个?",
+    "options": [
+      "〜によると",
+      "〜によって",
+      "〜に対して",
+      "〜において"
+    ],
+    "answer": 0,
+    "explain": "天気予報によると〜そうだ,点明信息来源。",
+    "point": "从哪听来",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "そうだ(伝聞):听说",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "stem": "『雨が降りそうだ』和『雨が降るそうだ』的区别是?",
+    "options": [
+      "前者眼看要下(样态)、后者听说要下(伝聞)",
+      "前者听说、后者眼看",
+      "意思完全一样",
+      "两个都是听说"
+    ],
+    "answer": 0,
+    "explain": "差一个『り』:样态接ます形降り、伝聞接普通形降る。",
+    "point": "接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ようだ与みたいだ:像·好像",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-youda-noun",
+    "stem": "名词『好像感冒了』的书面说法(ようだ)是?",
+    "options": [
+      "風邪のようだ",
+      "風邪ようだ",
+      "風邪だようだ",
+      "風邪なようだ"
+    ],
+    "answer": 0,
+    "explain": "名词接ようだ要加の:風邪のようだ。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ようだ与みたいだ:像·好像",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-youda-noun",
+    "stem": "名词『好像感冒了』的口语说法(みたいだ)是?",
+    "options": [
+      "風邪みたいだ",
+      "風邪のみたいだ",
+      "風邪だみたいだ",
+      "風邪なみたいだ"
+    ],
+    "answer": 0,
+    "explain": "みたいだ接名词本身,不加の:風邪みたいだ。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ようだ与みたいだ:像·好像",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『她简直像模特一样』(比喻)哪句对?",
+    "options": [
+      "まるでモデルのようだ",
+      "まるでモデルらしい",
+      "まるでモデルそうだ",
+      "まるでモデルだそうだ"
+    ],
+    "answer": 0,
+    "explain": "比喻用まるで〜ようだ;らしい/そうだ不表纯比喻。",
+    "point": "三个意思",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "らしい:据说·典型",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-rashii",
+    "stem": "な形/名词『据说他很精神』的らしい说法是?",
+    "options": [
+      "元気らしい",
+      "元気だらしい",
+      "元気ならしい",
+      "元気のらしい"
+    ],
+    "answer": 0,
+    "explain": "な形·名词去だ+らしい:元気らしい。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "らしい:据说·典型",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『今天很有春天的味道』(典型/名副其实)哪句对?",
+    "options": [
+      "春らしい天気だ",
+      "春そうな天気だ",
+      "春だらしい天気だ",
+      "春みたいらしい"
+    ],
+    "answer": 0,
+    "explain": "名词+らしい表『名副其实、够…样』:春らしい=有春意。",
+    "point": "两个意思",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "らしい:据说·典型",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-rashii",
+    "stem": "信息完全来自外部传闻、自己没亲证,最贴切用哪个?",
+    "options": [
+      "らしい",
+      "ようだ",
+      "そうだ(様態)",
+      "みたいだ"
+    ],
+    "answer": 0,
+    "explain": "外部风声/传闻、责任最轻用らしい;ようだ偏自己观察。",
+    "point": "两个意思",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "はずだ与はずがない:按理说",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-hazu",
+    "stem": "名词『银行按理今天关门』哪个对?",
+    "options": [
+      "休みのはずだ",
+      "休みはずだ",
+      "休みなはずだ",
+      "休みだはずだ"
+    ],
+    "answer": 0,
+    "explain": "名词接はず要加の:休みのはずだ。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "はずだ与はずがない:按理说",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『这么简单的题不可能错』哪句对?",
+    "options": [
+      "間違えるはずがない",
+      "間違えるはずだ",
+      "間違えないはずがない",
+      "間違えるわけだ"
+    ],
+    "answer": 0,
+    "explain": "はずがない=按理绝不可能;间违えるはずだ意思相反。",
+    "point": "该如此·不可能",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "はずだ与はずがない:按理说",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-hazu",
+    "stem": "『约好了,他应该会来』(有根据的推断)哪句对?",
+    "options": [
+      "来るはずだ",
+      "来るはずがない",
+      "来るそうだ",
+      "来るらしい"
+    ],
+    "answer": 0,
+    "explain": "はずだ=按道理应该;そうだ/らしい是听说、不是照理推断。",
+    "point": "该如此·不可能",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "かもしれない与にちがいない",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-kamo",
+    "stem": "『也许会下雨(没什么把握)』哪句对?",
+    "options": [
+      "雨が降るかもしれない",
+      "雨が降るにちがいない",
+      "雨が降るはずがない",
+      "雨が降るわけだ"
+    ],
+    "answer": 0,
+    "explain": "可能性低、没把握用かもしれない。",
+    "point": "也许·一定",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "かもしれない与にちがいない",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-kamo",
+    "stem": "『他这么晚还没来,肯定是迷路了』哪句对?",
+    "options": [
+      "道に迷ったにちがいない",
+      "道に迷ったかもしれない",
+      "道に迷うはずがない",
+      "道に迷うらしい"
+    ],
+    "answer": 0,
+    "explain": "几乎确信用にちがいない。",
+    "point": "也许·一定",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "かもしれない与にちがいない",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "名词『他肯定是犯人』哪个对?",
+    "options": [
+      "犯人にちがいない",
+      "犯人だにちがいない",
+      "犯人なにちがいない",
+      "犯人のにちがいない"
+    ],
+    "answer": 0,
+    "explain": "な形·名词去だ+にちがいない:犯人にちがいない。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ば〜ほど:越…越…",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-bahodo",
+    "stem": "『越练越熟』动词部分该怎么接?",
+    "options": [
+      "練習すればするほど",
+      "練習するばするほど",
+      "練習すればするより",
+      "練習してほど"
+    ],
+    "answer": 0,
+    "explain": "同词ば形+基本形+ほど:練習すればするほど。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ば〜ほど:越…越…",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-bahodo",
+    "stem": "『越便宜越好』い形容词该怎么接?",
+    "options": [
+      "安ければ安いほど",
+      "安いば安いほど",
+      "安くば安いほど",
+      "安ければ安くほど"
+    ],
+    "answer": 0,
+    "explain": "い形ければ+基本形+ほど:安ければ安いほど。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ば〜ほど:越…越…",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "「考えれば考えるほど分からなくなる」的意思是?",
+    "options": [
+      "越想越糊涂",
+      "想的话就懂",
+      "不想也糊涂",
+      "想完再说"
+    ],
+    "answer": 0,
+    "explain": "ば〜ほど=越 X 越 Y,程度正比。",
+    "point": "程度正比",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ばよかった:后悔与愿望",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-bayokatta",
+    "stem": "(当时没去)『早知道就去了』哪句对?",
+    "options": [
+      "行けばよかった",
+      "行かなければよかった",
+      "行ったらいい",
+      "行けばいい"
+    ],
+    "answer": 0,
+    "explain": "该做没做的后悔用〜ばよかった:行けばよかった。",
+    "point": "两种后悔",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ばよかった:后悔与愿望",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-bayokatta",
+    "stem": "(已经说了)『不该说那种话』哪句对?",
+    "options": [
+      "あんなこと言わなければよかった",
+      "あんなこと言えばよかった",
+      "あんなこと言わばよかった",
+      "あんなこと言ったらよかった"
+    ],
+    "answer": 0,
+    "explain": "做了才后悔用〜なければよかった。",
+    "point": "两种后悔",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ばよかった:后悔与愿望",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 1,
+    "stem": "(被雨淋了、没带伞)『带把伞来就好了』哪句对?",
+    "options": [
+      "傘を持って来ればよかった",
+      "傘を持って来なければよかった",
+      "傘を持って来てよかった",
+      "傘を持って来たらいい"
+    ],
+    "answer": 0,
+    "explain": "该做没做的后悔:持って来ればよかった。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ても:即使…也",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-temo",
+    "stem": "『即使下雨也去』,动词「降る」+ても该怎么变?",
+    "options": [
+      "降っても",
+      "降るても",
+      "降りても",
+      "降ってでも"
+    ],
+    "answer": 0,
+    "explain": "て形+も:降る→降っても。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ても:即使…也",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-temo",
+    "stem": "い形容词『再贵也买』,「高い」+ても是?",
+    "options": [
+      "高くても",
+      "高いても",
+      "高くでも",
+      "高いでも"
+    ],
+    "answer": 0,
+    "explain": "い形去い+くても:高くても。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ても:即使…也",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『无论别人说什么我都不在意』该用哪个?",
+    "options": [
+      "何を言われても",
+      "何を言われれば",
+      "何を言われたら",
+      "何を言われるから"
+    ],
+    "answer": 0,
+    "explain": "疑问词+ても=无论:何を言われても。",
+    "point": "拦不住的让步",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "のに:明明…却",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-noni",
+    "stem": "名词『都八月了还这么冷』,「八月」接のに是?",
+    "options": [
+      "八月なのに",
+      "八月だのに",
+      "八月のに",
+      "八月でのに"
+    ],
+    "answer": 0,
+    "explain": "名词接のに把だ换成な:八月なのに。",
+    "point": "接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "のに:明明…却",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-noni",
+    "stem": "な形『明明很精神却…』,「元気」接のに是?",
+    "options": [
+      "元気なのに",
+      "元気だのに",
+      "元気のに",
+      "元気でのに"
+    ],
+    "answer": 0,
+    "explain": "な形+な+のに:元気なのに。",
+    "point": "接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "のに:明明…却",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "のに 和 ので 的区别是?",
+    "options": [
+      "のに逆接(带不满)、ので顺接(因为)",
+      "のに因为、ので明明",
+      "两个一样",
+      "都表原因"
+    ],
+    "answer": 0,
+    "explain": "のに逆接带情绪、ので顺接讲原因,长得像意思相反。",
+    "point": "带情绪的逆接",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "のに:明明…却",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『明明用功了却落榜』哪句对?",
+    "options": [
+      "たくさん勉強したのに、試験に落ちた",
+      "たくさん勉強したので、試験に落ちた",
+      "たくさん勉強するのに、試験に落ちた",
+      "たくさん勉強したから、試験に落ちた"
+    ],
+    "answer": 0,
+    "explain": "逆接带不满用のに;ので/から是顺接原因。",
+    "point": "带情绪的逆接",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ために与ように:目的的两条路",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-tameyou",
+    "stem": "『为了能说日语而练习』(能力/非意志)哪句对?",
+    "options": [
+      "話せるように練習する",
+      "話すために練習する",
+      "話せるために練習する",
+      "話すように練習する"
+    ],
+    "answer": 0,
+    "explain": "可能形是非意志,目标是能力,用ように。",
+    "point": "两条路的分工",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ために与ように:目的的两条路",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-tameyou",
+    "stem": "『为了买车而存钱』(可控意志)哪句对?",
+    "options": [
+      "車を買うために貯金する",
+      "車を買うように貯金する",
+      "車を買えるために貯金する",
+      "車を買うようで貯金する"
+    ],
+    "answer": 0,
+    "explain": "意志动词、目的可控用ために。",
+    "point": "两条路的分工",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ために与ように:目的的两条路",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "stem": "『为了不忘记而记笔记』(否定)哪句对?",
+    "options": [
+      "忘れないようにメモする",
+      "忘れないためにメモする",
+      "忘れるためにメモする",
+      "忘れないでメモする"
+    ],
+    "answer": 0,
+    "explain": "否定形是非意志,用ように:忘れないように。",
+    "point": "怎么判断",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "せいで与おかげで:怪谁谢谁",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-seiokage",
+    "stem": "『都怪电车晚点,我迟到了』(坏结果)该用哪个?",
+    "options": [
+      "電車が遅れたせいで",
+      "電車が遅れたおかげで",
+      "電車が遅れるために",
+      "電車が遅れたのに"
+    ],
+    "answer": 0,
+    "explain": "坏结果、责备用せいで。",
+    "point": "甩锅·感恩",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "せいで与おかげで:怪谁谢谁",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-seiokage",
+    "stem": "『多亏老师,我考过了』(好结果)该用哪个?",
+    "options": [
+      "先生のおかげで",
+      "先生のせいで",
+      "先生のために",
+      "先生によって"
+    ],
+    "answer": 0,
+    "explain": "好结果、感谢用おかげで。",
+    "point": "甩锅·感恩",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "せいで与おかげで:怪谁谢谁",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "名词接せいで『因为下雨』哪个对?",
+    "options": [
+      "雨のせいで",
+      "雨せいで",
+      "雨なせいで",
+      "雨だせいで"
+    ],
+    "answer": 0,
+    "explain": "名词+の+せいで:雨のせいで。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "によって:凭借·因为·被",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-niyotte",
+    "stem": "『因人而异(随人不同)』该用哪个?",
+    "options": [
+      "人によって違う",
+      "人にとって違う",
+      "人に対して違う",
+      "人について違う"
+    ],
+    "answer": 0,
+    "explain": "によって表『因…而异』,常配が違う。",
+    "point": "四个意思",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "によって:凭借·因为·被",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "group": "n3-niyotte",
+    "stem": "『这部小说由夏目漱石所著』(创作者)哪句对?",
+    "options": [
+      "夏目漱石によって書かれた",
+      "夏目漱石によって書いた",
+      "夏目漱石で書かれた",
+      "夏目漱石から書かれた"
+    ],
+    "answer": 0,
+    "explain": "创作/发现者施动用によって,谓语被动書かれた。",
+    "point": "四个意思",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "によって:凭借·因为·被",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『通过协商解决』(手段)该用哪个?",
+    "options": [
+      "話し合いによって解決する",
+      "話し合いにとって解決する",
+      "話し合いについて解決する",
+      "話し合いに対して解決する"
+    ],
+    "answer": 0,
+    "explain": "によって表『用…、通过…』这一手段义。",
+    "point": "四个意思",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "わけだ:怪不得",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-wakeda",
+    "stem": "(看到在下雪)『怪不得这么冷』该用哪个?",
+    "options": [
+      "道理で寒いわけだ",
+      "寒いはずだ",
+      "寒いにちがいない",
+      "寒いそうだ"
+    ],
+    "answer": 0,
+    "explain": "已知因、恍然归结用わけだ。",
+    "point": "恍然·换言之",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "わけだ:怪不得",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "group": "n3-wakeda",
+    "stem": "わけだ 和 はずだ 的区别是?",
+    "options": [
+      "わけだ已知因恍然、はずだ主观推测应该",
+      "两个一样",
+      "わけだ推测、はずだ恍然",
+      "都表听说"
+    ],
+    "answer": 0,
+    "explain": "看到雪说『寒いわけだ』(难怪),不是『寒いはずだ』(推测应该)。",
+    "point": "恍然·换言之",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "わけだ:怪不得",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "な形『难怪日语好』,「上手」接わけだ是?",
+    "options": [
+      "日本語が上手なわけだ",
+      "日本語が上手だわけだ",
+      "日本語が上手わけだ",
+      "日本語が上手のわけだ"
+    ],
+    "answer": 0,
+    "explain": "な形+な+わけだ:上手なわけだ。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ところだ:正要·正在·刚刚",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-tokoro",
+    "stem": "『正要吃饭(还没吃)』哪句对?",
+    "options": [
+      "食べるところだ",
+      "食べているところだ",
+      "食べたところだ",
+      "食べようところだ"
+    ],
+    "answer": 0,
+    "explain": "辞书形+ところだ=正要做(まだ)。",
+    "point": "三态接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ところだ:正要·正在·刚刚",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-tokoro",
+    "stem": "『正在吃(进行中)』哪句对?",
+    "options": [
+      "食べているところだ",
+      "食べるところだ",
+      "食べたところだ",
+      "食べてところだ"
+    ],
+    "answer": 0,
+    "explain": "ている+ところだ=正在做。",
+    "point": "三态接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ところだ:正要·正在·刚刚",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-tokoro",
+    "stem": "『刚吃完』哪句对?",
+    "options": [
+      "食べたところだ",
+      "食べるところだ",
+      "食べているところだ",
+      "食べてあるところだ"
+    ],
+    "answer": 0,
+    "explain": "た形+ところだ=刚做完(直後)。",
+    "point": "三态接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "たばかり:刚刚才",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 1,
+    "group": "n3-bakari-just",
+    "stem": "『这手机刚买的』哪个对?",
+    "options": [
+      "買ったばかり",
+      "買うばかり",
+      "買っているばかり",
+      "買ってばかり"
+    ],
+    "answer": 0,
+    "explain": "た形+ばかり=刚做完:買ったばかり;買ってばかり是『净买』。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "たばかり:刚刚才",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "stem": "『我才刚来日本(几个月,还不熟)』该用哪个?",
+    "options": [
+      "来たばかり",
+      "来たところ",
+      "来ているところ",
+      "来るばかり"
+    ],
+    "answer": 0,
+    "explain": "主观『没多久(可长)』用たばかり;来たところ只能几分钟内。",
+    "point": "通往哪里(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "たばかり:刚刚才",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-bakari-just",
+    "stem": "『课才刚开始』哪句对?",
+    "options": [
+      "始まったばかりだ",
+      "始まるばかりだ",
+      "始めたばかりに",
+      "始まってばかりだ"
+    ],
+    "answer": 0,
+    "explain": "た形+ばかり:始まったばかり。",
+    "point": "主观的刚不久",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "うちに:趁着",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-uchini",
+    "stem": "『趁热吃』哪句最自然?",
+    "options": [
+      "熱いうちに食べる",
+      "熱いのに食べる",
+      "熱いたびに食べる",
+      "熱いところに食べる"
+    ],
+    "answer": 0,
+    "explain": "い形+うちに=趁着(某状态还在赶紧做)。",
+    "point": "三种用法",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "うちに:趁着",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-uchini",
+    "stem": "『趁没忘赶紧记』(趁还没)该用哪个?",
+    "options": [
+      "忘れないうちにメモする",
+      "忘れるうちにメモする",
+      "忘れたうちにメモする",
+      "忘れないままメモする"
+    ],
+    "answer": 0,
+    "explain": "ない形+うちに=趁还没。",
+    "point": "三种用法",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "うちに:趁着",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『听着听着不知不觉就记住了』该用哪个?",
+    "options": [
+      "聞いているうちに覚えた",
+      "聞いた間に覚えた",
+      "聞くたびに覚えた",
+      "聞くところに覚えた"
+    ],
+    "answer": 0,
+    "explain": "ているうちに〜=在过程中不知不觉发生变化。",
+    "point": "三种用法",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "間に:在…期间",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "group": "n3-aidani",
+    "stem": "『趁妈妈睡觉时(某一刻)来了电话』哪句对?",
+    "options": [
+      "寝ている間に、電話が来た",
+      "寝ている間、電話が来た",
+      "寝るうちに、電話が来た",
+      "寝たら、電話が来た"
+    ],
+    "answer": 0,
+    "explain": "後接瞬间/一次性动作用『間に』:寝ている間に、電話が来た。",
+    "point": "整段·某点(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "間に:在…期间",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "group": "n3-aidani",
+    "stem": "『(妈妈)睡的整段时间我都在读书』哪句对?",
+    "options": [
+      "寝ている間、本を読んでいた",
+      "寝ている間に、本を読んでいた",
+      "寝るうちに、本を読んだ",
+      "寝るたびに、本を読んだ"
+    ],
+    "answer": 0,
+    "explain": "後接持续动作用『間』(不加に)。",
+    "point": "整段·某点(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "間に:在…期间",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "名词接間に『我不在时』哪个对?",
+    "options": [
+      "留守の間に",
+      "留守間に",
+      "留守な間に",
+      "留守だ間に"
+    ],
+    "answer": 0,
+    "explain": "名词+の+間に:留守の間に。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "たびに:每次都",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 1,
+    "group": "n3-tabini",
+    "stem": "名词『每逢考试都紧张』哪个对?",
+    "options": [
+      "試験のたびに",
+      "試験たびに",
+      "試験なたびに",
+      "試験にたびに"
+    ],
+    "answer": 0,
+    "explain": "名词+の+たびに:試験のたびに。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "たびに:每次都",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-tabini",
+    "stem": "『每次见他都想起故乡』该用哪个?",
+    "options": [
+      "会うたびに思い出す",
+      "会うたびで思い出す",
+      "会うところに思い出す",
+      "会ううちに思い出す"
+    ],
+    "answer": 0,
+    "explain": "动词辞书形+たびに=每当…就…。",
+    "point": "逢…必…",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "たびに:每次都",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "たびに 和「〜時」的区别是?",
+    "options": [
+      "たびに=每次必然(反复)、時=…的时候(可单次)",
+      "两个一样",
+      "たびに只表单次",
+      "時表每次"
+    ],
+    "answer": 0,
+    "explain": "たびに含『每一次、无一例外』的规律感。",
+    "point": "为什么需要它",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ほど与くらい:程度标尺",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "group": "n3-hodo",
+    "stem": "『没有比健康更重要的』(最高级)哪句对?",
+    "options": [
+      "健康ほど大切なものはない",
+      "健康ほど大切なものはある",
+      "健康ほど大切だ",
+      "健康ほどではない"
+    ],
+    "answer": 0,
+    "explain": "「AほどBはない」=A最B(没有比A更B的)。",
+    "point": "两把尺分工",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ほど与くらい:程度标尺",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-hodo",
+    "stem": "『笑到肚子疼』(程度比拟)哪句对?",
+    "options": [
+      "お腹が痛いほど笑った",
+      "お腹が痛いより笑った",
+      "お腹が痛くほど笑った",
+      "お腹が痛いのに笑った"
+    ],
+    "answer": 0,
+    "explain": "ほど表比拟程度『到了…的地步』。",
+    "point": "两把尺分工",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ほど与くらい:程度标尺",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "『起码打个招呼吧』(最低程度)哪句对?",
+    "options": [
+      "挨拶くらいしなさい",
+      "挨拶ほどしなさい",
+      "挨拶だけしなさい",
+      "挨拶までしなさい"
+    ],
+    "answer": 0,
+    "explain": "くらい表最低程度『至少、起码』。",
+    "point": "两把尺分工",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "に比べて:比较",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-kurabete",
+    "stem": "『比起去年』该怎么接?",
+    "options": [
+      "去年に比べて",
+      "去年を比べて",
+      "去年で比べて",
+      "去年が比べて"
+    ],
+    "answer": 0,
+    "explain": "名词+に比べて:去年に比べて。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "に比べて:比较",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-kurabete",
+    "stem": "『今年比去年热』哪句对?",
+    "options": [
+      "今年は去年に比べて暑い",
+      "今年は去年に比べて暑いそう",
+      "今年が去年を比べて暑い",
+      "今年は去年より暑いに比べて"
+    ],
+    "answer": 0,
+    "explain": "AはBに比べて〜:今年は去年に比べて暑い。",
+    "point": "以…为基准",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "に比べて:比较",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "に比べて 后面接什么?",
+    "options": [
+      "名词(要比句子先名词化)",
+      "动词辞书形",
+      "动词て形",
+      "い形词干"
+    ],
+    "answer": 0,
+    "explain": "に比べて只接名词,要比句子得先名词化。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ばかり:净是·光",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-bakari-only",
+    "stem": "『弟弟老是在玩』该用哪个?",
+    "options": [
+      "遊んでばかりいる",
+      "遊んだばかりいる",
+      "遊ぶばかりいる",
+      "遊んでばかりする"
+    ],
+    "answer": 0,
+    "explain": "动作『老是做』用て形+ばかりいる:遊んでばかりいる。",
+    "point": "接续(形态多样)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ばかり:净是·光",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-bakari-only",
+    "stem": "名词『净吃甜的会胖(带抱怨)』该用哪个?",
+    "options": [
+      "甘いものばかり食べると太る",
+      "甘いものしか食べると太る",
+      "甘いものほど食べると太る",
+      "甘いものくらい食べると太る"
+    ],
+    "answer": 0,
+    "explain": "名词+ばかり=净是、光,带偏颇抱怨。",
+    "point": "净是·带抱怨",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "ばかり:净是·光",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "stem": "『たばかり(刚做完)』和『てばかり(净做)』的区别是?",
+    "options": [
+      "たばかり=刚做完、てばかり=老是做",
+      "两个一样",
+      "正好相反的时态",
+      "都表刚做完"
+    ],
+    "answer": 0,
+    "explain": "接续不同:た形+ばかり刚做完、て形+ばかり老是做。",
+    "point": "通往哪里",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "しか〜ない与だけ",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-shika",
+    "stem": "『只有100日元(不够)』しか后面该接什么?",
+    "options": [
+      "100円しかない",
+      "100円しかある",
+      "100円だけない",
+      "100円しかいる"
+    ],
+    "answer": 0,
+    "explain": "しか后面必须接否定:100円しかない。",
+    "point": "接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "しか〜ない与だけ",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-shika",
+    "stem": "『我只有你了(除你之外一无所有)』哪句对?",
+    "options": [
+      "あなたしかいない",
+      "あなたしかいる",
+      "あなただけいない",
+      "あなたほどいない"
+    ],
+    "answer": 0,
+    "explain": "しか+否定(いない)强调『别无』:あなたしかいない。",
+    "point": "中性·带不足感",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "しか〜ない与だけ",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "だけ 和 しか 后面动词的区别是?",
+    "options": [
+      "だけ后肯定否定都行、しか后必须否定",
+      "都必须否定",
+      "都必须肯定",
+      "しか后接肯定"
+    ],
+    "answer": 0,
+    "explain": "だけ中性(后可肯可否);しか必接否定,带不足感。",
+    "point": "接续(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "尊敬語动词替换表",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-sonkeigo",
+    "stem": "对客户说『您吃』,「食べる」的尊敬語是哪个?",
+    "options": [
+      "召し上がる",
+      "いただく",
+      "拝見する",
+      "伺う"
+    ],
+    "answer": 0,
+    "explain": "食べる的尊敬=召し上がる;いただく是謙譲(我吃)。",
+    "point": "替换表(红线·背死)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "尊敬語动词替换表",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-sonkeigo",
+    "stem": "『您说』的「言う」尊敬語是哪个?",
+    "options": [
+      "おっしゃる",
+      "申す",
+      "伺う",
+      "いたす"
+    ],
+    "answer": 0,
+    "explain": "言う尊敬=おっしゃる;申す是謙譲(我说)。",
+    "point": "替换表(红线·背死)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "尊敬語动词替换表",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-sonkeigo",
+    "stem": "「いる/行く/来る」的尊敬語是哪个?",
+    "options": [
+      "いらっしゃる",
+      "おる",
+      "参る",
+      "伺う"
+    ],
+    "answer": 0,
+    "explain": "いる·行く·来る的尊敬都是いらっしゃる;おる·参る·伺う是謙譲。",
+    "point": "替换表(红线·背死)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "尊敬語动词替换表",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "尊敬語只能用于谁的动作?",
+    "options": [
+      "对方的动作(抬对方)",
+      "自己的动作",
+      "谁都行",
+      "第三方物品"
+    ],
+    "answer": 0,
+    "explain": "尊敬語只用于对方,用在自己身上是大忌。",
+    "point": "通往哪里",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "謙譲語动词替换表",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-kenjougo",
+    "stem": "『我拜读了』,「見る」的謙譲語是哪个?",
+    "options": [
+      "拝見する",
+      "ご覧になる",
+      "見られる",
+      "なさる"
+    ],
+    "answer": 0,
+    "explain": "見る謙譲=拝見する;ご覧になる是尊敬(您看)。",
+    "point": "替换表(红线·背死)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "謙譲語动词替换表",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-kenjougo",
+    "stem": "『我去贵公司』,「行く/来る」的謙譲語是哪个?",
+    "options": [
+      "伺う",
+      "いらっしゃる",
+      "おいでになる",
+      "なさる"
+    ],
+    "answer": 0,
+    "explain": "行く·来る的謙譲=伺う·参る;いらっしゃる是尊敬。",
+    "point": "替换表(红线·背死)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "謙譲語动词替换表",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-kenjougo",
+    "stem": "「する」的謙譲語是哪个?",
+    "options": [
+      "いたす",
+      "なさる",
+      "される",
+      "くださる"
+    ],
+    "answer": 0,
+    "explain": "する的謙譲=いたす;なさる是尊敬。",
+    "point": "替换表(红线·背死)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "謙譲語动词替换表",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "stem": "对客户说『请您看这份资料』该用哪个?",
+    "options": [
+      "ご覧ください",
+      "拝見してください",
+      "拝見します",
+      "見てください"
+    ],
+    "answer": 0,
+    "explain": "看的是对方,用尊敬ご覧;拝見是自己一方,方向错。",
+    "point": "和尊敬語对照",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "お·ご〜になる·する句型",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-ogo",
+    "stem": "『我来帮您拿行李』(压低自己)哪句对?",
+    "options": [
+      "お持ちします",
+      "お持ちになります",
+      "お持ちです",
+      "ご持ちします"
+    ],
+    "answer": 0,
+    "explain": "压自己用お〜する:お持ちします;お持ちになる是尊敬。",
+    "point": "两个公式(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "お·ご〜になる·する句型",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-ogo",
+    "stem": "『老师已经回去了』(抬对方)哪句对?",
+    "options": [
+      "お帰りになりました",
+      "お帰りしました",
+      "ご帰りになりました",
+      "帰りました"
+    ],
+    "answer": 0,
+    "explain": "抬对方用お〜になる;和語帰り用お。",
+    "point": "两个公式(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "お·ご〜になる·する句型",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "stem": "漢语サ变词(案内·説明)配お还是ご?",
+    "options": [
+      "ご(ご案内する)",
+      "お(お案内する)",
+      "都行",
+      "不加"
+    ],
+    "answer": 0,
+    "explain": "和語用お、漢語(音读/サ变)用ご:ご案内·ご説明。",
+    "point": "お还是ご",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "お·ご〜になる·する句型",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "group": "n3-ogo",
+    "stem": "『您稍等』和『我等您』的区别是?",
+    "options": [
+      "お待ちになる(您等,尊敬)/お待ちする(我等,謙譲)",
+      "正好相反",
+      "两个一样",
+      "都是尊敬"
+    ],
+    "answer": 0,
+    "explain": "お〜になる抬对方、お〜する压自己,方向不能反。",
+    "point": "两个公式(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "れる·られる式尊敬",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-reru",
+    "stem": "『社长回去了吗』用れる式尊敬,「帰る」变哪个?",
+    "options": [
+      "帰られましたか",
+      "帰りになりましたか",
+      "帰らせましたか",
+      "帰れましたか"
+    ],
+    "answer": 0,
+    "explain": "五段 a 段+れる=帰られる。",
+    "point": "接续",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "れる·られる式尊敬",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "stem": "れる·られる式尊敬的敬意在哪一档?",
+    "options": [
+      "最轻(简体<れる<お〜になる<いらっしゃる)",
+      "最重",
+      "比替换词还敬",
+      "和謙譲一样"
+    ],
+    "answer": 0,
+    "explain": "れる·られる是最轻的一档尊敬,正式接待宜升级。",
+    "point": "最轻的一档",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "れる·られる式尊敬",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "group": "n3-reru",
+    "stem": "「作られた」这个形可能表示哪些意思?",
+    "options": [
+      "尊敬/被动/可能都可能,靠语境分",
+      "只能尊敬",
+      "只能被动",
+      "只能可能"
+    ],
+    "answer": 0,
+    "explain": "れる·られる尊敬和被动·可能同形,必须靠语境判断。",
+    "point": "通往哪里(红线)",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "敬语场景组装:电话·邮件·接待",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-keigo-scene",
+    "stem": "打电话给客户,开头『承蒙关照』最常用哪句?",
+    "options": [
+      "お世話になっております",
+      "ご苦労さまです",
+      "失礼します",
+      "どういたしまして"
+    ],
+    "answer": 0,
+    "explain": "商务电话/邮件开头固定说お世話になっております。",
+    "point": "电话套路",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "敬语场景组装:电话·邮件·接待",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 3,
+    "stem": "敬语组装的大原则是?",
+    "options": [
+      "我方动作用謙譲、对方动作用尊敬",
+      "都用尊敬",
+      "都用謙譲",
+      "随意混用"
+    ],
+    "answer": 0,
+    "explain": "方向不能反:自己一方压低(謙譲)、对方抬高(尊敬)。",
+    "point": "组装原则+通往哪里",
+    "source": "skills/questions@opus"
+  },
+  {
+    "kp": "敬语场景组装:电话·邮件·接待",
+    "subject": "japanese",
+    "scope": "jlpt-n3",
+    "type": "choice",
+    "difficulty": 2,
+    "group": "n3-keigo-scene",
+    "stem": "『能请您稍等一下吗』最得体(别用命令)是哪句?",
+    "options": [
+      "お待ちいただけますか",
+      "待ってください",
+      "待て",
+      "お待ちする"
+    ],
+    "answer": 0,
+    "explain": "请求升级成〜ていただけますか;待ってください偏命令、お待ちする是说自己等。",
+    "point": "邮件·接待套路",
+    "source": "skills/questions@opus"
+  }
+]
