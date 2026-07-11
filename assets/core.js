@@ -164,7 +164,7 @@ window.Core = (function () {
   // 题库 / 答题 / 错题本(PG)
   function questionsFor(o) {
     o = o || {}; var qs = [];
-    if (o.kp && o.kp.length) qs.push("kp=" + encodeURIComponent(o.kp.slice(0, 80).join(",")));
+    if (o.kp && o.kp.length) qs.push("kp=" + encodeURIComponent(o.kp.slice(0, 80).join("|")));   // | 分隔:kp 可含英文逗号
     if (o.subject) qs.push("subject=" + encodeURIComponent(o.subject));
     if (o.scope) qs.push("scope=" + encodeURIComponent(o.scope));
     if (o.edition) qs.push("edition=" + encodeURIComponent(o.edition));

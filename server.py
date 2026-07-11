@@ -716,7 +716,12 @@ class Handler(SimpleHTTPRequestHandler):
         try: limit = min(200, max(1, int((q.get("limit") or ["50"])[0])))
         except Exception: limit = 50
         where, args = [], []
-        if kp: where.append("kp = ANY(%s)"); args.append([x for x in kp.split(",") if x])
+        if kp:
+            # kp 列表用 | 分隔(kp 本身可含英文逗号,如英文考点标题);
+            # 无 | 时兼容两种旧形态:单个含逗号的 kp(整串精确匹配)+ 旧版逗号连接列表(碎片也放进 ANY)
+            if "|" in kp: parts = [x for x in kp.split("|") if x]
+            else: parts = [kp] + ([x for x in kp.split(",") if x] if "," in kp else [])
+            where.append("kp = ANY(%s)"); args.append(parts)
         if subject: where.append("subject=%s"); args.append(subject)
         if scope: where.append("scope=%s"); args.append(scope)
         if edition: where.append("edition=%s"); args.append(edition)
