@@ -81,6 +81,36 @@ window.STUDY_SKELETON = [
     ]
   },
 
+  /* ---- Claude 认证备考(CCAR-F Architect Foundations)· 纯英文卡片式微课,考点=考纲域拆分 ---- */
+  {
+    profile: "ma-huan", subject: "eecs", discipline: "cs", scope: "claude-cert", dir: "Claude Certification",
+    topics: [
+      { title: "Exam Landscape", points: [
+        { title: "Anthropic certification tracks and exam logistics", status: "todo" } ] },
+      { title: "Agentic Architecture & Orchestration (27%)", points: [
+        { title: "The agent loop: model, tools, environment", status: "todo" },
+        { title: "Orchestration patterns: single agent, subagents, pipelines", status: "todo" },
+        { title: "Guardrails and autonomy: approvals, allowlists, stop conditions", status: "todo" },
+        { title: "Claude Agent SDK core abstractions", status: "todo" } ] },
+      { title: "Tool Design & MCP Integration (18%)", points: [
+        { title: "Tool schema design: descriptions, parameters, misuse resistance", status: "todo" },
+        { title: "MCP architecture: hosts, clients, servers, transports", status: "todo" },
+        { title: "Integrating external services: auth and error handling", status: "todo" } ] },
+      { title: "Claude Code Configuration & Workflows (20%)", points: [
+        { title: "Settings hierarchy and permission modes", status: "todo" },
+        { title: "CLAUDE.md, skills, and hooks", status: "todo" },
+        { title: "Headless mode and CI/CD integration", status: "todo" } ] },
+      { title: "Prompt Engineering & Structured Output (20%)", points: [
+        { title: "System prompts and instruction hierarchy", status: "todo" },
+        { title: "Structured output: JSON mode and forced tool use", status: "todo" },
+        { title: "Few-shot, chain-of-thought, and eval-driven iteration", status: "todo" } ] },
+      { title: "Context Management & Reliability (15%)", points: [
+        { title: "Context windows and prompt caching", status: "todo" },
+        { title: "Long conversations: compaction, externalization, retrieval", status: "todo" },
+        { title: "Production reliability: retries, rate limits, batching, fallback", status: "todo" } ] }
+    ]
+  },
+
   /* ---- 交互设计 · 知识点大纲（自学路线,配 design 课程资料 + 总纲页） ---- */
   {
     profile: "ma-huan", subject: "design", discipline: "design", scope: "general",

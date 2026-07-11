@@ -37,7 +37,7 @@ window.STUDY_PROFILES = {
     hosts: ["mahuanx"],
     showQuiz: true,
     subjects: {
-      math: ["undergrad", "grad"], design: ["general"], methods: ["general"]
+      math: ["undergrad", "grad"], design: ["general"], eecs: ["claude-cert"], methods: ["general"]
     }
   },
   mahuan: {
@@ -82,6 +82,8 @@ window.STUDY_SCOPES = {
   undergrad:   { name: "本科", group: "学段", order: 6 },
   grad:        { name: "研究生", group: "学段", order: 7 },
   "jijiao-6b": { name: "冀教·六下", group: "教材", order: 1 },
+  // 职业认证
+  "claude-cert": { name: "Claude 认证", group: "职业认证", order: 1 },
   // 英语考试
   cet4:  { name: "CET-4", group: "英语考试", order: 1 },
   cet6:  { name: "CET-6", group: "英语考试", order: 2 },
