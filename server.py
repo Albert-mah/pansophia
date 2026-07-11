@@ -52,6 +52,8 @@ RL_IP_MAX, RL_IP_WIN = 120, 300
 RL_G_MAX, RL_G_WIN = 600, 60
 
 def rate_ok(ip):
+    if ip in ("127.0.0.1", "::1"):   # 本机管理工具(批量导入等)豁免;公网经隧道必带 Cf-Connecting-Ip,解析不到回环
+        return True
     now = time.time()
     with _rl_lock:
         while _rl_global and now - _rl_global[0] > RL_G_WIN:

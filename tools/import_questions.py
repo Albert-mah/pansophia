@@ -118,7 +118,7 @@ def do_import(fp, dry):
 def do_coverage(min_n):
     js = ("global.window={};const fs=require('fs'),p=require('path');"
           "const D=p.join(%r,'data');"
-          "fs.readdirSync(D).filter(n=>/^cards\\.[a-z0-9_-]+\\.js$/.test(n)).forEach(n=>require(p.join(D,n)));"
+          "fs.readdirSync(D).filter(n=>/^cards\\.[a-z0-9._-]+\\.js$/.test(n)).forEach(n=>require(p.join(D,n)));"
           "console.log(JSON.stringify((global.window.STUDY_CARDS||[]).filter(c=>c.mode==='drill').map(c=>c.kp)));" % ROOT)
     kps = json.loads(subprocess.check_output(["node", "-e", js]).decode("utf-8"))
     if not kps: print("没有 drill 卡。"); return

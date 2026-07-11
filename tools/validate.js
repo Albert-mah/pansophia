@@ -22,7 +22,7 @@ for (const f of ["model.js", "disciplines.js", "disciplines.intl.js", "programs.
   require(path.join(DATA, f));
 }
 // 知识卡片(docs/card-system.md):data/cards.*.js 全部加载
-const CARD_FILES = fs.readdirSync(DATA).filter((n) => /^cards\.[a-z0-9_-]+\.js$/.test(n)).sort();
+const CARD_FILES = fs.readdirSync(DATA).filter((n) => /^cards\.[a-z0-9._-]+\.js$/.test(n)).sort();
 for (const f of CARD_FILES) require(path.join(DATA, f));
 const W = global.window;
 const PROFILES = W.STUDY_PROFILES || {};
