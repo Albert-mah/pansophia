@@ -741,7 +741,7 @@
       else if (!lp.path) body = html`<div class="pan-kp-body"><div class="pan-article" style="max-width:none;">
         ${html`<${window.CardArticle} card=${mcard} onDrill=${function () { goTab("drill"); }} />`}
         ${mcard.deepDive ? html`<${DeepDiveBlock} path=${mcard.deepDive} onDrill=${function () { goTab("drill"); }} />` : null}
-        <div style="margin-top:18px;padding-top:12px;border-top:1px dashed #EBDEC8;font-size:12.5px;color:#9a8a6f;">这节是卡片式微课(约 ${mcard.minutes || 3} 分钟)。${mcard.deepDive ? "" : "想要更长的图文讲解?"}<span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { C.sendMessage({ kind: "wish", text: "请给「" + lp.title + "」写一篇完整讲解页(现有卡片基础上加深)。", context: { discId: did, scope: entry.scope, kp: lp.id } }).then(function () { app.go("messages"); }); }}> ✉️ 请导师补一篇</span></div>
+        <div style="margin-top:16px;text-align:right;"><span class="lnk" style="font-size:12px;color:#bbab8c;cursor:pointer;" onClick=${function () { C.sendMessage({ kind: "wish", text: "请给「" + lp.title + "」写一篇完整讲解页(现有卡片基础上加深)。", context: { discId: did, scope: entry.scope, kp: lp.id } }).then(function () { app.go("messages"); }); }}>✉️ 请导师补一篇完整讲解</span></div>
       </div></div>`;
       else body = app.lessonOpen
         ? html`<div class="pan-lesson-embed" style="min-height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13.5px;">正在全屏查看这篇讲解…</div>`
@@ -776,7 +776,10 @@
     var noteList = C.notes().filter(function (n) { return n.subject && n.subject.indexOf(sc.name) >= 0; }).slice(0, 12);
     function saveCourseNote(v) { v = (v || "").trim(); if (!v) return; var nt = C.notes(); nt.unshift({ title: v.slice(0, 24), body: v, subject: "随堂笔记", ts: Date.now() }); C.save("notes", nt); app.refresh(); }
 
+    var notMine = entry && !C.hasCourse(did, entry.scope || null);
     return html`<div class=${"pan-course" + (mnav ? " m-open-" + mnav : "")}>
+      ${notMine ? html`<div style="grid-column:1/-1;display:flex;gap:10px;align-items:center;padding:8px 18px;background:#FBF1DE;border-bottom:1px solid #EBDEC8;font-size:12.5px;color:#8a6d3b;">
+        👤 你正以「<b>${(C.user() || {}).name || ""}</b>」档案浏览这门未领取的课,学习进度会记在这个档案名下 —— 若不是本人,先点右上角头像切换档案</div>` : null}
       <div class="pan-course-mtop">
         <span class="t-back" title="返回课程表" onClick=${function () { app.go("course"); }}>‹</span>
         <span class="t-title">${(d && d.name) || sc.name}</span>
@@ -825,7 +828,7 @@
               var SB = { todo: { ic: "○", c: "#c9b99c", lb: "" }, read: { ic: "📖", c: "#2c5fb3", lb: "读过" }, practiced: { ic: "✎", c: "#C8852E", lb: qz ? "练 " + qz.correct + "/" + qz.answered : "练过" }, mastered: { ic: "✓", c: "#6E7A4F", lb: "已掌握" } }[stt];
               var hasContent = !!(kp || pcard);
               var lead = html`<span style=${"flex-shrink:0;width:16px;text-align:center;color:" + (hasContent || stt !== "todo" ? SB.c : "#d8cbb3") + ";"}>${hasContent ? (stt === "todo" && pcard ? "🃏" : SB.ic) : "○"}</span>`;
-              var chip = SB.lb ? html`<span style=${"margin-left:auto;flex-shrink:0;font-size:10.5px;font-weight:700;white-space:nowrap;color:" + (isSel ? "#E8B06A" : SB.c) + ";"}>${SB.lb}</span>` : null;
+              var chip = null;   // 状态由左侧图标颜色表达,不再加文字 chip(减负荷)
               if (isSel) return html`<div key=${pi} style="display:flex;gap:10px;align-items:center;padding:11px 9px;border-radius:8px;font-size:13.5px;font-weight:600;background:#33291E;color:#F2E8D6;"><span>▸</span> <span style="flex:1;min-width:0;">${p.title}</span>${chip}</div>`;
               return html`<div key=${pi} class="pan-row" onClick=${function () { selKp(p.ref || p.title); }} style=${"display:flex;gap:10px;align-items:center;padding:9px 8px;font-size:13px;cursor:pointer;" + (hasContent ? "" : "color:#7A6E5E;")}>${lead} <span style="flex:1;min-width:0;">${p.title}</span>${chip}</div>`;
             })}</div>`;

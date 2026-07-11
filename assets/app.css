@@ -411,3 +411,7 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 .pan-lesson-scroll { flex: 1; width: 100%; overflow: auto; background: var(--paper); -webkit-overflow-scrolling: touch; }
 .pan-lesson-scroll .pan-lesson-embed { border: 0; border-radius: 0; }
 @media (max-width: 620px) { .pan-lesson-win { width: 100vw; height: 100vh; border-radius: 0; } .pan-lesson-mask { padding: 0; } }
+
+/* 课程页左侧章节目录:随窗口悬浮(sticky 自滚动,列表长也不跟页面滚走) */
+.pan-course .side { position: sticky; top: 71px; align-self: start; }
+@media (max-width: 900px) { .pan-course .side { position: fixed; } }

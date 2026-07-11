@@ -302,7 +302,7 @@
     return html`<div class="pan-screen narrow">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div class="pan-crumb" style="margin:0;"><span class="lnk" onClick=${function () { setSess(null); }}>单词专项</span> › ${sess.bankName}</div>
-        <div style="font-size:13px;color:#9a8a6f;">已答 <b style="color:#33291E;">${doneN}</b> 题 · 通过 ${sess.passed}/${sess.total} 词 · 队列剩 ${sess.items.length} 题 · 本组 <b style="color:#a86a00;">⬡ ${sess.earned}</b></div></div>
+        <div style="font-size:13px;color:#9a8a6f;"><span title=${"已答 " + doneN + " 题 · 队列剩 " + sess.items.length + " 题"}>通过 <b style="color:#33291E;">${sess.passed}</b>/${sess.total} · <b style="color:#a86a00;">⬡ ${sess.earned}</b></span></div></div>
       <div class="pan-bar" style="height:7px;margin-bottom:22px;"><i style=${"width:" + pct + "%;background:#C8852E;"}></i></div>${body}</div>`;
 
     /* ----- 会话逻辑 ----- */
