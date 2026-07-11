@@ -641,7 +641,8 @@
     var app = useApp();
     var did = app.params.disc;
     var mem = _courseMem[did] || {};
-    var selState = useState(mem.ref || null); var selRef = selState[0], setSel = selState[1];
+    var urlKp = (function () { try { return new URLSearchParams(location.search).get("kp"); } catch (e) { return null; } })();
+    var selState = useState(mem.ref || urlKp || null); var selRef = selState[0], setSel = selState[1];
     var tb0 = useState(false); var pickTb = tb0[0], setPickTb = tb0[1];
     var mt0 = useState(null); var mats = mt0[0], setMats = mt0[1];
     var lb0 = useState({}); var libMap = lb0[0], setLibMap = lb0[1];   // 课本本地副本(按 url 索引)
@@ -650,7 +651,10 @@
     var rt0 = useState("res"); var resTab = rt0[0], setResTab = rt0[1];   // 右栏:资料 / 笔记 两个 tab
     var mn0 = useState(null); var mnav = mn0[0], setMnav = mn0[1];        // 移动端:null=只看详情 / "list"=唤出考点目录 / "res"=唤出资料
     var kt0 = useState(mem.tab || "learn"); var kpTab = kt0[0], setKpTab = kt0[1];   // 考点小 App 的 tab:learn 学 / drill 练 / digest 结 / extend 拓展
-    function selKp(ref) { setSel(ref); setKpTab("learn"); setMnav(null); _courseMem[did] = { ref: ref, tab: "learn" }; }   // 换考点回到「学」
+    function selKp(ref) {
+      setSel(ref); setKpTab("learn"); setMnav(null); _courseMem[did] = { ref: ref, tab: "learn" };
+      try { var u = new URL(location.href); u.searchParams.set("kp", ref); history.replaceState(null, "", u); } catch (e) {}   // 落 URL:刷新不回第一节
+    }
     useEffect(function () { if (did) C.materialsFor(did).then(setMats); }, [did]);
     // 点选带讲解的考点 → 记一次「读讲解」事件(achStats 按 path 去重,支持「读讲解」类成就);卡片式考点记 card:<kp>
     useEffect(function () { if (selRef) { var k = C.catalogById(selRef); if (k && k.path) C.logEvent({ kind: "lesson", path: k.path, label: k.title }); else if (C.cardForKp(selRef)) C.logEvent({ kind: "lesson", path: "card:" + selRef, label: selRef }); } }, [selRef]);

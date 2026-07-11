@@ -509,7 +509,7 @@
       screen: st.screen, params: st.params, menuOpen: st.menuOpen, userPop: st.userPop, moreOpen: st.moreOpen, navOpen: st.navOpen, lessonOpen: !!st.lesson,
       go: function (screen, params) {
         if (SCREENS.indexOf(screen) < 0) screen = "home";
-        setUrl({ screen: screen, disc: (params && params.disc) || null });
+        setUrl({ screen: screen, disc: (params && params.disc) || null, kp: (params && params.kp) || null });   // 换屏清掉残留的 ?kp=
         try { window.scrollTo(0, 0); } catch (e) {}
         setSt(function (p) { return Object.assign({}, p, { screen: screen, params: params || {}, menuOpen: false, userPop: false, moreOpen: false, navOpen: false, tick: p.tick + 1 }); });
       },
