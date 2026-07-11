@@ -91,23 +91,34 @@ window.STUDY_SKELETON = [
         { title: "The agent loop: model, tools, environment", status: "todo" },
         { title: "Orchestration patterns: single agent, subagents, pipelines", status: "todo" },
         { title: "Guardrails and autonomy: approvals, allowlists, stop conditions", status: "todo" },
-        { title: "Claude Agent SDK core abstractions", status: "todo" } ] },
+        { title: "Claude Agent SDK core abstractions", status: "todo" },
+        { title: "Workflows versus agents: choosing the right architecture", status: "todo" },
+        { title: "Parallel tool calls and multi-turn tool chaining", status: "todo" },
+        { title: "Agent evaluation and observability", status: "todo" } ] },
       { title: "Tool Design & MCP Integration (18%)", points: [
         { title: "Tool schema design: descriptions, parameters, misuse resistance", status: "todo" },
         { title: "MCP architecture: hosts, clients, servers, transports", status: "todo" },
-        { title: "Integrating external services: auth and error handling", status: "todo" } ] },
+        { title: "Integrating external services: auth and error handling", status: "todo" },
+        { title: "MCP resources, prompts, and sampling", status: "todo" },
+        { title: "Tool results engineering: size, format, pagination", status: "todo" } ] },
       { title: "Claude Code Configuration & Workflows (20%)", points: [
         { title: "Settings hierarchy and permission modes", status: "todo" },
         { title: "CLAUDE.md, skills, and hooks", status: "todo" },
-        { title: "Headless mode and CI/CD integration", status: "todo" } ] },
+        { title: "Headless mode and CI/CD integration", status: "todo" },
+        { title: "Subagents and custom agent types in Claude Code", status: "todo" },
+        { title: "Project MCP servers and configuration scopes", status: "todo" } ] },
       { title: "Prompt Engineering & Structured Output (20%)", points: [
         { title: "System prompts and instruction hierarchy", status: "todo" },
         { title: "Structured output: JSON mode and forced tool use", status: "todo" },
-        { title: "Few-shot, chain-of-thought, and eval-driven iteration", status: "todo" } ] },
+        { title: "Few-shot, chain-of-thought, and eval-driven iteration", status: "todo" },
+        { title: "Extended thinking: budgets and when to enable", status: "todo" },
+        { title: "Prefill, stop sequences, and output shaping", status: "todo" } ] },
       { title: "Context Management & Reliability (15%)", points: [
         { title: "Context windows and prompt caching", status: "todo" },
         { title: "Long conversations: compaction, externalization, retrieval", status: "todo" },
-        { title: "Production reliability: retries, rate limits, batching, fallback", status: "todo" } ] }
+        { title: "Production reliability: retries, rate limits, batching, fallback", status: "todo" },
+        { title: "Token budgeting and cost engineering", status: "todo" },
+        { title: "RAG versus long context: when to retrieve", status: "todo" } ] }
     ]
   },
 

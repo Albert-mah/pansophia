@@ -412,6 +412,9 @@ h1, h2, h3, .serif { font-family: var(--serif); }
 .pan-lesson-scroll .pan-lesson-embed { border: 0; border-radius: 0; }
 @media (max-width: 620px) { .pan-lesson-win { width: 100vw; height: 100vh; border-radius: 0; } .pan-lesson-mask { padding: 0; } }
 
+/* grid 子项 min-width:0:防宽内容(公式 SVG 等)把 1fr 轨道撑出视口(手机端展示不全的根因) */
+.pan-course > * { min-width: 0; }
+
 /* 课程页左侧章节目录:随窗口悬浮(sticky 自滚动,列表长也不跟页面滚走) */
 .pan-course .side { position: sticky; top: 71px; align-self: start; }
 @media (max-width: 900px) { .pan-course .side { position: fixed; } }

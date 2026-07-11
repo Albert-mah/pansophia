@@ -295,15 +295,15 @@
         if (/data-page-id|STUDY_CATALOG|window\.MathJax\s*=/.test(t)) return;   // 跳过引导/配置脚本,只留组件脚本
         scripts.push(s.textContent);
       });
-      var needsMath = /\\\(|\\\[|\$\$/.test(txt) || !!doc.querySelector("[data-mathjax]");
+      var needsMath = /\\\(|\\\[|\$\$/.test(txt) || /\$[^$\n]{1,120}\$/.test(txt) || /\\(?:d?frac|left|right|sqrt|neq|leq|geq)\b/.test(txt) || !!doc.querySelector("[data-mathjax]");
       return (_lessonCache[path] = { markup: markup, scripts: scripts, styles: styles, needsMath: needsMath });
     });
   }
   function typesetMath(container) {
     if (window.MathJax && window.MathJax.typesetPromise) { try { window.MathJax.typesetPromise([container]); } catch (e) {} return; }
     if (document.getElementById("mj-embed")) return;
-    window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] }, svg: { fontCache: "global" } };
-    var s = document.createElement("script"); s.id = "mj-embed"; s.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js";
+    window.MathJax = { tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]], displayMath: [["\\[", "\\]"], ["$$", "$$"]], processEscapes: true }, svg: { fontCache: "global" } };
+    var s = document.createElement("script"); s.id = "mj-embed"; s.src = "assets/vendor/mathjax-tex-svg.js";   // 本地内置:手机/国内网络拉不动 CDN 是公式裸奔的主因
     s.onload = function () { try { if (window.MathJax.typesetPromise) window.MathJax.typesetPromise([container]); } catch (e) {} };
     document.head.appendChild(s);
   }
