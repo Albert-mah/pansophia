@@ -37,7 +37,7 @@ window.STUDY_PROFILES = {
     hosts: ["mahuanx"],
     showQuiz: true,
     subjects: {
-      math: ["undergrad", "grad"], design: ["general"], eecs: ["claude-cert"], methods: ["general"]
+      math: ["undergrad", "grad"], design: ["general"], eecs: ["claude-cert"], japanese: ["jlpt-n4", "jlpt-n3", "jlpt-n2", "jlpt-n1"], methods: ["general"]
     }
   },
   mahuan: {

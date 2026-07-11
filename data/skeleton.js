@@ -81,6 +81,149 @@ window.STUDY_SKELETON = [
     ]
   },
 
+  /* ---- 日语 N3(中级)· 语法点分组成卡片粒度,管线填卡 ---- */
+  {
+    profile: "ma-huan", subject: "japanese", discipline: "foreign-lit", scope: "jlpt-n3", dir: "日语 · 中级 N3",
+    topics: [
+      { title: "动词的两大变身:使役与被动", points: [
+        { title: "被动形的变形与基本用法", status: "todo" },
+        { title: "迷惑被动:雨に降られた", status: "todo" },
+        { title: "使役形:让·叫某人做", status: "todo" },
+        { title: "使役被动:被迫做", status: "todo" },
+        { title: "させてもらう:谦恭地做", status: "todo" } ] },
+      { title: "样态·传闻·推测", points: [
+        { title: "そうだ(様態):看起来要", status: "todo" },
+        { title: "そうだ(伝聞):听说", status: "todo" },
+        { title: "ようだ与みたいだ:像·好像", status: "todo" },
+        { title: "らしい:据说·典型", status: "todo" },
+        { title: "はずだ与はずがない:按理说", status: "todo" },
+        { title: "かもしれない与にちがいない", status: "todo" } ] },
+      { title: "条件·愿望·逆接", points: [
+        { title: "ば〜ほど:越…越…", status: "todo" },
+        { title: "ばよかった:后悔与愿望", status: "todo" },
+        { title: "ても:即使…也", status: "todo" },
+        { title: "のに:明明…却", status: "todo" } ] },
+      { title: "目的·理由·因果", points: [
+        { title: "ために与ように:目的的两条路", status: "todo" },
+        { title: "せいで与おかげで:怪谁谢谁", status: "todo" },
+        { title: "によって:凭借·因为·被", status: "todo" },
+        { title: "わけだ:怪不得", status: "todo" } ] },
+      { title: "时间与阶段", points: [
+        { title: "ところだ:正要·正在·刚刚", status: "todo" },
+        { title: "たばかり:刚刚才", status: "todo" },
+        { title: "うちに:趁着", status: "todo" },
+        { title: "間に:在…期间", status: "todo" },
+        { title: "たびに:每次都", status: "todo" } ] },
+      { title: "程度·比较·限定", points: [
+        { title: "ほど与くらい:程度标尺", status: "todo" },
+        { title: "に比べて:比较", status: "todo" },
+        { title: "ばかり:净是·光", status: "todo" },
+        { title: "しか〜ない与だけ", status: "todo" } ] },
+      { title: "敬语的正式系统", points: [
+        { title: "尊敬語动词替换表", status: "todo" },
+        { title: "謙譲語动词替换表", status: "todo" },
+        { title: "お·ご〜になる·する句型", status: "todo" },
+        { title: "れる·られる式尊敬", status: "todo" },
+        { title: "敬语场景组装:电话·邮件·接待", status: "todo" } ] }
+    ]
+  },
+
+  /* ---- 日语 N2(中上级) ---- */
+  {
+    profile: "ma-huan", subject: "japanese", discipline: "foreign-lit", scope: "jlpt-n2", dir: "日语 · 中上级 N2",
+    topics: [
+      { title: "わけ与もの家族", points: [
+        { title: "わけではない:并非", status: "todo" },
+        { title: "わけにはいかない:不能不做·不能做", status: "todo" },
+        { title: "ものだ:本该·感慨·曾经", status: "todo" },
+        { title: "ものの:虽然", status: "todo" },
+        { title: "というものだ与というものではない", status: "todo" } ] },
+      { title: "こと家族与形式名词", points: [
+        { title: "ことだ:忠告", status: "todo" },
+        { title: "ことになっている:规定", status: "todo" },
+        { title: "ことはない:不必", status: "todo" },
+        { title: "ないことには:不…就不", status: "todo" },
+        { title: "ばかりか与ばかりに", status: "todo" } ] },
+      { title: "复合助词:对象与立场", points: [
+        { title: "に対して:对·相对", status: "todo" },
+        { title: "について与に関して", status: "todo" },
+        { title: "にとって:对…来说", status: "todo" },
+        { title: "として:作为", status: "todo" },
+        { title: "をめぐって:围绕", status: "todo" } ] },
+      { title: "复合助词:依据与对应", points: [
+        { title: "によると与に基づいて", status: "todo" },
+        { title: "に応じて:根据·相应", status: "todo" },
+        { title: "に伴って:伴随", status: "todo" },
+        { title: "につれて与にしたがって", status: "todo" },
+        { title: "を通じて:通过·遍及", status: "todo" } ] },
+      { title: "时间与契机", points: [
+        { title: "たとたん:一…立刻", status: "todo" },
+        { title: "か〜ないかのうちに", status: "todo" },
+        { title: "次第:一…马上·取决于", status: "todo" },
+        { title: "末に与あげく:…之后终于", status: "todo" },
+        { title: "に際して与にあたって", status: "todo" } ] },
+      { title: "状态与倾向", points: [
+        { title: "っぽい:…气·容易", status: "todo" },
+        { title: "がち:动不动就", status: "todo" },
+        { title: "気味:有点…的感觉", status: "todo" },
+        { title: "だらけ:满是", status: "todo" },
+        { title: "向き与向け:适合与面向", status: "todo" } ] },
+      { title: "逆接与让步进阶", points: [
+        { title: "ながらも:虽然…却", status: "todo" },
+        { title: "つつ与つつも", status: "todo" },
+        { title: "にもかかわらず:尽管", status: "todo" },
+        { title: "からといって:不能因为…就", status: "todo" },
+        { title: "たとえ〜ても:即便", status: "todo" } ] }
+    ]
+  },
+
+  /* ---- 日语 N1(高级) ---- */
+  {
+    profile: "ma-huan", subject: "japanese", discipline: "foreign-lit", scope: "jlpt-n1", dir: "日语 · 高级 N1",
+    topics: [
+      { title: "文语否定的世界", points: [
+        { title: "ざるを得ない:不得不", status: "todo" },
+        { title: "ずにはいられない:忍不住", status: "todo" },
+        { title: "んばかり:眼看就要", status: "todo" },
+        { title: "んがため:为了(文语)", status: "todo" } ] },
+      { title: "极限与程度", points: [
+        { title: "極まりない与極まる", status: "todo" },
+        { title: "の至り与の極み", status: "todo" },
+        { title: "に堪えない:不堪·由衷", status: "todo" },
+        { title: "を禁じ得ない:禁不住", status: "todo" },
+        { title: "といったらない:没法说·极其", status: "todo" } ] },
+      { title: "名词接尾与状态", points: [
+        { title: "まみれ:沾满", status: "todo" },
+        { title: "ずくめ:清一色", status: "todo" },
+        { title: "なり与なりに:与其相应", status: "todo" },
+        { title: "がてら与かたがた:顺便", status: "todo" } ] },
+      { title: "让步与假定(文语)", points: [
+        { title: "であれ与であろうと:无论", status: "todo" },
+        { title: "といえども:虽说·即便", status: "todo" },
+        { title: "たりとも:哪怕一…也不", status: "todo" },
+        { title: "ようが与ようと:不管怎么", status: "todo" },
+        { title: "まじき:不该有的", status: "todo" } ] },
+      { title: "时点与即刻", points: [
+        { title: "や否や与なり:刚…就", status: "todo" },
+        { title: "そばから:刚…转眼又", status: "todo" },
+        { title: "が早いか:说时迟那时快", status: "todo" },
+        { title: "を皮切りに:以…为开端", status: "todo" } ] },
+      { title: "依据·立场·范围", points: [
+        { title: "をもって:以…·凭", status: "todo" },
+        { title: "において与における", status: "todo" },
+        { title: "に即して:依照", status: "todo" },
+        { title: "をよそに:不顾", status: "todo" },
+        { title: "ならでは:唯有…才有", status: "todo" },
+        { title: "なしに与ことなしに:没有…就", status: "todo" } ] },
+      { title: "语感与收尾", points: [
+        { title: "始末だ:落得…下场", status: "todo" },
+        { title: "羽目になる:落到…地步", status: "todo" },
+        { title: "までもない:用不着", status: "todo" },
+        { title: "に越したことはない:莫过于", status: "todo" },
+        { title: "限りだ与この上ない:无比", status: "todo" } ] }
+    ]
+  },
+
   /* ---- Claude 认证备考(CCAR-F Architect Foundations)· 纯英文卡片式微课,考点=考纲域拆分 ---- */
   {
     profile: "ma-huan", subject: "eecs", discipline: "cs", scope: "claude-cert", dir: "Claude Certification",
