@@ -1,0 +1,947 @@
+[
+ {
+  "kp": "Anthropic certification tracks and exam logistics",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "ccarf-format", "point": "CCAR-F format",
+  "stem": "An architect is scheduling the CCAR-F exam and wants to confirm its format before booking. Which description is correct?",
+  "options": [
+   "60 multiple-choice questions in 120 minutes, scaled 100–1000, passing at 720",
+   "100 questions in 90 minutes, scored as a simple percentage, passing at 70%",
+   "40 open-book questions in 60 minutes with no fixed cutoff",
+   "A live oral interview with an Anthropic engineer, graded pass or fail"
+  ],
+  "answer": 0,
+  "explain": "CCAR-F is 60 multiple-choice items in 120 minutes, scaled 100–1000 with 720 to pass. The distractors invent a percentage grade, an open-book format, and an interview — none match the published logistics.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Anthropic certification tracks and exam logistics",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "ccarf-format", "point": "CCAR-F format",
+  "stem": "A candidate finishes CCAR-F with a scaled score of 715. What is the outcome?",
+  "options": [
+   "Fail — 720 is the passing score and 715 is below it",
+   "Pass — anything above 700 clears CCAR-F",
+   "Pass — the cutoff is a percentage and 715 of 1000 is over 70%",
+   "A provisional pass pending manual review"
+  ],
+  "answer": 0,
+  "explain": "The scale runs 100–1000 and the cutoff is 720, so 715 fails. There is no 700 threshold, the cutoff is a scaled score not a percentage, and there is no provisional-review path.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Anthropic certification tracks and exam logistics",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Domain weights",
+  "stem": "An architect has limited study time and wants to prioritize by exam weight. Which domain carries the MOST questions on CCAR-F?",
+  "options": [
+   "Agentic Architecture & Orchestration (27%)",
+   "Prompt Engineering & Structured Output (20%)",
+   "Tool Design & MCP Integration (18%)",
+   "Context Management & Reliability (15%)"
+  ],
+  "answer": 0,
+  "explain": "Agentic Architecture & Orchestration is weighted 27%, the heaviest of the five domains. Prompt Engineering (20%), Tool Design & MCP (18%), and Context & Reliability (15%) each carry fewer questions.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The agent loop: model, tools, environment",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "loop-stopreason", "point": "Stop reasons",
+  "stem": "While driving the Messages API, an architect receives a response whose stop_reason is tool_use. What is the MOST appropriate next step?",
+  "options": [
+   "Execute the requested tool, append its result, and call the API again",
+   "Return the model's text to the user as the final answer",
+   "Treat it as an error and restart the conversation",
+   "Raise max_tokens and resend the identical request"
+  ],
+  "answer": 0,
+  "explain": "A stop_reason of tool_use means the model is requesting a tool; you run it, append the tool_result, and continue the loop. It is not the final turn (that is end_turn), not an error, and not a token-limit issue (that is max_tokens).",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The agent loop: model, tools, environment",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "loop-stopreason", "point": "Stop reasons",
+  "stem": "A response comes back with stop_reason of end_turn and no tool call. What does this indicate?",
+  "options": [
+   "The model finished its turn naturally; the loop can stop",
+   "The model was cut off by the token limit",
+   "A tool must be run before continuing",
+   "A stop sequence was hit in the middle of a tool call"
+  ],
+  "answer": 0,
+  "explain": "end_turn means the model completed its turn, so the loop ends. max_tokens signals truncation, tool_use signals a pending tool call, and stop_sequence means a configured stop string was emitted.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The agent loop: model, tools, environment",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Who owns loop",
+  "stem": "A developer calls the raw Messages API and expects tool calls to run automatically, but their tools never execute. What is the MOST likely cause?",
+  "options": [
+   "With the Messages API the loop lives in your code; you must detect tool_use and run the tool yourself",
+   "The API only runs tools when temperature is set to 0",
+   "Tool execution requires the Batch API",
+   "Tools run only if you omit the system prompt"
+  ],
+  "answer": 0,
+  "explain": "The Messages API does not execute tools; your code must detect tool_use, run the tool, and re-call the API. Temperature, the Batch API, and the system prompt have nothing to do with who runs the loop.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The agent loop: model, tools, environment",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Env feedback",
+  "stem": "In the agent loop, what role do tool results play?",
+  "options": [
+   "They are the environment feedback the model reads to decide its next action",
+   "They are discarded once logged and never seen by the model",
+   "They replace the system prompt on the next turn",
+   "They are used only to compute a final score"
+  ],
+  "answer": 0,
+  "explain": "Tool results are appended as the environment's feedback, letting the model observe the outcome and plan the next step. They are not discarded, do not overwrite the system prompt, and are not a scoring device.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Orchestration patterns: single agent, subagents, pipelines",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "orch-choose", "point": "How to choose",
+  "stem": "An architect must process 500 independent documents, each summarized the same way, as fast as possible. Which orchestration approach is MOST appropriate?",
+  "options": [
+   "A fan-out pipeline of parallel workers, since the tasks are independent",
+   "A single agent looping over all 500 documents in one context window",
+   "One subagent that reads all 500 into its window and returns a report",
+   "A chain where each document's summary is fed into the next"
+  ],
+  "answer": 0,
+  "explain": "Independent, parallelizable work fits a fan-out orchestrator-worker pipeline. A single looping agent is slow and context-heavy, cramming all 500 into one window overflows it, and chaining wrongly serializes independent tasks.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Orchestration patterns: single agent, subagents, pipelines",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "orch-choose", "point": "How to choose",
+  "stem": "A task needs an agent to read a very large log file and act on just a few findings, without polluting the main conversation. Which approach BEST fits?",
+  "options": [
+   "Delegate to a subagent that reads the log in its own window and returns a summary",
+   "Paste the entire log into the main agent's context",
+   "Split the work across many parallel workers that each receive the full log",
+   "Force JSON output from the main agent"
+  ],
+  "answer": 0,
+  "explain": "A subagent isolates the bulky read in a fresh window and returns only a summary, protecting the main context. Pasting the full log bloats context, giving every worker the full log wastes tokens, and forcing JSON does not address context size.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Orchestration patterns: single agent, subagents, pipelines",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Single agent",
+  "stem": "A team's first instinct for a new feature is a five-agent system. What does the guidance recommend they try FIRST?",
+  "options": [
+   "A single agent with well-designed tools",
+   "A five-agent orchestrator-worker mesh",
+   "One agent per data source, always",
+   "A pipeline regardless of whether the work is parallel"
+  ],
+  "answer": 0,
+  "explain": "Start with a single agent with good tools; it has fewer moving parts and is easier to debug. Multi-agent meshes, per-source agents, and forced pipelines add coordination cost and are justified only by real context or parallelism needs.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Orchestration patterns: single agent, subagents, pipelines",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Subagents",
+  "stem": "What is the defining benefit of using a subagent?",
+  "options": [
+   "It isolates context, running in a fresh window and returning only a summary",
+   "It guarantees lower latency than a single agent in every case",
+   "It removes the need for tool allowlists",
+   "It shares the parent's full context window by reference"
+  ],
+  "answer": 0,
+  "explain": "A subagent's value is context isolation — a fresh window, a scoped task, a summary back. It does not always cut latency, does not replace allowlists, and specifically does not share the parent's full window.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Guardrails and autonomy: approvals, allowlists, stop conditions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "guard-reversibility", "point": "Autonomy rule",
+  "stem": "An architect is deciding which agent actions may run without approval. According to the guiding principle, autonomy should scale with what?",
+  "options": [
+   "Reversibility — the easier an action is to undo, the more it can be automated",
+   "The model's confidence score on that action",
+   "The number of tools available to the agent",
+   "The size of the context window"
+  ],
+  "answer": 0,
+  "explain": "The principle is that autonomy scales with reversibility: auto-run easily undone actions, gate irreversible ones. Confidence scores, tool count, and window size do not determine how safe automation is.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Guardrails and autonomy: approvals, allowlists, stop conditions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "guard-reversibility", "point": "Permission tiers",
+  "stem": "An agent can call a read-only list_orders tool and a destructive delete_order tool. What is the MOST appropriate permission design?",
+  "options": [
+   "Auto-run list_orders; require approval for delete_order",
+   "Auto-run both so the agent stays fast",
+   "Require approval for both, including the read",
+   "Deny both and disable the agent"
+  ],
+  "answer": 0,
+  "explain": "Tier by risk: read-only actions can run automatically, mutating or destructive ones require approval. Auto-running the delete is unsafe, gating a harmless read is needless friction, and denying both defeats the purpose.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Guardrails and autonomy: approvals, allowlists, stop conditions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Allowlists",
+  "stem": "A team wants to ensure an agent can never call a payment API, no matter what the model decides. What is the MOST reliable control?",
+  "options": [
+   "A tool allowlist that simply does not include the payment tool",
+   "A sentence in the prompt asking the model not to use it",
+   "A higher temperature to reduce risky calls",
+   "Trusting the model to restrain itself"
+  ],
+  "answer": 0,
+  "explain": "An allowlist constrains what can be called at all — if the payment tool is not on it, it cannot be invoked. A prompt request, temperature, and self-restraint are all non-deterministic and can be overridden by the model.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Guardrails and autonomy: approvals, allowlists, stop conditions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Stop conditions",
+  "stem": "An autonomous agent occasionally loops indefinitely, burning budget. Which control MOST directly prevents this?",
+  "options": [
+   "Max-iteration limits and budget stops",
+   "A longer system prompt",
+   "Forcing JSON output",
+   "Switching transports from stdio to HTTP"
+  ],
+  "answer": 0,
+  "explain": "Max-iteration caps and budget stops bound runaway loops directly. A longer prompt, forced JSON, and transport choice do nothing to halt an agent that keeps iterating.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Claude Agent SDK core abstractions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "sdk-vs-api", "point": "API vs SDK",
+  "stem": "An architect wants the agent loop, permission modes, hooks, and MCP connections handled for them rather than hand-built. Which is the MOST appropriate choice?",
+  "options": [
+   "The Claude Agent SDK, which packages the loop plus that tooling",
+   "The raw Messages API, implementing the loop themselves",
+   "The Batch API for asynchronous jobs",
+   "A single forced tool call"
+  ],
+  "answer": 0,
+  "explain": "The Agent SDK bundles the loop, permission modes, hooks, and MCP so you do not build them yourself. The Messages API makes you own the loop, the Batch API is for bulk async work, and a forced tool call is a single-call technique, not an agent runtime.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Claude Agent SDK core abstractions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "sdk-vs-api", "point": "API vs SDK",
+  "stem": "A developer chose the raw Messages API and is surprised they must write the tool-execution loop by hand. Which statement explains this correctly?",
+  "options": [
+   "The Messages API leaves the loop to you; the Agent SDK is what provides it",
+   "The Messages API runs the loop but only for MCP tools",
+   "Neither the Messages API nor the Agent SDK ever runs the loop",
+   "The Agent SDK removes the ability to define custom tools"
+  ],
+  "answer": 0,
+  "explain": "With the Messages API you own the loop; the Agent SDK supplies it. The Messages API does not run any loop, the SDK does run it, and the SDK still supports custom tool definitions.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Claude Agent SDK core abstractions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "What SDK packs",
+  "stem": "Which set of capabilities does the Claude Agent SDK package into one runtime?",
+  "options": [
+   "The agent loop, tool definitions, hooks, permission modes, MCP connections, and session management",
+   "Only a chat UI with no tool support",
+   "A database and a vector store",
+   "A billing dashboard and usage alerts"
+  ],
+  "answer": 0,
+  "explain": "The SDK packages the loop (query and client), tools, hooks, permission modes, MCP connections, and session management. It is not a UI, a datastore, or a billing product.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Claude Agent SDK core abstractions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Same harness",
+  "stem": "Why do agents built on the Claude Agent SDK inherit Claude Code's permission model and hooks?",
+  "options": [
+   "The SDK is built on the same harness that powers Claude Code",
+   "The SDK copies Claude Code's source into each project",
+   "The Claude Code CLI must be installed at runtime",
+   "The permission model is re-implemented differently in the SDK"
+  ],
+  "answer": 0,
+  "explain": "The SDK shares the harness underlying Claude Code, so it inherits the same permission model, hooks, and MCP integration. It does not copy source per project, does not require the CLI at runtime, and does not diverge in its permission model.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Tool schema design: descriptions, parameters, misuse resistance",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "tool-desc", "point": "When not what",
+  "stem": "An agent frequently calls the wrong tool among several similar ones. Which improvement to the tool descriptions will help MOST?",
+  "options": [
+   "State WHEN to use each tool, not just what it does",
+   "Make every description as short as possible",
+   "Give all of them the same generic description",
+   "Remove the descriptions and rely on the tool names"
+  ],
+  "answer": 0,
+  "explain": "Descriptions that say WHEN to reach for a tool disambiguate similar tools. Overly short, identical, or missing descriptions remove exactly the usage cues the model needs to choose correctly.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Tool schema design: descriptions, parameters, misuse resistance",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "tool-desc", "point": "When not what",
+  "stem": "A get_user tool has the description get a user, and the model keeps calling it needlessly. What is the BEST fix?",
+  "options": [
+   "Describe WHEN to call it — for example, only when you need a user's email or role by id",
+   "Rename it to fetch_user while keeping the same description",
+   "Raise the difficulty of the surrounding questions",
+   "Force the model to always call it first"
+  ],
+  "answer": 0,
+  "explain": "Adding WHEN-to-use guidance stops needless calls. Renaming keeps the same ambiguity, difficulty is unrelated, and forcing the call makes the overuse worse.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Tool schema design: descriptions, parameters, misuse resistance",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Few orthogonal",
+  "stem": "A toolset has five overlapping search tools and the model hesitates or picks inconsistently. What is the MOST appropriate redesign?",
+  "options": [
+   "Consolidate into a few orthogonal tools with clear, non-overlapping purposes",
+   "Add a sixth search tool to cover the gaps",
+   "Give all five the same name",
+   "Remove all search capability"
+  ],
+  "answer": 0,
+  "explain": "Few, orthogonal tools reduce the model's hesitation. Adding more overlap worsens it, identical names create ambiguity, and removing search throws out needed capability.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Tool schema design: descriptions, parameters, misuse resistance",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Actionable err",
+  "stem": "When a tool call fails on bad input, which return value BEST helps the model recover on its own?",
+  "options": [
+   "A structured error naming what went wrong and listing the valid options",
+   "A generic message that just says failed, with no detail",
+   "A silent empty result",
+   "A stack trace of the server's internals"
+  ],
+  "answer": 0,
+  "explain": "An actionable error (what failed, how to fix, valid values) lets the next call self-correct. A generic message, a silent empty result, and an internal stack trace give the model nothing useful to act on.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "MCP architecture: hosts, clients, servers, transports",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "mcp-roles", "point": "Three roles",
+  "stem": "In MCP, what is the relationship between a client and a server?",
+  "options": [
+   "One client connects to exactly one server (1:1), and the host holds multiple clients",
+   "One client multiplexes many servers at once",
+   "One server connects out to many clients (1:many)",
+   "Client and server are the same process"
+  ],
+  "answer": 0,
+  "explain": "MCP pairs one client to one server (1:1); the host application aggregates several clients, one per server. A single client does not multiplex servers, servers do not fan out to many clients, and client and server are distinct roles.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "MCP architecture: hosts, clients, servers, transports",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "mcp-roles", "point": "Transports",
+  "stem": "An architect connects a locally installed MCP server that runs as a subprocess. Which transport is the MOST appropriate?",
+  "options": [
+   "stdio, the transport for local servers",
+   "HTTP-based transport, which is required for all servers",
+   "A raw TCP socket defined by MCP",
+   "WebRTC, for lower latency"
+  ],
+  "answer": 0,
+  "explain": "stdio is MCP's transport for local subprocess servers; HTTP-based transport is for remote servers. MCP does not define a raw TCP or WebRTC transport for this case.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "MCP architecture: hosts, clients, servers, transports",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Why it matters",
+  "stem": "What is the central value MCP provides to integrations?",
+  "options": [
+   "A standard protocol, so one server works with any MCP-compatible host",
+   "A faster model inference engine",
+   "Automatic prompt caching for every request",
+   "A replacement for OAuth"
+  ],
+  "answer": 0,
+  "explain": "MCP standardizes integrations so a connector built once works across hosts. It is not an inference engine, not a caching feature, and not an auth replacement — remote servers still use OAuth.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Integrating external services: auth and error handling",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "ext-secrets", "point": "Secrets stay out",
+  "stem": "A team is wiring an agent to a third-party API. Where should the API secret live?",
+  "options": [
+   "Server-side in an environment variable, never in the prompt",
+   "In the system prompt so the model can authenticate",
+   "In a tool description, for convenience",
+   "In each user message that needs the tool"
+  ],
+  "answer": 0,
+  "explain": "Secrets belong server-side in environment variables; putting them in prompts, tool descriptions, or user messages leaks them into context, transcripts, and logs.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Integrating external services: auth and error handling",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "ext-secrets", "point": "OAuth scopes",
+  "stem": "A remote MCP server needs only to read calendar events. Which OAuth scoping is MOST appropriate?",
+  "options": [
+   "A least-privilege read-only calendar scope",
+   "Full account access, to avoid future changes",
+   "No OAuth, sharing a static admin token instead",
+   "Write access, in case it is needed later"
+  ],
+  "answer": 0,
+  "explain": "Least-privilege scoping limits blast radius if the token leaks. Full access, a shared admin token, and speculative write access all widen the risk unnecessarily.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Integrating external services: auth and error handling",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Error results",
+  "stem": "A downstream API returns HTTP 429. What is the MOST appropriate way for the tool to handle it?",
+  "options": [
+   "Return a structured error the model can read, such as rate_limited with a retry_after value",
+   "Throw an unhandled exception that crashes the agent loop",
+   "Silently return an empty success",
+   "Retry instantly in a tight loop forever"
+  ],
+  "answer": 0,
+  "explain": "Surfacing a structured rate-limit error lets the agent wait and retry sensibly. Crashing the loop, faking success, and hammering with instant retries all make the failure worse.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Settings hierarchy and permission modes",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "settings-precedence", "point": "Layer order",
+  "stem": "A project's .claude/settings.json allows a tool, but an enterprise-managed policy denies it. Which wins?",
+  "options": [
+   "The enterprise-managed policy — it sits at the top of the precedence order",
+   "The project settings — closest to the code wins",
+   "Whichever file was edited most recently",
+   "Neither; the conflict disables the tool for everyone"
+  ],
+  "answer": 0,
+  "explain": "Precedence is enterprise policy, then CLI flags, then local project, then project, then user, so the enterprise deny wins. Proximity to code, edit recency, and a mutual-cancel rule are not how precedence works.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Settings hierarchy and permission modes",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "settings-precedence", "point": "Layer order",
+  "stem": "A developer sets an allow rule in ~/.claude/settings.json (user), but the project's .claude/settings.json denies the same tool. What is the effective behavior?",
+  "options": [
+   "Denied — project settings sit above user settings in precedence",
+   "Allowed — user settings always take priority",
+   "Allowed — the most specific path wins, and the home directory is most specific",
+   "Undefined — the two rules cancel out"
+  ],
+  "answer": 0,
+  "explain": "Project settings outrank user settings, so the deny applies. User settings do not always win, the home directory is not treated as most specific, and the layers do not cancel.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Settings hierarchy and permission modes",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Four modes",
+  "stem": "An architect wants Claude Code to plan a change read-only, without editing files or running mutating commands. Which permission mode fits?",
+  "options": [
+   "plan",
+   "acceptEdits",
+   "bypassPermissions",
+   "default"
+  ],
+  "answer": 0,
+  "explain": "plan mode is read-only planning. acceptEdits auto-applies edits, bypassPermissions skips prompts entirely, and default merely asks on risky actions rather than staying read-only.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Settings hierarchy and permission modes",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Rule types",
+  "stem": "In a settings file, a rule reads deny with the specifier Bash(curl:*). What does this express?",
+  "options": [
+   "A deny rule matched by a tool name plus a specifier pattern",
+   "A shell alias that rewrites curl commands",
+   "A hook that runs before curl",
+   "An allowlist entry that permits curl"
+  ],
+  "answer": 0,
+  "explain": "Permission rules are allow, ask, or deny, matched by a tool plus an optional specifier like Bash(curl:*); here it denies matching curl calls. It is not an alias, a hook, or an allow entry.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "CLAUDE.md, skills, and hooks",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "must-should", "point": "Hooks vs prompts",
+  "stem": "A team requires that a linter run after every file edit, with no exceptions. What is the MOST appropriate mechanism?",
+  "options": [
+   "A PostToolUse hook, because it runs deterministically",
+   "A line in CLAUDE.md asking the model to lint",
+   "A skill the model may load when it seems relevant",
+   "A comment in the source files"
+  ],
+  "answer": 0,
+  "explain": "Hooks fire deterministically on lifecycle events, so a PostToolUse hook guarantees the lint. A CLAUDE.md request or a skill is advisory — the model can skip it — and a source comment does nothing automatically.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "CLAUDE.md, skills, and hooks",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "must-should", "point": "Hooks vs prompts",
+  "stem": "Which principle BEST captures when to use a hook versus a prompt instruction?",
+  "options": [
+   "Use a hook when it MUST happen, a prompt when it SHOULD",
+   "Use a hook for anything a prompt could also do",
+   "Use a prompt for security-critical steps",
+   "Hooks and prompts are interchangeable"
+  ],
+  "answer": 0,
+  "explain": "Hooks are for MUST (deterministic), prompts for SHOULD (advisory). Using hooks for everything is overkill, security-critical steps need the determinism of hooks not prompts, and the two are not interchangeable.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "CLAUDE.md, skills, and hooks",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "CLAUDE.md",
+  "stem": "An architect wants project conventions available in every Claude Code session automatically. Where do they belong?",
+  "options": [
+   "In CLAUDE.md, which loads each session and can import files via @path",
+   "In a skill that loads only when the model decides it is relevant",
+   "In a PreToolUse hook",
+   "In the user's shell profile"
+  ],
+  "answer": 0,
+  "explain": "CLAUDE.md is persistent per-session project context and supports @path imports. A skill loads on demand not always, a hook runs on tool events not as standing context, and a shell profile is unrelated to Claude Code context.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "CLAUDE.md, skills, and hooks",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Skills",
+  "stem": "A large body of specialized instructions is only needed occasionally. What is the MOST appropriate way to make it available without bloating every session?",
+  "options": [
+   "Package it as a skill (SKILL.md plus assets) the model loads on demand",
+   "Paste all of it into CLAUDE.md",
+   "Put it in a Stop hook",
+   "Inline it in every user message"
+  ],
+  "answer": 0,
+  "explain": "A skill is an on-demand instruction pack loaded when relevant, keeping base context lean. CLAUDE.md loads every session (bloat), a Stop hook is a lifecycle command not reference material, and inlining it everywhere wastes context.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Headless mode and CI/CD integration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "headless-scope", "point": "Print mode",
+  "stem": "An architect wants to run Claude Code inside a CI job, non-interactively. Which invocation is the starting point?",
+  "options": [
+   "claude -p with a prompt (print mode)",
+   "claude with no flags, waiting for interactive input",
+   "the Batch API",
+   "opening the desktop app inside CI"
+  ],
+  "answer": 0,
+  "explain": "claude -p (print mode) runs non-interactively and is the basis for automation. Interactive mode blocks in CI, the Batch API is an Anthropic API feature not the CLI, and the desktop app cannot run in a pipeline.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Headless mode and CI/CD integration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "headless-scope", "point": "Risk controls",
+  "stem": "A CI job runs claude -p to review pull requests. What is the MOST appropriate risk control?",
+  "options": [
+   "Scope it with --allowedTools to read and comment, not push or deploy",
+   "Grant full tool access so it can fix issues automatically",
+   "Run it in bypassPermissions with write access to production",
+   "Disable exit codes so failures do not stop the pipeline"
+  ],
+  "answer": 0,
+  "explain": "Scoping tools to read-and-comment prevents an unattended run from causing irreversible damage. Full access, bypass with production write, and hiding failures all remove the guardrails CI most needs.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Headless mode and CI/CD integration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Output formats",
+  "stem": "A pipeline needs to parse Claude Code's output programmatically. Which flag is MOST appropriate?",
+  "options": [
+   "--output-format json (or stream-json)",
+   "--verbose",
+   "--model",
+   "there is no machine-readable output"
+  ],
+  "answer": 0,
+  "explain": "--output-format json or stream-json yields machine-readable results for pipelines. --verbose and --model do not structure the output, and machine-readable output does exist.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Headless mode and CI/CD integration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "CI patterns",
+  "stem": "Which is a typical headless Claude Code automation pattern?",
+  "options": [
+   "Automated issue triage or PR review via GitHub Actions",
+   "Real-time voice chat with end users",
+   "Serving a public web page",
+   "Training a new base model"
+  ],
+  "answer": 0,
+  "explain": "Issue triage, PR review, and scheduled jobs (often via GitHub Actions) are typical headless patterns. Voice chat, web serving, and model training are not what headless Claude Code is for.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "System prompts and instruction hierarchy",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "sysprompt-place", "point": "System vs user",
+  "stem": "An architect is designing a support bot. Where should the role, tone, and output-format rules live?",
+  "options": [
+   "In the system prompt, with only the specific ticket text in the user message",
+   "In the user message, rebuilt on every request",
+   "Split at random between system and user",
+   "In a tool description"
+  ],
+  "answer": 0,
+  "explain": "Durable role, tone, and format rules belong in the system prompt; the user turn carries the task (the ticket). Rebuilding them per request breaks caching and authority, random splitting is arbitrary, and a tool description is the wrong place.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "System prompts and instruction hierarchy",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "sysprompt-place", "point": "Cache order",
+  "stem": "To make a long, stable instruction block cache-friendly across requests, where should it sit relative to volatile per-request data?",
+  "options": [
+   "Early, before the volatile content, so the prefix stays identical",
+   "After the volatile content, at the end of the prompt",
+   "Interleaved with the volatile content",
+   "Placement does not matter for caching"
+  ],
+  "answer": 0,
+  "explain": "Prompt caching needs an identical prefix, so stable content goes first and volatile content last. Placing it after or interleaving it changes the prefix each call and misses cache hits; ordering very much matters.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "System prompts and instruction hierarchy",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Conflicts",
+  "stem": "Within a single turn, the system prompt says reply in JSON but the user message says reply in plain prose. How does the instruction hierarchy resolve this?",
+  "options": [
+   "Toward the system prompt — it holds the higher authority",
+   "Toward the user message — the latest instruction wins",
+   "The request errors out",
+   "The model picks one at random each time"
+  ],
+  "answer": 0,
+  "explain": "Conflicts resolve toward system over user within a turn. It is not last-wins, it does not error, and it is not random — system-level instructions carry higher authority.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "System prompts and instruction hierarchy",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Structure it",
+  "stem": "An architect wants the model to clearly separate context from the task and return a specific shape. Which technique is recommended?",
+  "options": [
+   "Use XML tags to structure sections and state an explicit output contract",
+   "Remove all structure and write one long paragraph",
+   "Rely on the model to guess the format",
+   "Put everything in ALL CAPS"
+  ],
+  "answer": 0,
+  "explain": "XML tags plus an explicit output contract make structure and expected shape clear. A single unstructured paragraph, guessing, and all-caps do not reliably convey structure.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Structured output: JSON mode and forced tool use",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "forced-tool", "point": "Forced tool use",
+  "stem": "An architect needs guaranteed, schema-valid JSON from every call. Which approach is the MOST reliable?",
+  "options": [
+   "Force tool_choice to a specific named tool whose schema defines the output",
+   "Ask for JSON in the prompt and parse whatever comes back",
+   "Raise max_tokens so the JSON is not truncated",
+   "Lower temperature to 0 and hope for valid JSON"
+  ],
+  "answer": 0,
+  "explain": "Forcing a specific tool makes the model return arguments validated against that tool's JSON Schema — the most reliable structured output. Prose requests, higher token limits, and low temperature reduce but do not remove the risk of malformed output.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Structured output: JSON mode and forced tool use",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "forced-tool", "point": "Forced tool use",
+  "stem": "A pipeline must extract fields into a fixed schema with zero tolerance for stray prose. What BEST guarantees the shape?",
+  "options": [
+   "Define a tool with that schema and set tool_choice to force it",
+   "Append please output only JSON to the user turn",
+   "Use a stop sequence of a closing brace",
+   "Add few-shot examples until it looks perfect"
+  ],
+  "answer": 0,
+  "explain": "A forced tool call validates arguments against the schema, so no stray prose leaks. A polite instruction, a brace stop sequence, and more examples all improve the odds but cannot guarantee the shape the way a forced schema does.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Structured output: JSON mode and forced tool use",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "When not force",
+  "stem": "For an open-ended brainstorming task that needs free-form reasoning, is forcing a rigid JSON schema advisable?",
+  "options": [
+   "No — rigid structure suppresses the open reasoning you want",
+   "Yes — always force a schema for every task",
+   "Yes — schemas make brainstorming more creative",
+   "It has no effect either way"
+  ],
+  "answer": 0,
+  "explain": "Forcing a schema on open-ended reasoning constrains the thinking you are after, so it is not advisable there. Forcing schemas is not universally right, does not boost creativity, and does affect the output.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Structured output: JSON mode and forced tool use",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Validate retry",
+  "stem": "Despite guidance, a small fraction of responses still fail to parse as valid JSON. What is the MOST appropriate production handling?",
+  "options": [
+   "Validate the output and retry on failure, treating it as recoverable",
+   "Crash the job on the first parse error",
+   "Log the error and silently drop the record",
+   "Disable structured output entirely"
+  ],
+  "answer": 0,
+  "explain": "Validate-then-retry treats a parse failure as recoverable and keeps throughput. Crashing is brittle, silently dropping loses data, and disabling structured output abandons the requirement.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Few-shot, chain-of-thought, and eval-driven iteration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "format-examples", "point": "Few-shot format",
+  "stem": "A model follows the desired output format inconsistently despite a detailed written description. What is the MOST effective next step?",
+  "options": [
+   "Add two or three worked examples of the exact format",
+   "Make the written description twice as long",
+   "Raise temperature to encourage variety",
+   "Switch to a smaller model"
+  ],
+  "answer": 0,
+  "explain": "For format, examples beat instructions — a few worked examples convey shape better than prose. A longer description, higher temperature (more variety), and a smaller model do not reliably fix format adherence.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Few-shot, chain-of-thought, and eval-driven iteration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "format-examples", "point": "Avoid overfit",
+  "stem": "An architect tunes a prompt against a single example until it works perfectly, then sees regressions elsewhere. What went wrong?",
+  "options": [
+   "The prompt overfit to one example instead of the general pattern",
+   "The example was too short",
+   "The temperature was too low",
+   "The model lacked a tool allowlist"
+  ],
+  "answer": 0,
+  "explain": "Optimizing against one example overfits to that case and regresses on unseen ones; a small eval set of real failures prevents this. Example length, temperature, and allowlists are not the cause.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Few-shot, chain-of-thought, and eval-driven iteration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "When to think",
+  "stem": "A task involves hard, multi-step reasoning. What is the trade-off of enabling chain-of-thought or extended thinking?",
+  "options": [
+   "Better reasoning at the cost of more tokens and latency",
+   "Worse reasoning but lower cost",
+   "No change in either quality or cost",
+   "It affects only formatting, not reasoning"
+  ],
+  "answer": 0,
+  "explain": "Extended thinking improves hard reasoning but spends more tokens and time, so use it where problems are genuinely hard. It does not worsen reasoning, is not cost-free, and affects reasoning not just formatting.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Few-shot, chain-of-thought, and eval-driven iteration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Eval loop",
+  "stem": "What is the recommended way to improve a prompt systematically rather than by guesswork?",
+  "options": [
+   "Build a small eval set from real failures and iterate prompt, then eval, then prompt",
+   "Ship each change straight to production and watch for complaints",
+   "Judge quality from a single output each time",
+   "Never change the prompt once it is written"
+  ],
+  "answer": 0,
+  "explain": "An eval-driven loop (prompt, then eval, then prompt) measures each change against real failures. Shipping blind, judging by one output, and freezing the prompt all skip measurement.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Context windows and prompt caching",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "cache-prefix", "point": "Cache breakpoint",
+  "stem": "A team enables prompt caching but sees almost no cache hits. They prepend a per-request timestamp to the prompt. What is the MOST likely cause?",
+  "options": [
+   "The changing timestamp alters the prefix, and a cache hit needs an identical prefix",
+   "Caching only works with the Batch API",
+   "The context window is too large to cache",
+   "Cache hits require temperature 0"
+  ],
+  "answer": 0,
+  "explain": "A cache hit needs a byte-identical prefix; a leading timestamp changes it every call, so nothing hits. Caching is independent of the Batch API, is not blocked by window size, and does not depend on temperature.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Context windows and prompt caching",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "cache-prefix", "point": "Order matters",
+  "stem": "To maximize cache hits, how should content be ordered in the prompt?",
+  "options": [
+   "Stable content first, volatile content last",
+   "Volatile content first, so it is easy to update",
+   "Randomly, since order is irrelevant",
+   "Largest content last, regardless of stability"
+  ],
+  "answer": 0,
+  "explain": "Ordering stable-to-volatile keeps the cached prefix intact for reuse. Putting volatile content first busts the prefix, order is not irrelevant, and sorting by size ignores what actually matters, which is stability.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Context windows and prompt caching",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "TTL and cost",
+  "stem": "Which statement about Claude prompt-caching economics is correct?",
+  "options": [
+   "Default TTL is about 5 minutes (refreshing on use); reads cost roughly 0.1x and writes roughly 1.25x of base input",
+   "Cache entries last forever once written",
+   "Cache reads cost more than cache writes",
+   "Caching doubles the cost of every request"
+  ],
+  "answer": 0,
+  "explain": "The default cache TTL is about 5 minutes, refreshing on use, with reads near 0.1x and writes near 1.25x of base input. Entries expire, reads are cheaper than writes, and caching lowers cost on hits rather than doubling it.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Long conversations: compaction, externalization, retrieval",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "longconv", "point": "Firewalls",
+  "stem": "A long agent session risks overflowing its window because a subtask must read many large files. What is the MOST appropriate design?",
+  "options": [
+   "Delegate the reading to a subagent that returns a summary, acting as a context firewall",
+   "Keep appending every file to the main context",
+   "Raise the temperature to compress the input",
+   "Disable prompt caching"
+  ],
+  "answer": 0,
+  "explain": "A subagent firewalls context: it absorbs the bulky reads in its own window and returns a summary. Appending everything overflows the window, temperature does not compress input, and caching is unrelated to window size.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Long conversations: compaction, externalization, retrieval",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "longconv", "point": "Externalize",
+  "stem": "An agent must track evolving project state across a very long session without carrying it all in context. What is the MOST appropriate approach?",
+  "options": [
+   "Externalize state to files or a database and retrieve only what each step needs",
+   "Keep the entire state inline and resend it every turn",
+   "Store the state only in the system prompt",
+   "Rely on the model to remember it implicitly"
+  ],
+  "answer": 0,
+  "explain": "Externalizing state and retrieving on demand keeps the window lean. Resending everything bloats context, the system prompt is not a mutable store, and implicit memory is unreliable across a long session.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Long conversations: compaction, externalization, retrieval",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Compaction",
+  "stem": "As a conversation grows too long, what does compaction do?",
+  "options": [
+   "Summarizes older turns into a shorter form, keeping the gist and current state",
+   "Deletes the system prompt to save space",
+   "Doubles the context window automatically",
+   "Switches the model to the Batch API"
+  ],
+  "answer": 0,
+  "explain": "Compaction summarizes older turns while preserving the gist and current state. It does not delete the system prompt, cannot enlarge the window, and is unrelated to the Batch API.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Production reliability: retries, rate limits, batching, fallback",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "reliability-retry", "point": "Backoff jitter",
+  "stem": "A production service hits HTTP 429 and 529 responses under load. What is the MOST appropriate retry strategy?",
+  "options": [
+   "Exponential backoff with jitter, honoring the retry-after header",
+   "Immediate fixed-interval retries with no delay",
+   "Retry once, then give up permanently",
+   "Switch every failing call to the Batch API synchronously"
+  ],
+  "answer": 0,
+  "explain": "Backoff with jitter plus retry-after spreads load and respects server guidance. Instant fixed retries synchronize and worsen limits, one-and-done drops recoverable work, and the Batch API is async bulk, not a synchronous fallback.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Production reliability: retries, rate limits, batching, fallback",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "reliability-retry", "point": "Idempotency",
+  "stem": "A request times out and is retried, but the operation may already have applied. What property prevents a double effect?",
+  "options": [
+   "Idempotency, so a repeated operation applies at most once",
+   "A larger context window",
+   "Forced tool use",
+   "A longer system prompt"
+  ],
+  "answer": 0,
+  "explain": "Idempotent operations can be safely retried without double-applying. Window size, forced tool use, and prompt length have nothing to do with retry safety.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Production reliability: retries, rate limits, batching, fallback",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Batch API",
+  "stem": "An architect must classify 200K records overnight with no latency requirement, at lower cost. Which is the MOST appropriate choice?",
+  "options": [
+   "The Batch API — asynchronous, within 24 hours, about 50% cheaper",
+   "The synchronous Messages API, one request per record in real time",
+   "Forced tool use on a single call",
+   "A streaming endpoint for live updates"
+  ],
+  "answer": 0,
+  "explain": "Non-interactive bulk work fits the Batch API: asynchronous, up to 24 hours, about 50% cheaper. Real-time synchronous calls are costlier and slower here, forced tool use is a single-call technique, and streaming targets live interaction.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Production reliability: retries, rate limits, batching, fallback",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Fallback obs",
+  "stem": "To keep a Claude-based service observable and resilient, which practice is MOST appropriate?",
+  "options": [
+   "Maintain a model fallback chain and log stop_reason and usage on every call",
+   "Log nothing, to reduce overhead",
+   "Depend on a single model with no fallback",
+   "Track only wall-clock time, ignoring stop_reason and token usage"
+  ],
+  "answer": 0,
+  "explain": "Fallback chains handle outages, and logging stop_reason and usage reveals truncation and cost. Logging nothing, relying on one model, and ignoring stop_reason and usage all leave the service blind and brittle.",
+  "source": "skills/questions@opus"
+ }
+]
