@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>动词变形实验室 · 学习中心</title>
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="../../data/model.js"></script>
+  <script src="../../data/catalog.js"></script>
+  <script defer src="../../assets/page.js" data-page-id="ja-verb-forms"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="inner">
+      <nav class="breadcrumb" data-breadcrumb></nav>
+      <a class="home-btn" data-home href="../../index.html">🏠 返回首页</a>
+    </div>
+  </div>
+
+  <article class="page">
+    <header class="page-header">
+      <div class="kicker" data-kicker>日语 · 动词变形</div>
+      <h1>动词变形实验室</h1>
+      <div class="meta-row" data-meta>
+        <span>🎮 交互</span> · <span>难度 ●●○</span> · <span>亲手拨弄,看变形怎么发生</span>
+      </div>
+    </header>
+
+    <p>日语动词最劝退的一步,就是「变形」。卡片里那张 て形／た形／ない形 的规则表,横一列竖一列,看着像天书。这一页换个法子:不背表,而是让你<b>点一下动词、选一个目标形,亲眼看它一步步变过去</b>——先判它是哪一类,再套哪条规则,最后拼出结果。玩过几遍,你会发现所谓「变形」其实就是<u>换词尾</u>这一件事。</p>
+
+    <h2>1. 为什么日语动词非变形不可</h2>
+    <p>中文表达时态和语气,靠的是加字和调语序:「<b>请</b>坐」「<b>在</b>吃」「吃<b>了</b>」——动词「坐、吃」本身一个字都不动,前后添个「请、在、了」就够了。日语反过来:这些意思<u>全塞进动词自己的形态里</u>。动词像变色龙,后面要接什么、要表达什么语气,它就换一身皮。你只会辞书形(词典里那个原形),就等于只会说光秃秃一个动作,请求、否定、过去、正在,一个都说不出口。</p>
+
+    <div class="box example">
+      <div class="box-title">🪄 三个「话到嘴边说不出」的场景</div>
+      <p style="margin:6px 0">① 想请客人「<b>请坐</b>」,你却只会 <b>座る（すわる）</b>。可 座る 只是"坐"这个动作摆在那,不成一句话。要变成 <b>座ってください</b>,才是"请坐"。</p>
+      <p style="margin:6px 0">② 想说「我<b>正在</b>吃饭」,你只会 <b>食べる（たべる）</b>。对方听到的只是"吃",分不清你是要吃、在吃、还是吃过了。要变成 <b>食べています</b>,才是"正在吃"。</p>
+      <p style="margin:6px 0">③ 想说「昨天<b>喝了</b>咖啡」,你只会 <b>飲む（のむ）</b>。少了"了"那层"已经发生"的意思。要变成 <b>飲みました</b> 或 <b>飲んだ</b>,才带得出过去。</p>
+    </div>
+
+    <div class="box key">
+      <div class="box-title">🔑 一句话抓住它</div>
+      <p style="margin:6px 0">中文把语气加在动词<b>外面</b>(请／在／了),日语把它拧进动词<b>里面</b>。所以学日语动词 = 学它<b>换词尾</b>的几套规律。换对了词尾,请求、正在、过去、否定就都有了。</p>
+    </div>
+
+    <h2>2. 变形前,先把动词分成三类</h2>
+    <p>所有变形规则都<b>看类别下菜</b>,所以第一步永远是判类——判错了,后面全错。日语动词只分三类,而且第三类只有两个词:</p>
+    <div class="box">
+      <div style="overflow-x:auto">
+      <table>
+        <tr><th>类型</th><th>怎么认出来</th><th>例子</th></tr>
+        <tr>
+          <td><b>一段</b><br><span style="font-size:.8rem;color:var(--text-faint)">去る动词</span></td>
+          <td>词尾是 <b>る</b>,而且 る 前面那个音在 <b>い段</b> 或 <b>え段</b></td>
+          <td>食べる（たべる·べ在え段）、見る（みる·み在い段）、起きる（おきる）</td>
+        </tr>
+        <tr>
+          <td><b>五段</b><br><span style="font-size:.8rem;color:var(--text-faint)">其余全是</span></td>
+          <td>以 <b>う段</b> 结尾的其余动词(う/く/ぐ/す/つ/ぬ/ぶ/む/る),包括「る 前面不是い/え段」的</td>
+          <td>飲む（のむ）、書く（かく）、買う（かう）、帰る（かえる·别被る骗了)</td>
+        </tr>
+        <tr>
+          <td><b>不规则</b><br><span style="font-size:.8rem;color:var(--text-faint)">只有两个</span></td>
+          <td>没有规律,死记这两个就行</td>
+          <td>する（做）、来る（くる·来）</td>
+        </tr>
+      </table>
+      </div>
+      <p style="margin:8px 0 2px;font-size:.9rem;color:var(--text-soft)">注意 <b>帰る（かえる）</b>:结尾是「える」,长得像一段,其实是<b>五段</b>——这种"披着一段皮的五段"是最大的坑,第 6 节专门讲。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎮 Lab A 变形机:点动词,看它一步步变过去</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">先在下面挑<b>一个动词</b>,再选<b>目标形</b>(て形／た形／ない形／ます形),中间那块会像流水线一样演示三步:<b>①判类</b>(高亮它的词尾)→ <b>②套哪条规则</b> → <b>③变形结果</b>。多换几个动词、多切几种形,你会发现同一组词尾走的是同一条路。</p>
+
+      <div id="jvf-a-verbs" style="display:flex; flex-wrap:wrap; gap:7px; margin-top:14px"></div>
+
+      <div id="jvf-a-forms" style="display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 0"></div>
+
+      <div id="jvf-a-out" style="margin-top:16px; padding:18px 20px; background:var(--bg); border-radius:10px; min-height:150px; display:flex; flex-direction:column; gap:12px; justify-content:center">
+        <span style="color:var(--text-faint)">先点上面一个动词,再选目标形,流水线就出现在这里 👇</span>
+      </div>
+    </div>
+
+    <h2>3. 四种最常用的变形,先混个脸熟</h2>
+    <p>上面变形机里那四个目标形,是 N4 阶段最常打交道的:</p>
+    <div class="box">
+      <p style="margin:6px 0"><b>ます形</b> —— 礼貌体,对不熟的人、正式场合用。飲む→飲みます（のみます)。</p>
+      <p style="margin:6px 0"><b>て形</b> —— "万能中转站":请求、正在、许可、禁止、连接动作全靠它(下一节专门玩)。飲む→飲んで（のんで)。</p>
+      <p style="margin:6px 0"><b>た形</b> —— 过去/完成,"做了"。和て形<u>规则完全一样</u>,只把 て→た、で→だ。飲む→飲んだ。</p>
+      <p style="margin:6px 0"><b>ない形</b> —— 否定,"不做"。飲む→飲まない。</p>
+      <p style="margin:8px 0 2px;color:var(--text-soft);font-size:.9rem">记住一条省力口诀:<b>会了て形,た形白送</b>——把て换成た就行,不用重学一套。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-title">🎮 Lab B て形用途切换台:一个变形,五种用法</div>
+      <p style="margin:0 0 4px; color:var(--text-soft); font-size:.92rem">选<b>一个动词</b>,再点不同<b>用途</b>,下面会实时拼出<b>完整句子 + 中文 + 什么场合用</b>。你会一眼看懂:て形不是为了变而变,而是为了说出<b>请求、正在、求许可、禁止、先后动作</b>这些真话。</p>
+
+      <div id="jvf-b-verbs" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px"></div>
+      <div id="jvf-b-uses" style="display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 0"></div>
+
+      <div id="jvf-b-out" style="margin-top:16px; padding:18px 20px; background:var(--bg); border-radius:10px; min-height:130px; display:flex; flex-direction:column; gap:12px; justify-content:center">
+        <span style="color:var(--text-faint)">选个动词、点个用途,完整句子就出现在这里 👇</span>
+      </div>
+    </div>
+
+    <h2>4. 一表总览:四形对照(手机可横滑)</h2>
+    <p>玩过两个 Lab 再看这张表,就不再是天书了——每一行是一"组",组内所有动词走同样的词尾变化。手机上表格放不下时,<b>按住往左滑</b>。</p>
+    <div class="box key">
+      <div style="overflow-x:auto">
+      <table style="min-width:560px">
+        <tr>
+          <th>类型 / 词尾组</th>
+          <th>辞书形</th>
+          <th>ます形<br><span style="font-weight:400;font-size:.78rem;color:var(--text-faint)">礼貌</span></th>
+          <th>て形<br><span style="font-weight:400;font-size:.78rem;color:var(--text-faint)">中转</span></th>
+          <th>た形<br><span style="font-weight:400;font-size:.78rem;color:var(--text-faint)">过去</span></th>
+          <th>ない形<br><span style="font-weight:400;font-size:.78rem;color:var(--text-faint)">否定</span></th>
+        </tr>
+        <tr><td>五段 <b>う·つ·る</b></td><td>買う（かう）</td><td>買います</td><td>買っ<b>て</b></td><td>買っ<b>た</b></td><td>買わ<b>ない</b></td></tr>
+        <tr><td>五段 <b>む·ぶ·ぬ</b></td><td>飲む（のむ）</td><td>飲みます</td><td>飲ん<b>で</b></td><td>飲ん<b>だ</b></td><td>飲ま<b>ない</b></td></tr>
+        <tr><td>五段 <b>く</b></td><td>書く（かく）</td><td>書きます</td><td>書い<b>て</b></td><td>書い<b>た</b></td><td>書か<b>ない</b></td></tr>
+        <tr><td>五段 <b>ぐ</b></td><td>泳ぐ（およぐ）</td><td>泳ぎます</td><td>泳い<b>で</b></td><td>泳い<b>だ</b></td><td>泳が<b>ない</b></td></tr>
+        <tr><td>五段 <b>す</b></td><td>話す（はなす）</td><td>話します</td><td>話し<b>て</b></td><td>話し<b>た</b></td><td>話さ<b>ない</b></td></tr>
+        <tr><td><b>一段</b>(去る)</td><td>食べる（たべる）</td><td>食べます</td><td>食べ<b>て</b></td><td>食べ<b>た</b></td><td>食べ<b>ない</b></td></tr>
+        <tr><td>不规则</td><td>する</td><td>します</td><td>して</td><td>した</td><td>しない</td></tr>
+        <tr><td>不规则</td><td>来る（くる）</td><td>来ます（きます）</td><td>来て（きて）</td><td>来た（きた）</td><td>来ない（こない）</td></tr>
+        <tr><td style="color:#c0392b">例外</td><td>行く（いく）</td><td>行きます</td><td>行っ<b>て</b></td><td>行っ<b>た</b></td><td>行かない</td></tr>
+      </table>
+      </div>
+      <p style="margin:10px 0 2px;font-size:.9rem;color:var(--text-soft)">看最后一行:<b>行く</b> 本该走「く→いて」,却偏偏是 <b>行って</b>——全表就这一个例外,单独记住它。</p>
+    </div>
+
+    <h2>5. 试一试</h2>
+    <div class="box">
+      <div class="box-title">✏️ 判类 + 变形(先盖住答案自己做)</div>
+      <p style="margin:6px 0">先判它是几类,再变到目标形。填完可以回到上面的变形机里对一遍。</p>
+      <p style="margin:10px 0; line-height:2.1">
+        1. 書く（かく·写)→ <b>て形</b> = __________<br>
+        2. 見る（みる·看)→ <b>ない形</b> = __________<br>
+        3. 帰る（かえる·回家)→ <b>ます形</b> = __________<br>
+        4. 泳ぐ（およぐ·游泳)→ <b>た形</b> = __________<br>
+        5. する（做)→ <b>て形</b> = __________
+      </p>
+      <p style="margin:12px 0 4px"><b>答案:</b><span style="color:#888">(确认写完再看)</span></p>
+      <p style="margin:4px 0; line-height:1.9">
+        1. <b>書いて（かいて)</b>——五段·く→いて &nbsp;&nbsp;
+        2. <b>見ない（みない)</b>——一段·去る加ない<br>
+        3. <b>帰ります（かえります)</b>——是<u>五段</u>!る→り加ます,不是「帰ます」 &nbsp;&nbsp;
+        4. <b>泳いだ（およいだ)</b>——五段·ぐ→いで,た形浊音是<b>だ</b><br>
+        5. <b>して</b>——不规则,死记
+      </p>
+    </div>
+
+    <h2>6. 最容易栽的几个坑</h2>
+    <div class="box warn">
+      <div class="box-title">⚠️ 这几个错一抓一个准</div>
+      <p style="margin:6px 0">1. <b>一段被当成五段去套音便。</b>食べる（たべる)是一段,て形只是去る加て = <b>食べて</b>,不是「食べって／食べんで」。凡是「い段/え段 + る」的动词都这么干净,别给它套五段的音便。</p>
+      <p style="margin:6px 0">2. <b>「披着一段皮的五段」。</b>帰る（かえる)、入る（はいる·进)、走る（はしる·跑)、知る（しる·知道)——结尾都是「〜いる／〜える」,看着像一段,其实全是<b>五段</b>:帰って(不是帰て)、走って(不是走て)。这类高频词只能一个个记住。反过来,見る／食べる 才是<u>真</u>一段。</p>
+      <p style="margin:6px 0">3. <b>行く 是唯一例外。</b>按 く→いて 该变「行いて」,但它偏是 <b>行って（いって)</b>、た形 <b>行った</b>。全表就这一个不守规矩,单独背。</p>
+      <p style="margin:6px 0">4. <b>く 和 ぐ 的清浊别混。</b><b>く→いて</b>(清音,書いて)、<b>ぐ→いで</b>(浊音,泳いで);た形同理 書いた／泳いだ。差一个浊点,别把 泳ぐ 写成「泳いて」。</p>
+    </div>
+
+    <p style="margin-top:14px">动词变形不是要你死记一张表,而是养成一个反射:<b>看到动词先判类,再按类换词尾。</b>把上面两个 Lab 当玩具多拨几遍,等你不用想就能说出「座ってください」「食べています」,这一关就算过了。</p>
+
+    <section class="related">
+      <h2>🔗 相关知识点</h2>
+      <div class="related-grid" data-related></div>
+    </section>
+  </article>
+
+  <!-- ============ Lab A 变形机 ============ -->
+  <script>
+  (function(){
+    var verbsBox = document.getElementById('jvf-a-verbs');
+    var formsBox = document.getElementById('jvf-a-forms');
+    var out      = document.getElementById('jvf-a-out');
+    if(!verbsBox || !out) return;
+
+    // 词尾映射(五段)
+    var TE   = {'う':'って','つ':'って','る':'って','む':'んで','ぶ':'んで','ぬ':'んで','く':'いて','ぐ':'いで','す':'して'};
+    var TA   = {'う':'った','つ':'った','る':'った','む':'んだ','ぶ':'んだ','ぬ':'んだ','く':'いた','ぐ':'いだ','す':'した'};
+    var NAI  = {'う':'わ','つ':'た','る':'ら','む':'ま','ぶ':'ば','ぬ':'な','く':'か','ぐ':'が','す':'さ'};
+    var MASU = {'う':'い','つ':'ち','る':'り','む':'み','ぶ':'び','ぬ':'に','く':'き','ぐ':'ぎ','す':'し'};
+    var GRP_TE = {'って':'う・つ・る → って','んで':'む・ぶ・ぬ → んで','いて':'く → いて','いで':'ぐ → いで','して':'す → して'};
+
+    // g=五段 / i=一段 / irr=不规则。end=五段词尾;iku=行く例外;forms=不规则硬编码
+    var VERBS = [
+      { k:'飲む', r:'のむ',   m:'喝',   t:'g', end:'む' },
+      { k:'書く', r:'かく',   m:'写',   t:'g', end:'く' },
+      { k:'読む', r:'よむ',   m:'读',   t:'g', end:'む' },
+      { k:'聞く', r:'きく',   m:'听',   t:'g', end:'く' },
+      { k:'買う', r:'かう',   m:'买',   t:'g', end:'う' },
+      { k:'会う', r:'あう',   m:'见面', t:'g', end:'う' },
+      { k:'話す', r:'はなす', m:'说',   t:'g', end:'す' },
+      { k:'待つ', r:'まつ',   m:'等',   t:'g', end:'つ' },
+      { k:'立つ', r:'たつ',   m:'站',   t:'g', end:'つ' },
+      { k:'泳ぐ', r:'およぐ', m:'游泳', t:'g', end:'ぐ' },
+      { k:'遊ぶ', r:'あそぶ', m:'玩',   t:'g', end:'ぶ' },
+      { k:'死ぬ', r:'しぬ',   m:'死',   t:'g', end:'ぬ' },
+      { k:'作る', r:'つくる', m:'做',   t:'g', end:'る' },
+      { k:'帰る', r:'かえる', m:'回家', t:'g', end:'る' },
+      { k:'行く', r:'いく',   m:'去',   t:'g', end:'く', iku:true },
+      { k:'食べる', r:'たべる', m:'吃',  t:'i' },
+      { k:'見る', r:'みる',   m:'看',   t:'i' },
+      { k:'起きる', r:'おきる', m:'起床', t:'i' },
+      { k:'寝る', r:'ねる',   m:'睡觉', t:'i' },
+      { k:'教える', r:'おしえる', m:'教', t:'i' },
+      { k:'する', r:'する', m:'做', t:'irr',
+        forms:{ te:['して','して'], ta:['した','した'], nai:['しない','しない'], masu:['します','します'] } },
+      { k:'来る', r:'くる', m:'来', t:'irr',
+        forms:{ te:['来て','きて'], ta:['来た','きた'], nai:['来ない','こない'], masu:['来ます','きます'] } }
+    ];
+
+    var FORMS = [
+      { key:'te',   label:'て形', sub:'中转/请求', color:'#e67e22' },
+      { key:'ta',   label:'た形', sub:'过去了',    color:'#8e44ad' },
+      { key:'nai',  label:'ない形', sub:'不…否定', color:'#e2524a' },
+      { key:'masu', label:'ます形', sub:'礼貌',    color:'#27ae60' }
+    ];
+    var FNAME = { te:'て形', ta:'た形', nai:'ない形', masu:'ます形' };
+    var ISUF  = { te:'て', ta:'た', nai:'ない', masu:'ます' };
+
+    var curVerb = null, curForm = 'te';
+
+    // 返回 [显示形, 假名形]
+    function conj(v, f){
+      if(v.t === 'irr') return v.forms[f];
+      var dRoot = v.k.slice(0,-1), kRoot = v.r.slice(0,-1);
+      if(v.t === 'i'){ return [dRoot + ISUF[f], kRoot + ISUF[f]]; }
+      if(v.iku){ var mm = { te:'って', ta:'った', nai:'かない', masu:'きます' }[f]; return [dRoot + mm, kRoot + mm]; }
+      var suf;
+      if(f === 'te') suf = TE[v.end];
+      else if(f === 'ta') suf = TA[v.end];
+      else if(f === 'nai') suf = NAI[v.end] + 'ない';
+      else suf = MASU[v.end] + 'ます';
+      return [dRoot + suf, kRoot + suf];
+    }
+
+    function pathInfo(v, f){
+      if(v.t === 'irr')
+        return { type:'不规则动词', rule:v.k + ' 没有规律,' + FNAME[f] + '直接背下来', hi:'' };
+      if(v.t === 'i')
+        return { type:'一段动词(去る动词)', rule:'去掉词尾 る,直接加 ' + ISUF[f], hi:'る' };
+      if(v.iku && (f === 'te' || f === 'ta'))
+        return { type:'五段动词 · 行く例外', rule:'行く 是全表唯一例外:不按 く→いて,而是 → ' + (f === 'te' ? 'って' : 'った'), hi:'く' };
+      if(f === 'te') return { type:'五段动词', rule:GRP_TE[TE[v.end]], hi:v.end };
+      if(f === 'ta') return { type:'五段动词', rule:'和て形一样,再把 て→た、で→だ(' + GRP_TE[TE[v.end]] + ')', hi:v.end };
+      if(f === 'nai') return { type:'五段动词', rule:'词尾 ' + v.end + ' → あ段「' + NAI[v.end] + '」,再加 ない', hi:v.end };
+      return { type:'五段动词', rule:'词尾 ' + v.end + ' → い段「' + MASU[v.end] + '」,再加 ます', hi:v.end };
+    }
+
+    // 词尾高亮(只高亮辞书形最后一个假名)
+    function markEnd(str, ch){
+      if(!ch) return str;
+      var i = str.lastIndexOf(ch);
+      if(i < 0) return str;
+      return str.slice(0, i)
+        + '<span style="background:#e2524a;color:#fff;font-weight:800;padding:0 4px;border-radius:5px">' + ch + '</span>'
+        + str.slice(i + ch.length);
+    }
+
+    function step(n, title, bodyHtml, color){
+      return '<div style="display:flex;gap:10px;align-items:flex-start">'
+        + '<span style="flex:none;width:22px;height:22px;border-radius:50%;background:' + color + ';color:#fff;font-size:.8rem;font-weight:800;display:flex;align-items:center;justify-content:center">' + n + '</span>'
+        + '<div style="flex:1;min-width:0"><div style="font-size:.78rem;color:var(--text-faint);font-weight:700">' + title + '</div>'
+        + '<div style="font-size:1rem;line-height:1.6;margin-top:2px">' + bodyHtml + '</div></div></div>';
+    }
+
+    function render(){
+      if(!curVerb){ return; }
+      var v = curVerb, f = curForm;
+      var meta = FORMS.filter(function(x){ return x.key === f; })[0];
+      var info = pathInfo(v, f);
+      var res = conj(v, f);
+
+      var head = '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+        + '<span style="font-size:1.5rem;font-weight:800">' + markEnd(v.k, info.hi) + '</span>'
+        + '<span style="color:var(--text-faint)">' + v.r + '·' + v.m + '</span>'
+        + '<span style="color:var(--text-faint);font-size:1.1rem">变</span>'
+        + '<span style="background:' + meta.color + ';color:#fff;font-size:.8rem;font-weight:700;padding:3px 11px;border-radius:999px">' + meta.label + '</span>'
+        + '</div>';
+
+      var pipeline = '<div style="display:flex;flex-direction:column;gap:11px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 15px">'
+        + step('1', '判类', '<b>' + info.type + '</b>', '#3b6fe0')
+        + step('2', '套规则', info.rule, '#e67e22')
+        + step('3', '变形结果',
+            '<span style="font-size:1.7rem;font-weight:800;color:' + meta.color + '">' + res[0] + '</span>'
+            + '<span style="color:var(--text-faint);margin-left:8px">' + res[1] + '</span>'
+            + '<span style="color:var(--text-soft);margin-left:6px;font-size:.9rem">(' + v.m + '·' + meta.label + ')</span>',
+            '#27ae60')
+        + '</div>';
+
+      out.innerHTML = head + pipeline;
+    }
+
+    // 动词按钮
+    VERBS.forEach(function(v){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.style.cssText = 'border:1px solid var(--border);background:var(--surface);color:var(--text);'
+        + 'padding:6px 10px;border-radius:9px;cursor:pointer;transition:all .12s;text-align:center;line-height:1.25';
+      b.innerHTML = '<b style="font-size:.98rem">' + v.k + '</b><br><span style="font-size:.72rem;color:var(--text-faint)">' + v.r + '·' + v.m + '</span>';
+      b.addEventListener('click', function(){
+        curVerb = v;
+        Array.prototype.forEach.call(verbsBox.children, function(btn){
+          var on = btn === b;
+          btn.style.borderColor = on ? 'var(--accent)' : 'var(--border)';
+          btn.style.background  = on ? '#fdeee6' : 'var(--surface)';
+          btn.style.boxShadow   = on ? '0 0 0 2px rgba(182,83,47,.18)' : 'none';
+        });
+        render();
+      });
+      verbsBox.appendChild(b);
+    });
+
+    // 目标形按钮
+    FORMS.forEach(function(fm){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.key = fm.key;
+      b.style.cssText = 'border:2px solid var(--border);background:var(--surface);color:var(--text-soft);'
+        + 'padding:7px 14px;border-radius:999px;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .12s;line-height:1.2;text-align:center';
+      b.innerHTML = fm.label + '<br><span style="font-size:.68rem;font-weight:500;opacity:.8">' + fm.sub + '</span>';
+      b.addEventListener('click', function(){
+        curForm = fm.key;
+        Array.prototype.forEach.call(formsBox.children, function(btn){
+          var on = btn.dataset.key === curForm;
+          var c  = FORMS.filter(function(x){ return x.key === btn.dataset.key; })[0].color;
+          btn.style.background  = on ? c : 'var(--surface)';
+          btn.style.borderColor = on ? c : 'var(--border)';
+          btn.style.color       = on ? '#fff' : 'var(--text-soft)';
+        });
+        render();
+      });
+      formsBox.appendChild(b);
+    });
+
+    // 初始:默认高亮て形,等用户点动词
+    formsBox.querySelector('[data-key="te"]').click();
+  })();
+  </script>
+
+  <!-- ============ Lab B て形用途切换台 ============ -->
+  <script>
+  (function(){
+    var verbsBox = document.getElementById('jvf-b-verbs');
+    var usesBox  = document.getElementById('jvf-b-uses');
+    var out      = document.getElementById('jvf-b-out');
+    if(!verbsBox || !out) return;
+
+    // 每个动词 × 五种用途,句子预先写好(保证地道),jp 显示形 / r 假名 / cn 中文
+    var VERBS = [
+      { k:'座る', r:'すわる', m:'坐',
+        uses:{
+          kudasai:{ jp:'ここに座ってください。', r:'ここにすわってください。', cn:'请坐这里。' },
+          teiru:  { jp:'椅子に座っています。',   r:'いすにすわっています。',   cn:'(正)坐在椅子上。' },
+          moii:   { jp:'ここに座ってもいいですか。', r:'ここにすわってもいいですか。', cn:'我可以坐这里吗?' },
+          dame:   { jp:'そこに座ってはいけません。', r:'そこにすわってはいけません。', cn:'不可以坐那里。' },
+          then:   { jp:'椅子に座って、話しましょう。', r:'いすにすわって、はなしましょう。', cn:'先坐下,然后聊吧。' }
+        } },
+      { k:'食べる', r:'たべる', m:'吃',
+        uses:{
+          kudasai:{ jp:'ケーキを食べてください。', r:'ケーキをたべてください。', cn:'请吃蛋糕。' },
+          teiru:  { jp:'今、ケーキを食べています。', r:'いま、ケーキをたべています。', cn:'现在正在吃蛋糕。' },
+          moii:   { jp:'このケーキを食べてもいいですか。', r:'このケーキをたべてもいいですか。', cn:'我可以吃这块蛋糕吗?' },
+          dame:   { jp:'ここで食べてはいけません。', r:'ここでたべてはいけません。', cn:'不可以在这里吃东西。' },
+          then:   { jp:'ケーキを食べて、コーヒーを飲みます。', r:'ケーキをたべて、コーヒーをのみます。', cn:'先吃蛋糕,然后喝咖啡。' }
+        } },
+      { k:'飲む', r:'のむ', m:'喝',
+        uses:{
+          kudasai:{ jp:'お茶を飲んでください。', r:'おちゃをのんでください。', cn:'请喝茶。' },
+          teiru:  { jp:'コーヒーを飲んでいます。', r:'コーヒーをのんでいます。', cn:'(正)在喝咖啡。' },
+          moii:   { jp:'ここで飲んでもいいですか。', r:'ここでのんでもいいですか。', cn:'我可以在这里喝(东西)吗?' },
+          dame:   { jp:'お酒を飲んではいけません。', r:'おさけをのんではいけません。', cn:'不可以喝酒。' },
+          then:   { jp:'薬を飲んで、寝ます。', r:'くすりをのんで、ねます。', cn:'先吃药,然后睡觉。' }
+        } },
+      { k:'見る', r:'みる', m:'看',
+        uses:{
+          kudasai:{ jp:'この写真を見てください。', r:'このしゃしんをみてください。', cn:'请看这张照片。' },
+          teiru:  { jp:'テレビを見ています。', r:'テレビをみています。', cn:'(正)在看电视。' },
+          moii:   { jp:'写真を見てもいいですか。', r:'しゃしんをみてもいいですか。', cn:'我可以看照片吗?' },
+          dame:   { jp:'スマホを見てはいけません。', r:'スマホをみてはいけません。', cn:'不可以看手机。' },
+          then:   { jp:'写真を見て、話します。', r:'しゃしんをみて、はなします。', cn:'先看照片,然后再说。' }
+        } }
+    ];
+
+    var USES = [
+      { key:'kudasai', label:'てください',      tag:'请求',   color:'#27ae60', when:'礼貌地请别人做某事,比直接命令柔和。' },
+      { key:'teiru',   label:'ています',        tag:'正在/状态', color:'#e67e22', when:'动作正在进行,或一种持续的状态。' },
+      { key:'moii',    label:'てもいいですか',  tag:'求许可', color:'#3b6fe0', when:'问对方「我可以…吗?」,征求同意。' },
+      { key:'dame',    label:'てはいけません',  tag:'禁止',   color:'#e2524a', when:'告诉对方「不可以…」,表示禁止。' },
+      { key:'then',    label:'て、~',           tag:'先后动作', color:'#8e44ad', when:'把两个动作接起来:先做前一个,再做后一个。' }
+    ];
+
+    var curVerb = VERBS[0], curUse = 'kudasai';
+
+    function render(){
+      var u = USES.filter(function(x){ return x.key === curUse; })[0];
+      var d = curVerb.uses[curUse];
+      out.innerHTML =
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+          + '<span style="font-size:1.1rem;font-weight:800">' + curVerb.k + '</span>'
+          + '<span style="color:var(--text-faint)">' + curVerb.r + '·' + curVerb.m + '</span>'
+          + '<span style="color:var(--text-faint);font-size:1.05rem">+</span>'
+          + '<span style="background:' + u.color + ';color:#fff;font-size:.8rem;font-weight:700;padding:3px 11px;border-radius:999px">' + u.label + ' · ' + u.tag + '</span>'
+        + '</div>'
+        + '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px">'
+          + '<div style="font-size:1.35rem;font-weight:700;line-height:1.55">' + d.jp + '</div>'
+          + '<div style="font-size:.92rem;color:var(--text-faint)">' + d.r + '</div>'
+          + '<div style="font-size:1rem;color:var(--text-soft)">' + d.cn + '</div>'
+        + '</div>'
+        + '<div style="font-size:.9rem;color:var(--text-soft);border-left:3px solid ' + u.color + ';padding-left:10px">💡 <b>什么场合用:</b>' + u.when + '</div>';
+    }
+
+    function paintVerbs(){
+      Array.prototype.forEach.call(verbsBox.children, function(btn){
+        var on = btn.dataset.k === curVerb.k;
+        btn.style.borderColor = on ? 'var(--accent)' : 'var(--border)';
+        btn.style.background  = on ? '#fdeee6' : 'var(--surface)';
+        btn.style.color       = on ? 'var(--accent)' : 'var(--text)';
+      });
+    }
+    function paintUses(){
+      Array.prototype.forEach.call(usesBox.children, function(btn){
+        var on = btn.dataset.key === curUse;
+        var c  = USES.filter(function(x){ return x.key === btn.dataset.key; })[0].color;
+        btn.style.background  = on ? c : 'var(--surface)';
+        btn.style.borderColor = on ? c : 'var(--border)';
+        btn.style.color       = on ? '#fff' : 'var(--text-soft)';
+      });
+    }
+
+    VERBS.forEach(function(v){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.k = v.k;
+      b.style.cssText = 'border:2px solid var(--border);background:var(--surface);color:var(--text);'
+        + 'padding:7px 14px;border-radius:999px;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .12s';
+      b.textContent = v.k + '(' + v.m + ')';
+      b.addEventListener('click', function(){ curVerb = v; paintVerbs(); render(); });
+      verbsBox.appendChild(b);
+    });
+
+    USES.forEach(function(u){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.key = u.key;
+      b.style.cssText = 'border:2px solid var(--border);background:var(--surface);color:var(--text-soft);'
+        + 'padding:7px 13px;border-radius:999px;font-size:.86rem;font-weight:700;cursor:pointer;transition:all .12s';
+      b.textContent = u.label;
+      b.addEventListener('click', function(){ curUse = u.key; paintUses(); render(); });
+      usesBox.appendChild(b);
+    });
+
+    paintVerbs(); paintUses(); render();
+  })();
+  </script>
+</body>
+</html>

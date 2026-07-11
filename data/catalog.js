@@ -57,6 +57,7 @@ window.STUDY_CATALOG = [
     date: "2026-06-28", difficulty: 1, type: "文档",
     related: []
   },
+  { id: "ja-verb-forms", profile: "ma-huan", subject: "japanese", discipline: "foreign-lit", scopes: ["jlpt-n4"], status: "done", category: "动词变形", title: "动词变形实验室", path: "subjects/japanese/ja-verb-forms.html", summary: "点动词、选目标形,亲眼看它判类→套规则→变形;两个交互 Lab 把て/た/ない/ます 和 て形五大用途拨给你亲手玩。", tags: ["日语", "动词变形", "て形", "た形", "ない形", "ます形", "五段动词", "一段动词", "JLPT N4"], date: "2026-07-11", difficulty: 2, type: "交互", related: [] },
 
   /* ===== 档案：mahuan（Jiahuan · 六年级英语） ===== */
   {
