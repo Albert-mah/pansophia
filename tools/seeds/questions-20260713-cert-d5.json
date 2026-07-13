@@ -1,0 +1,647 @@
+[
+ {
+  "kp": "Context windows and prompt caching",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d5-cache-tradeoff", "point": "Cache breakpoint",
+  "stem": "A team caches a large, stable block — a system prompt, 12 tool definitions, and a 30-page policy — but every request also appends the user's live question and their latest order data, which change each call. They want to place a cache_control breakpoint to maximize reuse. Where should it go?",
+  "options": [
+   "At the very top of the prompt, before the system prompt, so caching begins as early as possible",
+   "Immediately after the volatile user question, so the entire prompt is cached each call",
+   "At the end of the stable block, after the policy and tool definitions but before the volatile user and order data",
+   "Interleaved, one breakpoint before each tool definition, to cache them individually"
+  ],
+  "answer": 2,
+  "explain": "A cache hit reuses the prefix up to the breakpoint, so the breakpoint marks the boundary between stable and volatile content: place it at the end of the stable block, before the changing user and order data, so the large stable prefix is reused while only the volatile tail is reprocessed. Putting it at the very top caches almost nothing, putting it after the volatile question changes the prefix every call so nothing hits, and interleaving before each tool definition fragments the prefix without matching the stable-to-volatile boundary.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Context windows and prompt caching",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-cache-tradeoff", "point": "TTL and cost",
+  "stem": "An architect models prompt-caching economics: cache writes cost about 1.25x base input and cache reads about 0.1x. A 20K-token stable prefix is written once, then read on many later calls within the 5-minute TTL. Which statement is correct?",
+  "options": [
+   "Caching always costs more, because the 1.25x write premium is paid on every call",
+   "Each read costs roughly 0.1x of base input — about a 90% saving — so caching pays off once enough reads amortize the one-time 1.25x write",
+   "Reads and writes cost the same, so caching only helps latency, not cost",
+   "A single read recovers the write cost even if the prefix is never reused again"
+  ],
+  "answer": 1,
+  "explain": "A read at about 0.1x of base input is roughly a 90% saving versus reprocessing, while the write costs about 1.25x only once, so caching pays off when the prefix is reused enough times within the TTL to amortize that one-time premium. The write premium is paid on the write, not every call; reads are far cheaper than writes so it is a real cost win, not just latency; and a prefix read only once does not recover the 1.25x write, which is exactly why reuse frequency matters.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Long conversations: compaction, externalization, retrieval",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-longconv-facts", "point": "Compaction",
+  "stem": "A support agent's long session is compacted to fit the window. Afterward the summary reads 'customer wants a refund for a delayed order,' but the exact refund amount ($427.50), the order date, and the customer's stated deadline are gone. What is the MOST effective way to prevent this loss?",
+  "options": [
+   "Raise the context window size so compaction never runs",
+   "Disable compaction entirely and resend the full transcript every turn",
+   "Lower the temperature so the summary keeps more detail",
+   "Extract the transactional facts (amount, dates, order number, status) into a persistent 'case facts' block included in each prompt, outside the summarized history"
+  ],
+  "answer": 3,
+  "explain": "Progressive summarization tends to condense exact numbers, dates, and customer-stated expectations into vague prose, so the fix is to pull those transactional facts into a persistent case-facts block that lives outside the summarized history and is included verbatim each turn. Enlarging the window only delays the same loss, disabling compaction and resending everything bloats cost while still risking buried facts being missed, and temperature does not control what a summary retains.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Long conversations: compaction, externalization, retrieval",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-longconv-facts", "point": "Externalize",
+  "stem": "A multi-issue support session handles three separate disputes, each with its own order ID, amount, and status. As the conversation grows, the agent starts confusing which amount belongs to which order. What is the MOST appropriate design?",
+  "options": [
+   "Persist structured issue data (order IDs, amounts, statuses) into a separate case-facts layer and include it each turn, rather than trusting the running summary",
+   "Ask the customer to repeat all three order details every few turns",
+   "Keep the full verbatim transcript in context and never compact it",
+   "Store the three issues only in the system prompt and rely on the model to track them"
+  ],
+  "answer": 0,
+  "explain": "Externalizing each issue's structured facts into a separate case-facts layer that is re-injected each turn keeps the order-to-amount mappings exact and immune to summarization drift. Asking the customer to repeat details shifts the burden onto them and still persists nothing, keeping the entire verbatim transcript overflows the window and invites lost-in-the-middle omissions, and the system prompt is not a mutable per-issue store, so implicit tracking is exactly what is already failing.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Escalation and ambiguity resolution",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-esc-demand", "point": "Real triggers",
+  "stem": "A telecom support agent is mid-way through pulling account details when the customer types, 'Stop — I want to speak to a human being right now.' The underlying issue (a disputed late fee) is one the agent could resolve. What should the agent do?",
+  "options": [
+   "Finish investigating the late fee first, then escalate only if it cannot resolve it",
+   "Escalate to a human immediately, honoring the explicit request without first attempting further investigation",
+   "Refuse to escalate because the fee dispute is within its capability",
+   "Run a sentiment check and escalate only if the customer seems angry enough"
+  ],
+  "answer": 1,
+  "explain": "An explicit customer demand for a human is a direct escalation trigger that must be honored immediately, without insisting on more investigation, even when the underlying issue is resolvable. Continuing to investigate ignores the explicit request, refusing to escalate overrides the customer's stated preference, and gating on a sentiment score substitutes an unreliable proxy for a clear, explicit demand.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Escalation and ambiguity resolution",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-esc-demand", "point": "Real triggers",
+  "stem": "An airline chatbot resolves a seat-change request, then the passenger says, 'I don't want to keep talking to a bot — get me a real agent.' Which response BEST reflects correct escalation design?",
+  "options": [
+   "Keep handling the request autonomously since a bot already solved the seat change",
+   "Ask the passenger to justify why they need a human before routing them",
+   "Route to a human agent right away because the passenger explicitly asked for one",
+   "Escalate only if the passenger's message crosses a negative-sentiment threshold"
+  ],
+  "answer": 2,
+  "explain": "An explicit request for a human is honored immediately: the agent routes to a person without demanding a justification or waiting for more signals. Continuing autonomously ignores the explicit ask, requiring the passenger to justify the request adds friction to a clear demand, and a sentiment threshold is an unreliable proxy that can miss a calm but firm request.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Escalation and ambiguity resolution",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-esc-policygap", "point": "Real triggers",
+  "stem": "A retailer's return policy documents price adjustments only for the retailer's own website. A customer asks the agent to match a lower price from a rival store, and the policy is silent on competitor matching. What should the agent do?",
+  "options": [
+   "Apply the competitor match, since price adjustments are generally allowed",
+   "Deny the request outright because the policy does not mention competitors",
+   "Guess the most likely intended policy and proceed to keep the customer happy",
+   "Escalate, because the policy is silent on the customer's specific request — a policy gap, not a routine case"
+  ],
+  "answer": 3,
+  "explain": "When policy is silent or ambiguous on the specific request — here competitor price matching versus own-site adjustments — that gap is an escalation trigger, and a human owns the exception decision. Applying the match invents policy the agent has no authority for, a flat denial may contradict how the business actually handles exceptions, and guessing the intended policy is exactly the unauthorized improvisation escalation is meant to prevent.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Escalation and ambiguity resolution",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d5-esc-policygap", "point": "Real triggers",
+  "stem": "A SaaS billing agent is asked to prorate a refund for a mid-cycle downgrade. The written policy covers cancellations and upgrades but says nothing about mid-cycle downgrade refunds. What is the MOST appropriate action?",
+  "options": [
+   "Escalate the request as a policy gap, since the policy does not address this scenario",
+   "Autonomously calculate a proration using the upgrade rules as a close-enough analogy",
+   "Tell the customer no refund is possible because the policy omits downgrades",
+   "Escalate only if the customer expresses frustration about the missing policy"
+  ],
+  "answer": 0,
+  "explain": "A policy that is silent on the exact scenario is a gap the agent should escalate rather than resolve on its own authority. Borrowing the upgrade rules as an analogy invents a policy the business has not sanctioned, denying the refund may misstate actual practice, and gating escalation on frustration ties a policy-gap decision to sentiment, which does not track whether an exception is warranted.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Escalation and ambiguity resolution",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-esc-proxies", "point": "Bad proxies",
+  "stem": "To improve escalation, a bank proposes running sentiment analysis on each message and auto-escalating whenever detected frustration exceeds a threshold. Why is this approach flawed?",
+  "options": [
+   "Sentiment analysis is too slow to run on every message",
+   "It escalates too few cases, because frustrated customers rarely ask for humans",
+   "Customer sentiment does not track case complexity — calm customers can have hard policy-exception cases and angry ones can have trivial ones",
+   "Sentiment thresholds only work when combined with the customer's self-reported confidence"
+  ],
+  "answer": 2,
+  "explain": "Sentiment is an unreliable proxy for escalation because emotional tone does not correlate with the actual complexity of a case: a calm customer may need a genuine policy exception while an angry one may have a one-click fix. The problem is not latency, it is not that too few escalate, and pairing it with self-reported confidence just stacks a second unreliable proxy — the right lever is explicit escalation criteria, not affect.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Escalation and ambiguity resolution",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-esc-proxies", "point": "Bad proxies",
+  "stem": "An insurance-claims agent is set to self-report a confidence score (1-10) before each answer and auto-escalate when it falls below 6. In production it still handles hard exception cases itself while escalating easy ones. Why does the confidence gate fail?",
+  "options": [
+   "The threshold of 6 is too low and should be raised to 9",
+   "LLM self-reported confidence is poorly calibrated — the agent is already wrongly confident on exactly the hard cases, so its own score cannot flag them",
+   "Confidence scores work only for extraction tasks, not support",
+   "The scale should be 1-100 instead of 1-10 for finer routing"
+  ],
+  "answer": 1,
+  "explain": "Self-reported confidence is a poor proxy because the model is often most confident precisely where it is wrong, so it rates the hard exception cases high and never trips the gate. Tuning the threshold or widening the scale does not fix miscalibration, and the claim that confidence works only for extraction is invented — the reliable fix is explicit escalation criteria with few-shot examples, not the model grading its own certainty.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Escalation and ambiguity resolution",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-esc-fix-identity", "point": "How to fix",
+  "stem": "A hotel-booking agent resolves at 55% against an 80% target. Logs show it escalates simple, well-evidenced cases (standard date-change requests) while attempting complex policy-exception cases itself. What is the MOST effective fix?",
+  "options": [
+   "Add explicit escalation criteria to the system prompt with few-shot examples showing when to escalate versus resolve autonomously",
+   "Have the agent self-report a confidence score and escalate below a threshold",
+   "Add sentiment analysis and escalate when the guest sounds upset",
+   "Train a separate classifier on historical tickets to predict escalations before the agent runs"
+  ],
+  "answer": 0,
+  "explain": "The root cause is unclear decision boundaries, so the proportionate fix is explicit escalation criteria backed by few-shot examples that demonstrate escalate-versus-resolve on concrete cases. Self-reported confidence is miscalibrated on the very hard cases that matter, sentiment does not track complexity, and a trained classifier is over-engineered infrastructure to reach for before prompt criteria have even been tried.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Escalation and ambiguity resolution",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-esc-fix-identity", "point": "Bad proxies",
+  "stem": "An e-commerce agent's lookup returns two different customers who share the name 'Maria Garcia,' each with distinct orders. What should the agent do before taking any account action?",
+  "options": [
+   "Pick the account with the most recent order, as it is the likely match",
+   "Pick the account whose city matches the chat's IP geolocation",
+   "Proceed with whichever record the tool returned first",
+   "Ask the customer for an additional identifier (order number, email, or account ID) rather than choosing heuristically"
+  ],
+  "answer": 3,
+  "explain": "Multiple identity matches require clarification: the agent should request an additional identifier instead of guessing, because acting on the wrong account can expose data or misapply a refund. Choosing by most-recent order, by IP-based city, or by tool order are all heuristics that can silently select the wrong person — exactly the failure mode that asking for an identifier prevents.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Error propagation in multi-agent systems",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d5-errprop-structured", "point": "Say what failed",
+  "stem": "In a research pipeline, a web-search subagent's query to a news API times out after returning two of an expected ten results. What should it return to the coordinator to enable the BEST recovery?",
+  "options": [
+   "A generic 'search failed' status so the coordinator can retry from scratch",
+   "Structured error context: failure type (timeout), the attempted query, the two partial results, and an alternative source to try",
+   "Nothing, so the coordinator is not distracted by an incomplete search",
+   "An empty result list, treating the timeout as 'no matches found'"
+  ],
+  "answer": 1,
+  "explain": "Structured error context — failure type, the attempted query, any partial results, and possible alternatives — lets the coordinator decide intelligently whether to retry, reroute, or proceed with partial data. A generic 'search failed' hides what was tried and what came back, returning nothing strands the coordinator, and reporting an empty list mislabels an access failure as a valid empty result, silently corrupting the final report.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Error propagation in multi-agent systems",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-errprop-structured", "point": "Say what failed",
+  "stem": "A document-analysis subagent fails to open one of five source PDFs (the file server returned a 503) but successfully analyzed the other four. How should it report to the coordinator?",
+  "options": [
+   "Return only the four successful analyses and omit any mention of the fifth",
+   "Abort and return a bare 'analysis failed' with no other detail",
+   "Return the four analyses plus structured context on the fifth: failure type (service unavailable), which document, and that a retry may succeed",
+   "Retry the fifth document forever until the server responds"
+  ],
+  "answer": 2,
+  "explain": "The subagent should hand back its partial results together with structured context about the failure — type, which document, and whether a retry is warranted — so the coordinator can retry that one document or annotate a gap. Silently omitting the fifth hides a coverage hole, a bare 'analysis failed' discards the four good analyses and all diagnostic detail, and retrying forever blocks the pipeline instead of surfacing a recoverable, retryable error.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Error propagation in multi-agent systems",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-errprop-local", "point": "Recover locally",
+  "stem": "A subagent hits a transient 500 error on its first API call but succeeds on an immediate second attempt. Which behavior BEST follows good error-propagation design?",
+  "options": [
+   "Recover locally from the transient failure and propagate nothing, since it resolved the error itself",
+   "Propagate the transient 500 to the coordinator and stop, letting the coordinator decide",
+   "Terminate the whole workflow because an error occurred at all",
+   "Return an empty result to avoid bothering the coordinator with the retry"
+  ],
+  "answer": 0,
+  "explain": "Subagents should recover locally from transient failures and propagate only errors they cannot resolve, so a 500 that succeeds on retry needs no upward propagation. Escalating a self-resolved transient error creates noise and needless coordinator work, terminating the workflow over a recovered blip is a severe overreaction, and returning an empty result would misreport a successful call as no data.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Error propagation in multi-agent systems",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d5-errprop-local", "point": "Recover locally",
+  "stem": "A coordinator receives two reports. Subagent A: 'query returned 0 results' for a database search that completed normally. Subagent B: 'connection timed out' before any results. How should the coordinator treat these?",
+  "options": [
+   "Treat both identically as failures and retry each",
+   "Treat both identically as valid empty results and move on",
+   "Retry A (it may have missed data) and accept B as a confirmed empty set",
+   "Accept A as a valid empty result (a successful query with no matches) and treat B as an access failure needing a retry decision"
+  ],
+  "answer": 3,
+  "explain": "A completed query returning zero rows is a valid empty result and should be accepted as fact, whereas a timeout is an access failure where the true result is unknown and a retry decision is needed, so the two must be distinguished. Treating both as failures wastes a retry on a real empty set, treating both as valid empties silently drops B's missing data, and the reversed option retries the query that already answered while trusting the connection that never completed.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Error propagation in multi-agent systems",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-errprop-generic", "point": "Generic errors",
+  "stem": "Every tool in a multi-agent system returns the same string on any problem: 'Operation failed.' The coordinator cannot tell timeouts from invalid inputs from permission denials. What is the core problem with this design?",
+  "options": [
+   "The error string is too long and should be shortened to an error code",
+   "Uniform generic errors hide the category and context the coordinator needs to choose an appropriate recovery (retry, rephrase, or escalate)",
+   "Returning any error at all is the problem; tools should return empty results instead",
+   "The coordinator should ignore all errors and always retry three times"
+  ],
+  "answer": 1,
+  "explain": "A single generic 'Operation failed' strips away the category (transient versus validation versus permission) and the context the coordinator relies on to pick the right recovery, so different failures get handled identically and wrongly. The string's length is irrelevant, replacing errors with empty results is the dangerous empty-as-success anti-pattern, and blind fixed retries ignore that some errors — invalid input, permission denied — are not retryable at all.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Error propagation in multi-agent systems",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-errprop-generic", "point": "Generic errors",
+  "stem": "To keep its output clean, a search subagent catches every exception and returns an empty result list, reporting success in all cases. What is the danger of this pattern?",
+  "options": [
+   "It silently suppresses failures as 'no matches,' so the final report is incomplete without anyone knowing",
+   "It makes the coordinator retry too aggressively",
+   "It exposes internal stack traces to the end user",
+   "It slows the pipeline by adding error metadata"
+  ],
+  "answer": 0,
+  "explain": "Swallowing exceptions and returning an empty success turns real access failures into apparent 'no matches,' so the coordinator proceeds on incomplete data and the gap never surfaces — the empty-as-success anti-pattern. It does not cause over-retrying (the opposite: no error means no retry), it hides rather than exposes internals, and the problem is missing metadata, not the cost of adding it.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Error propagation in multi-agent systems",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-errprop-coverage", "point": "Coverage gaps",
+  "stem": "One of four research subagents fails and cannot recover. The coordinator has solid findings from the other three. What is the MOST appropriate way to proceed?",
+  "options": [
+   "Terminate the entire research run because one subagent failed",
+   "Silently drop the failed area and present the report as complete",
+   "Proceed with the three successful results and annotate the synthesis with a coverage gap for the missing area",
+   "Retry the failed subagent indefinitely before returning anything"
+  ],
+  "answer": 2,
+  "explain": "A single unrecoverable subagent failure should not kill the whole run; the coordinator proceeds with partial results and marks the missing area as a coverage gap so the report is honest about what is and is not supported. Terminating everything discards good work, presenting it as complete hides the gap, and retrying forever blocks the entire pipeline on one failure.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Error propagation in multi-agent systems",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d5-errprop-coverage", "point": "Coverage gaps",
+  "stem": "A synthesis agent combines findings where some topics are well-sourced and others had their sources time out. How should the synthesis output represent this?",
+  "options": [
+   "Present all conclusions with equal confidence to keep the report readable",
+   "Add coverage annotations distinguishing well-supported findings from topic areas with gaps due to unavailable sources",
+   "Drop every topic that had any source failure so only complete sections remain",
+   "Merge everything and let the reader assume uniform reliability"
+  ],
+  "answer": 1,
+  "explain": "Coverage annotations that separate well-supported findings from gap areas caused by unavailable sources give the reader an accurate picture of reliability. Presenting everything at equal confidence overstates the shaky sections, dropping every partially-sourced topic throws away useful partial coverage, and merging without annotation misleads by implying uniform reliability the evidence does not support.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Human review and confidence calibration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-hr-aggregate", "point": "Averages hide",
+  "stem": "An extraction pipeline reports 97% aggregate accuracy across all documents, so a team proposes cutting human review. What risk does the aggregate figure hide?",
+  "options": [
+   "That 97% is too low to automate anything",
+   "That accuracy will drift downward over time regardless of type",
+   "That output tokens are being wasted on low-value documents",
+   "That a specific document type or field could be performing far worse (e.g., handwritten forms at 60%) while the blended number looks fine"
+  ],
+  "answer": 3,
+  "explain": "A single aggregate accuracy figure can mask a segment — a document type or field — that performs poorly, because strong segments dilute the weak one in the average. The concern is not that 97% is too low, nor generic drift, nor token cost; it is that the blended number can hide a failing subgroup, which is why you must check accuracy per type and field before automating.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Human review and confidence calibration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-hr-aggregate", "point": "Averages hide",
+  "stem": "A medical-forms extractor shows 96% overall accuracy. Before reducing review, an analyst breaks the number down and finds typed intake forms at 99% but scanned handwritten notes at 64%. What does this illustrate?",
+  "options": [
+   "Aggregate accuracy masked a document type that fails, so review cannot be cut uniformly",
+   "The 96% figure was simply miscalculated",
+   "Handwritten notes should be discarded from the dataset",
+   "Confidence scores are unnecessary once aggregate accuracy is high"
+  ],
+  "answer": 0,
+  "explain": "The breakdown shows the headline 96% hid a failing segment (handwritten notes at 64%), so review cannot be cut across the board — only on segments proven accurate. The aggregate was not miscalculated, discarding hard documents evades the real requirement instead of meeting it, and high aggregate accuracy is exactly when per-field confidence and segmentation matter most, not least.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Human review and confidence calibration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-hr-segment", "point": "Segment first",
+  "stem": "Before automating a high-confidence extraction flow and removing human review, which validation step is MOST important?",
+  "options": [
+   "Confirm the overall accuracy number is above 95%",
+   "Validate accuracy by document type and by field segment to confirm every segment holds up, not just the blended average",
+   "Increase the batch size to process more documents per run",
+   "Switch to a larger model for all extractions"
+  ],
+  "answer": 1,
+  "explain": "Automating safely requires validating accuracy per document type and per field segment, so you know each segment is reliable rather than trusting a blended average that can hide a weak one. A single overall threshold is exactly the figure that can mask a failing segment, and batch size and model size affect throughput and capability, not whether specific segments are accurate enough to drop review.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Human review and confidence calibration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-hr-segment", "point": "Segment first",
+  "stem": "An invoice extractor will drop human review only where it is safe. Overall accuracy is high, but the team wants segment-level assurance first. Which analysis gives it?",
+  "options": [
+   "Track average accuracy per week and automate once it stops changing",
+   "Measure only the fields developers complain about most",
+   "Break accuracy down by document type and by individual field, and automate only the type-and-field segments proven accurate",
+   "Automate everything, then watch for customer complaints"
+  ],
+  "answer": 2,
+  "explain": "Segment-level assurance means breaking accuracy down by document type and by field and automating only the segments that prove out, leaving review on the rest. A stable weekly average still hides which segments fail, measuring only complained-about fields misses silent failures, and automating everything first and waiting for complaints is exactly the unvalidated rollout segmentation is meant to prevent.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Human review and confidence calibration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d5-hr-calibrate", "point": "Calibrate scores",
+  "stem": "A team wants to route only the riskiest extractions to reviewers using the model's own field-level confidence scores. How should they set the review thresholds reliably?",
+  "options": [
+   "Calibrate the thresholds against a labeled validation set so the confidence scores map to real accuracy",
+   "Pick a round number like 0.9 and apply it to every field",
+   "Trust the raw scores as-is, since the model reports them",
+   "Set the threshold to whatever keeps reviewer volume lowest"
+  ],
+  "answer": 0,
+  "explain": "Field-level confidence scores are only useful for routing once calibrated on a labeled validation set, so a given score corresponds to a known real-world accuracy. A hard-coded 0.9 across all fields ignores that fields calibrate differently, trusting raw uncalibrated scores repeats the self-reported-confidence pitfall, and choosing the threshold to minimize reviewer volume optimizes cost over correctness, defeating the purpose of routing.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Human review and confidence calibration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-hr-calibrate", "point": "Calibrate scores",
+  "stem": "After reducing human review on a high-confidence extraction flow, a team wants to keep catching new error patterns without reviewing everything. What ongoing measurement is MOST appropriate?",
+  "options": [
+   "Review only the extractions the model already marked low-confidence",
+   "Use stratified random sampling of high-confidence extractions to keep measuring error rates and detect novel patterns",
+   "Re-review 100% of documents every night",
+   "Rely on customers to report any errors they notice"
+  ],
+  "answer": 1,
+  "explain": "Stratified random sampling of the high-confidence extractions keeps an ongoing, unbiased measure of their true error rate and surfaces novel patterns the model does not flag. Reviewing only already-low-confidence items misses errors hiding inside the high-confidence set, re-reviewing everything defeats the point of automation, and depending on customer reports is a reactive signal that lets errors reach users first.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Human review and confidence calibration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-hr-route", "point": "Route the risky",
+  "stem": "Reviewer capacity is limited and cannot cover every extraction. Which extractions should be routed to human review FIRST?",
+  "options": [
+   "The extractions the model is most confident about, to double-check its best work",
+   "A fixed alphabetical slice of documents each day",
+   "Extractions with low model confidence or drawn from ambiguous or contradictory source documents",
+   "Only the longest documents, regardless of confidence"
+  ],
+  "answer": 2,
+  "explain": "With scarce reviewer capacity, you prioritize the extractions most likely to be wrong — those with low model confidence or from ambiguous or contradictory sources — to get the most risk reduction per review. Double-checking the highest-confidence work spends capacity where errors are least likely, an alphabetical slice ignores risk entirely, and document length is not a reliable proxy for extraction difficulty.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Human review and confidence calibration",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-hr-route", "point": "Route the risky",
+  "stem": "A contract-extraction system has confidence scores and flags for conflicting clauses. To use limited reviewers well, how should it route work?",
+  "options": [
+   "Send every extraction to review to be safe",
+   "Send a random 10% to review with no regard to confidence or conflicts",
+   "Review only contracts above a page-count threshold",
+   "Prioritize low-confidence extractions and those with contradictory source clauses for review, and auto-accept the calibrated high-confidence rest"
+  ],
+  "answer": 3,
+  "explain": "Good routing sends the risky cases — low confidence and contradictory sources — to the limited reviewers while auto-accepting the segments whose confidence is calibrated and proven accurate. Reviewing everything ignores the capacity limit, an unstratified random 10% wastes reviews on easy cases and misses hard ones, and page count is not a risk signal, so it routes by the wrong dimension.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Information provenance and multi-source synthesis",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-prov-mappings", "point": "Summaries lose",
+  "stem": "In a research pipeline, each subagent summarizes its findings before handing them up, and the final report can no longer say which source any given claim came from. What went wrong?",
+  "options": [
+   "The subagents used too few tokens in their summaries",
+   "The coordinator should have used a larger model",
+   "Summarization compressed the findings without preserving claim-source mappings, so attribution was lost in the handoff",
+   "The report should have been rendered as a table instead of prose"
+  ],
+  "answer": 2,
+  "explain": "Source attribution is lost when summarization compresses findings without carrying the claim-to-source mapping through each handoff, so the final report cannot be traced back. The token count of the summaries is not the issue, a bigger model does not restore mappings that were dropped, and rendering format is a separate concern from whether attribution survives synthesis.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Information provenance and multi-source synthesis",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d5-prov-mappings", "point": "Keep mappings",
+  "stem": "You are designing subagent outputs so a synthesis agent can produce a fully cited report. What structure BEST preserves provenance through synthesis?",
+  "options": [
+   "Have each subagent emit structured claim-source mappings (claim, source URL or document name, relevant excerpt) that downstream agents preserve and merge",
+   "Have each subagent return a single fluent paragraph summarizing everything it found",
+   "Have the synthesis agent re-search the web to re-find sources for each claim",
+   "Store sources only in the coordinator's memory and strip them from subagent outputs"
+  ],
+  "answer": 0,
+  "explain": "Structured claim-source mappings — each claim tied to its source and excerpt — let downstream agents preserve and merge attribution through synthesis, producing a traceable, cited report. A single fluent paragraph blends claims and drops mappings, re-searching to reattribute is wasteful and error-prone, and stripping sources from subagent outputs discards exactly the provenance the report needs.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Information provenance and multi-source synthesis",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-prov-conflict", "point": "Don't just pick",
+  "stem": "Two credible market-research firms report different figures for the same market's size. The synthesis agent must produce one report. What is the correct handling?",
+  "options": [
+   "Average the two figures into a single number to resolve the conflict",
+   "Present both figures, each annotated with its source, rather than arbitrarily selecting or blending them",
+   "Pick the higher figure since it is more impressive",
+   "Drop both figures because they disagree"
+  ],
+  "answer": 1,
+  "explain": "Conflicting statistics from credible sources should be preserved and annotated with attribution so the reader sees the disagreement and who reported what, rather than the agent hiding it. Averaging manufactures a number neither source reported, picking the higher one is arbitrary selection, and dropping both discards real credible data — all three obscure a genuine conflict the report should surface.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Information provenance and multi-source synthesis",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-prov-conflict", "point": "Don't just pick",
+  "stem": "A synthesis agent finds two reputable sources giving different unemployment rates for the same quarter. What should its report do?",
+  "options": [
+   "Silently keep whichever value appeared first in its inputs",
+   "Reconcile them by splitting the difference and citing neither",
+   "Report both values with their source attributions and flag the discrepancy for the reader",
+   "Omit the metric entirely to avoid presenting a conflict"
+  ],
+  "answer": 2,
+  "explain": "The agent should surface both credible values with attribution and flag the discrepancy, letting the reader or coordinator judge, rather than resolving it arbitrarily. Keeping the first value hides a real conflict, splitting the difference invents an unsourced number, and omitting the metric removes information the reader needs — the point is to annotate conflicts, not erase them.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Information provenance and multi-source synthesis",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d5-prov-temporal", "point": "Don't just pick",
+  "stem": "A synthesis agent sees two sources reporting different values for a company's headcount and is about to flag them as contradictory. What additional metadata would MOST likely resolve the apparent conflict?",
+  "options": [
+   "The word count of each source document",
+   "The reading level of each source",
+   "The file format each source was stored in",
+   "The publication or data-collection date of each figure, since one may simply be more recent than the other"
+  ],
+  "answer": 3,
+  "explain": "Requiring publication or collection dates lets the agent see that two 'conflicting' figures may just describe different points in time (for example headcount in 2024 versus 2026), so a temporal gap is not misread as a contradiction. Word count, reading level, and file format say nothing about when each figure was true, so none of them can resolve an apparent conflict that is really a time difference.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Information provenance and multi-source synthesis",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-prov-temporal", "point": "Don't just pick",
+  "stem": "A report must combine findings where some are firmly established and others come from a single disputed study. How should the synthesis structure this?",
+  "options": [
+   "Use explicit sections separating well-established findings from contested ones, preserving each source's original characterization",
+   "Present every finding in one flat list with equal weight",
+   "Include only the well-established findings and drop the contested ones",
+   "Rewrite the contested findings as established to keep the report confident"
+  ],
+  "answer": 0,
+  "explain": "Structuring the report into explicit well-established versus contested sections, keeping each source's original characterization, gives an honest picture of evidentiary strength. A flat equal-weight list erases the distinction, dropping contested findings loses information the reader may need, and rewriting contested claims as established misrepresents the evidence.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Information provenance and multi-source synthesis",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-prov-render", "point": "Render by type",
+  "stem": "A synthesis agent's report mixes quarterly financial figures, recent industry news, and a set of technical benchmark results. It currently renders everything as uniform prose paragraphs. What is the recommended improvement?",
+  "options": [
+   "Convert all three into a single JSON object for consistency",
+   "Render each content type in its natural form — financial data as tables, news as prose, technical findings as structured lists",
+   "Render everything as a table, since tables are always clearest",
+   "Keep uniform prose but make the paragraphs longer and more detailed"
+  ],
+  "answer": 1,
+  "explain": "Different content types read best in different forms, so financial data belongs in tables, news in prose, and technical findings in structured lists rather than a single uniform format. Collapsing everything to JSON or to tables forces content into an unnatural shape, and lengthening uniform prose keeps the same mismatch that made the report hard to read.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Information provenance and multi-source synthesis",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-prov-render", "point": "Render by type",
+  "stem": "A competitive-analysis report includes a pricing comparison across five vendors, a narrative of recent acquisitions, and a list of API capabilities. How should the synthesis present these to be clearest?",
+  "options": [
+   "Everything as bullet lists, including the pricing comparison",
+   "Everything as flowing narrative prose, including the pricing",
+   "Pricing as a comparison table, the acquisitions narrative as prose, and the API capabilities as a structured list",
+   "A single paragraph that weaves pricing, acquisitions, and capabilities together"
+  ],
+  "answer": 2,
+  "explain": "Rendering each type in its natural form — the multi-vendor pricing as a table, the acquisition history as prose, the capabilities as a list — makes each part clearest. Forcing all of it into bullets mangles the narrative and the pricing grid, forcing it all into prose buries the comparison, and a single woven paragraph is the uniform-format mistake that hides structure.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Production reliability: retries, rate limits, batching, fallback",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Idempotency",
+  "stem": "A payment agent's process_refund call times out with no response, so the client retries it. The refund may or may not have already been applied. Which design prevents the retry from issuing a second refund?",
+  "options": [
+   "Increasing the request timeout so retries are rarely needed",
+   "Logging stop_reason and token usage on every call",
+   "Switching refunds to the Batch API for a 50% discount",
+   "Making process_refund idempotent (e.g., via an idempotency key) so a repeated call applies at most once"
+  ],
+  "answer": 3,
+  "explain": "Idempotency — for example an idempotency key the server dedupes on — ensures a retried refund applies at most once even if the first attempt already succeeded. A longer timeout reduces how often retries happen but does not make them safe, logging aids observability but does not prevent a double effect, and the Batch API changes cost and latency, not retry safety.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Token budgeting and cost engineering",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-token-trim", "point": "History grows",
+  "stem": "An order-lookup tool returns 40+ fields per order, but the agent only needs about 5 (status, date, amount, item, reason). Across a long session these full payloads pile up in context and inflate input cost every turn. What is the MOST effective fix?",
+  "options": [
+   "Trim the tool output to the ~5 relevant fields before it enters context, so the accumulated history stays small",
+   "Raise max_tokens so the larger context is allowed",
+   "Move the order lookups to the Batch API",
+   "Force the agent to output JSON to compress the fields"
+  ],
+  "answer": 0,
+  "explain": "Tool results accumulate in the resent history and consume tokens disproportionately to their relevance, so trimming each order lookup to the few relevant fields before it enters context keeps input cost from compounding. Raising max_tokens governs output length not input bloat, the Batch API changes when work runs not how large each payload is, and forcing JSON output shapes the model's response not the oversized tool inputs.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Token budgeting and cost engineering",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d5-token-trim", "point": "History grows",
+  "stem": "In a research pipeline, upstream search agents pass full article text and their verbose reasoning chains to a synthesis agent whose context budget is nearly exhausted. What change BEST controls the synthesis agent's input cost?",
+  "options": [
+   "Give the synthesis agent a larger context window and change nothing upstream",
+   "Have the upstream agents return structured key facts (claims, citations, relevance scores) instead of verbose content and reasoning",
+   "Raise the synthesis agent's max_tokens so it can read more",
+   "Run the synthesis step on the Batch API for the discount"
+  ],
+  "answer": 1,
+  "explain": "When a downstream agent's context is tight, having upstream agents return compact structured key facts — claims, citations, relevance scores — instead of full text and reasoning chains cuts the input the synthesis agent must carry. A bigger window and higher max_tokens raise the ceiling and cost rather than reducing what is sent, and the Batch API affects scheduling and price, not the size of the handoff.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Token budgeting and cost engineering",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Output is dear",
+  "stem": "A high-volume classification service returns a short label plus a long free-text justification on every call, and cost is dominated by generation. Since output tokens cost roughly 5x input, what change saves the MOST?",
+  "options": [
+   "Shorten the input prompt as much as possible",
+   "Cache the system prompt to cut input cost",
+   "Drop or drastically shorten the generated justification, since trimming output saves more than trimming input at about 5x the price",
+   "Increase temperature so responses are shorter on average"
+  ],
+  "answer": 2,
+  "explain": "With output priced around five times input, the biggest lever is the generated text, so cutting the long justification down or out saves more than any prompt-side change. Shortening the input and caching the system prompt help the cheaper side of the ledger, and temperature controls randomness not length, so it is not a reliable way to shorten output.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "RAG versus long context: when to retrieve",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d5-rag-fit", "point": "Rule of thumb",
+  "stem": "A 15-page reference sheet easily fits in the context window, but it is regenerated with new numbers every few minutes, and queries hit it constantly. Long context or retrieval?",
+  "options": [
+   "Keep it in context and cache it, since it fits comfortably",
+   "Keep it in context uncached and resend it each call, since it is small",
+   "Summarize it once at startup and answer from the summary",
+   "Fetch the current version at query time (retrieval or re-fetch), because its frequent churn makes a cached copy stale"
+  ],
+  "answer": 3,
+  "explain": "The rule of thumb weighs both size and churn: even a small corpus that changes every few minutes should be fetched fresh at query time, because a cached in-context copy goes stale between updates. Caching a constantly-changing sheet serves outdated numbers, a stale summary is worse still, and simply resending an old copy each call re-sends stale data — here the churn, not the size, drives the decision.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "RAG versus long context: when to retrieve",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d5-rag-fit", "point": "Retrieval",
+  "stem": "A legal assistant answers questions about a single 80-page contract whose clauses heavily cross-reference each other. A team proposes chunk-and-embed RAG over the contract. Why might keeping the whole contract in long context be better here?",
+  "options": [
+   "RAG may retrieve too few chunks and miss a cross-referenced clause, whereas full context preserves all cross-references",
+   "RAG is always more expensive than long context per call",
+   "Long context guarantees the model never makes mistakes",
+   "Embeddings cannot be computed for legal text"
+  ],
+  "answer": 0,
+  "explain": "For one document whose clauses cross-reference each other, RAG's central risk — retrieving too little and missing a relevant chunk — can drop a cross-referenced clause, while keeping the whole contract in context preserves every reference, and since it fits, retrieval infrastructure is unnecessary overhead. RAG is not universally costlier per call, long context does not guarantee correctness, and embeddings can certainly be computed for legal text.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "RAG versus long context: when to retrieve",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Hybrid",
+  "stem": "A product assistant has a small, stable style guide and system instructions plus a huge, frequently-updated API reference. How does a hybrid RAG-plus-long-context design handle these BEST?",
+  "options": [
+   "Embed both the style guide and the entire API reference and retrieve everything each call",
+   "Keep and cache the small stable style guide and instructions in context, and retrieve only the relevant API-reference sections per query",
+   "Put the entire API reference in context every call and skip retrieval",
+   "Retrieve the style guide fresh each call and never cache anything"
+  ],
+  "answer": 1,
+  "explain": "A hybrid design keeps the small, stable content (style guide, instructions) in a cached prefix while retrieving only the relevant slices of the large, changing API reference per query, matching each part to the right mechanism. Embedding and retrieving everything wastes the cache on stable content, stuffing the whole API reference in every call is costly and churns, and re-fetching the stable style guide while never caching discards the easy caching win.",
+  "source": "skills/questions@opus"
+ }
+]

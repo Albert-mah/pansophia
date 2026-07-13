@@ -752,6 +752,8 @@ window.Core = (function () {
       if (!groups[key]) { groups[key] = { profile: e.profile, subject: e.subject, discipline: e.discipline, scope: e.scope, topics: [] }; order.push(key); }
       var g = groups[key];
       if (!g.discipline && e.discipline) g.discipline = e.discipline;
+      if (!g.dir && e.dir) g.dir = e.dir;
+      if (!g.mock && e.mock) g.mock = e.mock;   // 全真模拟配置(n/minutes/pass)透传,别在合并时丢
       (e.topics || []).forEach(function (t) {
         var tg = g.topics.filter(function (x) { return x.title === t.title; })[0];
         if (!tg) { tg = { title: t.title, points: [] }; g.topics.push(tg); }

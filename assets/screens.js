@@ -1553,6 +1553,7 @@
       <span>本节题库 ${qs == null ? "…" : qs.length} 道</span>
       <span class="pan-btn ghost sm" onClick=${function () { app.go("practice", { disc: p.did, scope: p.scope }); }}>🎲 整课混合练</span>
       <span class="pan-btn ghost sm" onClick=${function () { app.go("practice", { disc: p.did, scope: p.scope, mode: "exam" }); }}>🧪 模拟试卷</span>
+      ${(function () { var se = skelEntryFor(p.did, p.scope); return se && se.mock ? html`<span class="pan-btn ghost sm" style="color:#B6532F;border-color:#E4C29B;" onClick=${function () { app.go("practice", { disc: p.did, scope: p.scope, mode: "mock" }); }}>🎯 全真模拟 ${se.mock.n || 60}题/${se.mock.minutes || 120}分钟</span>` : null; })()}
       <span class="lnk" style="color:#B6532F;cursor:pointer;" onClick=${function () { C.sendMessage({ kind: "ask", text: "「" + p.kp.title + "」的配套题太少了,请再出 5-8 道(kp 挂 " + kpId + ",变式多样、带解析)。", context: { discId: p.did, scope: p.scope, kp: kpId } }).then(function () { app.go("messages"); }); }}>✉️ 给这节加题</span>
     </div>`;
     if (saved) return html`<div>
@@ -1706,17 +1707,185 @@
       </div></div>`;
   }
 
+  /* ---- 全真模拟考(mode:"mock"):计时 · 不即时判分 · 按章节权重组卷 · 交卷后 1000 分制 + 分域报告
+     只对 skeleton 条目带 mock 配置的课程开放(如 claude-cert:60 题 / 120 分钟 / 720 过线,对齐真实机考) ---- */
+  function skelEntryFor(did, scope) {
+    var list = C.skeletonForDiscipline(did) || [];
+    return list.filter(function (e) { return (e.scope || null) === (scope || null); })[0] || null;
+  }
+  function shuffleArr(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  // 组卷:章节标题里的「(27%)」就是官方域权重;同一变体组只取一题;交互题/课外题不进卷;题量不足的章把缺口让给有余量的章
+  function buildMockPaper(entry, N) {
+    var chapters = (entry.topics || []).map(function (t) {
+      var m = /\((\d+)\s*%\)/.exec(t.title || "");
+      return { title: (t.title || "").replace(/\s*\(\d+\s*%\)/, ""), w: m ? parseInt(m[1], 10) : 0,
+               kps: (t.points || []).map(function (pt) { return pt.ref || pt.title; }) };
+    });
+    var wsum = chapters.reduce(function (s, c) { return s + c.w; }, 0) || 1;
+    return Promise.all(chapters.map(function (c) {
+      if (!c.w || !c.kps.length) return Promise.resolve([]);
+      return C.questionsFor({ kp: c.kps, scope: entry.scope || null, limit: 200 });
+    })).then(function (pools) {
+      var cleaned = pools.map(function (rows) {
+        var byGroup = {};
+        shuffleArr(rows || []).forEach(function (r) {
+          if (r.scope === "extra" || r.lab) return;
+          var g = String(r.variant_of || r.id);
+          if (!byGroup[g]) byGroup[g] = r;
+        });
+        return Object.keys(byGroup).map(function (k) { return byGroup[k]; });
+      });
+      var want = chapters.map(function (c) { return Math.round(N * c.w / wsum); });
+      var diff = N - want.reduce(function (s, x) { return s + x; }, 0);
+      for (var i = 0; diff !== 0 && i < want.length; i++) { if (chapters[i].w) { want[i] += diff > 0 ? 1 : -1; diff += diff > 0 ? -1 : 1; } }
+      var deficit = 0;
+      cleaned.forEach(function (pool, i) { if (pool.length < want[i]) { deficit += want[i] - pool.length; want[i] = pool.length; } });
+      var out = [];
+      cleaned.forEach(function (pool, i) {
+        var extra = 0;
+        if (deficit > 0 && pool.length > want[i]) { extra = Math.min(deficit, pool.length - want[i]); deficit -= extra; }
+        pool.slice(0, want[i] + extra).forEach(function (r) { var q = normQ(r); q._ch = chapters[i].title; out.push(q); });
+      });
+      return shuffleArr(out);
+    });
+  }
+  function MockExamRun(p) {
+    var app = useApp();
+    var cfg = p.cfg || {}, qs = p.questions || [];
+    var passLine = cfg.pass || 720, mins = cfg.minutes || 120;
+    var st0 = useState({ started: false, i: 0, ans: {}, deadline: 0, done: false });
+    var st = st0[0], setSt = st0[1];
+    var tk0 = useState(0); var setTick = tk0[1];
+    var selfRef = useState({})[0];   // 最新状态引用:给计时器用,避开闭包过期(vocab.js 同款)
+    selfRef.st = st; selfRef.submit = submit;
+    useEffect(function () {
+      var t = setInterval(function () {
+        var s = selfRef.st; if (!s || !s.started || s.done) return;
+        if (Date.now() >= s.deadline) selfRef.submit(true); else setTick(function (x) { return x + 1; });
+      }, 1000);
+      return function () { clearInterval(t); };
+    }, []);
+    function checkFillMock(q, v) { v = String(v == null ? "" : v).trim().toLowerCase().replace(/[.。]$/, ""); if (!v) return false; return (q.answer || []).some(function (a) { return String(a).trim().toLowerCase() === v; }); }
+    function submit(auto) {
+      var s = selfRef.st;
+      if (!s || s.done || selfRef.busy) return;
+      selfRef.busy = true;
+      var items = [], correct = 0, dom = {};
+      qs.forEach(function (q, idx) {
+        var chosen = s.ans[idx];
+        var ok = q.type === "fill" ? checkFillMock(q, chosen) : chosen === q.answer;
+        if (ok) correct++;
+        var d = dom[q._ch] || (dom[q._ch] = { total: 0, correct: 0 }); d.total++; if (ok) d.correct++;
+        C.recordAnswer({ questionId: q.qid, kp: q.kp, correct: ok, examId: p.examId });
+        C.recordQuiz({ qid: q.qid, kp: q.kp, correct: ok });
+        items.push({ q: q.q, type: q.type, options: q.options || [], answer: q.answer, explain: q.explain || "", kp: q.kp || null, chosen: chosen == null ? null : chosen, correct: ok });
+      });
+      var scaled = 100 + Math.round(900 * correct / Math.max(1, qs.length));
+      var passed = scaled >= passLine;
+      var earned = 15 + (passed ? 35 : 0);
+      C.award(earned, (passed ? "模拟考通过 · " : "完成模拟考 · ") + (p.title || "") + " · " + scaled, "mock-exam");
+      var domains = Object.keys(dom).map(function (k) { return { ch: k, total: dom[k].total, correct: dom[k].correct }; });
+      if (p.runKey) C.saveQuizRun(p.runKey, { ts: Date.now(), correct: correct, total: qs.length, earned: earned, title: p.title, items: items, scaled: scaled, passed: passed, domains: domains, mock: 1 });
+      C.logEvent({ kind: "quiz", subject: p.subject || "", label: p.title || "模拟考", correct: correct, total: qs.length });
+      app.checkAch();
+      selfRef.busy = false;
+      setSt(Object.assign({}, s, { done: true, items: items, correct: correct, scaled: scaled, passed: passed, domains: domains, auto: !!auto }));
+    }
+    if (!qs.length) return html`<div class="pan-empty">题库还不够组一份卷,先去练习模式刷题吧。</div>`;
+    if (!st.started) {
+      return html`<div class="pan-panel" style="padding:34px 36px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:10px;">🎯</div>
+        <h1 style="font-family:var(--serif);font-size:24px;margin:0 0 10px;">${p.title || "全真模拟考"}</h1>
+        <div style="font-size:14px;color:#3a3023;line-height:2;margin-bottom:8px;"><b>${qs.length}</b> 题 · <b>${mins}</b> 分钟 · 按官方各域权重组卷<br/>交卷前不判分,可回头改答案 · ${passLine}/1000 过线(对齐真实机考)</div>
+        <div style="font-size:12.5px;color:#B6532F;margin-bottom:22px;">⚠️ 计时开始后中途离开不保存,请一次考完</div>
+        <span class="pan-btn terra" style="font-size:16px;padding:12px 34px;" onClick=${function () { setSt(Object.assign({}, st, { started: true, deadline: Date.now() + mins * 60000 })); }}>▶ 开始计时</span>
+      </div>`;
+    }
+    if (st.done) {
+      var vd = st.passed;
+      return html`<div>
+        <div class="pan-panel" style="text-align:center;padding:36px;margin-bottom:18px;">
+          <div style="font-size:42px;margin-bottom:8px;">${vd ? "🏆" : "📈"}</div>
+          <h1 style="font-family:var(--serif);font-size:30px;margin:0 0 4px;">${st.scaled} <span style="font-size:15px;color:#9a8a6f;font-weight:400;">/ 1000</span></h1>
+          <div style=${"font-weight:800;font-size:15px;margin-bottom:6px;color:" + (vd ? "#6E7A4F" : "#B6532F") + ";"}>${vd ? "PASS · 过线!真考也这么打" : "未过线(" + passLine + ")· 看下面弱项域补"}</div>
+          <div style="color:#9a8a6f;font-size:13px;margin-bottom:18px;">${st.correct}/${qs.length} 正确${st.auto ? " · ⏰ 时间到自动交卷" : ""} · 获得 ⬡ ${15 + (vd ? 35 : 0)} · 错题已进错题本</div>
+          <div style="max-width:520px;margin:0 auto 20px;text-align:left;">
+            ${(st.domains || []).map(function (dm, i) {
+              var pc = dm.total ? Math.round(dm.correct / dm.total * 100) : 0;
+              return html`<div key=${i} style="margin-bottom:9px;">
+                <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;"><span style="font-weight:600;color:#3a3023;">${dm.ch}</span><span style=${"font-weight:700;color:" + (pc >= 70 ? "#6E7A4F" : "#B6532F") + ";"}>${dm.correct}/${dm.total} · ${pc}%</span></div>
+                <div class="pan-bar" style="height:6px;"><i style=${"width:" + pc + "%;background:" + (pc >= 70 ? "#6E7A4F" : "#C8852E") + ";"}></i></div>
+              </div>`;
+            })}
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <span class="pan-btn ink" onClick=${p.onRedo}>🔄 再考一次(重新组卷)</span>
+            <span class="pan-btn ghost" onClick=${p.onClose}>返回课程</span>
+            <span class="pan-btn ghost" onClick=${function () { app.go("wrongbook"); }}>错题本</span>
+          </div>
+        </div>
+        ${html`<${QuizReview} items=${st.items} />`}
+      </div>`;
+    }
+    var q = qs[st.i];
+    var remain = Math.max(0, st.deadline - Date.now());
+    var rm = Math.floor(remain / 60000), rs = Math.floor(remain % 60000 / 1000);
+    var answered = Object.keys(st.ans).length;
+    function setAns(v) { var a = Object.assign({}, st.ans); if (v == null) delete a[st.i]; else a[st.i] = v; setSt(Object.assign({}, st, { ans: a })); }
+    function nav(i) { if (i >= 0 && i < qs.length) setSt(Object.assign({}, st, { i: i })); }
+    function trySubmit() {
+      var left = qs.length - answered;
+      if (left > 0 && !window.confirm("还有 " + left + " 题没作答,确定交卷?")) return;
+      submit(false);
+    }
+    var chosen = st.ans[st.i];
+    return html`<div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap;">
+        <div style="font-size:13px;color:#9a8a6f;flex:1;min-width:120px;">${p.title || "模拟考"} · 已答 <b style="color:#33291E;">${answered}</b>/${qs.length}</div>
+        <div style=${"font-variant-numeric:tabular-nums;font-weight:800;font-size:17px;padding:4px 14px;border-radius:999px;" + (remain < 600000 ? "background:#FAE9E2;color:#B6532F;" : "background:#F2F4E8;color:#6E7A4F;")}>⏱ ${rm}:${rs < 10 ? "0" + rs : rs}</div>
+        <span class="pan-btn terra sm" onClick=${trySubmit}>📤 交卷</span>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px;">
+        ${qs.map(function (_, i) {
+          var bg = i === st.i ? "#B6532F" : st.ans[i] != null ? "#6E7A4F" : "#EBDEC8";
+          var fg = i === st.i || st.ans[i] != null ? "#fff" : "#9a8a6f";
+          return html`<span key=${i} onClick=${function () { nav(i); }} style=${"cursor:pointer;width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:" + bg + ";color:" + fg + ";"}>${i + 1}</span>`;
+        })}
+      </div>
+      <div class="pan-panel" style="padding:28px 30px;">
+        <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap;">${html`<${Pill} text=${q.type === "fill" ? "填空" : "单选"} color="#6E7A4F" />`}<span style="font-size:11.5px;color:#9a8a6f;">${q._ch || ""}</span></div>
+        <h1 style="font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.5;margin:0 0 20px;">${q.q}</h1>
+        ${q.type === "fill"
+          ? html`<input value=${chosen == null ? "" : chosen} onInput=${function (e) { setAns(e.target.value); }} placeholder="Type your answer…" style="width:100%;border:1.5px solid #EBDEC8;border-radius:12px;padding:13px 16px;font-size:15px;outline:none;background:#FFFDF8;box-sizing:border-box;" />`
+          : html`<div style="display:flex;flex-direction:column;gap:11px;">${(q.options || []).map(function (o, i) {
+              var on = chosen === i;
+              return html`<div key=${i} class="pan-opt" style=${on ? "border-color:#B6532F;background:#FBF0E9;" : ""} onClick=${function () { setAns(on ? null : i); }}><div class="k" style=${on ? "background:#B6532F;color:#fff;" : ""}>${String.fromCharCode(65 + i)}</div><div class="tx">${o}</div>${on ? html`<div style="font-size:15px;color:#B6532F;font-weight:800;">●</div>` : null}</div>`;
+            })}</div>`}
+        <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;">
+          <span class="pan-btn ghost sm" style=${st.i === 0 ? "opacity:.4;pointer-events:none;" : ""} onClick=${function () { nav(st.i - 1); }}>← 上一题</span>
+          <span class="pan-btn ink sm" style=${st.i + 1 >= qs.length ? "opacity:.4;pointer-events:none;" : ""} onClick=${function () { nav(st.i + 1); }}>下一题 →</span>
+          <span style="flex:1;"></span>
+          <span style="font-size:12px;color:#9a8a6f;align-self:center;">再点一次选项可取消 · 可随时跳题回改</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
   function PracticeScreen() {
     var app = useApp();
     var did = app.params.disc, scope = app.params.scope, mode = app.params.mode, kpParam = app.params.kp || null;
-    var isExam = mode === "exam";
+    var isExam = mode === "exam", isMock = mode === "mock";
     var d = did && C.disciplineById(did);
     var kpc = kpParam ? C.catalogById(kpParam) : null;   // 单考点练习
     var runKey = did ? (did + "|" + (scope || "") + "|" + (mode || "practice") + (kpParam ? "|" + kpParam : "")) : null;
     var rd0 = useState(false); var redo = rd0[0], setRedo = rd0[1];   // true=用户选了重新练习
     var q0 = useState(null); var qs = q0[0], setQs = q0[1];
+    var nn0 = useState(0); var nonce = nn0[0], setNonce = nn0[1];   // mock 重新组卷用
+    var mockEntry = isMock && did ? skelEntryFor(did, scope) : null;
+    var mockCfg = mockEntry && mockEntry.mock;
     useEffect(function () {
       if (!d) { setQs([]); return; }
+      if (isMock) { setQs(null); if (mockCfg) buildMockPaper(mockEntry, mockCfg.n || 60).then(setQs); else setQs([]); return; }
       var opt = kpParam ? { kp: [kpParam], scope: scope || null, limit: 30 } : { subject: d.subject, scope: scope || null, limit: isExam ? 300 : 20 };
       C.questionsFor(opt).then(function (rows) {
         var list = rows.filter(function (r) { return r.scope !== "extra"; }).map(normQ);   // 课外题不进混合练/模拟卷
@@ -1728,16 +1897,36 @@
         }
         setQs(list);
       });
-    }, [did, scope, mode, kpParam]);
-    var title = kpc ? (kpc.title + " · 练习") : (((d && d.name) || "") + (isExam ? " 模拟试卷" : " 练习"));
+    }, [did, scope, mode, kpParam, nonce]);
+    var title = kpc ? (kpc.title + " · 练习") : (((d && d.name) || "") + (isMock ? " 全真模拟" : isExam ? " 模拟试卷" : " 练习"));
     function back() { app.go("course", scope ? { disc: did, scope: scope } : { disc: did }); }
     var saved = (runKey && !redo) ? C.quizRunFor(runKey) : null;   // 上次完成的整套(没选重做时优先展示回顾,不盲目重来)
     var savedAcc = saved && saved.total ? Math.round(saved.correct / saved.total * 100) : 0;
     return html`<div class="pan-screen narrow">
       ${html`<${Crumb} parts=${[{ t: "首页", go: "home" }, { t: "我的课程", go: "course" }, { t: title }]} />`}
-      <h1 class="pan-page-h">${title} <span class="en">/ ${isExam ? "Final Exam" : "Practice"}</span></h1>
+      <h1 class="pan-page-h">${title} <span class="en">/ ${isMock ? "Mock Exam" : isExam ? "Final Exam" : "Practice"}</span></h1>
       ${isExam ? html`<p class="pan-page-sub">覆盖本课各知识点各一题(尽量用变体,不照搬原题);≥80% 视为通过最终校验,这门课就标「✅ 已补上」。</p>` : null}
-      ${saved ? html`<div>
+      ${isMock ? html`<p class="pan-page-sub">对齐真实机考:${(mockCfg && mockCfg.n) || 60} 题 ${(mockCfg && mockCfg.minutes) || 120} 分钟,按官方各域权重组卷,交卷才判分,${(mockCfg && mockCfg.pass) || 720}/1000 过线。每次重考都重新组卷。</p>` : null}
+      ${isMock ? (
+        saved && saved.mock && !redo ? html`<div>
+          <div class="pan-panel" style="padding:24px 26px;margin-bottom:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div style="font-size:36px;">${saved.passed ? "🏆" : "📈"}</div>
+            <div style="flex:1;min-width:160px;">
+              <div style="font-family:var(--serif);font-size:22px;font-weight:800;">${saved.scaled} / 1000 <span style=${"font-size:13px;font-weight:800;color:" + (saved.passed ? "#6E7A4F" : "#B6532F") + ";"}>${saved.passed ? "PASS" : "未过线"}</span></div>
+              <div style="font-size:12.5px;color:#9a8a6f;">${relTime(saved.ts)} · ${saved.correct}/${saved.total} 正确 · 下面逐题回顾</div>
+            </div>
+            <span class="pan-btn ink" onClick=${function () { setRedo(true); setNonce(nonce + 1); }}>🔄 再考一次</span>
+          </div>
+          ${(saved.domains || []).length ? html`<div class="pan-panel" style="padding:18px 22px;margin-bottom:18px;">
+            ${saved.domains.map(function (dm, i) { var pc = dm.total ? Math.round(dm.correct / dm.total * 100) : 0; return html`<div key=${i} style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;"><span style="font-weight:600;">${dm.ch}</span><span style=${"font-weight:700;color:" + (pc >= 70 ? "#6E7A4F" : "#B6532F") + ";"}>${pc}%</span></div><div class="pan-bar" style="height:6px;"><i style=${"width:" + pc + "%;background:" + (pc >= 70 ? "#6E7A4F" : "#C8852E") + ";"}></i></div></div>`; })}
+          </div>` : null}
+          ${html`<${QuizReview} items=${saved.items} />`}
+        </div>`
+        : qs == null ? html`<div class="pan-empty">按官方域权重组卷中…</div>`
+        : html`<${MockExamRun} questions=${qs} cfg=${mockCfg || {}} title=${title} runKey=${runKey} subject=${d && d.subject}
+            examId=${"mock-" + did + "-" + (scope || "")}
+            onRedo=${function () { setRedo(true); setNonce(nonce + 1); }} onClose=${back} />`
+      ) : saved ? html`<div>
           <div class="pan-panel" style="padding:24px 26px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
             <div style="font-size:34px;">${savedAcc >= 80 ? "🎉" : savedAcc >= 60 ? "👍" : "💪"}</div>
             <div style="flex:1;min-width:140px;"><div style="font-family:var(--serif);font-size:19px;font-weight:700;">上次成绩 ${saved.correct}/${saved.total} · ${savedAcc}%</div><div style="font-size:12.5px;color:#9a8a6f;">${relTime(saved.ts)}${saved.earned ? " · 获得 ⬡ " + saved.earned : ""} · 下面是逐题回顾</div></div>

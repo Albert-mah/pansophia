@@ -1,0 +1,842 @@
+[
+ {
+  "kp": "Anthropic certification tracks and exam logistics",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "CCAR-F format",
+  "stem": "An architect reads the CCAR-F exam guide and wants to understand how the 60 items are organized. Which statement about the exam structure is correct?",
+  "options": [
+   "The exam presents the same 4 fixed scenarios to every candidate",
+   "All 6 scenarios appear on every exam, one after another",
+   "The 60 items are grouped under 4 scenarios drawn at random from a bank of 6",
+   "Items are standalone, with no scenario framing at all"
+  ],
+  "answer": 2,
+  "explain": "The guide specifies that 4 scenarios, picked at random from a bank of 6, frame the 60 items. The 4 are not a fixed set shown to everyone, not all 6 appear on any one exam, and the items are scenario-based rather than standalone.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Anthropic certification tracks and exam logistics",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "CCAR-F format",
+  "stem": "A candidate's CCAR-F score report shows a scaled score of 735 and a per-domain breakdown: 60% correct in one domain, 90% in another. They passed. How are these per-domain percentages used?",
+  "options": [
+   "They are informational only; pass or fail is determined by the total scaled score against the 720 cut",
+   "You must reach at least 70% in every domain in addition to the scaled cut, or you fail",
+   "The lowest domain percentage replaces the scaled score for the pass decision",
+   "Each domain percentage is weighted and summed to decide pass or fail"
+  ],
+  "answer": 0,
+  "explain": "The score report shows percent-correct by domain for information only; the pass decision rests solely on the total scaled score against the 720 cut. There is no per-domain minimum, the lowest domain does not override the total, and the decision is not a weighted sum of domain percentages.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The six exam scenarios: what the exam actually tests",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-scenario-map", "point": "Six scenarios",
+  "stem": "A production system uses the Claude Agent SDK to handle returns, billing disputes, and account issues, calling backend MCP tools get_customer, lookup_order, process_refund, and escalate_to_human, targeting 80%+ first-contact resolution. Which exam scenario frames this context, and what are its primary domains?",
+  "options": [
+   "Multi-Agent Research System — Agentic Architecture, Tool Design & MCP, Context & Reliability",
+   "Structured Data Extraction — Prompt Engineering & Structured Output, Context & Reliability",
+   "Developer Productivity with Claude — Tool Design & MCP, Claude Code Configuration, Agentic Architecture",
+   "Customer Support Resolution Agent — Agentic Architecture & Orchestration, Tool Design & MCP Integration, Context Management & Reliability"
+  ],
+  "answer": 3,
+  "explain": "The get_customer/process_refund/escalate toolset and first-contact-resolution target are the Customer Support Resolution Agent scenario, whose primary domains are Agentic Architecture, Tool Design & MCP, and Context & Reliability. Research (peer subagents), Extraction (JSON schemas), and Developer Productivity (codebase exploration) describe different contexts.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The six exam scenarios: what the exam actually tests",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-scenario-map", "point": "Six scenarios",
+  "stem": "A coordinator agent delegates to specialized subagents — one searches the web, one analyzes documents, one synthesizes findings, one generates cited reports. Which exam scenario frames this, and which domains does it primarily test?",
+  "options": [
+   "Customer Support Resolution Agent — Prompt Engineering, Context & Reliability",
+   "Multi-Agent Research System — Agentic Architecture & Orchestration, Tool Design & MCP Integration, Context Management & Reliability",
+   "Claude Code for Continuous Integration — Claude Code Configuration, Prompt Engineering",
+   "Structured Data Extraction — Prompt Engineering & Structured Output, Context & Reliability"
+  ],
+  "answer": 1,
+  "explain": "A coordinator delegating to specialized subagents that produce cited reports is the Multi-Agent Research System, whose primary domains are Agentic Architecture, Tool Design & MCP, and Context & Reliability. The CI scenario is about pipelines, extraction is about JSON schemas, and support is about resolution — none match a research coordinator.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The six exam scenarios: what the exam actually tests",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-scenario-map", "point": "Six scenarios",
+  "stem": "A system reads unstructured invoices and contracts, extracts fields, and validates the output against JSON schemas before handing it to downstream systems, aiming for high accuracy on edge cases. Which exam scenario frames this, and what does it primarily test?",
+  "options": [
+   "Developer Productivity with Claude — Tool Design & MCP, Agentic Architecture",
+   "Customer Support Resolution Agent — Agentic Architecture, Context & Reliability",
+   "Structured Data Extraction — Prompt Engineering & Structured Output, Context Management & Reliability",
+   "Code Generation with Claude Code — Claude Code Configuration, Context & Reliability"
+  ],
+  "answer": 2,
+  "explain": "Extracting from unstructured documents and validating against JSON schemas is the Structured Data Extraction scenario, whose primary domains are Prompt Engineering & Structured Output and Context & Reliability. Developer productivity, support resolution, and code generation frame different production contexts.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The six exam scenarios: what the exam actually tests",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-distractor-anatomy", "point": "Question anatomy",
+  "stem": "An item asks for the most effective first step when tool descriptions are minimal and the agent misroutes between two similar tools. One option proposes building a separate routing classifier that parses each request and pre-selects the tool. In the exam's distractor anatomy, this option is an example of which failure type?",
+  "options": [
+   "The proportionate root-cause fix",
+   "Prompt-hoping — asking for what needs a guarantee",
+   "Over-engineering — adding infrastructure a smaller fix would avoid",
+   "Solving a different problem than the one described"
+  ],
+  "answer": 2,
+  "explain": "A routing classifier is heavier infrastructure than the situation needs when the root cause is thin tool descriptions — the classic over-engineering distractor. Prompt-hoping trusts a prompt where determinism is required, solving-a-different-problem would target availability not selection, and the proportionate fix here is simply enriching the descriptions.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The six exam scenarios: what the exam actually tests",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-distractor-anatomy", "point": "Question anatomy",
+  "stem": "In a support scenario, logs show refunds occasionally process without identity verification. One option proposes strengthening the system prompt to state that verification is mandatory. Where money is at stake and the sequence must always hold, this option exemplifies which distractor pattern?",
+  "options": [
+   "Prompt-hoping — relying on a prompt instruction where a deterministic guarantee is required",
+   "Over-engineering — adding unnecessary infrastructure",
+   "The proportionate root-cause fix",
+   "Solving a different problem than the one described"
+  ],
+  "answer": 0,
+  "explain": "A stronger prompt buys only probabilistic compliance, so trusting it for a must-always-hold financial rule is the prompt-hoping distractor. It is not over-engineered (it is under-powered), not the proportionate fix (a programmatic gate is), and it does aim at the right problem — just with the wrong, non-deterministic mechanism.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The six exam scenarios: what the exam actually tests",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-distractor-anatomy", "point": "Question anatomy",
+  "stem": "An agent calls the wrong tool for order lookups. One option proposes a routing classifier that enables only a subset of tools per request. Since the real issue is which tool the model picks, not which tools are available, this option illustrates which distractor pattern?",
+  "options": [
+   "Prompt-hoping",
+   "Solving a different problem — it changes tool availability, not tool selection",
+   "The proportionate root-cause fix",
+   "Under-specifying the output schema"
+  ],
+  "answer": 1,
+  "explain": "Gating which tools are available addresses availability, but the described defect is selection among available tools — so the option solves a different problem. It is not prompt-hoping (it is code, not a prompt), not the proportionate fix (better descriptions are), and schema design is unrelated to tool selection.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The six exam scenarios: what the exam actually tests",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-proportionate-fix", "point": "Read the frame",
+  "stem": "The exam repeatedly rewards the smallest change that removes the root cause and penalizes the most sophisticated option. An item describes an agent escalating easy cases and mishandling hard ones because its escalation boundaries are unclear. Which option is MOST likely the intended answer?",
+  "options": [
+   "Deploy a separately trained classifier to predict escalation before the agent runs",
+   "Add sentiment analysis and escalate when negative sentiment crosses a threshold",
+   "Have the agent self-report a 1-10 confidence score and route on it",
+   "Add explicit escalation criteria with few-shot examples showing when to escalate versus resolve"
+  ],
+  "answer": 3,
+  "explain": "Unclear decision boundaries are fixed most proportionately by stating explicit criteria with examples — the root-cause fix before adding infrastructure. A trained classifier is over-engineered, sentiment solves a different problem (it does not track complexity), and self-reported confidence is poorly calibrated on exactly the hard cases that fail.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The six exam scenarios: what the exam actually tests",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-proportionate-fix", "point": "Read the frame",
+  "stem": "The exam rewards the proportionate root-cause fix over the most elaborate option. An item describes an agent frequently choosing the wrong tool because two similar tools carry near-identical one-line descriptions. Which option best fits the proportionate-fix principle?",
+  "options": [
+   "Consolidate both tools into one generic lookup tool that inspects the input and routes internally",
+   "Expand each tool's description with input formats, example queries, and when to use it versus the other",
+   "Add a deterministic routing layer that parses keywords before every turn",
+   "Add 5-8 few-shot examples of correct tool selection to the system prompt"
+  ],
+  "answer": 1,
+  "explain": "Tool descriptions are the primary selection mechanism, so enriching them is the low-effort, high-leverage root-cause fix. Consolidation is a larger architectural change than a first step warrants, a routing layer over-engineers and bypasses the model's understanding, and few-shot examples add token overhead without fixing the thin descriptions.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "The agent loop: model, tools, environment",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "point": "Stop reasons",
+  "stem": "A developer's agent decides to stop looping when the model's text output contains a phrase like 'all done.' In production it sometimes halts before finishing and sometimes loops after it should have stopped. What is the correct loop-termination signal?",
+  "options": [
+   "Set a fixed cap of five iterations and stop there as the primary mechanism",
+   "Terminate when stop_reason is end_turn and continue while it is tool_use, rather than parsing natural-language content",
+   "Stop as soon as any assistant text appears in the response",
+   "Stop when the model's output exceeds max_tokens"
+  ],
+  "answer": 1,
+  "explain": "Loop control should key off stop_reason — continue on tool_use, terminate on end_turn — not on parsing natural-language cues, the unreliable signal causing the bug. An arbitrary iteration cap is an anti-pattern as the primary stop, keying on any assistant text misfires the same way, and hitting max_tokens signals truncation, not completion.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflows versus agents: choosing the right architecture",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-workflow-patterns", "point": "Workflow types",
+  "stem": "Incoming support messages fall into distinct categories — billing, technical, and account — each best served by a different specialized prompt. Your code classifies each message, then sends it down the matching branch. Which workflow pattern is this?",
+  "options": [
+   "Evaluator-optimizer",
+   "Prompt chaining",
+   "Orchestrator-workers",
+   "Routing"
+  ],
+  "answer": 3,
+  "explain": "Classifying an input and directing it to a specialized follow-up is the routing pattern. Evaluator-optimizer loops generation against a critic, orchestrator-workers dynamically splits and delegates subtasks, and prompt chaining runs a fixed linear sequence — none describe category-based branching.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflows versus agents: choosing the right architecture",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-workflow-patterns", "point": "Workflow types",
+  "stem": "A translation pipeline generates a draft, then a second LLM call critiques it against quality criteria, looping generate-then-critique until the critique passes. Which workflow pattern does this describe?",
+  "options": [
+   "Routing",
+   "Prompt chaining",
+   "Evaluator-optimizer",
+   "Parallelization"
+  ],
+  "answer": 2,
+  "explain": "A generate-then-evaluate loop that refines against feedback is the evaluator-optimizer pattern. Routing branches by category, prompt chaining is a fixed one-way sequence, and parallelization runs independent subtasks concurrently — none capture the critique loop.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflows versus agents: choosing the right architecture",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-workflow-patterns", "point": "Workflow types",
+  "stem": "To speed up a task, your code splits it into independent subtasks that run at the same time and then aggregates their outputs — for example, running a content-safety check and the main generation concurrently. Which workflow pattern is this?",
+  "options": [
+   "Evaluator-optimizer",
+   "Parallelization",
+   "Routing",
+   "Prompt chaining"
+  ],
+  "answer": 1,
+  "explain": "Splitting work into independent concurrent subtasks and aggregating results is the parallelization pattern. Evaluator-optimizer is an iterative critique loop, routing branches by category, and prompt chaining runs steps in a fixed sequence, not concurrently.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Orchestration patterns: single agent, subagents, pipelines",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "How to choose",
+  "stem": "A single agent is comfortably handling a task that fits in one context window and has no independent parts to run in parallel. An engineer proposes splitting it into a three-stage subagent pipeline to 'future-proof' the design. What does the orchestration guidance recommend?",
+  "options": [
+   "Always prefer a pipeline; more components scale better by default",
+   "Split the work by data source, regardless of need",
+   "Keep the single agent; introduce subagents or pipelines only when context isolation or parallelism actually demands it",
+   "Add the pipeline now, since coordination overhead is negligible"
+  ],
+  "answer": 2,
+  "explain": "With the work fitting one window and nothing to parallelize, a single well-equipped agent is the right default; subagents and pipelines are justified by real context-isolation or parallelism needs, not by speculation. Defaulting to a pipeline, splitting by source blindly, or dismissing coordination cost all add overhead the task does not need.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Task decomposition: prompt chaining versus dynamic planning",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-decomp-choose", "point": "Prompt chaining",
+  "stem": "A code-review agent must review every pull request for the same fixed set of aspects — style, security, and test coverage — in a predictable order that never varies between runs. Which task-decomposition strategy fits best?",
+  "options": [
+   "Fixed prompt chaining — predefine the sequence of focused passes, since the aspects are known in advance",
+   "Dynamic decomposition — let the agent decide each next step from what it finds",
+   "A single mega-pass that reviews all aspects of all files at once",
+   "Escalate every pull request to a human reviewer"
+  ],
+  "answer": 0,
+  "explain": "Predictable, multi-aspect work with a known sequence is the case for fixed prompt chaining. Dynamic decomposition is for open-ended tasks whose steps cannot be predicted, a single mega-pass dilutes attention, and blanket human escalation abandons the automation entirely.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Task decomposition: prompt chaining versus dynamic planning",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-decomp-choose", "point": "Dynamic planning",
+  "stem": "An agent is told to 'add comprehensive tests to a large legacy codebase' with no map of its structure or dependencies. Which decomposition strategy fits best?",
+  "options": [
+   "Fix the full sequence of steps up front and run them in order",
+   "Review every file in one combined pass to save round trips",
+   "Dynamic decomposition — map the structure first, find high-impact areas, then build a prioritized plan that adapts as dependencies surface",
+   "Escalate to a human because the task cannot be automated"
+  ],
+  "answer": 2,
+  "explain": "An open-ended task whose subtasks depend on what you discover calls for dynamic decomposition — map structure, target high-impact areas, adapt the plan. A fixed pipeline cannot adapt to findings, a single pass dilutes attention, and the task is automatable once decomposed adaptively.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Task decomposition: prompt chaining versus dynamic planning",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-decomp-choose", "point": "Dynamic planning",
+  "stem": "Two tasks land on your desk: (1) validate 12 configuration files against the same fixed checklist, and (2) investigate why an intermittent production outage happens, where each next step depends on the last finding. How should each be decomposed?",
+  "options": [
+   "Both with dynamic decomposition, to stay flexible",
+   "Both with a fixed pipeline, for determinism",
+   "(1) dynamic decomposition and (2) fixed prompt chaining",
+   "(1) fixed prompt chaining and (2) dynamic decomposition"
+  ],
+  "answer": 3,
+  "explain": "The fixed-checklist validation is predictable and takes prompt chaining; the open-ended outage investigation cannot be scripted ahead and takes dynamic decomposition. Applying one pattern to both, or swapping them, mismatches the strategy to each task's predictability.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Task decomposition: prompt chaining versus dynamic planning",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-perfile-pass", "point": "Prompt chaining",
+  "stem": "A pull request changes 14 files. A single pass over all of them yields inconsistent depth, misses obvious bugs, and even flags a pattern in one file while approving identical code in another. How should you restructure the review?",
+  "options": [
+   "Split into focused passes: analyze each file individually for local issues, then run a separate cross-file integration pass",
+   "Switch to a model with a larger context window so all 14 files get attention in one pass",
+   "Require developers to break the PR into 3-4 file submissions before review",
+   "Run three full-PR passes and only flag issues that appear in at least two"
+  ],
+  "answer": 0,
+  "explain": "The inconsistency comes from attention dilution across many files at once, fixed by per-file local passes plus one integration pass. A larger window does not fix attention quality, shifting the burden to developers avoids rather than solves it, and consensus voting suppresses real bugs caught only intermittently.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Task decomposition: prompt chaining versus dynamic planning",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-perfile-pass", "point": "Prompt chaining",
+  "stem": "A security review of a 22-file change produces deep findings on a few files and shallow ones on the rest, with contradictory calls across files. Following the prompt-chaining approach to reviews, what is the fix?",
+  "options": [
+   "Ask the model to 'try harder and be consistent' in the same single pass",
+   "Chain a per-file local-analysis pass for each file, then a separate integration pass for cross-file data flow",
+   "Raise the temperature so the model varies its attention",
+   "Drop the files that got shallow feedback from the review"
+  ],
+  "answer": 1,
+  "explain": "Chaining per-file passes plus a cross-file integration pass gives consistent depth and catches cross-file issues — the prescribed decomposition. A vague instruction does not address attention dilution, higher temperature adds variance not focus, and dropping files hides rather than reviews them.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Task decomposition: prompt chaining versus dynamic planning",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-perfile-pass", "point": "One pass dilutes",
+  "stem": "Your team argues that reviewing 14 files in one combined pass fails only because the context window is too small, and that a larger-window model will fix the inconsistent depth and missed bugs. Why is this reasoning flawed?",
+  "options": [
+   "Larger windows are never available, so the plan is impossible",
+   "The window size is the real cause, so the plan will work",
+   "The root cause is attention dilution across many files at once, which a larger window does not resolve — split into per-file passes plus an integration pass",
+   "The fix is simply to raise max_tokens on each request"
+  ],
+  "answer": 2,
+  "explain": "The failure is attention spreading too thin across files, not a capacity limit, so a bigger window does not restore consistent depth; splitting into focused per-file passes plus an integration pass does. Larger windows do exist, window size is not the cause, and max_tokens governs output length, not review focus.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Task decomposition: prompt chaining versus dynamic planning",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-map-first", "point": "Dynamic planning",
+  "stem": "Before writing any tests for an unfamiliar legacy module, an agent needs a decomposition approach. Which first move fits dynamic decomposition for this open-ended task?",
+  "options": [
+   "Write the full list of test files to create, in order, before reading any code",
+   "Load every source file into one context and generate all tests in a single pass",
+   "Fix a rigid five-step pipeline and run it regardless of what the code looks like",
+   "Map the module's structure first, identify high-impact areas, then build a prioritized plan that adapts as dependencies surface"
+  ],
+  "answer": 3,
+  "explain": "Open-ended work starts by mapping structure and targeting high-impact areas, then plans adaptively as dependencies appear. Listing files up front or fixing a rigid pipeline cannot adapt to what you discover, and a single mega-pass dilutes attention across the whole module.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Task decomposition: prompt chaining versus dynamic planning",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-map-first", "point": "Dynamic planning",
+  "stem": "An agent must 'modernize error handling across a sprawling legacy service' but has no dependency map. Which decomposition plan best matches dynamic, findings-driven decomposition?",
+  "options": [
+   "Explore to map the structure and dependencies, identify the highest-impact call sites, then create a prioritized plan that evolves as new dependencies are found",
+   "Commit to a fixed sequence of edits chosen before any exploration",
+   "Edit every file in one pass to keep the change atomic",
+   "Refuse the task as too large to decompose"
+  ],
+  "answer": 0,
+  "explain": "For an open-ended change with unknown dependencies, you map structure first, target high-impact sites, and let the plan adapt — the essence of dynamic decomposition. A pre-fixed sequence cannot react to discoveries, a single all-file pass dilutes attention, and the task is decomposable once explored.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Parallel tool calls and multi-turn tool chaining",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-parallel-subagents", "point": "Parallel calls",
+  "stem": "A research coordinator needs its web-search subagent and its document-analysis subagent to run at the same time to cut latency. Using the Agent SDK, how does the coordinator spawn them in parallel?",
+  "options": [
+   "Spawn one subagent per turn, waiting for each to finish before spawning the next",
+   "Emit multiple Task tool calls in a single coordinator response, so the subagents run concurrently",
+   "Set disable_parallel_tool_use so both start together",
+   "Merge both subagents into one so there is nothing to parallelize"
+  ],
+  "answer": 1,
+  "explain": "Parallel subagents are spawned by emitting multiple Task tool calls within one coordinator response; the runtime then runs them concurrently. Spawning one per turn serializes them, disable_parallel_tool_use forces one-at-a-time, and merging the subagents removes the specialization the pattern relies on.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Parallel tool calls and multi-turn tool chaining",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-parallel-subagents", "point": "Parallel calls",
+  "stem": "A coordinator has four independent research subtopics, each handled by its own subagent, and wants them investigated simultaneously. Which approach achieves parallel execution?",
+  "options": [
+   "Issue all four Task tool calls in one response so the four subagents execute in parallel",
+   "Issue one Task call, wait for its summary, then issue the next, across four turns",
+   "Give a single subagent all four subtopics to do sequentially in its own window",
+   "Chain the four calls so each subagent's output feeds the next"
+  ],
+  "answer": 0,
+  "explain": "Emitting all four Task calls in a single response runs the four subagents concurrently. One-call-per-turn serializes across turns, one subagent doing all four is sequential, and chaining forces an order the independent subtopics do not require.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Parallel tool calls and multi-turn tool chaining",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-parallel-subagents", "point": "Parallel calls",
+  "stem": "A coordinator emits its Task tool calls for two independent subagents across two separate turns — one call this turn, the next only after the first returns. Its owner is surprised there is no latency win. Why?",
+  "options": [
+   "Task calls can never run in parallel; only built-in tools can",
+   "The two subagents share a context window, which blocks concurrency",
+   "Spawning across separate turns serializes the subagents; parallel execution requires emitting the Task calls together in a single response",
+   "The coordinator must set disable_parallel_tool_use to true to parallelize"
+  ],
+  "answer": 2,
+  "explain": "Concurrency comes from emitting the Task calls together in one response; splitting them across turns makes the second wait for the first, so there is no speedup. Task calls can run in parallel, subagents do not share a window, and disable_parallel_tool_use would prevent parallelism, not enable it.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Claude Agent SDK core abstractions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "What SDK packs",
+  "stem": "A coordinator agent built on the Claude Agent SDK is supposed to delegate to subagents, but its Task tool calls never spawn anything. Its configuration lists allowedTools as Read, Grep, and Bash. What is the MOST likely cause?",
+  "options": [
+   "Subagents can only be spawned from the raw Messages API, not the SDK",
+   "The coordinator must set disable_parallel_tool_use to false first",
+   "AgentDefinition system prompts cannot mention delegation",
+   "allowedTools does not include 'Task', which a coordinator must have to spawn subagents"
+  ],
+  "answer": 3,
+  "explain": "Spawning subagents goes through the Task tool, so a coordinator's allowedTools must include 'Task' or the calls do nothing. The SDK does support subagents, disable_parallel_tool_use governs concurrency not the ability to spawn, and the system-prompt wording is not what blocks delegation.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Claude Agent SDK core abstractions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "What SDK packs",
+  "stem": "When defining a specialized subagent type in the Claude Agent SDK, which set of properties does an AgentDefinition specify?",
+  "options": [
+   "Its description, its system prompt, and its tool restrictions",
+   "Its billing tier, region, and rate limits",
+   "The passing score and time limit for its tasks",
+   "The physical server and container it runs in"
+  ],
+  "answer": 0,
+  "explain": "An AgentDefinition configures a subagent type's description, system prompt, and tool restrictions, shaping when it is invoked and what it may do. Billing, scoring, and infrastructure placement are not part of an AgentDefinition.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent SDK hooks: interception and data normalization",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-hooks-normalize", "point": "PostToolUse hook",
+  "stem": "Three MCP tools return timestamps in different shapes — one Unix epoch seconds, one ISO 8601 strings, one numeric status codes — and the agent keeps misreading them. You want every tool result reshaped into one consistent format before the model ever sees it. Which mechanism fits?",
+  "options": [
+   "A line in the system prompt asking the model to normalize formats itself",
+   "A PreToolUse hook that rewrites the outgoing tool call",
+   "A PostToolUse hook that normalizes each tool result into one shape before the model processes it",
+   "Raising the model's temperature so it tolerates format variety"
+  ],
+  "answer": 2,
+  "explain": "A PostToolUse hook intercepts a tool result before the model reads it, the right place to normalize heterogeneous formats deterministically. A prompt only asks and can fail, a PreToolUse hook acts on the outgoing call not the returned result, and temperature has nothing to do with format consistency.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent SDK hooks: interception and data normalization",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-hooks-normalize", "point": "PostToolUse hook",
+  "stem": "In a support agent, get_customer returns dates as Unix timestamps while lookup_order returns ISO 8601, and the agent occasionally compares them incorrectly. What is the MOST reliable fix?",
+  "options": [
+   "Ask the model in the prompt to convert timestamps carefully",
+   "Force a JSON schema on the model's final answer",
+   "Add more few-shot examples of date comparisons",
+   "A PostToolUse hook that converts every tool's dates to a single canonical format before the model reasons over them"
+  ],
+  "answer": 3,
+  "explain": "Normalizing the heterogeneous results deterministically in a PostToolUse hook removes the ambiguity at the source. A prompt request is probabilistic, forcing an output schema shapes the answer but not the mismatched inputs, and few-shot examples cannot guarantee correct conversion of every timestamp.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent SDK hooks: interception and data normalization",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-hooks-normalize", "point": "PostToolUse hook",
+  "stem": "You need a hook that fires AFTER a tool runs, transforming the tool's RESULT before the model processes it. Which hook pattern is this?",
+  "options": [
+   "A tool-call interception hook that inspects and blocks the outgoing call",
+   "A PostToolUse hook, which intercepts the result of a completed tool call for transformation",
+   "A Stop hook that ends the session",
+   "A prompt instruction, which is not a hook at all"
+  ],
+  "answer": 1,
+  "explain": "Transforming a tool's result after it runs is exactly the PostToolUse pattern. An interception hook acts on the outgoing call before it runs, a Stop hook ends the session rather than transforming results, and a prompt instruction is advisory, not a deterministic hook.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent SDK hooks: interception and data normalization",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-hooks-block", "point": "Block the call",
+  "stem": "Company policy is that refunds above $500 must never be auto-processed; they must go to a human. Despite a clear system-prompt instruction, some large refunds still slip through. What MOST reliably enforces the rule?",
+  "options": [
+   "Rewrite the system prompt more forcefully",
+   "Lower the temperature so the model follows policy",
+   "Add few-shot examples of refusing large refunds",
+   "A tool-call interception hook that blocks any process_refund over $500 and redirects it to escalate_to_human"
+  ],
+  "answer": 3,
+  "explain": "An interception hook inspects the outgoing call and deterministically blocks over-threshold refunds, redirecting them to human escalation — a guarantee, not a hope. A stronger prompt, lower temperature, and more examples all remain probabilistic and can be overridden by the model.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent SDK hooks: interception and data normalization",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-hooks-block", "point": "Block the call",
+  "stem": "A sales agent may apply discounts, but any discount above 40% requires manager sign-off and must never be applied automatically. Which control guarantees the rule holds on every call?",
+  "options": [
+   "An interception hook that blocks any apply_discount over 40% and routes it to a manager-approval workflow",
+   "A system-prompt rule stating discounts over 40% need approval",
+   "A PostToolUse hook that logs discounts after they are applied",
+   "A note in CLAUDE.md describing the discount policy"
+  ],
+  "answer": 0,
+  "explain": "Blocking the over-threshold call in an interception hook and redirecting to approval enforces the rule deterministically before anything is applied. A prompt rule is probabilistic, a PostToolUse log runs after the discount is already applied, and a CLAUDE.md note is advisory context, not enforcement.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent SDK hooks: interception and data normalization",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-hooks-block", "point": "Block the call",
+  "stem": "An interception hook detects a process_refund call for $900 against a $500 policy limit. To both enforce the policy and keep the customer moving, what should the hook do when triggered?",
+  "options": [
+   "Let the call through but write a warning to the logs",
+   "Block the policy-violating call and redirect it to an alternative workflow such as human escalation",
+   "Silently drop the call and return nothing to the agent",
+   "Raise the refund limit to $900 so the call succeeds"
+  ],
+  "answer": 1,
+  "explain": "The interception pattern blocks the violating call and redirects to an alternative path such as human escalation, enforcing policy without dead-ending the case. Logging-and-allowing defeats the block, silently dropping leaves the agent stuck with no path, and raising the limit abandons the policy.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent SDK hooks: interception and data normalization",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-hooks-vs-prompt", "point": "Prompts only ask",
+  "stem": "A business rule with financial consequences must hold on 100% of calls. A colleague suggests enforcing it with a carefully worded system-prompt instruction. Why is a hook the better choice?",
+  "options": [
+   "Prompts are deterministic while hooks are advisory",
+   "Hooks are cheaper in tokens, which is the deciding factor",
+   "Prompt instructions give only probabilistic compliance with a non-zero failure rate, while a hook enforces the rule in code deterministically",
+   "There is no real difference; either works equally well"
+  ],
+  "answer": 2,
+  "explain": "Prompts buy probabilistic compliance, unacceptable when a money-tied rule must always hold; a hook runs in code on every call and guarantees it. Prompts are the advisory side (not hooks), token cost is not the deciding factor, and the two are not equivalent for guaranteed compliance.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent SDK hooks: interception and data normalization",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-hooks-vs-prompt", "point": "Prompts only ask",
+  "stem": "Which principle best captures when to enforce agent behavior with a hook rather than a prompt instruction?",
+  "options": [
+   "Use a hook when a rule must always hold (a deterministic guarantee); use a prompt when it is guidance that should usually hold",
+   "Use a prompt for anything involving money or safety",
+   "Use a hook only when you cannot think of a prompt wording",
+   "Hooks and prompts are interchangeable; pick either"
+  ],
+  "answer": 0,
+  "explain": "Hooks provide deterministic guarantees for must-always-hold rules; prompts provide probabilistic guidance for should-usually-hold behavior. Money and safety rules need the hook, not the prompt; hooks are a first choice for guarantees rather than a last resort; and the two are not interchangeable.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflow enforcement: programmatic gates and structured handoffs",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-prereq-gate", "point": "Prereq gates",
+  "stem": "In a pharmacy agent, logs show that in a fraction of cases it calls dispense_medication before verify_prescription has confirmed a valid prescription, occasionally dispensing against an unverified order. The prompt already says to verify first. What MOST effectively fixes this?",
+  "options": [
+   "Strengthen the system prompt to insist verification is mandatory",
+   "Add a programmatic prerequisite that blocks dispense_medication until verify_prescription returns a valid result",
+   "Add a routing classifier that enables only the tools each request needs",
+   "Add few-shot examples showing the agent verifying before dispensing"
+  ],
+  "answer": 1,
+  "explain": "A must-hold safety sequence is enforced by a programmatic gate that blocks dispensing until verification returns — deterministic, not hoped-for. A stronger prompt and few-shot examples remain probabilistic, and a routing classifier changes which tools are available, not the order they run in.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflow enforcement: programmatic gates and structured handoffs",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-prereq-gate", "point": "Prereq gates",
+  "stem": "A banking agent sometimes initiates a funds transfer before the customer's KYC identity check has passed, creating compliance exposure. Prompt wording has not eliminated it. What is the proportionate, reliable fix?",
+  "options": [
+   "Rephrase the system prompt to emphasize KYC-first ordering",
+   "Lower the temperature so the agent follows the sequence",
+   "Train a classifier to predict which transfers are risky",
+   "Block the transfer_funds tool programmatically until the KYC verification step returns a passed result"
+  ],
+  "answer": 3,
+  "explain": "Gating transfer_funds on a passed KYC check enforces the required order deterministically, the fix for a compliance-critical sequence. Prompt rewording and lower temperature are still probabilistic, and a risk classifier over-engineers the problem without guaranteeing the ordering.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflow enforcement: programmatic gates and structured handoffs",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-prereq-gate", "point": "Prereq gates",
+  "stem": "An e-commerce agent occasionally confirms an order before check_inventory has verified stock, leading to confirmed orders that cannot be fulfilled. Which change guarantees the check happens first?",
+  "options": [
+   "Add a prompt line telling the agent to always check inventory first",
+   "Add few-shot examples of inventory-first order handling",
+   "Add a programmatic prerequisite that blocks confirm_order until check_inventory returns availability",
+   "Consolidate the two tools into one so there is nothing to order"
+  ],
+  "answer": 2,
+  "explain": "Blocking confirm_order until check_inventory returns makes the prerequisite deterministic. A prompt line and few-shot examples are probabilistic, and consolidating the tools hides the ordering requirement inside one tool rather than enforcing the gate the caller needs.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflow enforcement: programmatic gates and structured handoffs",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-handoff-summary", "point": "Handoff summary",
+  "stem": "A support agent must escalate a refund dispute mid-conversation to a human who has no access to the chat transcript. What should the agent pass so the human can act without replaying the conversation?",
+  "options": [
+   "A structured handoff summary — customer ID, root cause, refund amount, and recommended action",
+   "Just a flag that the case is 'escalated,' with no details",
+   "The entire raw transcript, however long, for the human to read in full",
+   "A request for the customer to re-explain everything to the human"
+  ],
+  "answer": 0,
+  "explain": "A structured summary (customer ID, root cause, amount, recommended action) lets the human act immediately without the transcript. A bare escalation flag gives them nothing, dumping the full transcript is exactly what they lack access to and is unwieldy, and making the customer repeat themselves defeats the escalation.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflow enforcement: programmatic gates and structured handoffs",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-handoff-summary", "point": "Handoff summary",
+  "stem": "An IT-support agent escalates an unresolved incident to an on-call engineer who cannot see the agent's session. Which handoff content best enables the engineer to act?",
+  "options": [
+   "A single line: 'user is frustrated, please help'",
+   "The full unstructured log of every tool call the agent made",
+   "Only the ticket ID, with no diagnosis",
+   "A structured summary: ticket ID, root-cause analysis, steps already attempted, and recommended next action"
+  ],
+  "answer": 3,
+  "explain": "A structured handoff (ticket ID, root cause, attempted steps, recommended action) gives the engineer what they need to continue without the session. A frustration note lacks substance, a raw tool-call dump forces them to reconstruct the case, and a bare ticket ID omits the diagnosis.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflow enforcement: programmatic gates and structured handoffs",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-handoff-summary", "point": "Handoff summary",
+  "stem": "Your team is standardizing escalation handoffs to humans who lack the conversation transcript. Which set of fields should a handoff summary contain?",
+  "options": [
+   "The model's temperature, token usage, and stop_reason for the session",
+   "Customer ID, root-cause analysis, the amount in question, and a recommended action",
+   "Only the customer's most recent message",
+   "A confidence score the agent assigns to itself"
+  ],
+  "answer": 1,
+  "explain": "The handoff should carry the facts a human needs to act — customer ID, root cause, amount, and recommended action. Model telemetry is irrelevant to resolving the case, the latest message alone lacks context, and a self-assigned confidence score is a poorly calibrated substitute for the actual case facts.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflow enforcement: programmatic gates and structured handoffs",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-decompose-parallel", "point": "Where this leads",
+  "stem": "A customer writes one message raising three distinct issues: a refund on a damaged item, a wrong shipping address, and a duplicate charge. What is the MOST effective way to handle it?",
+  "options": [
+   "Answer only the first issue and ask the customer to resend the others separately",
+   "Escalate the whole message to a human because it has multiple concerns",
+   "Decompose it into three distinct items, investigate each in parallel using shared context, then synthesize one unified resolution",
+   "Handle the three issues in a fixed sequence, blocking each on the previous one"
+  ],
+  "answer": 2,
+  "explain": "Multi-concern requests are best split into distinct items, investigated in parallel against shared context, and merged into one resolution. Answering only the first drops the rest, blanket escalation is unnecessary for handleable issues, and forcing a strict sequence serializes independent concerns needlessly.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Workflow enforcement: programmatic gates and structured handoffs",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-decompose-parallel", "point": "Where this leads",
+  "stem": "A B2B support agent receives a ticket bundling a billing correction, a seat-count upgrade, and a broken SSO login. Which handling strategy is most effective?",
+  "options": [
+   "Pick the easiest concern, resolve it, and close the ticket",
+   "Force the three concerns through one rigid pipeline where each waits on the last",
+   "Immediately hand the whole ticket to a human without investigating",
+   "Break the ticket into three separate concerns, investigate them concurrently with shared account context, then compose a single coherent reply"
+  ],
+  "answer": 3,
+  "explain": "Decomposing the bundle into distinct concerns, investigating them in parallel with shared context, and synthesizing one reply resolves the whole ticket efficiently. Resolving only the easy one leaves issues open, a rigid sequential pipeline needlessly serializes independent concerns, and immediate escalation skips work the agent can do.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Session state: resumption, forking, and stale context",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-fork-baseline", "point": "Fork a baseline",
+  "stem": "After an agent completes a shared analysis of a codebase, you want to explore two competing refactors — a repository-pattern approach and a service-layer approach — in parallel, without repeating the analysis for each. Which mechanism fits?",
+  "options": [
+   "Resume the same session twice and interleave both refactors in it",
+   "Use fork_session to branch two independent sessions from the shared analysis baseline",
+   "Start two brand-new sessions and re-run the codebase analysis in each",
+   "Set disable_parallel_tool_use and try both refactors sequentially"
+  ],
+  "answer": 1,
+  "explain": "fork_session branches independent copies from a shared baseline, so both refactors explore in parallel without redoing the analysis. Resuming one session interleaves and contaminates the two lines, two fresh sessions waste the analysis, and disable_parallel_tool_use is about tool concurrency, not session branching.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Session state: resumption, forking, and stale context",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-fork-baseline", "point": "Fork a baseline",
+  "stem": "A team wants to compare two testing strategies — a heavy integration-test approach versus a unit-test-first approach — starting from the same completed analysis of a service, exploring each as its own branch. What is the right tool?",
+  "options": [
+   "fork_session, to create independent branches from the shared analysis baseline",
+   "--resume, to continue the single original session for both",
+   "A larger context window to hold both strategies at once",
+   "disable_parallel_tool_use, to keep the branches isolated"
+  ],
+  "answer": 0,
+  "explain": "fork_session creates independent branches from a common baseline, ideal for comparing divergent strategies without redoing the analysis. Resuming one session mixes them, a larger window does not create separate branches, and disable_parallel_tool_use governs tool calls, not sessions.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Session state: resumption, forking, and stale context",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-fork-baseline", "point": "Fork a baseline",
+  "stem": "What does fork_session provide that plain session resumption does not?",
+  "options": [
+   "It automatically refreshes stale tool results with current file contents",
+   "It merges two sessions into one shared context window",
+   "It guarantees lower token cost than any resumed session",
+   "It creates independent branches from a shared baseline, so divergent approaches can be explored in parallel without redoing the common analysis"
+  ],
+  "answer": 3,
+  "explain": "Forking spawns independent branches off a shared baseline for parallel divergent exploration. It does not refresh stale results (that is a reason to start fresh instead), it does not merge sessions, and it makes no blanket cost guarantee.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Session state: resumption, forking, and stale context",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-resume-vs-fresh", "point": "Stale resumption",
+  "stem": "You resume yesterday's investigation session this morning, but overnight a teammate rewrote several of the files the session had analyzed. The session still holds the old tool results. What is the MOST reliable way to proceed?",
+  "options": [
+   "Resume as-is and trust the session's existing analysis",
+   "Fork the session so both the old and new file states coexist",
+   "Start fresh and inject a structured summary of the prior findings, since the old tool results are now stale",
+   "Raise max_tokens so the session can hold both old and new results"
+  ],
+  "answer": 2,
+  "explain": "When prior tool results no longer match the code, starting fresh with an injected summary is more reliable than reasoning over stale results. Resuming as-is reasons over files that no longer exist, forking still carries the stale baseline, and max_tokens does nothing about staleness.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Session state: resumption, forking, and stale context",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-resume-vs-fresh", "point": "Stale resumption",
+  "stem": "You return to a named design session after a break. Nothing in the codebase changed, and the prior tool results are still accurate. Which choice is appropriate?",
+  "options": [
+   "Resume the session, since prior context is mostly valid",
+   "Always start fresh regardless, to be safe",
+   "Fork the session before doing anything else",
+   "Discard the session and re-explore the whole codebase from scratch"
+  ],
+  "answer": 0,
+  "explain": "When prior context is still valid, resuming the session is the efficient and correct choice. Starting fresh or re-exploring throws away good context for no reason, and forking is for exploring divergent branches, not for continuing a single valid session.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Session state: resumption, forking, and stale context",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 3,
+  "group": "d1-resume-vs-fresh", "point": "Where this leads",
+  "stem": "Why is starting a new session with an injected structured summary often more reliable than resuming a prior session whose tool results are stale?",
+  "options": [
+   "Resuming is impossible once any file changes",
+   "A resumed session reasons over outdated tool results as if current, while a fresh session with a curated summary carries only what is still valid",
+   "New sessions always cost fewer tokens than resumed ones",
+   "Summaries are required by the API before any resume"
+  ],
+  "answer": 1,
+  "explain": "Stale tool results in a resumed session are treated as current and mislead the agent, whereas a fresh session seeded with a curated summary carries only valid facts. Resuming is still possible after changes, cost is not the reason, and no API rule forces a summary.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Session state: resumption, forking, and stale context",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-resume-inform", "point": "Named resume",
+  "stem": "You resume a named investigation session with --resume to continue where you left off, but three specific files were edited since. Rather than trusting stale context or re-exploring everything, what is the best move?",
+  "options": [
+   "Trust the session's prior analysis of those files unchanged",
+   "Re-explore the entire codebase from the top to be safe",
+   "Fork the session to preserve the old analysis",
+   "Tell the resumed session exactly which three files changed so it re-analyzes just those targets"
+  ],
+  "answer": 3,
+  "explain": "Informing the resumed session of the specific changed files triggers targeted re-analysis of just those, the efficient middle path. Trusting stale analysis risks reasoning over old contents, full re-exploration wastes effort, and forking is for divergent branches, not for updating changed files.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Session state: resumption, forking, and stale context",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-resume-inform", "point": "Named resume",
+  "stem": "An architect wants to continue a specific prior conversation — 'auth-refactor-investigation' — several days later, exactly where it left off. Which mechanism continues that named session?",
+  "options": [
+   "--resume with the session name, to continue that specific named conversation",
+   "fork_session, which starts a divergent branch instead of continuing",
+   "disable_parallel_tool_use, to reopen the session",
+   "Starting a brand-new session with no reference to the prior one"
+  ],
+  "answer": 0,
+  "explain": "--resume with a session name continues that specific named conversation across work sessions. fork_session branches a new line rather than continuing, disable_parallel_tool_use is unrelated to session continuation, and a brand-new session abandons the prior context entirely.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Guardrails and autonomy: approvals, allowlists, stop conditions",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Stop conditions",
+  "stem": "You want to limit the blast radius of an autonomous coding agent so that a mistaken command cannot damage the host system or spread beyond its work area. Which control MOST directly contains it?",
+  "options": [
+   "A longer, more careful system prompt",
+   "A higher temperature to diversify its actions",
+   "Adding more tools so it has safer alternatives",
+   "Running its execution in a sandbox so a mistake stays contained"
+  ],
+  "answer": 3,
+  "explain": "Sandboxed execution confines the agent's actions so an error stays contained instead of spreading — the direct blast-radius control alongside iteration and budget caps. A longer prompt is advisory, higher temperature increases unpredictability, and more tools widen rather than contain the blast radius.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent evaluation and observability",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-coordinator-refine", "point": "Success criteria",
+  "stem": "A research coordinator's final reports keep missing whole subtopics even though every subagent completes successfully. You want the coordinator to catch and close these coverage gaps. Which pattern achieves this?",
+  "options": [
+   "An iterative refinement loop: the coordinator evaluates the synthesis for coverage gaps, re-delegates targeted queries to the search and analysis subagents, and re-invokes synthesis until coverage is sufficient",
+   "Ship the report as-is and note that some areas may be missing",
+   "Re-run the entire pipeline from scratch on every topic",
+   "Give every subagent access to all tools so any of them can fill gaps"
+  ],
+  "answer": 0,
+  "explain": "The coordinator should evaluate synthesis output against coverage criteria and re-delegate targeted queries to close specific gaps, iterating until coverage holds. Shipping as-is leaves the gaps, a full pipeline re-run is wasteful and may repeat the same omission, and broadening every subagent's tools invites cross-specialization misuse without targeting the gap.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent evaluation and observability",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "group": "d1-coordinator-refine", "point": "Success criteria",
+  "stem": "During synthesis, a coordinator notices the report thoroughly covers two of four required aspects but barely touches the other two. What is the most effective next step?",
+  "options": [
+   "Accept the report, since two aspects are well covered",
+   "Evaluate the synthesis for the specific gaps, then re-delegate targeted queries for the two thin aspects and re-synthesize",
+   "Discard all findings and restart the research from zero",
+   "Ask the synthesis subagent to lengthen the report without new research"
+  ],
+  "answer": 1,
+  "explain": "Identifying the specific gaps and re-delegating targeted queries for just the thin aspects, then re-synthesizing, closes coverage efficiently. Accepting partial coverage fails the goal, restarting from zero discards good work, and padding the report without new research adds words but not coverage.",
+  "source": "skills/questions@opus"
+ },
+ {
+  "kp": "Agent evaluation and observability",
+  "subject": "eecs", "scope": "claude-cert", "type": "choice", "difficulty": 2,
+  "point": "Trace the loop",
+  "stem": "In a multi-agent system, subagents currently message each other directly, and when something goes wrong it is hard to see what happened or handle errors consistently. Which design MOST improves observability and control?",
+  "options": [
+   "Let subagents keep talking peer-to-peer but add more logging inside each one",
+   "Remove the coordinator so there are fewer components to trace",
+   "Route all subagent communication through the coordinator, giving one place for observability, consistent error handling, and controlled information flow",
+   "Have each subagent write to its own separate log with no central view"
+  ],
+  "answer": 2,
+  "explain": "Routing all inter-subagent communication through the coordinator centralizes observability, error handling, and information flow, so the whole system is traceable from one place. Peer-to-peer messaging with extra local logs, removing the coordinator, or scattering logs all leave the flow fragmented and hard to observe.",
+  "source": "skills/questions@opus"
+ }
+]

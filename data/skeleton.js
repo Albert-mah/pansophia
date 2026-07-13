@@ -224,41 +224,65 @@ window.STUDY_SKELETON = [
     ]
   },
 
-  /* ---- Claude 认证备考(CCAR-F Architect Foundations)· 纯英文卡片式微课,考点=考纲域拆分 ---- */
+  /* ---- Claude 认证备考(CCAR-F Architect Foundations)· 纯英文卡片式微课
+        49 考点 = 官方 Exam Guide v1.0(2026-07)全部 30 个 task statement 逐条覆盖 + API 纵深
+        官方蓝图原文:everpath CCAR-F Exam Guide PDF(course_materials 有链) ---- */
   {
     profile: "ma-huan", subject: "eecs", discipline: "cs", scope: "claude-cert", dir: "Claude Certification",
+    mock: { n: 60, minutes: 120, pass: 720 },   // 全真模拟考:对齐 CCAR-F 真实机考(60 题/120 分钟/720 过线,域权重取章节标题百分比)
     topics: [
       { title: "Exam Landscape", points: [
-        { title: "Anthropic certification tracks and exam logistics", status: "todo" } ] },
+        { title: "Anthropic certification tracks and exam logistics", status: "todo" },
+        { title: "The six exam scenarios: what the exam actually tests", status: "todo" } ] },
       { title: "Agentic Architecture & Orchestration (27%)", points: [
         { title: "The agent loop: model, tools, environment", status: "todo" },
-        { title: "Orchestration patterns: single agent, subagents, pipelines", status: "todo" },
-        { title: "Guardrails and autonomy: approvals, allowlists, stop conditions", status: "todo" },
-        { title: "Claude Agent SDK core abstractions", status: "todo" },
         { title: "Workflows versus agents: choosing the right architecture", status: "todo" },
+        { title: "Orchestration patterns: single agent, subagents, pipelines", status: "todo" },
+        { title: "Task decomposition: prompt chaining versus dynamic planning", status: "todo" },
         { title: "Parallel tool calls and multi-turn tool chaining", status: "todo" },
+        { title: "Claude Agent SDK core abstractions", status: "todo" },
+        { title: "Agent SDK hooks: interception and data normalization", status: "todo" },
+        { title: "Workflow enforcement: programmatic gates and structured handoffs", status: "todo" },
+        { title: "Session state: resumption, forking, and stale context", status: "todo" },
+        { title: "Guardrails and autonomy: approvals, allowlists, stop conditions", status: "todo" },
         { title: "Agent evaluation and observability", status: "todo" } ] },
       { title: "Tool Design & MCP Integration (18%)", points: [
         { title: "Tool schema design: descriptions, parameters, misuse resistance", status: "todo" },
+        { title: "Structured tool errors: categories, retryability, recovery", status: "todo" },
+        { title: "Tool distribution and tool_choice configuration", status: "todo" },
         { title: "MCP architecture: hosts, clients, servers, transports", status: "todo" },
         { title: "Integrating external services: auth and error handling", status: "todo" },
         { title: "MCP resources, prompts, and sampling", status: "todo" },
+        { title: "Built-in tools: Grep, Glob, Read, Edit, Bash", status: "todo" },
         { title: "Tool results engineering: size, format, pagination", status: "todo" } ] },
       { title: "Claude Code Configuration & Workflows (20%)", points: [
         { title: "Settings hierarchy and permission modes", status: "todo" },
         { title: "CLAUDE.md, skills, and hooks", status: "todo" },
-        { title: "Headless mode and CI/CD integration", status: "todo" },
+        { title: "CLAUDE.md modularity: @import and .claude/rules/", status: "todo" },
+        { title: "Path-specific rules: glob-scoped conventions", status: "todo" },
+        { title: "Skills and slash commands: frontmatter controls", status: "todo" },
+        { title: "Plan mode versus direct execution", status: "todo" },
+        { title: "Iterative refinement: examples, tests, interview pattern", status: "todo" },
         { title: "Subagents and custom agent types in Claude Code", status: "todo" },
-        { title: "Project MCP servers and configuration scopes", status: "todo" } ] },
+        { title: "Project MCP servers and configuration scopes", status: "todo" },
+        { title: "Headless mode and CI/CD integration", status: "todo" } ] },
       { title: "Prompt Engineering & Structured Output (20%)", points: [
         { title: "System prompts and instruction hierarchy", status: "todo" },
-        { title: "Structured output: JSON mode and forced tool use", status: "todo" },
+        { title: "Explicit criteria: precision and false-positive control", status: "todo" },
         { title: "Few-shot, chain-of-thought, and eval-driven iteration", status: "todo" },
+        { title: "Structured output: JSON mode and forced tool use", status: "todo" },
+        { title: "Validation, retry, and feedback loops", status: "todo" },
+        { title: "Batch processing: the Message Batches API", status: "todo" },
+        { title: "Multi-instance and multi-pass review", status: "todo" },
         { title: "Extended thinking: budgets and when to enable", status: "todo" },
         { title: "Prefill, stop sequences, and output shaping", status: "todo" } ] },
       { title: "Context Management & Reliability (15%)", points: [
         { title: "Context windows and prompt caching", status: "todo" },
         { title: "Long conversations: compaction, externalization, retrieval", status: "todo" },
+        { title: "Escalation and ambiguity resolution", status: "todo" },
+        { title: "Error propagation in multi-agent systems", status: "todo" },
+        { title: "Human review and confidence calibration", status: "todo" },
+        { title: "Information provenance and multi-source synthesis", status: "todo" },
         { title: "Production reliability: retries, rate limits, batching, fallback", status: "todo" },
         { title: "Token budgeting and cost engineering", status: "todo" },
         { title: "RAG versus long context: when to retrieve", status: "todo" } ] }

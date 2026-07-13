@@ -1,0 +1,667 @@
+[
+ {
+  "kp": "Tool schema design: descriptions, parameters, misuse resistance",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d2-desc-system-keywords",
+  "point": "When not what",
+  "stem": "A support agent has well-written descriptions for analyze_document and lookup_order, but production traces show it calls analyze_document whenever a user writes \"analyze my order issue.\" The system prompt says, \"Always analyze content before responding.\" What is the MOST effective next step?",
+  "options": [
+   "Remove examples and edge cases from the tool descriptions",
+   "Shorten both tool descriptions so the tool names carry more weight",
+   "Force analyze_document on every turn so selection is consistent",
+   "Review and revise the system prompt wording so keyword-sensitive instructions do not create unintended tool associations"
+  ],
+  "answer": 3,
+  "explain": "The traces point to keyword-sensitive system wording overriding otherwise good descriptions, so revising that wording directly addresses the misrouting. Shorter descriptions and removing boundaries make selection less reliable, while forcing analyze_document bakes in the wrong behavior.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Structured tool errors: categories, retryability, recovery",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-errors-category-flag",
+  "point": "Four categories",
+  "stem": "An MCP delete_invoice tool rejects a call because the current agent role lacks delete permission. What is the MOST appropriate tool result?",
+  "options": [
+   "A successful empty result, because no invoice was deleted",
+   "A generic Operation failed string with no metadata",
+   "A transient error with isRetryable true so the agent retries",
+   "A tool failure marked with isError and errorCategory permission, plus a readable explanation"
+  ],
+  "answer": 3,
+  "explain": "A permission denial is a tool failure, so it should be marked with isError, categorized as permission, and explained. Empty success hides the access problem, a generic failure blocks recovery decisions, and retrying a permission error wastes attempts.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Structured tool errors: categories, retryability, recovery",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-errors-category-flag",
+  "point": "Generic fails",
+  "stem": "A research subagent returns the same text, Operation failed, for timeouts, invalid query syntax, and policy blocks. The coordinator either retries forever or gives up too early. What change MOST directly fixes the root cause?",
+  "options": [
+   "Hide failures from the coordinator and return partial prose only",
+   "Turn every failure into a valid empty result",
+   "Increase the model's max_tokens so it can reason longer about the generic message",
+   "Add structured error categories and retryability metadata to distinguish recoverable from permanent failures"
+  ],
+  "answer": 3,
+  "explain": "The coordinator needs category and retryability metadata to choose retry, correction, explanation, or escalation. Hiding errors, adding tokens, or marking failures as empty success preserves the ambiguity that caused the bad recovery behavior.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Structured tool errors: categories, retryability, recovery",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-errors-retry-meta",
+  "point": "Structured meta",
+  "stem": "A lookup_order call times out after 10 seconds because the order service is temporarily unavailable. Which error payload best enables the agent to recover?",
+  "options": [
+   "errorCategory transient, isRetryable true, and a readable description of the timeout",
+   "errorCategory business, isRetryable false, and a note that the order violates policy",
+   "A success response with orders as an empty array",
+   "A stack trace from the order service"
+  ],
+  "answer": 0,
+  "explain": "A timeout from an unavailable service is transient and retryable, so the agent can back off and try again. Business metadata is the wrong category, empty success misrepresents the failure, and a stack trace is not actionable recovery guidance.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Structured tool errors: categories, retryability, recovery",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-errors-retry-meta",
+  "point": "Structured meta",
+  "stem": "A process_refund tool rejects a $700 refund because policy requires manager approval above $500. What is the MOST appropriate response to return to the agent?",
+  "options": [
+   "A transient timeout so the agent retries later",
+   "A permission error that tells the agent to try a different customer ID",
+   "A generic Operation failed response to avoid exposing policy details",
+   "A business-rule error with retriable false and a customer-friendly reason explaining the approval requirement"
+  ],
+  "answer": 3,
+  "explain": "A refund above the policy threshold is a non-retryable business violation, so retriable false plus a readable explanation lets the agent escalate or explain. Marking it transient, generic, or as a different-ID permission issue sends the agent down the wrong recovery path.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Structured tool errors: categories, retryability, recovery",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-errors-validation",
+  "point": "Four categories",
+  "stem": "A search_events tool receives date_range: \"next someday\" even though the schema requires ISO 8601 dates. What should the tool return?",
+  "options": [
+   "A validation error naming the bad field and the expected date format",
+   "A business error saying the event is not allowed by policy",
+   "A permission error saying the user cannot access the calendar",
+   "A successful empty result because no date matched"
+  ],
+  "answer": 0,
+  "explain": "Bad input format is a validation error, and naming the field plus expected format lets the model self-correct. Business and permission categories describe different failures, and empty success confuses invalid input with a valid query that found nothing.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Structured tool errors: categories, retryability, recovery",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d2-errors-local-propagate",
+  "point": "Recover, pass on",
+  "stem": "A web-search subagent times out twice, retries locally with backoff, and still has 6 useful partial sources from earlier calls. What should it send back to the coordinator?",
+  "options": [
+   "Only a generic search unavailable status",
+   "Nothing; the coordinator should assume the subagent failed completely",
+   "An empty success result, so synthesis can continue without special handling",
+   "Structured error context with what was attempted, the unresolved transient failure, and the partial sources"
+  ],
+  "answer": 3,
+  "explain": "After local recovery fails, the subagent should propagate structured context and partial results so the coordinator can decide whether to retry, redirect, or proceed with gaps. A generic status, silence, or empty success hides the evidence needed for intelligent recovery.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Structured tool errors: categories, retryability, recovery",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-errors-empty-vs-access",
+  "point": "Recover, pass on",
+  "stem": "A customer lookup runs successfully against the CRM and finds no customer with the provided email. How should the tool represent this outcome?",
+  "options": [
+   "As a valid empty result, not an error, because the query succeeded with no matches",
+   "As a transient error so the agent keeps retrying until a customer appears",
+   "As a permission failure because the agent saw no records",
+   "As a business-rule violation with retriable false"
+  ],
+  "answer": 0,
+  "explain": "A successful query with no matches is a valid empty result, which should prompt clarification or next steps rather than retries. Transient, permission, and business errors each imply a failure mode that did not occur.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Structured tool errors: categories, retryability, recovery",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-errors-empty-vs-access",
+  "point": "Recover, pass on",
+  "stem": "The same customer lookup returns HTTP 403 because the CRM token lacks access to the account segment. Why is treating this as an empty result dangerous?",
+  "options": [
+   "It makes the model choose Glob instead of Grep",
+   "It forces the model to call every configured MCP server",
+   "It guarantees the agent will overuse the Batch API",
+   "It hides an access failure that needs a retry, permission fix, or escalation decision"
+  ],
+  "answer": 3,
+  "explain": "HTTP 403 is an access failure, so the agent needs structured permission context to recover or escalate. Calling it empty success falsely tells the agent the search was valid and complete; the other options describe unrelated tool-selection or batching issues.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool distribution and tool_choice configuration",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-tools-too-many",
+  "point": "Too many tools",
+  "stem": "A single support agent has 18 tools, including billing, refunds, analytics, marketing, and admin utilities. Offline evals show wrong-tool calls are much higher than in an older 5-tool version. What is the MOST likely cause?",
+  "options": [
+   "The agent has too little capability to solve user tasks",
+   "The tool list increased decision complexity, degrading selection reliability",
+   "The transport should be changed from HTTP to stdio",
+   "The system needs more conversational examples instead of tool changes"
+  ],
+  "answer": 1,
+  "explain": "Giving an agent 18 tools instead of a focused 4-5 increases decision complexity and hurts selection reliability. The issue is not missing capability, transport choice, or merely a lack of examples; the tool surface is over-broad.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool distribution and tool_choice configuration",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-tools-too-many",
+  "point": "Too many tools",
+  "stem": "A synthesis subagent is supposed to combine already-collected findings, but after receiving the full web-search toolset it keeps launching new searches and ignoring the supplied evidence. What is the MOST appropriate fix?",
+  "options": [
+   "Give it even more search tools so it can choose better",
+   "Remove all tools from every subagent, including the search agent",
+   "Restrict the synthesis agent to the tools needed for synthesis and route deeper searches through the coordinator",
+   "Force the synthesis agent to call a random tool at least once"
+  ],
+  "answer": 2,
+  "explain": "Tools outside an agent's specialization invite misuse, so the synthesis agent should have only role-relevant tools while complex searches stay with the coordinator/search agent. More search tools, removing all tools, or random forced use do not preserve role boundaries.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool distribution and tool_choice configuration",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-tools-role-scope",
+  "point": "Scope by role",
+  "stem": "A multi-agent research system has search, document-analysis, synthesis, and report-writing agents. Which tool distribution best follows the guidance?",
+  "options": [
+   "Give every agent every tool so no one blocks",
+   "Give each agent only the tools its role needs, with coordination handling cross-role work",
+   "Give only the coordinator tools and make subagents reason without tool access",
+   "Give the report writer admin tools so it can fix data quality problems directly"
+  ],
+  "answer": 1,
+  "explain": "Scoped tool access keeps each agent focused and reduces misuse, while the coordinator handles cross-role routing. All-tools access increases confusion, no subagent tools may block necessary work, and admin tools on a report writer violate separation of concerns.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool distribution and tool_choice configuration",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d2-tools-role-scope",
+  "point": "Scope by role",
+  "stem": "A synthesis agent needs quick fact checks in 85% of cases, but 15% require deep investigation by the search agent. The current coordinator handoff adds several round trips for simple checks. What is the MOST effective design?",
+  "options": [
+   "Give the synthesis agent all web-search tools so it can handle every case itself",
+   "Keep every verification through the coordinator, even simple date and name checks",
+   "Remove verification entirely and trust the initial sources",
+   "Give synthesis a narrow verify_fact tool for the common case and route complex cases through the coordinator"
+  ],
+  "answer": 3,
+  "explain": "A scoped verify_fact tool handles the high-frequency simple case while preserving coordinator routing for complex searches. Full search access over-provisions synthesis, all coordinator handoffs keep unnecessary latency, and skipping verification damages reliability.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool distribution and tool_choice configuration",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-tool-choice-modes",
+  "point": "Choice modes",
+  "stem": "A developer sets tool_choice to auto for a customer-support turn. What behavior should they expect?",
+  "options": [
+   "The model must call exactly one tool",
+   "The model must call a specific named tool",
+   "The model may either call a tool or answer in plain text",
+   "The model will call every available tool in parallel"
+  ],
+  "answer": 2,
+  "explain": "With auto, the model decides whether a tool is needed and may answer in text. any requires some tool call, forced selection requires one named tool, and no mode means call every tool.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool distribution and tool_choice configuration",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-tool-choice-modes",
+  "point": "Choice modes",
+  "stem": "A pipeline accepts any one of several extraction tools, but it must receive a tool call rather than conversational text. Which tool_choice setting is MOST appropriate?",
+  "options": [
+   "auto, because it gives the model permission to skip tools",
+   "any, because the model must call some tool but can choose which one",
+   "A forced selection of a random tool, even when the document type differs",
+   "No tool_choice, because plain text is easier to parse"
+  ],
+  "answer": 1,
+  "explain": "tool_choice any guarantees a tool call while letting the model choose among available schemas. auto may return text, forced random selection can pick the wrong schema, and omitting tool_choice does not meet the structured-call requirement.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool distribution and tool_choice configuration",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-tool-choice-forced",
+  "point": "Choice modes",
+  "stem": "A document pipeline must always call extract_metadata before doing anything else. Which configuration provides the strongest guarantee?",
+  "options": [
+   "Set tool_choice to auto and ask politely in the prompt",
+   "Set tool_choice to any and include extract_metadata in the tool list",
+   "Set tool_choice to a forced selection with type tool and name extract_metadata",
+   "Give extract_metadata the shortest description"
+  ],
+  "answer": 2,
+  "explain": "Forced tool selection with the named extract_metadata tool requires exactly that call. auto and any leave too much discretion, and description length cannot enforce first-step ordering.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool distribution and tool_choice configuration",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d2-tool-choice-forced",
+  "point": "Force first",
+  "stem": "A data-enrichment workflow needs stable document metadata before choosing enrichment tools. What is the MOST appropriate sequencing design?",
+  "options": [
+   "Force extract_metadata first, then use follow-up turns to run enrichment based on the returned metadata",
+   "Let enrichment tools run first and infer metadata from their side effects",
+   "Use tool_choice auto and hope the model chooses metadata before enrichment",
+   "Run every enrichment tool in parallel before metadata exists"
+  ],
+  "answer": 0,
+  "explain": "Forcing extract_metadata first creates a reliable initial structured step, and follow-up turns can use its output to choose enrichment. Running enrichment first, hoping with auto, or parallelizing dependent tools violates the required ordering.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "MCP architecture: hosts, clients, servers, transports",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d2-mcp-multiserver-discovery",
+  "point": "Discovery",
+  "stem": "Claude Code connects to a project Jira MCP server and a user-level GitHub MCP server at startup. How do their capabilities become available to the agent?",
+  "options": [
+   "Only the first connected server is visible until the user restarts Claude Code",
+   "The host discovers tools, resources, and prompts from configured servers at connection time, making them available simultaneously",
+   "The two MCP servers must merge into one process before any tool can be listed",
+   "The model infers tool names from .mcp.json without connecting"
+  ],
+  "answer": 1,
+  "explain": "MCP clients discover each server's advertised tools, resources, and prompts at connection time, and configured servers can be available together. Visibility is not limited to the first server, servers need not merge, and names are not guessed without discovery.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "MCP architecture: hosts, clients, servers, transports",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-mcp-multiserver-discovery",
+  "point": "Three roles",
+  "stem": "An architecture diagram shows one host connected to three MCP servers. Which client layout is correct?",
+  "options": [
+   "A single client multiplexes all three servers over one shared connection",
+   "Each server creates clients inside the host for every tool it exposes",
+   "The host holds three clients, one 1:1 client connection per server",
+   "No clients are needed when servers expose tools"
+  ],
+  "answer": 2,
+  "explain": "The host aggregates multiple clients, with one client connected 1:1 to each MCP server. A single client does not multiplex many servers, servers do not create per-tool clients inside the host, and clients are part of the MCP architecture.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Integrating external services: auth and error handling",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-ext-env-secrets",
+  "point": "Secrets stay out",
+  "stem": "A team commits a project .mcp.json for a shared GitHub MCP server. They need authentication but must keep tokens out of git. Which configuration style is MOST appropriate?",
+  "options": [
+   "Reference an environment variable such as ${GITHUB_TOKEN} from .mcp.json",
+   "Paste the token directly into the server command arguments in .mcp.json",
+   "Put the token in the system prompt so the model can pass it to tools",
+   "Ask every user to paste the token into each request that needs GitHub"
+  ],
+  "answer": 0,
+  "explain": "Environment variable expansion such as ${GITHUB_TOKEN} keeps credentials out of the committed project config while still authenticating the server. Putting secrets in git, prompts, or user messages leaks them into shared files, context, transcripts, or logs.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Integrating external services: auth and error handling",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-ext-env-secrets",
+  "point": "Error results",
+  "stem": "A GitHub MCP server starts but ${GITHUB_TOKEN} is missing, so every repository call receives an authentication failure. What should the tool surface to the agent?",
+  "options": [
+   "A successful empty repository list",
+   "A structured permission/auth error with a readable description, not a crash or silent success",
+   "A transient timeout that retries forever",
+   "The raw token variable name and all local environment variables"
+  ],
+  "answer": 1,
+  "explain": "A missing token is an auth or permission failure and should be surfaced as structured metadata the agent can explain or escalate. Empty success hides the problem, transient retrying is unlikely to fix missing configuration, and dumping environment details risks leaking secrets.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "MCP resources, prompts, and sampling",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d2-mcp-resource-catalogs",
+  "point": "Resources",
+  "stem": "A Jira MCP server exposes thousands of issues. The agent currently burns several tool calls just to learn which projects, labels, and issue summaries exist before choosing a search. What MCP design best reduces those exploratory calls?",
+  "options": [
+   "Expose an application-controlled resource catalog of issue summaries and schema hierarchy that the host can attach as context",
+   "Force the model to call every Jira search tool before answering",
+   "Hide issue metadata until the model guesses the correct project key",
+   "Move all issue summaries into the user prompt manually on every request"
+  ],
+  "answer": 0,
+  "explain": "Resources are application-controlled context, so an issue-summary or schema catalog can give the agent visibility without extra exploratory tool calls. Calling every tool, hiding metadata, or manually pasting everything increases work and context pressure.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "MCP resources, prompts, and sampling",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d2-mcp-resource-catalogs",
+  "point": "Resources",
+  "stem": "A database MCP server can expose table names, relationships, and allowed query fields. The team wants agents to inspect the data shape before deciding which query tool to call. Which primitive fits best?",
+  "options": [
+   "A prompt, because the user controls all schema discovery",
+   "A sampling request, because the server needs an LLM completion",
+   "A resource, because the application can attach schema hierarchy as context",
+   "A transport, because table names are part of HTTP"
+  ],
+  "answer": 2,
+  "explain": "A schema hierarchy is content context controlled by the application, so it fits MCP resources. Prompts are user-invoked templates, sampling asks the client to run an LLM, and transports move messages rather than represent database catalogs.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "MCP resources, prompts, and sampling",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-mcp-prompt-template",
+  "point": "Prompts",
+  "stem": "An incident-management MCP server offers a reusable postmortem template that engineers invoke like a slash command after an outage. Which MCP primitive is this?",
+  "options": [
+   "A model-controlled tool",
+   "An application-controlled resource",
+   "A user-controlled prompt template",
+   "A local stdio transport"
+  ],
+  "answer": 2,
+  "explain": "Reusable templates surfaced for user invocation are MCP prompts. Tools are chosen by the model, resources are attached by the application as context, and stdio is a transport rather than a template primitive.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Built-in tools: Grep, Glob, Read, Edit, Bash",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-builtins-grep-glob",
+  "point": "Which tool",
+  "stem": "A developer needs to find every file that contains the string processRefund, including callers and imports. Which built-in tool is the MOST appropriate first choice?",
+  "options": [
+   "Glob, because it matches filenames by pattern",
+   "Grep, because it searches file contents for names and strings",
+   "Edit, because it can search and replace all callers safely",
+   "Bash, because all code search must happen through shell scripts"
+  ],
+  "answer": 1,
+  "explain": "Grep searches file contents, which is what finding callers and imports requires. Glob matches paths, Edit changes targeted text rather than mapping usage, and Bash is not required when Grep directly solves the content search.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Built-in tools: Grep, Glob, Read, Edit, Bash",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-builtins-grep-glob",
+  "point": "Which tool",
+  "stem": "A test migration needs the list of all TypeScript test files matching **/*.test.tsx before editing any of them. Which built-in tool should be used first?",
+  "options": [
+   "Read, because it loads every matching file into context",
+   "Grep, because it searches inside file contents",
+   "Glob, because it finds file paths by filename pattern",
+   "Edit, because the anchor text is not yet known"
+  ],
+  "answer": 2,
+  "explain": "Glob is the filename/path-pattern tool, so it is the right first step for **/*.test.tsx. Grep searches contents, Read would load files after they are identified, and Edit is for targeted modifications.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Built-in tools: Grep, Glob, Read, Edit, Bash",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-builtins-edit-fallback",
+  "point": "Edit fallback",
+  "stem": "Edit fails because the anchor text \"return null\" appears six times in the file. What is the MOST reliable next step?",
+  "options": [
+   "Retry the same Edit call until one match is chosen",
+   "Use Grep on unrelated files to avoid the ambiguity",
+   "Switch to Glob and rename the file",
+   "Read the full file, make the change with full context, and Write it back"
+  ],
+  "answer": 3,
+  "explain": "Edit needs a unique anchor; when the match is ambiguous, Read plus Write gives full-file context for a reliable modification. Retrying the same ambiguous anchor, searching unrelated files, or renaming the file does not fix the non-unique match.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Built-in tools: Grep, Glob, Read, Edit, Bash",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-builtins-edit-fallback",
+  "point": "Edit fallback",
+  "stem": "A generated patch tries to replace a common import block with Edit, but the tool reports the text is not unique. What should the agent avoid?",
+  "options": [
+   "Reading the whole file before rewriting it",
+   "Keeping a targeted change rather than a broad refactor",
+   "Repeatedly retrying the same non-unique anchor as if it were a transient error",
+   "Using Write after understanding the full file contents"
+  ],
+  "answer": 2,
+  "explain": "A non-unique Edit anchor is not a transient failure, so retrying the same anchor is the wrong recovery. Reading the file and writing a precise full-file update is the recommended fallback, and keeping scope narrow is still good practice.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Built-in tools: Grep, Glob, Read, Edit, Bash",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-builtins-explore-order",
+  "point": "Read-all trap",
+  "stem": "A coding agent enters a large unfamiliar repo and starts reading every source file from top to bottom. Its answers later cite typical framework patterns rather than specific classes in the repo. What exploration strategy would have been better?",
+  "options": [
+   "Start with Grep for entry points and relevant symbols, then Read selected files to follow imports and flows",
+   "Keep reading every file until the full repository is in context",
+   "Use Glob only and infer behavior from filenames",
+   "Skip file reads and rely on the model's general training data"
+  ],
+  "answer": 0,
+  "explain": "Grep-then-Read builds understanding incrementally without flooding context. Reading everything causes context exhaustion, filenames alone are insufficient, and relying on general knowledge is exactly how the agent drifts away from repo-specific facts.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Built-in tools: Grep, Glob, Read, Edit, Bash",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-builtins-explore-order",
+  "point": "Explore in order",
+  "stem": "An agent must understand why \"Invalid coupon\" appears in production. Which sequence best follows built-in tool guidance?",
+  "options": [
+   "Read every file in the repository, then search if context remains",
+   "Grep for the exact error string, Read the matching files, then follow imports and callers",
+   "Glob for **/*.md and inspect documentation only",
+   "Edit the error string first and see which tests fail"
+  ],
+  "answer": 1,
+  "explain": "The error string is content, so Grep finds the concrete entry points; Read then follows the relevant code paths. Reading everything wastes context, docs-only Glob may miss implementation, and editing before understanding is premature.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Built-in tools: Grep, Glob, Read, Edit, Bash",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d2-builtins-wrapper-trace",
+  "point": "Explore in order",
+  "stem": "A wrapper module exports createClient, withRetry, and normalizeError, and the team needs to know how the wrapper is used across the codebase. What is the MOST effective exploration approach?",
+  "options": [
+   "Read the wrapper file only and assume its exports are used together",
+   "List the exported names, then Grep each name across the codebase and Read the relevant callers",
+   "Glob for files with wrapper in the filename and ignore other callers",
+   "Use Edit to rename all three exports before mapping usage"
+  ],
+  "answer": 1,
+  "explain": "For wrapper usage, first identify exported names and then Grep each content symbol across the repo, reading callers as needed. Reading only the wrapper misses usage, filename Glob misses indirect callers, and editing before tracing risks breaking unknown paths.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Built-in tools: Grep, Glob, Read, Edit, Bash",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-builtins-wrapper-trace",
+  "point": "Which tool",
+  "stem": "A developer wants to find every file whose path ends in .config.ts before inspecting their contents. Which tool pairing is MOST appropriate?",
+  "options": [
+   "Glob for **/*.config.ts, then Read selected matches",
+   "Grep for **/*.config.ts, then Edit all matches",
+   "Read the whole repository, then filter mentally",
+   "Bash only, because Glob cannot match filenames"
+  ],
+  "answer": 0,
+  "explain": "Glob finds path patterns such as **/*.config.ts, and Read is used afterward for selected file contents. Grep searches contents, reading the whole repo wastes context, and Glob is specifically for filename/path matching.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool results engineering: size, format, pagination",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-results-trim-fields",
+  "point": "Compact format",
+  "stem": "A lookup_order tool returns 40+ fields per order, but the support policy needs only order id, status, delivery date, return window, and refund eligibility. What is the MOST appropriate result design?",
+  "options": [
+   "Return all fields so the model has maximum context forever",
+   "Return only the decision-relevant fields in compact JSON, with a way to fetch more detail if needed",
+   "Base64-encode the full order object so it appears shorter",
+   "Drop the order id because it is not natural language"
+  ],
+  "answer": 1,
+  "explain": "Tool results enter context and are resent, so compact JSON with only decision-relevant fields preserves context while allowing detail-on-demand. Returning or encoding every field still bloats context, and dropping stable ids harms follow-up calls.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool results engineering: size, format, pagination",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-results-trim-fields",
+  "point": "Results cost",
+  "stem": "A trace shows each loop iteration carries forward a 35K-token raw inventory dump from one earlier tool call, even though the final decision uses two stock counts. What is the main engineering problem?",
+  "options": [
+   "The result consumes context and cost on later turns, crowding out reasoning room",
+   "The tool result is too structured for the model to read",
+   "The model cannot call tools after seeing JSON",
+   "The inventory service is rate-limiting the agent's follow-up calls"
+  ],
+  "answer": 0,
+  "explain": "Verbose tool results are appended to context and resent, so a 35K-token dump creates ongoing cost and context pressure. Structure is not the problem, JSON does not block future tool calls, and nothing in the trace points to rate limiting — the waste is in context, not in call volume.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Tool results engineering: size, format, pagination",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d2-results-detail-on-demand",
+  "point": "Stable ids",
+  "stem": "A list_customers tool may find 2,000 matching customers. The agent usually needs full details for only one or two. What result shape best preserves context?",
+  "options": [
+   "Return every full customer record in one response",
+   "Return only a total count with no way to inspect a customer",
+   "Return compact summaries with stable ids and a cursor, then fetch full details by id on demand",
+   "Return raw database rows as a single unstructured string"
+  ],
+  "answer": 2,
+  "explain": "Compact summaries, stable ids, and pagination let the agent inspect only the records it needs. Returning all details or raw rows floods context, while a count alone prevents useful follow-up.",
+  "source": "skills/questions@codex"
+ }
+]

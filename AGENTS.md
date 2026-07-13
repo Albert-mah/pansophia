@@ -40,6 +40,7 @@
 
 - ★★ **知识卡片管线(2026-07-02 起内容主力)**:考点 → 几分钟一张的卡片(`data/cards.<科目>.js`,纯数据)+ PG 题库配题 + SRS 复习(review 屏)。**规格 = `docs/card-system.md`,操作 = `skills/README.md` 四个 skill(outline→cards→questions→chapter),按里面的门禁走**。长讲解页降级为「深入阅读」层,新内容优先做卡片,不再默认写 HTML 页。
 - 学科一句话说明:`data/disc_notes.js`;名校培养方案:`data/programs.js`(`{school,program?,year?,tag,note?,url?}`);考点大纲:`data/skeleton.js`(绑定 profile)+ `data/skeleton.syllabi.js`(共享,按 subject|scope);讲解页:`subjects/<科目>/<名>.html` + `data/catalog.js` 记录,skeleton 考点写 `ref` 回链;二级方向校订:`data/disc_sub_overrides.js`;现实学科资源:`data/disc_resources.js`;词库:`words.*.js`(脚本生成勿手改)。
+- **全真模拟考**:skeleton 条目挂 `mock: { n, minutes, pass }` 即开(如 claude-cert 60 题/120 分钟/720 过线);组卷按章节标题里的「(27%)」域权重抽题,变体组只取一题,交互题/extra 不进卷;入口在课程页「练」footer,实现在 `screens.js` 的 `MockExamRun`/`buildMockPaper`。注意 `core.js mergeSkeletons` 会重建条目——新加 entry 级字段要在那里透传。
 - ★批量填内容前后跑 `node tools/validate.js`(挡 ref 悬空/重复 id/形状非法)。
 - ★**内容级批量操作建议逐条做 + 校验,不要正则盲改**。
 - 培养方案批量缓存:`python3 tools/cache_programs.py`(抓 programs.js 链接正文存 `library` 表)。

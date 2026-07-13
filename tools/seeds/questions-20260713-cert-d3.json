@@ -1,0 +1,968 @@
+[
+ {
+  "kp": "Settings hierarchy and permission modes",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "point": "Rule types",
+  "stem": "A platform team wants Claude Code to ask for confirmation before any shell command matching Bash(git push:*) runs, while still allowing read-only Bash commands without interruption. What is the MOST appropriate settings rule?",
+  "options": [
+   "Add a deny rule for all Bash commands",
+   "Use bypassPermissions so Claude asks only on git push",
+   "Put a CLAUDE.md sentence saying git push should be confirmed",
+   "Add an ask permission rule with the Bash(git push:*) specifier pattern"
+  ],
+  "answer": 3,
+  "explain": "Permission rules can be allow, ask, or deny and can match a tool plus a specifier such as Bash(git push:*), so an ask rule gates only that risky pattern. bypassPermissions skips prompts, a CLAUDE.md sentence is advisory rather than a settings rule, and denying all Bash commands blocks harmless reads too.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "CLAUDE.md, skills, and hooks",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-skill-ondemand",
+  "point": "Skills",
+  "stem": "A team has a 2,000-line mobile release checklist used only once a month. Adding it to CLAUDE.md makes every ordinary coding session consume extra context. What is the MOST appropriate way to package it?",
+  "options": [
+   "Put it in a Stop hook so it loads after every session",
+   "Package it as a skill with SKILL.md and any supporting assets, loaded when relevant",
+   "Paste it into every release-related user prompt",
+   "Move it into the developer's shell profile"
+  ],
+  "answer": 1,
+  "explain": "A skill is an on-demand instruction pack, so specialized release guidance stays out of the base context until the task needs it. A Stop hook is a lifecycle command, inlining the checklist wastes context, and a shell profile does not provide Claude Code task instructions.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "CLAUDE.md, skills, and hooks",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-skill-ondemand",
+  "point": "CLAUDE.md",
+  "stem": "An engineering organization has security review criteria that must be available in every Claude Code session for every repository change. What is the MOST appropriate home for that standing context?",
+  "options": [
+   "A skill that Claude may or may not load depending on the task",
+   "A PostToolUse hook that runs only after tool calls",
+   "CLAUDE.md, because it is persistent project context loaded each session",
+   "A one-off slash command each developer runs manually"
+  ],
+  "answer": 2,
+  "explain": "CLAUDE.md is the right mechanism for universal standing context because it loads every session. Skills are on demand, hooks fire on lifecycle events rather than holding persistent guidance, and manual slash commands do not ensure the context is present automatically.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "CLAUDE.md modularity: @import and .claude/rules/",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-memory-gap",
+  "point": "New teammate gap",
+  "stem": "A new hire clones the repository and asks Claude Code to review an API change. Unlike the rest of the team, Claude ignores the review checklist. The checklist is found only in the tech lead's ~/.claude/CLAUDE.md. What is the MOST likely cause?",
+  "options": [
+   "The new hire must enable bypassPermissions",
+   "Directory-level CLAUDE.md files override all project-level files",
+   "Claude Code cannot load review checklists from Markdown",
+   "The checklist is user-level memory and is not shared through version control"
+  ],
+  "answer": 3,
+  "explain": "Instructions in ~/.claude/CLAUDE.md are personal and not committed, so teammates who clone the repo never receive them. The issue is not directory override, Markdown support, or a permission mode; shared standards belong in project-level CLAUDE.md.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "CLAUDE.md modularity: @import and .claude/rules/",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-memory-gap",
+  "point": "Three levels",
+  "stem": "A backend team wants every contributor to get the same Claude Code database-migration rules immediately after cloning the repo. Where should those team standards live?",
+  "options": [
+   "~/.claude/CLAUDE.md on the team lead's workstation",
+   ".claude/CLAUDE.md or a root CLAUDE.md committed with the project",
+   "A local untracked note under /tmp",
+   "Only in each developer's personal slash command"
+  ],
+  "answer": 1,
+  "explain": "Project-level CLAUDE.md, either .claude/CLAUDE.md or root CLAUDE.md, is shared through version control and fits team standards. User-level ~/.claude/CLAUDE.md is personal, /tmp is not project memory, and personal commands are not automatically shared.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "CLAUDE.md modularity: @import and .claude/rules/",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-import-package",
+  "point": "Break it up",
+  "stem": "A monorepo has packages for payments, analytics, and mobile. Each package has different maintainer standards, and loading all standards in the root CLAUDE.md confuses unrelated work. What is the MOST appropriate modular design?",
+  "options": [
+   "Keep every standard in one root file and rely on Claude to infer the relevant sections",
+   "Use @import from each package's CLAUDE.md to pull in only the standards file that package needs",
+   "Move all package standards into ~/.claude/CLAUDE.md so they are outside the repo",
+   "Convert the standards into a Stop hook that prints them at session end"
+  ],
+  "answer": 1,
+  "explain": "@import lets a package CLAUDE.md include the external standards that are relevant to that package, keeping context modular. A single monolith adds irrelevant context, user-level memory is not shared, and a Stop hook does not provide instructions during editing.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "CLAUDE.md modularity: @import and .claude/rules/",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-import-package",
+  "point": "Break it up",
+  "stem": "A data package needs SQL naming rules, while the UI package needs React component rules. Both currently inherit a root CLAUDE.md containing all 80 pages of standards. What is the MOST effective way to reduce irrelevant context while keeping standards shared?",
+  "options": [
+   "Disable CLAUDE.md and ask developers to paste standards manually",
+   "Duplicate all 80 pages into every package directory",
+   "Put the SQL and React rules in personal ~/.claude/CLAUDE.md files",
+   "Use package-level CLAUDE.md files that @import the relevant SQL or React standards"
+  ],
+  "answer": 3,
+  "explain": "Package-level CLAUDE.md files with @import keep standards version-controlled while loading only the relevant package guidance. Duplicating the monolith preserves the bloat, personal memory is not shared, and manual pasting is unreliable.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "CLAUDE.md modularity: @import and .claude/rules/",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-rules-split",
+  "point": "Break it up",
+  "stem": "A repository CLAUDE.md has grown into one long file with testing, API, and deployment rules mixed together. The team wants focused files that are easier to maintain. What is the MOST appropriate organization?",
+  "options": [
+   "Delete the project memory and rely on defaults",
+   "Move all rules to the first developer's ~/.claude/CLAUDE.md",
+   "Create focused topic files such as testing.md and api-conventions.md under .claude/rules/",
+   "Put all rules in a single shell script hook"
+  ],
+  "answer": 2,
+  "explain": ".claude/rules/ is meant for focused topic-specific rule files as an alternative to a sprawling CLAUDE.md. Deleting memory loses guidance, user-level memory is not shared, and a hook is for deterministic commands rather than organizing standing standards.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "CLAUDE.md modularity: @import and .claude/rules/",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-rules-split",
+  "point": "Break it up",
+  "stem": "A team reviews a 500-line CLAUDE.md and finds deployment instructions, test fixture conventions, and API error rules interleaved. Which change BEST improves modularity without losing project-shared context?",
+  "options": [
+   "Ask Claude to remember the conventions from previous sessions",
+   "Move the file to ~/.claude/CLAUDE.md so each developer has one copy",
+   "Replace the rules with an allowed-tools list",
+   "Split the content into .claude/rules/deployment.md, testing.md, and api-conventions.md"
+  ],
+  "answer": 3,
+  "explain": "Focused files in .claude/rules/ keep project-shared standards modular and maintainable. Moving to user scope stops sharing through git, allowed-tools controls tools rather than conventions, and relying on prior sessions is not a configuration strategy.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "CLAUDE.md modularity: @import and .claude/rules/",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-memory-diagnose",
+  "point": "Verify loading",
+  "stem": "Claude Code follows the API conventions in one session but not in another. The team suspects a directory-level CLAUDE.md or imported rules file is not loading. What is the MOST appropriate diagnostic command?",
+  "options": [
+   "Run /compact to summarize the conversation",
+   "Run /memory to see which memory files actually loaded",
+   "Run claude -p to force non-interactive mode",
+   "Run /mcp to authenticate remote servers"
+  ],
+  "answer": 1,
+  "explain": "/memory shows which memory files loaded and helps diagnose inconsistent behavior across sessions. /compact manages conversation length, claude -p is for CI and scripting, and /mcp is for MCP server authentication.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "CLAUDE.md modularity: @import and .claude/rules/",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-memory-diagnose",
+  "point": "Verify loading",
+  "stem": "A developer moved standards into .claude/rules/testing.md, but Claude still behaves as if the old monolithic file is loaded. What is the MOST direct way to verify the active memory state?",
+  "options": [
+   "Switch the task from plan mode to bypassPermissions",
+   "Increase the model's max output tokens",
+   "Add a second copy of the rules to every user prompt",
+   "Inspect /memory output for the loaded memory files"
+  ],
+  "answer": 3,
+  "explain": "/memory is the diagnostic tool for checking which memory files are loaded. Token limits do not reveal memory sources, duplicating rules masks the problem, and permission modes do not diagnose loaded CLAUDE.md or rules files.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Path-specific rules: glob-scoped conventions",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-glob-tests",
+  "point": "Scattered files",
+  "stem": "A React codebase keeps test files beside components in dozens of folders, such as Button.test.tsx and Modal.test.tsx. A subdirectory CLAUDE.md misses many of them. What is the MOST maintainable way to load the test conventions automatically?",
+  "options": [
+   "Ask Claude to infer tests from filenames without configuration",
+   "Create a CLAUDE.md only in the first tests/ folder",
+   "Put test conventions in a personal slash command",
+   "Create a .claude/rules/ file with paths: ['**/*.test.tsx']"
+  ],
+  "answer": 3,
+  "explain": "A path-scoped rule with the **/*.test.tsx glob matches tests wherever they live. A folder-bound CLAUDE.md misses scattered files, a personal command is not automatic or shared, and filename inference is less reliable than explicit path scoping.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Path-specific rules: glob-scoped conventions",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-glob-tests",
+  "point": "Beats folders",
+  "stem": "A team tries to enforce one testing style by placing CLAUDE.md under apps/web/tests/, but half the tests are colocated under apps/web/src/**.test.tsx. What is the BEST reason to use a glob-scoped rule instead?",
+  "options": [
+   "Glob rules are folder-bound, just like directory CLAUDE.md files",
+   "Glob rules apply by file type or path pattern, so they can span directories",
+   "Glob rules disable all other project memory",
+   "Glob rules are only for MCP server configuration"
+  ],
+  "answer": 1,
+  "explain": "A glob-scoped rule applies by path pattern, so it can cover scattered tests across many directories. Directory CLAUDE.md files are folder-bound, path rules do not disable other memory, and MCP configuration is unrelated.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Path-specific rules: glob-scoped conventions",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-yaml-paths",
+  "point": "Glob frontmatter",
+  "stem": "A platform team wants Terraform rules to load only when Claude edits infrastructure files under infra/prod or infra/stage. What file shape matches Claude Code's path-specific rule mechanism?",
+  "options": [
+   "A Bash alias that prints the conventions before each command",
+   "A JSON entry in .mcp.json named terraformRules",
+   "A line in ~/.claude/commands/terraform.md listing the directories",
+   "A .claude/rules/ Markdown file with YAML frontmatter containing paths globs such as paths: ['infra/prod/**/*', 'infra/stage/**/*']"
+  ],
+  "answer": 3,
+  "explain": ".claude/rules/ files use YAML frontmatter with a paths field containing glob patterns, so the Terraform rules can be scoped to matching paths. .mcp.json configures MCP servers, command files define slash commands, and Bash aliases do not load Claude Code conventions by edited path.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Path-specific rules: glob-scoped conventions",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-yaml-paths",
+  "point": "Glob frontmatter",
+  "stem": "A rule file under .claude/rules/ should apply to all generated API client files under packages/*/src/client/. Which configuration element is REQUIRED for conditional activation?",
+  "options": [
+   "A command name under ~/.claude/commands/",
+   "A tool_choice value of any",
+   "A matching entry in the project's .mcp.json",
+   "A paths field in YAML frontmatter with a matching glob"
+  ],
+  "answer": 3,
+  "explain": "Conditional rule activation is controlled by YAML frontmatter paths globs. tool_choice is an API tool-selection setting, .mcp.json registers MCP servers rather than conditional conventions, and slash command names do not make rules load by path.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Path-specific rules: glob-scoped conventions",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-token-savings",
+  "point": "Loads on match",
+  "stem": "A repository has long rules for Terraform, React, and SQL. Developers complain that ordinary README edits carry irrelevant technical conventions in context. What is the MOST appropriate use of path-scoped rules?",
+  "options": [
+   "Load every convention in root CLAUDE.md so Claude has maximum context",
+   "Make all rules personal in ~/.claude/CLAUDE.md",
+   "Store rules in .mcp.json so they load only when a server is used",
+   "Put conventions in .claude/rules/ with paths globs so only matching file edits load them"
+  ],
+  "answer": 3,
+  "explain": "Path-scoped .claude/rules/ files load only while editing matching files, keeping unrelated conventions out of context and saving tokens. Root CLAUDE.md always loads them, user memory is personal, and .mcp.json is for MCP servers.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Path-specific rules: glob-scoped conventions",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-token-savings",
+  "point": "Loads on match",
+  "stem": "Claude edits docs/architecture.md, and the repository also has a path-scoped rule whose frontmatter is paths: ['terraform/**/*']. What should happen to that Terraform rule during the docs edit?",
+  "options": [
+   "It should become a slash command",
+   "It should load because all .claude/rules/ files are always active",
+   "It should override the project CLAUDE.md for every file",
+   "It should not load, because the edited path does not match the glob"
+  ],
+  "answer": 3,
+  "explain": "A path-scoped rule loads only when the edited file path matches its glob, so terraform/**/* does not apply to docs/architecture.md. Rules are not all always active, they do not globally override memory for every file, and they are not slash commands.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Path-specific rules: glob-scoped conventions",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-path-vs-skill",
+  "point": "Beats folders",
+  "stem": "A team needs API error-handling conventions to apply to every file named route.ts across apps and packages. Developers should not have to remember to invoke anything manually. What is the MOST appropriate mechanism?",
+  "options": [
+   "A manually invoked skill named api-routes",
+   "A personal ~/.claude/commands/api-route command",
+   "A .claude/rules/ file scoped with a glob such as **/route.ts",
+   "A directory CLAUDE.md in one representative app"
+  ],
+  "answer": 2,
+  "explain": "A glob-scoped .claude/rules/ file applies automatically by path across directories. A skill or personal command requires invocation or is not shared, and one directory CLAUDE.md cannot cover route.ts files scattered elsewhere.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Path-specific rules: glob-scoped conventions",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-path-vs-skill",
+  "point": "Loads on match",
+  "stem": "A security rule should load only when editing files under server/auth/**, not when changing marketing pages. Which benefit does a paths-scoped .claude/rules/ file provide?",
+  "options": [
+   "It forces every Claude Code session into plan mode",
+   "It runs a deterministic shell command before every tool call",
+   "It authenticates remote MCP servers for the auth package",
+   "It keeps the security convention out of context unless the edited path matches"
+  ],
+  "answer": 3,
+  "explain": "Path-scoped rules load conditionally by matching file path, reducing irrelevant context for unrelated edits. They do not change permission mode, run hooks, or authenticate MCP servers.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Skills and slash commands: frontmatter controls",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-command-scope",
+  "point": "Only you have it",
+  "stem": "A developer creates a /security-review command in ~/.claude/commands/. Teammates who clone the repository cannot run it. What is the MOST appropriate fix if the command is meant for the whole team?",
+  "options": [
+   "Rename it to CLAUDE.md",
+   "Tell each teammate to copy it manually from the developer's home directory",
+   "Move the command into the project's .claude/commands/ directory and commit it",
+   "Put it in .mcp.json as a server definition"
+  ],
+  "answer": 2,
+  "explain": "Team-wide slash commands belong in project .claude/commands/ so version control shares them. Manual copying is brittle, CLAUDE.md is for standing context not command definitions, and .mcp.json configures MCP servers.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Skills and slash commands: frontmatter controls",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-command-scope",
+  "point": "Where they live",
+  "stem": "A developer wants a private /notes-cleanup command for their own workflow, but the team should not receive it when pulling the repo. Where should it live?",
+  "options": [
+   "In .claude/commands/ committed to the repository",
+   "In ~/.claude/commands/ as a personal command",
+   "In .claude/rules/ with paths: ['**/*']",
+   "In the root CLAUDE.md file"
+  ],
+  "answer": 1,
+  "explain": "Personal commands live under ~/.claude/commands/ and are not shared via version control. Project commands are for team-wide availability, path rules are conditional conventions, and CLAUDE.md is not the command-definition location.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Skills and slash commands: frontmatter controls",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-context-fork",
+  "point": "Frontmatter",
+  "stem": "A codebase-analysis skill prints thousands of tokens of file inventory and exploratory notes. The main chat then loses track of the user's actual implementation request. Which SKILL.md frontmatter option BEST addresses this?",
+  "options": [
+   "allowed-tools: Bash",
+   "argument-hint: <path>",
+   "context: fork",
+   "paths: ['**/*.ts']"
+  ],
+  "answer": 2,
+  "explain": "context: fork runs the skill in an isolated sub-agent context so verbose exploratory output does not pollute the main conversation. allowed-tools restricts tool access, argument-hint prompts for parameters, and paths belongs to path-scoped rules rather than skill isolation.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Skills and slash commands: frontmatter controls",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-context-fork",
+  "point": "Frontmatter",
+  "stem": "A brainstorming skill explores three architecture alternatives and returns a concise recommendation, but its intermediate notes are too verbose for the main session. What is the MOST appropriate frontmatter control?",
+  "options": [
+   "Use a root CLAUDE.md import for every brainstorm",
+   "Use bypassPermissions so the skill can skip prompts",
+   "Use .mcp.json so the notes are stored as an MCP server",
+   "Use context: fork so exploration runs in an isolated sub-agent context"
+  ],
+  "answer": 3,
+  "explain": "context: fork isolates verbose skill execution and returns only the useful result to the main session. bypassPermissions is a permission mode, .mcp.json configures servers, and always importing brainstorm notes would bloat every session.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Skills and slash commands: frontmatter controls",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-frontmatter-tools",
+  "point": "Frontmatter",
+  "stem": "A repository includes a skill that should update documentation files but must never run deployment commands. Which SKILL.md frontmatter control is MOST directly relevant?",
+  "options": [
+   "argument-hint, because it prevents all destructive actions",
+   "allowed-tools, because it restricts which tools the skill may call",
+   "context: fork, because it defines project command scope",
+   "A paths glob, because skills always activate by edited path"
+  ],
+  "answer": 1,
+  "explain": "allowed-tools restricts the tools available during skill execution, which is the direct control for limiting actions. argument-hint asks for missing parameters, context: fork isolates context, and paths globs are for .claude/rules/ path scoping.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Skills and slash commands: frontmatter controls",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-frontmatter-tools",
+  "point": "Frontmatter",
+  "stem": "A /release-notes skill often fails because developers invoke it without specifying the version range. Which frontmatter field should prompt developers for that missing parameter?",
+  "options": [
+   "tools",
+   "context",
+   "argument-hint",
+   "paths"
+  ],
+  "answer": 2,
+  "explain": "argument-hint is the frontmatter field that prompts for required parameters when a skill is invoked without arguments. tools or allowed-tools controls tool access, context controls execution context, and paths is used for path-specific rules.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Skills and slash commands: frontmatter controls",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-personal-variant",
+  "point": "Where they live",
+  "stem": "A developer wants a more aggressive personal version of the team's refactor skill, but does not want to affect teammates or shadow the project skill unexpectedly. What is the MOST appropriate approach?",
+  "options": [
+   "Create a personal skill variant in ~/.claude/skills/ with a different name",
+   "Edit the project skill directly and do not commit it",
+   "Use the same name in ~/.claude/skills/ so Claude silently merges both skills",
+   "Move the project skill into ~/.claude/skills/ for everyone"
+  ],
+  "answer": 0,
+  "explain": "Personal variants should live in ~/.claude/skills/ with different names so they do not affect teammates or collide with the team skill. Editing project files locally is fragile, same-name shadowing is exactly what to avoid, and moving project skills to user scope stops team sharing.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Skills and slash commands: frontmatter controls",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-personal-variant",
+  "point": "Skill vs always",
+  "stem": "A team has universal API response rules and a rare incident-postmortem workflow. Which split BEST matches Claude Code's loading model?",
+  "options": [
+   "Put both in a skill so neither loads automatically",
+   "Put both in CLAUDE.md so every session gets all details",
+   "Put universal API rules in CLAUDE.md and the rare postmortem workflow in an on-demand skill",
+   "Put universal API rules in ~/.claude/commands/ and the postmortem workflow in .mcp.json"
+  ],
+  "answer": 2,
+  "explain": "CLAUDE.md is always loaded and fits universal standards, while skills load on demand and fit occasional workflows. Putting both in either place either hides always-needed rules or bloats every session, and commands or MCP server config are the wrong mechanisms.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Plan mode versus direct execution",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-plan-architecture",
+  "point": "When to plan",
+  "stem": "A team asks Claude Code to split a monolith into services, choose service boundaries, and update dependencies across dozens of files. What is the MOST appropriate workflow?",
+  "options": [
+   "Use plan mode to explore dependencies and design the approach before editing",
+   "Directly edit files and let service boundaries emerge from errors",
+   "Use bypassPermissions so architectural edits happen faster",
+   "Skip exploration and ask for a longer final answer"
+  ],
+  "answer": 0,
+  "explain": "Plan mode is designed for architectural, multi-file work with multiple valid approaches, such as a monolith-to-services split. Direct editing risks costly rework, bypassPermissions changes approval behavior rather than design quality, and a longer answer does not replace codebase exploration.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Plan mode versus direct execution",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-plan-architecture",
+  "point": "When to plan",
+  "stem": "A library migration affects 48 files and there are two viable integration strategies with different infrastructure requirements. What should Claude Code do FIRST?",
+  "options": [
+   "Pick one strategy randomly and start editing",
+   "Enter plan mode to compare approaches and map the affected files before changes",
+   "Use a single Edit call on the first matching import",
+   "Ask the model to promise not to make mistakes"
+  ],
+  "answer": 1,
+  "explain": "A 45+ file migration with multiple valid approaches calls for plan mode so the design and file impact are understood before edits. Random selection, a first-match edit, or prompt promises do not address the architectural choice or blast radius.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Plan mode versus direct execution",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-direct-single",
+  "point": "When direct",
+  "stem": "A failing test points to one function, and the requested fix is to add a date validation conditional in that same file. What is the MOST appropriate mode?",
+  "options": [
+   "Plan mode, because every code change needs architectural exploration",
+   "An Explore subagent, because single-condition fixes always need isolated discovery",
+   "Direct execution, because the change is scoped and well understood",
+   "A project MCP server, because validation logic is external tooling"
+  ],
+  "answer": 2,
+  "explain": "Direct execution fits a clear, single-file fix with a known stack trace or condition. Plan mode and an Explore subagent add overhead for this scope, and MCP server configuration is unrelated to making a local validation change.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Plan mode versus direct execution",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-direct-single",
+  "point": "When direct",
+  "stem": "A developer asks Claude Code to change one error message string in one component, with the exact file and replacement text provided. What is the MOST appropriate approach?",
+  "options": [
+   "Direct execution of the small, specified edit",
+   "A full plan-mode architecture review",
+   "A forked codebase-analysis skill",
+   "A new .claude/rules/ file"
+  ],
+  "answer": 0,
+  "explain": "A precise one-file text change is well scoped, so direct execution is appropriate. Plan mode and a forked analysis skill are unnecessary discovery, and a path-specific rule configures future conventions rather than applying the requested edit.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Plan mode versus direct execution",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-explore-isolate",
+  "point": "Explore, combine",
+  "stem": "Before a payment refactor, Claude needs to inspect logs, trace imports, and summarize several alternative designs. The discovery output will be verbose, but the main session should stay focused. What is the MOST appropriate pattern?",
+  "options": [
+   "Paste all logs and import traces into the main conversation",
+   "Use the Explore subagent for discovery so it returns a summary to the main context",
+   "Use direct execution and edit the first file discovered",
+   "Disable CLAUDE.md so there is more room for logs"
+  ],
+  "answer": 1,
+  "explain": "The Explore subagent isolates verbose discovery and returns a summary, preserving the main context for planning and execution. Pasting everything bloats the main session, direct execution starts editing too soon, and disabling project context removes useful guidance.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Plan mode versus direct execution",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-explore-isolate",
+  "point": "Explore, combine",
+  "stem": "A migration requires reading many files to understand wrapper modules, but only a short implementation plan should remain in the main thread. Which choice BEST prevents context window exhaustion?",
+  "options": [
+   "Read every candidate file directly in the main conversation",
+   "Ask for JSON output from the main agent",
+   "Delegate verbose discovery to the Explore subagent and keep only its summary",
+   "Use bypassPermissions for the discovery phase"
+  ],
+  "answer": 2,
+  "explain": "The Explore subagent is specifically for isolating verbose discovery output and returning summaries. Reading everything in the main context risks exhaustion, JSON output does not reduce the discovery burden, and bypassPermissions controls approvals rather than context.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Plan mode versus direct execution",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-plan-then-execute",
+  "point": "Explore, combine",
+  "stem": "A team asks for a database client migration. Claude Code first maps usage sites and selects a migration strategy, then the user approves the plan. What is the MOST appropriate next step?",
+  "options": [
+   "Keep planning forever and never edit files",
+   "Throw away the plan and restart in a fresh interactive session",
+   "Switch to direct execution to implement the approved plan",
+   "Move the migration rules into ~/.claude/CLAUDE.md"
+  ],
+  "answer": 2,
+  "explain": "A common pattern is plan mode for investigation and design, then direct execution for the approved implementation. Continuing to plan stalls progress, discarding the plan wastes work, and user-level memory placement is unrelated to carrying out the migration.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Plan mode versus direct execution",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-plan-then-execute",
+  "point": "Costly rework",
+  "stem": "Claude starts directly editing a service-boundary refactor. Halfway through, a hidden dependency forces most changes to be reverted. Which earlier workflow choice would MOST directly have reduced this rework?",
+  "options": [
+   "Plan mode before editing, to explore dependencies and service boundaries",
+   "A lower temperature setting",
+   "A personal slash command for the developer",
+   "A Stop hook at the end of the session"
+  ],
+  "answer": 0,
+  "explain": "Plan mode is meant to surface dependencies and design choices before committing edits, preventing expensive rework in architectural changes. Temperature, personal commands, and Stop hooks do not solve late discovery of service boundaries.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Iterative refinement: examples, tests, interview pattern",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-examples-over-prose",
+  "point": "Show examples",
+  "stem": "A prompt says to normalize dates, but Claude alternates between MM/DD/YYYY and ISO output across runs. What is the MOST effective clarification?",
+  "options": [
+   "Add 2-3 concrete input/output examples showing the exact date transformation",
+   "Add another paragraph saying to be consistent",
+   "Raise temperature so the model explores more formats",
+   "Move the prompt into a user-level CLAUDE.md file"
+  ],
+  "answer": 0,
+  "explain": "Concrete input/output examples pin down the expected transformation more reliably than more prose. A longer description may still be interpreted differently, higher temperature increases variation, and user-level memory does not solve ambiguity.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Iterative refinement: examples, tests, interview pattern",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-examples-over-prose",
+  "point": "Prose drifts",
+  "stem": "A migration prompt says to preserve empty values, but Claude keeps converting null fields to empty strings. Which feedback is MOST likely to fix the edge case?",
+  "options": [
+   "Tell Claude again that nulls are important",
+   "Provide a specific input row containing null and the exact expected output row",
+   "Ask Claude to use a different permission mode",
+   "Put the migration behind a project MCP server"
+  ],
+  "answer": 1,
+  "explain": "A concrete example with null input and expected output communicates the edge case precisely. Repeating prose is the failure mode already observed, permission modes do not define transformation semantics, and MCP server configuration is unrelated.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Iterative refinement: examples, tests, interview pattern",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-tests-first",
+  "point": "Tests and ask",
+  "stem": "A team needs Claude to implement a parser with known edge cases and performance requirements. They want reliable iteration rather than judging by one sample. What should they do FIRST?",
+  "options": [
+   "Write a test suite covering behavior, edge cases, and performance, then share failures while iterating",
+   "Ask Claude to implement first and invent tests after it passes manual inspection",
+   "Use a longer system prompt but no executable checks",
+   "Run the implementation in bypassPermissions"
+  ],
+  "answer": 0,
+  "explain": "Test-driven iteration starts with tests and uses failures as concrete feedback for progressive improvement. Implementing before tests, relying on prose alone, or changing permission prompts does not give the model precise pass/fail guidance.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Iterative refinement: examples, tests, interview pattern",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-tests-first",
+  "point": "Tests and ask",
+  "stem": "Claude's first implementation of a CSV importer fails on quoted newlines and large files. What is the MOST effective next iteration signal?",
+  "options": [
+   "Share the failing tests and outputs so Claude can target the quoted-newline and performance failures",
+   "Say the importer is still wrong without details",
+   "Ask Claude to review its own confidence score",
+   "Move the importer rules from project to user settings"
+  ],
+  "answer": 0,
+  "explain": "Sharing concrete test failures directs the next iteration at the observed behavior, edge case, and performance gaps. Vague feedback, self-confidence, and settings hierarchy changes do not provide actionable implementation signals.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Iterative refinement: examples, tests, interview pattern",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-interview-pattern",
+  "point": "Tests and ask",
+  "stem": "A developer is unfamiliar with cache design and asks Claude to implement a caching layer. They worry they may forget invalidation and failure-mode requirements. What is the MOST appropriate iterative technique?",
+  "options": [
+   "Have Claude interview them first to surface cache invalidation, stale data, and failure-mode decisions",
+   "Demand direct execution with no questions",
+   "Provide only the name of the cache library",
+   "Create a path rule for every source file"
+  ],
+  "answer": 0,
+  "explain": "The interview pattern has Claude ask up-front questions to surface considerations the developer may not have anticipated, such as invalidation and failure modes. Direct execution, a library name, or broad path rules do not elicit missing design decisions.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Iterative refinement: examples, tests, interview pattern",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-interview-pattern",
+  "point": "Tests and ask",
+  "stem": "Before implementing a retry system for payments, a product owner wants Claude to uncover hidden decisions about idempotency, partial failures, and customer messaging. What should the owner ask Claude to do?",
+  "options": [
+   "Ask only for code and forbid clarification questions",
+   "Use the interview pattern to ask design questions before implementation",
+   "Switch the task to headless CI mode",
+   "Add the payment tool to every skill's allowed-tools"
+  ],
+  "answer": 1,
+  "explain": "The interview pattern is intended to surface important considerations before implementation in unfamiliar or high-risk domains. Forbidding questions hides assumptions, headless mode is a CI mechanism, and broad tool access does not clarify design choices.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Iterative refinement: examples, tests, interview pattern",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-batch-or-serial",
+  "point": "Batch or serial",
+  "stem": "A bug report lists three symptoms from the same checkout flow: tax is calculated before discounts, rounding changes the total, and receipt text reflects the wrong total. How should the developer present these issues to Claude?",
+  "options": [
+   "Put the interacting issues in one detailed message so fixes account for each other",
+   "Send three independent one-line prompts and never mention their relationship",
+   "Ask Claude to fix only the receipt text first",
+   "Move all checkout rules to a personal command"
+  ],
+  "answer": 0,
+  "explain": "Interacting problems should be provided together so the solution can account for dependencies among calculation order, rounding, and receipt output. Treating them as isolated prompts may cause fixes to conflict, and personal commands do not address the implementation interaction.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Iterative refinement: examples, tests, interview pattern",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-batch-or-serial",
+  "point": "Batch or serial",
+  "stem": "A developer has four unrelated cleanup requests: rename one variable, fix a typo, adjust one log message, and remove an unused import in separate files. What is the MOST appropriate refinement pattern?",
+  "options": [
+   "Delay all work until an architectural plan exists",
+   "Handle the independent problems sequentially rather than bundling them as interacting constraints",
+   "Create a single broad cache-invalidation interview",
+   "Use /memory to merge them into one loaded rule"
+  ],
+  "answer": 1,
+  "explain": "Independent problems can be handled sequentially because their fixes do not need to account for one another. Plan mode, an interview about unrelated design concerns, or memory diagnostics adds overhead without improving these isolated edits.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Subagents and custom agent types in Claude Code",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-subagent-tools",
+  "point": "Why use them",
+  "stem": "A main agent must investigate five independent modules for migration blockers. Each investigation can run without seeing the others, and the main thread should receive concise findings. What subagent benefit is MOST relevant?",
+  "options": [
+   "Parallel execution with context isolation and narrow tool scoping",
+   "Guaranteed removal of all permission checks",
+   "Shared mutation of the main agent's context window",
+   "Automatic conversion of findings into .mcp.json"
+  ],
+  "answer": 0,
+  "explain": "Subagents can handle independent subtasks in their own contexts, return summaries, and use scoped tool allowlists. They do not remove all permission controls, do not share the main context window, and do not produce MCP config automatically.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Subagents and custom agent types in Claude Code",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-subagent-tools",
+  "point": "What they are",
+  "stem": "A security-review subagent should read code and grep logs but never edit files. Which Claude Code subagent property supports that design?",
+  "options": [
+   "A subagent has its own tool allowlist separate from the main agent",
+   "A subagent always inherits every tool the main agent has",
+   "A subagent can only be used for MCP authentication",
+   "A subagent must share the parent context by reference"
+  ],
+  "answer": 0,
+  "explain": "A subagent is a separate Claude instance with its own tool allowlist, so it can be limited to Read and Grep. It need not inherit all parent tools, is not an MCP authentication mechanism, and does not share the parent context window by reference.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Subagents and custom agent types in Claude Code",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "point": "Precedence",
+  "stem": "A user has a personal planner subagent named reviewer, but this repository defines its own .claude/agents/reviewer.md for code review. During work in this repository, which definition should take precedence?",
+  "options": [
+   "Both definitions are merged into a single agent",
+   "The user-level agent always wins",
+   "The project agent of the same name wins",
+   "No reviewer agent can run until one is deleted"
+  ],
+  "answer": 2,
+  "explain": "A project agent in .claude/agents/ overrides a user agent in ~/.claude/agents/ with the same name. Claude Code does not merge same-name agents, user scope does not win here, and the conflict does not require manual deletion.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Project MCP servers and configuration scopes",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-mcp-project-user",
+  "point": "Project = git",
+  "stem": "A team needs the same Jira MCP server available to everyone who clones the repository, while each developer keeps private experimental servers for their own work. Which configuration split is MOST appropriate?",
+  "options": [
+   "Put the shared Jira server in .mcp.json and personal experimental servers in ~/.claude.json",
+   "Put every server in ~/.claude.json on the team lead's machine",
+   "Commit each developer's private server credentials into .mcp.json",
+   "Define Jira as a slash command under .claude/commands/"
+  ],
+  "answer": 0,
+  "explain": "Project-scope MCP servers live in .mcp.json and are shared through git, while user-scoped personal or experimental servers live in ~/.claude.json. A team lead's user config is not shared, committing private credentials is unsafe, and slash commands are not MCP server definitions.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Project MCP servers and configuration scopes",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 2,
+  "group": "d3-mcp-project-user",
+  "point": "Three scopes",
+  "stem": "A developer wants a private prototype MCP server available across all of their projects, but not shared with teammates. Which scope best fits?",
+  "options": [
+   "Project scope in .mcp.json",
+   "Local scope inside one project only",
+   "User scope in ~/.claude.json",
+   "Directory-level CLAUDE.md"
+  ],
+  "answer": 2,
+  "explain": "User scope makes an MCP server available across that developer's projects without committing it for teammates. Project scope is shared, local scope is limited to one project, and CLAUDE.md holds instructions rather than MCP server registration.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Project MCP servers and configuration scopes",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "point": "Project = git",
+  "stem": "A team needs Jira integration for standard issue lookup and commenting. A maintained community MCP server already supports this standard workflow. What is the MOST appropriate implementation choice?",
+  "options": [
+   "Build a custom MCP server anyway so every standard integration is bespoke",
+   "Use the existing community MCP server, reserving custom servers for team-specific workflows",
+   "Avoid MCP and paste Jira data into every prompt manually",
+   "Store Jira tickets as path-scoped .claude/rules/ files"
+  ],
+  "answer": 1,
+  "explain": "For standard integrations such as Jira, the guide recommends choosing existing community MCP servers and reserving custom implementations for team-specific workflows. Building bespoke duplicates standard work, manual pasting is brittle, and path rules are for conventions rather than live integrations.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Headless mode and CI/CD integration",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-ci-pr-review",
+  "point": "Output formats",
+  "stem": "A GitHub Action runs Claude Code to review pull requests and must post inline comments from structured findings. The pipeline needs machine-parseable output that conforms to a known schema. Which CLI setup is MOST appropriate?",
+  "options": [
+   "Use --verbose and parse human prose with regular expressions",
+   "Use --output-format json with --json-schema for structured findings",
+   "Use interactive Claude Code and wait for a human to copy comments",
+   "Use a root CLAUDE.md sentence asking for valid JSON only"
+  ],
+  "answer": 1,
+  "explain": "--output-format json with --json-schema is the intended way to enforce machine-parseable structured output in CI. Parsing prose is brittle, interactive mode hangs in pipelines, and a prompt request alone is not the CLI structured-output control.",
+  "source": "skills/questions@codex"
+ },
+ {
+  "kp": "Headless mode and CI/CD integration",
+  "subject": "eecs",
+  "scope": "claude-cert",
+  "type": "choice",
+  "difficulty": 3,
+  "group": "d3-ci-pr-review",
+  "point": "CI patterns",
+  "stem": "A CI review job is re-run after a developer pushes fixes. It keeps posting duplicate comments for findings that were already reported, and its generated tests repeat scenarios already covered in the repository. What context should the job provide?",
+  "options": [
+   "Prior review findings with instructions to report only new or still-unaddressed issues, plus existing test files so new tests avoid duplicates",
+   "Only the latest diff, with no prior comments or tests",
+   "The same session that generated the code, so it can review its own changes",
+   "A prompt asking Claude to be less repetitive, with no concrete context"
+  ],
+  "answer": 0,
+  "explain": "CI review reruns should include prior findings and ask for only new or still-open issues, and test generation should see existing tests to avoid duplicate scenarios. A diff alone lacks that history, the generator reviewing its own work is weaker due to session context isolation concerns, and vague anti-repetition prose is less reliable than providing concrete context.",
+  "source": "skills/questions@codex"
+ }
+]
